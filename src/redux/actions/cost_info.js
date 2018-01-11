@@ -6,7 +6,7 @@ import { selectClaimsByUri } from 'redux/selectors/claims';
 export function doFetchCostInfoForUri(uri) {
   return (dispatch, getState) => {
     const state = getState();
-    const claim = null; //selectClaimsByUri(state)[uri];
+    const claim = selectClaimsByUri(state)[uri];
 
     if (!claim) return;
 

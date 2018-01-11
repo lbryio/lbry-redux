@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { selectCurrentParams } from 'redux/selectors/navigation';
+//import { selectCurrentParams } from 'redux/selectors/navigation';
 
 export const selectState = state => state.costInfo || {};
 
@@ -10,7 +10,7 @@ export const makeSelectCostInfoForUri = uri =>
 
 export const selectCostForCurrentPageUri = createSelector(
   selectAllCostInfoByUri,
-  selectCurrentParams,
+  {}/*selectCurrentParams*/,
   (costInfo, params) => (params.uri && costInfo[params.uri] ? costInfo[params.uri].cost : undefined)
 );
 
