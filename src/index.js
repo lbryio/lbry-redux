@@ -1,4 +1,4 @@
-export { lbry } from 'lbry';
-export { lbryio } from 'lbryio';
+export { Lbry } from 'lbry';
+export { LbryApi } from 'lbryapi';
 
 export { costInfoReducer } from 'redux/reducers/cost_info';

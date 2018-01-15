@@ -267,10 +267,6 @@ Lbry.publishDeprecated = function (params, fileListedCallback, publishedCallback
   });
 };
 
-Lbry.imagePath = function (file) {
-  return staticResourcesPath + '/img/' + file;
-};
-
 Lbry.getMediaType = function (contentType, fileName) {
   if (contentType) {
     return (/^[^/]+/.exec(contentType)[0]
@@ -292,15 +288,6 @@ Lbry.getMediaType = function (contentType, fileName) {
     return 'unknown';
   }
   return 'unknown';
-};
-
-Lbry.getAppVersionInfo = function () {
-  return new Promise(function (resolve) {
-    /*ipcRenderer.once('version-info-received', (event, versionInfo) => {
-      resolve(versionInfo);
-    });
-    ipcRenderer.send('version-info-requested');*/
-  });
 };
 
 /**
@@ -397,33 +384,25 @@ exports.default = lbryProxy;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.costInfoReducer = exports.LbryApi = exports.Lbry = undefined;
 
 var _lbry = __webpack_require__(0);
 
-Object.defineProperty(exports, 'lbry', {
-  enumerable: true,
-  get: function get() {
-    return _lbry.lbry;
-  }
-});
+var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryio = __webpack_require__(3);
+var _lbryapi = __webpack_require__(3);
 
-Object.defineProperty(exports, 'lbryio', {
-  enumerable: true,
-  get: function get() {
-    return _lbryio.lbryio;
-  }
-});
+var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
 var _cost_info = __webpack_require__(8);
 
-Object.defineProperty(exports, 'costInfoReducer', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info.costInfoReducer;
-  }
-});
+var _cost_info2 = _interopRequireDefault(_cost_info);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Lbry = exports.Lbry = _lbry2.default;
+var LbryApi = exports.LbryApi = _lbryapi2.default;
+var costInfoReducer = exports.costInfoReducer = _cost_info2.default;
 
 /***/ }),
 /* 2 */
@@ -535,9 +514,7 @@ var _querystring2 = _interopRequireDefault(_querystring);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Lbryio = {
-  enabled: true,
-  authenticationPromise: null,
+var LbryApi = {
   exchangePromise: null,
   exchangeLastFetched: null
 };
@@ -547,10 +524,10 @@ var CONNECTION_STRING = process.env.LBRY_APP_API_URL ? process.env.LBRY_APP_API_
 
 var EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
 
-Lbryio.getExchangeRates = function () {
-  if (!Lbryio.exchangeLastFetched || Date.now() - Lbryio.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
-    Lbryio.exchangePromise = new Promise(function (resolve, reject) {
-      Lbryio.call('lbc', 'exchange_rate', {}, 'get', true).then(function (_ref) {
+LbryApi.getExchangeRates = function () {
+  if (!LbryApi.exchangeLastFetched || Date.now() - LbryApi.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
+    LbryApi.exchangePromise = new Promise(function (resolve, reject) {
+      LbryApi.call('lbc', 'exchange_rate', {}, 'get', true).then(function (_ref) {
         var LBC_USD = _ref.lbc_usd,
             LBC_BTC = _ref.lbc_btc,
             BTC_USD = _ref.btc_usd;
@@ -559,12 +536,12 @@ Lbryio.getExchangeRates = function () {
         resolve(rates);
       }).catch(reject);
     });
-    Lbryio.exchangeLastFetched = Date.now();
+    LbryApi.exchangeLastFetched = Date.now();
   }
-  return Lbryio.exchangePromise;
+  return LbryApi.exchangePromise;
 };
 
-Lbryio.call = function (resource, action) {
+LbryApi.call = function (resource, action) {
   var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   var method = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'get';
 
@@ -597,113 +574,31 @@ Lbryio.call = function (resource, action) {
     return fetch(url, options).then(checkAndParse);
   }
 
-  return Lbryio.getAuthToken().then(function (token) {
-    var fullParams = _extends({ auth_token: token }, params);
-    var qs = _querystring2.default.stringify(fullParams);
-    var url = '' + CONNECTION_STRING + resource + '/' + action + '?' + qs;
+  var fullParams = _extends({}, params);
+  var qs = _querystring2.default.stringify(fullParams);
+  var url = '' + CONNECTION_STRING + resource + '/' + action + '?' + qs;
 
-    var options = {
-      method: 'GET'
+  var options = {
+    method: 'GET'
+  };
+
+  if (method === 'post') {
+    options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: qs
     };
+    url = '' + CONNECTION_STRING + resource + '/' + action;
+  }
 
-    if (method === 'post') {
-      options = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: qs
-      };
-      url = '' + CONNECTION_STRING + resource + '/' + action;
-    }
-
-    return makeRequest(url, options).then(function (response) {
-      return response.data;
-    });
+  return makeRequest(url, options).then(function (response) {
+    return response.data;
   });
 };
 
-Lbryio.authToken = null;
-
-Lbryio.getAuthToken = function () {
-  return new Promise(function (resolve) {
-    if (Lbryio.authToken) {
-      resolve(Lbryio.authToken);
-    } else {
-      /*ipcRenderer.once('auth-token-response', (event, token) => {
-        Lbryio.authToken = token;
-        return resolve(token);
-      });
-      ipcRenderer.send('get-auth-token');*/
-    }
-  });
-};
-
-Lbryio.setAuthToken = function (token) {
-  Lbryio.authToken = token ? token.toString().trim() : null;
-  //ipcRenderer.send('set-auth-token', token);
-};
-
-Lbryio.getCurrentUser = function () {
-  return Lbryio.call('user', 'me');
-};
-
-Lbryio.authenticate = function () {
-  if (!Lbryio.enabled) {
-    return new Promise(function (resolve) {
-      resolve({
-        id: 1,
-        language: 'en',
-        primary_email: 'disabled@lbry.io',
-        has_verified_email: true,
-        is_identity_verified: true,
-        is_reward_approved: false
-      });
-    });
-  }
-
-  if (Lbryio.authenticationPromise === null) {
-    Lbryio.authenticationPromise = new Promise(function (resolve, reject) {
-      Lbryio.getAuthToken().then(function (token) {
-        if (!token || token.length > 60) {
-          return false;
-        }
-
-        // check that token works
-        return Lbryio.getCurrentUser().then(function () {
-          return true;
-        }).catch(function () {
-          return false;
-        });
-      }).then(function (isTokenValid) {
-        if (isTokenValid) {
-          return reject;
-        }
-
-        return _lbry2.default.status().then(function (status) {
-          return Lbryio.call('user', 'new', {
-            auth_token: '',
-            language: 'en',
-            app_id: status.installation_id
-          }, 'post');
-        }).then(function (response) {
-          if (!response.auth_token) {
-            throw new Error(__('auth_token is missing from response'));
-          }
-          return Lbryio.setAuthToken(response.auth_token);
-        });
-      }).then(Lbryio.getCurrentUser).then(resolve, reject);
-    });
-  }
-
-  return Lbryio.authenticationPromise;
-};
-
-Lbryio.getStripeToken = function () {
-  return CONNECTION_STRING.startsWith('http://localhost:') ? 'pk_test_NoL1JWL7i1ipfhVId5KfDZgo' : 'pk_live_e8M4dRNnCCbmpZzduEUZBgJO';
-};
-
-exports.default = Lbryio;
+exports.default = LbryApi;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),

@@ -1,5 +1,5 @@
 import * as ACTIONS from 'constants/action_types';
-import Lbryio from 'lbryio';
+import LbryApi from 'lbryapi';
 import { selectClaimsByUri } from 'redux/selectors/claims';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -30,7 +30,7 @@ export function doFetchCostInfoForUri(uri) {
     } else if (fee.currency === 'LBC') {
       resolve({ cost: fee.amount, includesData: true });
     } else {
-      Lbryio.getExchangeRates().then(({ LBC_USD }) => {
+      LbryApi.getExchangeRates().then(({ LBC_USD }) => {
         resolve({ cost: fee.amount / LBC_USD, includesData: true });
       });
     }
