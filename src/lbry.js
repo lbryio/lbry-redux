@@ -12,19 +12,6 @@ function apiCall(method, params, resolve, reject) {
   return jsonrpc.call(Lbry.daemonConnectionString, method, params, resolve, reject, reject);
 }
 
-const lbryProxy = new Proxy(Lbry, {
-  get(target, name) {
-    if (name in target) {
-      return target[name];
-    }
-
-    return (params = {}) =>
-      new Promise((resolve, reject) => {
-        apiCall(name, params, resolve, reject);
-      });
-  },
-});
-
 function getLocal(key, fallback = undefined) {
   const itemRaw = localStorage.getItem(key);
   return itemRaw === null ? fallback : JSON.parse(itemRaw);
@@ -275,5 +262,18 @@ Lbry.resolve = (params = {}) =>
       reject
     );
   });
+  
+const lbryProxy = new Proxy(Lbry, {
+  get(target, name) {
+    if (name in target) {
+      return target[name];
+    }
+
+    return (params = {}) =>
+      new Promise((resolve, reject) => {
+        apiCall(name, params, resolve, reject);
+      });
+  },
+});
 
 export default lbryProxy;

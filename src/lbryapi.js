@@ -2,6 +2,7 @@ import Lbry from 'lbry';
 import querystring from 'querystring';
 
 const LbryApi = {
+  enabled: true,
   exchangePromise: null,
   exchangeLastFetched: null,
 };
@@ -31,7 +32,7 @@ LbryApi.getExchangeRates = () => {
 };
 
 LbryApi.call = (resource, action, params = {}, method = 'get') => {
-  if (!Lbryio.enabled) {
+  if (!LbryApi.enabled) {
     console.log(__('Internal API disabled'));
     return Promise.reject(new Error(__('LBRY internal API is disabled')));
   }

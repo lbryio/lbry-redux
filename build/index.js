@@ -1,5 +1,14 @@
-module.exports =
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else {
+		var a = factory();
+		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
+	}
+})(typeof self !== 'undefined' ? self : this, function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -61,7 +70,7 @@ module.exports =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -74,8 +83,923 @@ module.exports =
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+var OPEN_MODAL = exports.OPEN_MODAL = 'OPEN_MODAL';
+var CLOSE_MODAL = exports.CLOSE_MODAL = 'CLOSE_MODAL';
+var SHOW_SNACKBAR = exports.SHOW_SNACKBAR = 'SHOW_SNACKBAR';
+var REMOVE_SNACKBAR_SNACK = exports.REMOVE_SNACKBAR_SNACK = 'REMOVE_SNACKBAR_SNACK';
+var WINDOW_FOCUSED = exports.WINDOW_FOCUSED = 'WINDOW_FOCUSED';
+var DAEMON_READY = exports.DAEMON_READY = 'DAEMON_READY';
+var DAEMON_VERSION_MATCH = exports.DAEMON_VERSION_MATCH = 'DAEMON_VERSION_MATCH';
+var DAEMON_VERSION_MISMATCH = exports.DAEMON_VERSION_MISMATCH = 'DAEMON_VERSION_MISMATCH';
+var VOLUME_CHANGED = exports.VOLUME_CHANGED = 'VOLUME_CHANGED';
 
-var _jsonrpc = __webpack_require__(2);
+// Navigation
+var CHANGE_AFTER_AUTH_PATH = exports.CHANGE_AFTER_AUTH_PATH = 'CHANGE_AFTER_AUTH_PATH';
+var WINDOW_SCROLLED = exports.WINDOW_SCROLLED = 'WINDOW_SCROLLED';
+var HISTORY_NAVIGATE = exports.HISTORY_NAVIGATE = 'HISTORY_NAVIGATE';
+
+// Upgrades
+var UPGRADE_CANCELLED = exports.UPGRADE_CANCELLED = 'UPGRADE_CANCELLED';
+var DOWNLOAD_UPGRADE = exports.DOWNLOAD_UPGRADE = 'DOWNLOAD_UPGRADE';
+var UPGRADE_DOWNLOAD_STARTED = exports.UPGRADE_DOWNLOAD_STARTED = 'UPGRADE_DOWNLOAD_STARTED';
+var UPGRADE_DOWNLOAD_COMPLETED = exports.UPGRADE_DOWNLOAD_COMPLETED = 'UPGRADE_DOWNLOAD_COMPLETED';
+var UPGRADE_DOWNLOAD_PROGRESSED = exports.UPGRADE_DOWNLOAD_PROGRESSED = 'UPGRADE_DOWNLOAD_PROGRESSED';
+var CHECK_UPGRADE_AVAILABLE = exports.CHECK_UPGRADE_AVAILABLE = 'CHECK_UPGRADE_AVAILABLE';
+var CHECK_UPGRADE_START = exports.CHECK_UPGRADE_START = 'CHECK_UPGRADE_START';
+var CHECK_UPGRADE_SUCCESS = exports.CHECK_UPGRADE_SUCCESS = 'CHECK_UPGRADE_SUCCESS';
+var CHECK_UPGRADE_FAIL = exports.CHECK_UPGRADE_FAIL = 'CHECK_UPGRADE_FAIL';
+var CHECK_UPGRADE_SUBSCRIBE = exports.CHECK_UPGRADE_SUBSCRIBE = 'CHECK_UPGRADE_SUBSCRIBE';
+var UPDATE_VERSION = exports.UPDATE_VERSION = 'UPDATE_VERSION';
+var UPDATE_REMOTE_VERSION = exports.UPDATE_REMOTE_VERSION = 'UPDATE_REMOTE_VERSION';
+var SKIP_UPGRADE = exports.SKIP_UPGRADE = 'SKIP_UPGRADE';
+var START_UPGRADE = exports.START_UPGRADE = 'START_UPGRADE';
+
+// Wallet
+var GET_NEW_ADDRESS_STARTED = exports.GET_NEW_ADDRESS_STARTED = 'GET_NEW_ADDRESS_STARTED';
+var GET_NEW_ADDRESS_COMPLETED = exports.GET_NEW_ADDRESS_COMPLETED = 'GET_NEW_ADDRESS_COMPLETED';
+var FETCH_TRANSACTIONS_STARTED = exports.FETCH_TRANSACTIONS_STARTED = 'FETCH_TRANSACTIONS_STARTED';
+var FETCH_TRANSACTIONS_COMPLETED = exports.FETCH_TRANSACTIONS_COMPLETED = 'FETCH_TRANSACTIONS_COMPLETED';
+var UPDATE_BALANCE = exports.UPDATE_BALANCE = 'UPDATE_BALANCE';
+var CHECK_ADDRESS_IS_MINE_STARTED = exports.CHECK_ADDRESS_IS_MINE_STARTED = 'CHECK_ADDRESS_IS_MINE_STARTED';
+var CHECK_ADDRESS_IS_MINE_COMPLETED = exports.CHECK_ADDRESS_IS_MINE_COMPLETED = 'CHECK_ADDRESS_IS_MINE_COMPLETED';
+var SET_DRAFT_TRANSACTION_AMOUNT = exports.SET_DRAFT_TRANSACTION_AMOUNT = 'SET_DRAFT_TRANSACTION_AMOUNT';
+var SET_DRAFT_TRANSACTION_ADDRESS = exports.SET_DRAFT_TRANSACTION_ADDRESS = 'SET_DRAFT_TRANSACTION_ADDRESS';
+var SEND_TRANSACTION_STARTED = exports.SEND_TRANSACTION_STARTED = 'SEND_TRANSACTION_STARTED';
+var SEND_TRANSACTION_COMPLETED = exports.SEND_TRANSACTION_COMPLETED = 'SEND_TRANSACTION_COMPLETED';
+var SEND_TRANSACTION_FAILED = exports.SEND_TRANSACTION_FAILED = 'SEND_TRANSACTION_FAILED';
+var FETCH_BLOCK_SUCCESS = exports.FETCH_BLOCK_SUCCESS = 'FETCH_BLOCK_SUCCESS';
+var SUPPORT_TRANSACTION_STARTED = exports.SUPPORT_TRANSACTION_STARTED = 'SUPPORT_TRANSACTION_STARTED';
+var SUPPORT_TRANSACTION_COMPLETED = exports.SUPPORT_TRANSACTION_COMPLETED = 'SUPPORT_TRANSACTION_COMPLETED';
+var SUPPORT_TRANSACTION_FAILED = exports.SUPPORT_TRANSACTION_FAILED = 'SUPPORT_TRANSACTION_FAILED';
+
+// Claims
+var FETCH_FEATURED_CONTENT_STARTED = exports.FETCH_FEATURED_CONTENT_STARTED = 'FETCH_FEATURED_CONTENT_STARTED';
+var FETCH_FEATURED_CONTENT_COMPLETED = exports.FETCH_FEATURED_CONTENT_COMPLETED = 'FETCH_FEATURED_CONTENT_COMPLETED';
+var RESOLVE_URIS_STARTED = exports.RESOLVE_URIS_STARTED = 'RESOLVE_URIS_STARTED';
+var RESOLVE_URIS_COMPLETED = exports.RESOLVE_URIS_COMPLETED = 'RESOLVE_URIS_COMPLETED';
+var FETCH_CHANNEL_CLAIMS_STARTED = exports.FETCH_CHANNEL_CLAIMS_STARTED = 'FETCH_CHANNEL_CLAIMS_STARTED';
+var FETCH_CHANNEL_CLAIMS_COMPLETED = exports.FETCH_CHANNEL_CLAIMS_COMPLETED = 'FETCH_CHANNEL_CLAIMS_COMPLETED';
+var FETCH_CHANNEL_CLAIM_COUNT_STARTED = exports.FETCH_CHANNEL_CLAIM_COUNT_STARTED = 'FETCH_CHANNEL_CLAIM_COUNT_STARTED';
+var FETCH_CHANNEL_CLAIM_COUNT_COMPLETED = exports.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED = 'FETCH_CHANNEL_CLAIM_COUNT_COMPLETED';
+var FETCH_CLAIM_LIST_MINE_STARTED = exports.FETCH_CLAIM_LIST_MINE_STARTED = 'FETCH_CLAIM_LIST_MINE_STARTED';
+var FETCH_CLAIM_LIST_MINE_COMPLETED = exports.FETCH_CLAIM_LIST_MINE_COMPLETED = 'FETCH_CLAIM_LIST_MINE_COMPLETED';
+var ABANDON_CLAIM_STARTED = exports.ABANDON_CLAIM_STARTED = 'ABANDON_CLAIM_STARTED';
+var ABANDON_CLAIM_SUCCEEDED = exports.ABANDON_CLAIM_SUCCEEDED = 'ABANDON_CLAIM_SUCCEEDED';
+var FETCH_CHANNEL_LIST_MINE_STARTED = exports.FETCH_CHANNEL_LIST_MINE_STARTED = 'FETCH_CHANNEL_LIST_MINE_STARTED';
+var FETCH_CHANNEL_LIST_MINE_COMPLETED = exports.FETCH_CHANNEL_LIST_MINE_COMPLETED = 'FETCH_CHANNEL_LIST_MINE_COMPLETED';
+var CREATE_CHANNEL_STARTED = exports.CREATE_CHANNEL_STARTED = 'CREATE_CHANNEL_STARTED';
+var CREATE_CHANNEL_COMPLETED = exports.CREATE_CHANNEL_COMPLETED = 'CREATE_CHANNEL_COMPLETED';
+var PUBLISH_STARTED = exports.PUBLISH_STARTED = 'PUBLISH_STARTED';
+var PUBLISH_COMPLETED = exports.PUBLISH_COMPLETED = 'PUBLISH_COMPLETED';
+var PUBLISH_FAILED = exports.PUBLISH_FAILED = 'PUBLISH_FAILED';
+var SET_PLAYING_URI = exports.SET_PLAYING_URI = 'PLAY_URI';
+
+// Files
+var FILE_LIST_STARTED = exports.FILE_LIST_STARTED = 'FILE_LIST_STARTED';
+var FILE_LIST_SUCCEEDED = exports.FILE_LIST_SUCCEEDED = 'FILE_LIST_SUCCEEDED';
+var FETCH_FILE_INFO_STARTED = exports.FETCH_FILE_INFO_STARTED = 'FETCH_FILE_INFO_STARTED';
+var FETCH_FILE_INFO_COMPLETED = exports.FETCH_FILE_INFO_COMPLETED = 'FETCH_FILE_INFO_COMPLETED';
+var FETCH_COST_INFO_STARTED = exports.FETCH_COST_INFO_STARTED = 'FETCH_COST_INFO_STARTED';
+var FETCH_COST_INFO_COMPLETED = exports.FETCH_COST_INFO_COMPLETED = 'FETCH_COST_INFO_COMPLETED';
+var LOADING_VIDEO_STARTED = exports.LOADING_VIDEO_STARTED = 'LOADING_VIDEO_STARTED';
+var LOADING_VIDEO_COMPLETED = exports.LOADING_VIDEO_COMPLETED = 'LOADING_VIDEO_COMPLETED';
+var LOADING_VIDEO_FAILED = exports.LOADING_VIDEO_FAILED = 'LOADING_VIDEO_FAILED';
+var DOWNLOADING_STARTED = exports.DOWNLOADING_STARTED = 'DOWNLOADING_STARTED';
+var DOWNLOADING_PROGRESSED = exports.DOWNLOADING_PROGRESSED = 'DOWNLOADING_PROGRESSED';
+var DOWNLOADING_COMPLETED = exports.DOWNLOADING_COMPLETED = 'DOWNLOADING_COMPLETED';
+var PLAY_VIDEO_STARTED = exports.PLAY_VIDEO_STARTED = 'PLAY_VIDEO_STARTED';
+var FETCH_AVAILABILITY_STARTED = exports.FETCH_AVAILABILITY_STARTED = 'FETCH_AVAILABILITY_STARTED';
+var FETCH_AVAILABILITY_COMPLETED = exports.FETCH_AVAILABILITY_COMPLETED = 'FETCH_AVAILABILITY_COMPLETED';
+var FILE_DELETE = exports.FILE_DELETE = 'FILE_DELETE';
+
+// Search
+var SEARCH_STARTED = exports.SEARCH_STARTED = 'SEARCH_STARTED';
+var SEARCH_COMPLETED = exports.SEARCH_COMPLETED = 'SEARCH_COMPLETED';
+var SEARCH_CANCELLED = exports.SEARCH_CANCELLED = 'SEARCH_CANCELLED';
+
+// Settings
+var DAEMON_SETTINGS_RECEIVED = exports.DAEMON_SETTINGS_RECEIVED = 'DAEMON_SETTINGS_RECEIVED';
+var CLIENT_SETTING_CHANGED = exports.CLIENT_SETTING_CHANGED = 'CLIENT_SETTING_CHANGED';
+
+// User
+var AUTHENTICATION_STARTED = exports.AUTHENTICATION_STARTED = 'AUTHENTICATION_STARTED';
+var AUTHENTICATION_SUCCESS = exports.AUTHENTICATION_SUCCESS = 'AUTHENTICATION_SUCCESS';
+var AUTHENTICATION_FAILURE = exports.AUTHENTICATION_FAILURE = 'AUTHENTICATION_FAILURE';
+var USER_EMAIL_DECLINE = exports.USER_EMAIL_DECLINE = 'USER_EMAIL_DECLINE';
+var USER_EMAIL_NEW_STARTED = exports.USER_EMAIL_NEW_STARTED = 'USER_EMAIL_NEW_STARTED';
+var USER_EMAIL_NEW_SUCCESS = exports.USER_EMAIL_NEW_SUCCESS = 'USER_EMAIL_NEW_SUCCESS';
+var USER_EMAIL_NEW_EXISTS = exports.USER_EMAIL_NEW_EXISTS = 'USER_EMAIL_NEW_EXISTS';
+var USER_EMAIL_NEW_FAILURE = exports.USER_EMAIL_NEW_FAILURE = 'USER_EMAIL_NEW_FAILURE';
+var USER_EMAIL_VERIFY_STARTED = exports.USER_EMAIL_VERIFY_STARTED = 'USER_EMAIL_VERIFY_STARTED';
+var USER_EMAIL_VERIFY_SUCCESS = exports.USER_EMAIL_VERIFY_SUCCESS = 'USER_EMAIL_VERIFY_SUCCESS';
+var USER_EMAIL_VERIFY_FAILURE = exports.USER_EMAIL_VERIFY_FAILURE = 'USER_EMAIL_VERIFY_FAILURE';
+var USER_IDENTITY_VERIFY_STARTED = exports.USER_IDENTITY_VERIFY_STARTED = 'USER_IDENTITY_VERIFY_STARTED';
+var USER_IDENTITY_VERIFY_SUCCESS = exports.USER_IDENTITY_VERIFY_SUCCESS = 'USER_IDENTITY_VERIFY_SUCCESS';
+var USER_IDENTITY_VERIFY_FAILURE = exports.USER_IDENTITY_VERIFY_FAILURE = 'USER_IDENTITY_VERIFY_FAILURE';
+var USER_FETCH_STARTED = exports.USER_FETCH_STARTED = 'USER_FETCH_STARTED';
+var USER_FETCH_SUCCESS = exports.USER_FETCH_SUCCESS = 'USER_FETCH_SUCCESS';
+var USER_FETCH_FAILURE = exports.USER_FETCH_FAILURE = 'USER_FETCH_FAILURE';
+var USER_INVITE_STATUS_FETCH_STARTED = exports.USER_INVITE_STATUS_FETCH_STARTED = 'USER_INVITE_STATUS_FETCH_STARTED';
+var USER_INVITE_STATUS_FETCH_SUCCESS = exports.USER_INVITE_STATUS_FETCH_SUCCESS = 'USER_INVITE_STATUS_FETCH_SUCCESS';
+var USER_INVITE_STATUS_FETCH_FAILURE = exports.USER_INVITE_STATUS_FETCH_FAILURE = 'USER_INVITE_STATUS_FETCH_FAILURE';
+var USER_INVITE_NEW_STARTED = exports.USER_INVITE_NEW_STARTED = 'USER_INVITE_NEW_STARTED';
+var USER_INVITE_NEW_SUCCESS = exports.USER_INVITE_NEW_SUCCESS = 'USER_INVITE_NEW_SUCCESS';
+var USER_INVITE_NEW_FAILURE = exports.USER_INVITE_NEW_FAILURE = 'USER_INVITE_NEW_FAILURE';
+var FETCH_ACCESS_TOKEN_SUCCESS = exports.FETCH_ACCESS_TOKEN_SUCCESS = 'FETCH_ACCESS_TOKEN_SUCCESS';
+
+// Rewards
+var FETCH_REWARDS_STARTED = exports.FETCH_REWARDS_STARTED = 'FETCH_REWARDS_STARTED';
+var FETCH_REWARDS_COMPLETED = exports.FETCH_REWARDS_COMPLETED = 'FETCH_REWARDS_COMPLETED';
+var CLAIM_REWARD_STARTED = exports.CLAIM_REWARD_STARTED = 'CLAIM_REWARD_STARTED';
+var CLAIM_REWARD_SUCCESS = exports.CLAIM_REWARD_SUCCESS = 'CLAIM_REWARD_SUCCESS';
+var CLAIM_REWARD_FAILURE = exports.CLAIM_REWARD_FAILURE = 'CLAIM_REWARD_FAILURE';
+var CLAIM_REWARD_CLEAR_ERROR = exports.CLAIM_REWARD_CLEAR_ERROR = 'CLAIM_REWARD_CLEAR_ERROR';
+var FETCH_REWARD_CONTENT_COMPLETED = exports.FETCH_REWARD_CONTENT_COMPLETED = 'FETCH_REWARD_CONTENT_COMPLETED';
+
+// Language
+var DOWNLOAD_LANGUAGE_SUCCEEDED = exports.DOWNLOAD_LANGUAGE_SUCCEEDED = 'DOWNLOAD_LANGUAGE_SUCCEEDED';
+var DOWNLOAD_LANGUAGE_FAILED = exports.DOWNLOAD_LANGUAGE_FAILED = 'DOWNLOAD_LANGUAGE_FAILED';
+
+// ShapeShift
+var GET_SUPPORTED_COINS_START = exports.GET_SUPPORTED_COINS_START = 'GET_SUPPORTED_COINS_START';
+var GET_SUPPORTED_COINS_SUCCESS = exports.GET_SUPPORTED_COINS_SUCCESS = 'GET_SUPPORTED_COINS_SUCCESS';
+var GET_SUPPORTED_COINS_FAIL = exports.GET_SUPPORTED_COINS_FAIL = 'GET_SUPPORTED_COINS_FAIL';
+var GET_COIN_STATS_START = exports.GET_COIN_STATS_START = 'GET_COIN_STATS_START';
+var GET_COIN_STATS_SUCCESS = exports.GET_COIN_STATS_SUCCESS = 'GET_COIN_STATS_SUCCESS';
+var GET_COIN_STATS_FAIL = exports.GET_COIN_STATS_FAIL = 'GET_COIN_STATS_FAIL';
+var PREPARE_SHAPE_SHIFT_START = exports.PREPARE_SHAPE_SHIFT_START = 'PREPARE_SHAPE_SHIFT_START';
+var PREPARE_SHAPE_SHIFT_SUCCESS = exports.PREPARE_SHAPE_SHIFT_SUCCESS = 'PREPARE_SHAPE_SHIFT_SUCCESS';
+var PREPARE_SHAPE_SHIFT_FAIL = exports.PREPARE_SHAPE_SHIFT_FAIL = 'PREPARE_SHAPE_SHIFT_FAIL';
+var GET_ACTIVE_SHIFT_START = exports.GET_ACTIVE_SHIFT_START = 'GET_ACTIVE_SHIFT_START';
+var GET_ACTIVE_SHIFT_SUCCESS = exports.GET_ACTIVE_SHIFT_SUCCESS = 'GET_ACTIVE_SHIFT_SUCCESS';
+var GET_ACTIVE_SHIFT_FAIL = exports.GET_ACTIVE_SHIFT_FAIL = 'GET_ACTIVE_SHIFT_FAIL';
+var CLEAR_SHAPE_SHIFT = exports.CLEAR_SHAPE_SHIFT = 'CLEAR_SHAPE_SHIFT';
+
+// Subscriptions
+var CHANNEL_SUBSCRIBE = exports.CHANNEL_SUBSCRIBE = 'CHANNEL_SUBSCRIBE';
+var CHANNEL_UNSUBSCRIBE = exports.CHANNEL_UNSUBSCRIBE = 'CHANNEL_UNSUBSCRIBE';
+var HAS_FETCHED_SUBSCRIPTIONS = exports.HAS_FETCHED_SUBSCRIPTIONS = 'HAS_FETCHED_SUBSCRIPTIONS';
+
+// Video controls
+var SET_VIDEO_PAUSE = exports.SET_VIDEO_PAUSE = 'SET_VIDEO_PAUSE';
+
+// Media controls
+var MEDIA_PLAY = exports.MEDIA_PLAY = 'MEDIA_PLAY';
+var MEDIA_PAUSE = exports.MEDIA_PAUSE = 'MEDIA_PAUSE';
+var MEDIA_POSITION = exports.MEDIA_POSITION = 'MEDIA_POSITION';
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var CHANNEL_NAME_MIN_LEN = 1;
+var CLAIM_ID_MAX_LEN = 40;
+
+var Lbryuri = {};
+
+Lbryuri.REGEXP_INVALID_URI = /[^A-Za-z0-9-]/g;
+Lbryuri.REGEXP_ADDRESS = /^b(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
+
+/**
+ * Parses a LBRY name into its component parts. Throws errors with user-friendly
+ * messages for invalid names.
+ *
+ * N.B. that "name" indicates the value in the name position of the URI. For
+ * claims for channel content, this will actually be the channel name, and
+ * the content name is in the path (e.g. lbry://@channel/content)
+ *
+ * In most situations, you'll want to use the contentName and channelName keys
+ * and ignore the name key.
+ *
+ * Returns a dictionary with keys:
+ *   - name (string): The value in the "name" position in the URI. Note that this
+ *                    could be either content name or channel name; see above.
+ *   - path (string, if persent)
+ *   - claimSequence (int, if present)
+ *   - bidPosition (int, if present)
+ *   - claimId (string, if present)
+ *   - isChannel (boolean)
+ *   - contentName (string): For anon claims, the name; for channel claims, the path
+ *   - channelName (string, if present): Channel name without @
+ */
+Lbryuri.parse = function (uri) {
+  var requireProto = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+  // Break into components. Empty sub-matches are converted to null
+  var componentsRegex = new RegExp('^((?:lbry://)?)' + // protocol
+  '([^:$#/]*)' + // name (stops at the first separator or end)
+  '([:$#]?)([^/]*)' + // modifier separator, modifier (stops at the first path separator or end)
+  '(/?)(.*)' // path separator, path
+  );
+
+  var _componentsRegex$exec = componentsRegex.exec(uri).slice(1).map(function (match) {
+    return match || null;
+  }),
+      _componentsRegex$exec2 = _slicedToArray(_componentsRegex$exec, 6),
+      proto = _componentsRegex$exec2[0],
+      name = _componentsRegex$exec2[1],
+      modSep = _componentsRegex$exec2[2],
+      modVal = _componentsRegex$exec2[3],
+      pathSep = _componentsRegex$exec2[4],
+      path = _componentsRegex$exec2[5];
+
+  var contentName = void 0;
+
+  // Validate protocol
+  if (requireProto && !proto) {
+    throw new Error(__('LBRY URIs must include a protocol prefix (lbry://).'));
+  }
+
+  // Validate and process name
+  if (!name) {
+    throw new Error(__('URI does not include name.'));
+  }
+
+  var isChannel = name.startsWith('@');
+  var channelName = isChannel ? name.slice(1) : name;
+
+  if (isChannel) {
+    if (!channelName) {
+      throw new Error(__('No channel name after @.'));
+    }
+
+    if (channelName.length < CHANNEL_NAME_MIN_LEN) {
+      throw new Error(__('Channel names must be at least %s characters.', CHANNEL_NAME_MIN_LEN));
+    }
+
+    contentName = path;
+  }
+
+  var nameBadChars = (channelName || name).match(Lbryuri.REGEXP_INVALID_URI);
+  if (nameBadChars) {
+    throw new Error(__('Invalid character %s in name: %s.', nameBadChars.length === 1 ? '' : 's', nameBadChars.join(', ')));
+  }
+
+  // Validate and process modifier (claim ID, bid position or claim sequence)
+  var claimId = void 0;
+  var claimSequence = void 0;
+  var bidPosition = void 0;
+  if (modSep) {
+    if (!modVal) {
+      throw new Error(__('No modifier provided after separator %s.', modSep));
+    }
+
+    if (modSep === '#') {
+      claimId = modVal;
+    } else if (modSep === ':') {
+      claimSequence = modVal;
+    } else if (modSep === '$') {
+      bidPosition = modVal;
+    }
+  }
+
+  if (claimId && (claimId.length > CLAIM_ID_MAX_LEN || !claimId.match(/^[0-9a-f]+$/)) && !claimId.match(/^pending/) // ought to be dropped when savePendingPublish drops hack
+  ) {
+      throw new Error(__('Invalid claim ID %s.', claimId));
+    }
+
+  if (claimSequence && !claimSequence.match(/^-?[1-9][0-9]*$/)) {
+    throw new Error(__('Claim sequence must be a number.'));
+  }
+
+  if (bidPosition && !bidPosition.match(/^-?[1-9][0-9]*$/)) {
+    throw new Error(__('Bid position must be a number.'));
+  }
+
+  // Validate and process path
+  if (path) {
+    if (!isChannel) {
+      throw new Error(__('Only channel URIs may have a path.'));
+    }
+
+    var pathBadChars = path.match(Lbryuri.REGEXP_INVALID_URI);
+    if (pathBadChars) {
+      throw new Error(__('Invalid character in path: %s', pathBadChars.join(', ')));
+    }
+
+    contentName = path;
+  } else if (pathSep) {
+    throw new Error(__('No path provided after /'));
+  }
+
+  return _extends({
+    name: name,
+    path: path,
+    isChannel: isChannel
+  }, contentName ? { contentName: contentName } : {}, channelName ? { channelName: channelName } : {}, claimSequence ? { claimSequence: parseInt(claimSequence, 10) } : {}, bidPosition ? { bidPosition: parseInt(bidPosition, 10) } : {}, claimId ? { claimId: claimId } : {}, path ? { path: path } : {});
+};
+
+/**
+ * Takes an object in the same format returned by lbryuri.parse() and builds a URI.
+ *
+ * The channelName key will accept names with or without the @ prefix.
+ */
+Lbryuri.build = function (uriObj) {
+  var includeProto = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+  var claimId = uriObj.claimId,
+      claimSequence = uriObj.claimSequence,
+      bidPosition = uriObj.bidPosition,
+      contentName = uriObj.contentName,
+      channelName = uriObj.channelName;
+  var name = uriObj.name,
+      path = uriObj.path;
+
+
+  if (channelName) {
+    var channelNameFormatted = channelName.startsWith('@') ? channelName : '@' + channelName;
+    if (!name) {
+      name = channelNameFormatted;
+    } else if (name !== channelNameFormatted) {
+      throw new Error(__('Received a channel content URI, but name and channelName do not match. "name" represents the value in the name position of the URI (lbry://name...), which for channel content will be the channel name. In most cases, to construct a channel URI you should just pass channelName and contentName.'));
+    }
+  }
+
+  if (contentName) {
+    if (!name) {
+      name = contentName;
+    } else if (!path) {
+      path = contentName;
+    }
+    if (path && path !== contentName) {
+      throw new Error(__('Path and contentName do not match. Only one is required; most likely you wanted contentName.'));
+    }
+  }
+
+  return (includeProto ? 'lbry://' : '') + name + (claimId ? '#' + claimId : '') + (claimSequence ? ':' + claimSequence : '') + (bidPosition ? '' + bidPosition : '') + (path ? '/' + path : '');
+};
+
+/* Takes a parseable LBRY URI and converts it to standard, canonical format (currently this just
+ * consists of adding the lbry:// prefix if needed) */
+Lbryuri.normalize = function (uri) {
+  if (uri.match(/pending_claim/)) return uri;
+
+  var _Lbryuri$parse = Lbryuri.parse(uri),
+      name = _Lbryuri$parse.name,
+      path = _Lbryuri$parse.path,
+      bidPosition = _Lbryuri$parse.bidPosition,
+      claimSequence = _Lbryuri$parse.claimSequence,
+      claimId = _Lbryuri$parse.claimId;
+
+  return Lbryuri.build({ name: name, path: path, claimSequence: claimSequence, bidPosition: bidPosition, claimId: claimId });
+};
+
+Lbryuri.isValid = function (uri) {
+  var parts = void 0;
+  try {
+    parts = Lbryuri.parse(Lbryuri.normalize(uri));
+  } catch (error) {
+    return false;
+  }
+  return parts && parts.name;
+};
+
+Lbryuri.isValidName = function (name) {
+  var checkCase = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+  var regexp = new RegExp('^[a-z0-9-]+$', checkCase ? '' : 'i');
+  return regexp.test(name);
+};
+
+Lbryuri.isClaimable = function (uri) {
+  var parts = void 0;
+  try {
+    parts = Lbryuri.parse(Lbryuri.normalize(uri));
+  } catch (error) {
+    return false;
+  }
+  return parts && parts.name && !parts.claimId && !parts.bidPosition && !parts.claimSequence && !parts.isChannel && !parts.path;
+};
+
+if (window) {
+  window.lbryuri = Lbryuri;
+}
+exports.default = Lbryuri;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.makeSelectIsUriResolving = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.selectAllFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.makeSelectClaimForUri = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = undefined;
+
+var _lbryuri = __webpack_require__(1);
+
+var _lbryuri2 = _interopRequireDefault(_lbryuri);
+
+var _navigation = __webpack_require__(3);
+
+var _reselect = __webpack_require__(4);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var selectState = function selectState(state) {
+  return state.claims || {};
+};
+
+var selectClaimsById = exports.selectClaimsById = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.byId || {};
+});
+
+var selectClaimsByUri = exports.selectClaimsByUri = (0, _reselect.createSelector)(selectState, selectClaimsById, function (state, byId) {
+  var byUri = state.claimsByUri || {};
+  var claims = {};
+
+  Object.keys(byUri).forEach(function (uri) {
+    var claimId = byUri[uri];
+
+    // NOTE returning a null claim allows us to differentiate between an
+    // undefined (never fetched claim) and one which just doesn't exist. Not
+    // the cleanest solution but couldn't think of anything better right now
+    if (claimId === null) {
+      claims[uri] = null;
+    } else {
+      claims[uri] = byId[claimId];
+    }
+  });
+
+  return claims;
+});
+
+var selectAllClaimsByChannel = exports.selectAllClaimsByChannel = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.claimsByChannel || {};
+});
+
+var makeSelectClaimForUri = exports.makeSelectClaimForUri = function makeSelectClaimForUri(uri) {
+  return (0, _reselect.createSelector)(selectClaimsByUri, function (claims) {
+    return claims && claims[_lbryuri2.default.normalize(uri)];
+  });
+};
+
+var selectMyClaimsRaw = exports.selectMyClaimsRaw = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.myClaims;
+});
+
+var selectAbandoningIds = exports.selectAbandoningIds = (0, _reselect.createSelector)(selectState, function (state) {
+  return Object.keys(state.abandoningById || {});
+});
+
+var selectMyActiveClaims = exports.selectMyActiveClaims = (0, _reselect.createSelector)(selectMyClaimsRaw, selectAbandoningIds, function (claims, abandoningIds) {
+  return new Set(claims && claims.map(function (claim) {
+    return claim.claim_id;
+  }).filter(function (claimId) {
+    return Object.keys(abandoningIds).indexOf(claimId) === -1;
+  }));
+});
+
+var makeSelectClaimIsMine = exports.makeSelectClaimIsMine = function makeSelectClaimIsMine(rawUri) {
+  var uri = _lbryuri2.default.normalize(rawUri);
+  return (0, _reselect.createSelector)(selectClaimsByUri, selectMyActiveClaims, function (claims, myClaims) {
+    return claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id);
+  });
+};
+
+var selectAllFetchingChannelClaims = exports.selectAllFetchingChannelClaims = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.fetchingChannelClaims || {};
+});
+
+var makeSelectFetchingChannelClaims = exports.makeSelectFetchingChannelClaims = function makeSelectFetchingChannelClaims(uri) {
+  return (0, _reselect.createSelector)(selectAllFetchingChannelClaims, function (fetching) {
+    return fetching && fetching[uri];
+  });
+};
+
+var makeSelectClaimsInChannelForCurrentPage = exports.makeSelectClaimsInChannelForCurrentPage = function makeSelectClaimsInChannelForCurrentPage(uri) {
+  var pageSelector = (0, _navigation.makeSelectCurrentParam)('page');
+
+  return (0, _reselect.createSelector)(selectClaimsById, selectAllClaimsByChannel, pageSelector, function (byId, allClaims, page) {
+    var byChannel = allClaims[uri] || {};
+    var claimIds = byChannel[page || 1];
+
+    if (!claimIds) return claimIds;
+
+    return claimIds.map(function (claimId) {
+      return byId[claimId];
+    });
+  });
+};
+
+var makeSelectMetadataForUri = exports.makeSelectMetadataForUri = function makeSelectMetadataForUri(uri) {
+  return (0, _reselect.createSelector)(makeSelectClaimForUri(uri), function (claim) {
+    var metadata = claim && claim.value && claim.value.stream && claim.value.stream.metadata;
+
+    return metadata || (claim === undefined ? undefined : null);
+  });
+};
+
+var makeSelectTitleForUri = exports.makeSelectTitleForUri = function makeSelectTitleForUri(uri) {
+  return (0, _reselect.createSelector)(makeSelectMetadataForUri(uri), function (metadata) {
+    return metadata && metadata.title;
+  });
+};
+
+var makeSelectContentTypeForUri = exports.makeSelectContentTypeForUri = function makeSelectContentTypeForUri(uri) {
+  return (0, _reselect.createSelector)(makeSelectClaimForUri(uri), function (claim) {
+    var source = claim && claim.value && claim.value.stream && claim.value.stream.source;
+    return source ? source.contentType : undefined;
+  });
+};
+
+var selectIsFetchingClaimListMine = exports.selectIsFetchingClaimListMine = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.isFetchingClaimListMine;
+});
+
+var selectPendingClaims = exports.selectPendingClaims = (0, _reselect.createSelector)(selectState, function (state) {
+  return Object.values(state.pendingById || {});
+});
+
+var selectMyClaims = exports.selectMyClaims = (0, _reselect.createSelector)(selectMyActiveClaims, selectClaimsById, selectAbandoningIds, selectPendingClaims, function (myClaimIds, byId, abandoningIds, pendingClaims) {
+  var claims = [];
+
+  myClaimIds.forEach(function (id) {
+    var claim = byId[id];
+
+    if (claim && abandoningIds.indexOf(id) === -1) claims.push(claim);
+  });
+
+  return [].concat(claims, _toConsumableArray(pendingClaims));
+});
+
+var selectMyClaimsWithoutChannels = exports.selectMyClaimsWithoutChannels = (0, _reselect.createSelector)(selectMyClaims, function (myClaims) {
+  return myClaims.filter(function (claim) {
+    return !claim.name.match(/^@/);
+  });
+});
+
+var selectAllMyClaimsByOutpoint = exports.selectAllMyClaimsByOutpoint = (0, _reselect.createSelector)(selectMyClaimsRaw, function (claims) {
+  return new Set(claims && claims.length ? claims.map(function (claim) {
+    return claim.txid + ':' + claim.nout;
+  }) : null);
+});
+
+var selectMyClaimsOutpoints = exports.selectMyClaimsOutpoints = (0, _reselect.createSelector)(selectMyClaims, function (myClaims) {
+  var outpoints = [];
+
+  myClaims.forEach(function (claim) {
+    return outpoints.push(claim.txid + ':' + claim.nout);
+  });
+
+  return outpoints;
+});
+
+var selectFetchingMyChannels = exports.selectFetchingMyChannels = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.fetchingMyChannels;
+});
+
+var selectMyChannelClaims = exports.selectMyChannelClaims = (0, _reselect.createSelector)(selectState, selectClaimsById, function (state, byId) {
+  var ids = state.myChannelClaims || [];
+  var claims = [];
+
+  ids.forEach(function (id) {
+    if (byId[id]) {
+      // I'm not sure why this check is necessary, but it ought to be a quick fix for https://github.com/lbryio/lbry-app/issues/544
+      claims.push(byId[id]);
+    }
+  });
+
+  return claims;
+});
+
+var selectResolvingUris = exports.selectResolvingUris = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.resolvingUris || [];
+});
+
+var makeSelectIsUriResolving = exports.makeSelectIsUriResolving = function makeSelectIsUriResolving(uri) {
+  return (0, _reselect.createSelector)(selectResolvingUris, function (resolvingUris) {
+    return resolvingUris && resolvingUris.indexOf(uri) !== -1;
+  });
+};
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.makeSelectCurrentParam = exports.selectCurrentParams = exports.selectCurrentPage = exports.computePageFromPath = exports.selectCurrentPath = exports.selectState = undefined;
+
+var _reselect = __webpack_require__(4);
+
+var _query_params = __webpack_require__(7);
+
+var _lbryuri = __webpack_require__(1);
+
+var _lbryuri2 = _interopRequireDefault(_lbryuri);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var selectState = exports.selectState = function selectState(state) {
+  return state.navigation || {};
+};
+
+var selectCurrentPath = exports.selectCurrentPath = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.currentPath;
+});
+
+var computePageFromPath = exports.computePageFromPath = function computePageFromPath(path) {
+  return path.replace(/^\//, '').split('?')[0];
+};
+
+var selectCurrentPage = exports.selectCurrentPage = (0, _reselect.createSelector)(selectCurrentPath, function (path) {
+  return computePageFromPath(path);
+});
+
+var selectCurrentParams = exports.selectCurrentParams = (0, _reselect.createSelector)(selectCurrentPath, function (path) {
+  if (path === undefined) return {};
+  if (!path.match(/\?/)) return {};
+
+  return (0, _query_params.parseQueryParams)(path.split('?')[1]);
+});
+
+var makeSelectCurrentParam = exports.makeSelectCurrentParam = function makeSelectCurrentParam(param) {
+  return (0, _reselect.createSelector)(selectCurrentParams, function (params) {
+    return params ? params[param] : undefined;
+  });
+};
+
+var selectHeaderLinks = exports.selectHeaderLinks = (0, _reselect.createSelector)(selectCurrentPage, function (page) {
+  // This contains intentional fall throughs
+  switch (page) {
+    case 'wallet':
+    case 'history':
+    case 'send':
+    case 'getcredits':
+    case 'invite':
+    case 'rewards':
+    case 'backup':
+      return {
+        wallet: __('Overview'),
+        getcredits: __('Get Credits'),
+        send: __('Send / Receive'),
+        rewards: __('Rewards'),
+        invite: __('Invites'),
+        history: __('History')
+      };
+    case 'downloaded':
+    case 'published':
+      return {
+        downloaded: __('Downloaded'),
+        published: __('Published')
+      };
+    case 'settings':
+    case 'help':
+      return {
+        settings: __('Settings'),
+        help: __('Help')
+      };
+    case 'discover':
+    case 'subscriptions':
+      return {
+        discover: __('Discover'),
+        subscriptions: __('Subscriptions')
+      };
+    default:
+      return null;
+  }
+});
+
+var selectPageTitle = exports.selectPageTitle = (0, _reselect.createSelector)(selectCurrentPage, selectCurrentParams, function (page, params) {
+  switch (page) {
+    case 'settings':
+      return __('Settings');
+    case 'report':
+      return __('Report');
+    case 'wallet':
+      return __('Wallet');
+    case 'send':
+      return __('Send or Receive LBRY Credits');
+    case 'getcredits':
+      return __('Get LBRY Credits');
+    case 'backup':
+      return __('Backup Your Wallet');
+    case 'rewards':
+      return __('Rewards');
+    case 'invite':
+      return __('Invites');
+    case 'start':
+      return __('Start');
+    case 'publish':
+      return params.id ? __('Edit') : __('Publish');
+    case 'help':
+      return __('Help');
+    case 'developer':
+      return __('Developer');
+    case 'show':
+      {
+        var parts = [_lbryuri2.default.normalize(params.uri)];
+        // If the params has any keys other than "uri"
+        if (Object.keys(params).length > 1) {
+          parts.push((0, _query_params.toQueryString)(Object.assign({}, params, { uri: null })));
+        }
+        return parts.join('?');
+      }
+    case 'downloaded':
+      return __('Downloads & Purchases');
+    case 'published':
+      return __('Publications');
+    case 'search':
+      return params.query ? __('Search results for %s', params.query) : __('Search');
+    case 'subscriptions':
+      return __('Your Subscriptions');
+    case 'discover':
+    case false:
+    case null:
+    case '':
+      return '';
+    default:
+      return page[0].toUpperCase() + (page.length > 0 ? page.substr(1) : '');
+  }
+});
+
+var selectPathAfterAuth = exports.selectPathAfterAuth = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.pathAfterAuth;
+});
+
+var selectIsBackDisabled = exports.selectIsBackDisabled = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.index === 0;
+});
+
+var selectIsForwardDisabled = exports.selectIsForwardDisabled = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.index === state.stack.length - 1;
+});
+
+var selectHistoryIndex = exports.selectHistoryIndex = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.index;
+});
+
+var selectHistoryStack = exports.selectHistoryStack = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.stack;
+});
+
+// returns current page attributes (scrollY, path)
+var selectActiveHistoryEntry = exports.selectActiveHistoryEntry = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.stack[state.index];
+});
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.defaultMemoize = defaultMemoize;
+exports.createSelectorCreator = createSelectorCreator;
+exports.createStructuredSelector = createStructuredSelector;
+function defaultEqualityCheck(a, b) {
+  return a === b;
+}
+
+function areArgumentsShallowlyEqual(equalityCheck, prev, next) {
+  if (prev === null || next === null || prev.length !== next.length) {
+    return false;
+  }
+
+  // Do this in a for loop (and not a `forEach` or an `every`) so we can determine equality as fast as possible.
+  var length = prev.length;
+  for (var i = 0; i < length; i++) {
+    if (!equalityCheck(prev[i], next[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function defaultMemoize(func) {
+  var equalityCheck = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultEqualityCheck;
+
+  var lastArgs = null;
+  var lastResult = null;
+  // we reference arguments instead of spreading them for performance reasons
+  return function () {
+    if (!areArgumentsShallowlyEqual(equalityCheck, lastArgs, arguments)) {
+      // apply arguments instead of spreading for performance.
+      lastResult = func.apply(null, arguments);
+    }
+
+    lastArgs = arguments;
+    return lastResult;
+  };
+}
+
+function getDependencies(funcs) {
+  var dependencies = Array.isArray(funcs[0]) ? funcs[0] : funcs;
+
+  if (!dependencies.every(function (dep) {
+    return typeof dep === 'function';
+  })) {
+    var dependencyTypes = dependencies.map(function (dep) {
+      return typeof dep;
+    }).join(', ');
+    throw new Error('Selector creators expect all input-selectors to be functions, ' + ('instead received the following types: [' + dependencyTypes + ']'));
+  }
+
+  return dependencies;
+}
+
+function createSelectorCreator(memoize) {
+  for (var _len = arguments.length, memoizeOptions = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    memoizeOptions[_key - 1] = arguments[_key];
+  }
+
+  return function () {
+    for (var _len2 = arguments.length, funcs = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      funcs[_key2] = arguments[_key2];
+    }
+
+    var recomputations = 0;
+    var resultFunc = funcs.pop();
+    var dependencies = getDependencies(funcs);
+
+    var memoizedResultFunc = memoize.apply(undefined, [function () {
+      recomputations++;
+      // apply arguments instead of spreading for performance.
+      return resultFunc.apply(null, arguments);
+    }].concat(memoizeOptions));
+
+    // If a selector is called with the exact same arguments we don't need to traverse our dependencies again.
+    var selector = defaultMemoize(function () {
+      var params = [];
+      var length = dependencies.length;
+
+      for (var i = 0; i < length; i++) {
+        // apply arguments instead of spreading and mutate a local list of params for performance.
+        params.push(dependencies[i].apply(null, arguments));
+      }
+
+      // apply arguments instead of spreading for performance.
+      return memoizedResultFunc.apply(null, params);
+    });
+
+    selector.resultFunc = resultFunc;
+    selector.recomputations = function () {
+      return recomputations;
+    };
+    selector.resetRecomputations = function () {
+      return recomputations = 0;
+    };
+    return selector;
+  };
+}
+
+var createSelector = exports.createSelector = createSelectorCreator(defaultMemoize);
+
+function createStructuredSelector(selectors) {
+  var selectorCreator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : createSelector;
+
+  if (typeof selectors !== 'object') {
+    throw new Error('createStructuredSelector expects first argument to be an object ' + ('where each property is a selector, instead received a ' + typeof selectors));
+  }
+  var objectKeys = Object.keys(selectors);
+  return selectorCreator(objectKeys.map(function (key) {
+    return selectors[key];
+  }), function () {
+    for (var _len3 = arguments.length, values = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      values[_key3] = arguments[_key3];
+    }
+
+    return values.reduce(function (composition, value, index) {
+      composition[objectKeys[index]] = value;
+      return composition;
+    }, {});
+  });
+}
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _jsonrpc = __webpack_require__(11);
 
 var _jsonrpc2 = _interopRequireDefault(_jsonrpc);
 
@@ -94,21 +1018,6 @@ var Lbry = {
 function apiCall(method, params, resolve, reject) {
   return _jsonrpc2.default.call(Lbry.daemonConnectionString, method, params, resolve, reject, reject);
 }
-
-var lbryProxy = new Proxy(Lbry, {
-  get: function get(target, name) {
-    if (name in target) {
-      return target[name];
-    }
-
-    return function () {
-      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      return new Promise(function (resolve, reject) {
-        apiCall(name, params, resolve, reject);
-      });
-    };
-  }
-});
 
 function getLocal(key) {
   var fallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
@@ -372,10 +1281,25 @@ Lbry.resolve = function () {
   });
 };
 
+var lbryProxy = new Proxy(Lbry, {
+  get: function get(target, name) {
+    if (name in target) {
+      return target[name];
+    }
+
+    return function () {
+      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      return new Promise(function (resolve, reject) {
+        apiCall(name, params, resolve, reject);
+      });
+    };
+  }
+});
+
 exports.default = lbryProxy;
 
 /***/ }),
-/* 1 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -384,28 +1308,845 @@ exports.default = lbryProxy;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.costInfoReducer = exports.LbryApi = exports.Lbry = undefined;
 
-var _lbry = __webpack_require__(0);
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+exports.doResolveUris = doResolveUris;
+exports.doResolveUri = doResolveUri;
+exports.doFetchClaimListMine = doFetchClaimListMine;
+exports.doAbandonClaim = doAbandonClaim;
+
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+var _lbry = __webpack_require__(5);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryapi = __webpack_require__(3);
+var _lbryuri = __webpack_require__(1);
 
-var _lbryapi2 = _interopRequireDefault(_lbryapi);
+var _lbryuri2 = _interopRequireDefault(_lbryuri);
 
-var _cost_info = __webpack_require__(8);
-
-var _cost_info2 = _interopRequireDefault(_cost_info);
+var _claims = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Lbry = exports.Lbry = _lbry2.default;
-var LbryApi = exports.LbryApi = _lbryapi2.default;
-var costInfoReducer = exports.costInfoReducer = _cost_info2.default;
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function doResolveUris(uris) {
+  return function (dispatch, getState) {
+    var normalizedUris = uris.map(_lbryuri2.default.normalize);
+    var state = getState();
+
+    // Filter out URIs that are already resolving
+    var resolvingUris = (0, _claims.selectResolvingUris)(state);
+    var urisToResolve = normalizedUris.filter(function (uri) {
+      return !resolvingUris.includes(uri);
+    });
+
+    if (urisToResolve.length === 0) {
+      return;
+    }
+
+    dispatch({
+      type: ACTIONS.RESOLVE_URIS_STARTED,
+      data: { uris: normalizedUris }
+    });
+
+    var resolveInfo = {};
+    _lbry2.default.resolve({ uris: urisToResolve }).then(function (result) {
+      Object.entries(result).forEach(function (_ref) {
+        var _ref2 = _slicedToArray(_ref, 2),
+            uri = _ref2[0],
+            uriResolveInfo = _ref2[1];
+
+        var fallbackResolveInfo = {
+          claim: null,
+          claimsInChannel: null,
+          certificate: null
+        };
+
+        var _ref3 = uriResolveInfo && !uriResolveInfo.error ? uriResolveInfo : fallbackResolveInfo,
+            claim = _ref3.claim,
+            certificate = _ref3.certificate,
+            claimsInChannel = _ref3.claims_in_channel;
+
+        resolveInfo[uri] = { claim: claim, certificate: certificate, claimsInChannel: claimsInChannel };
+      });
+
+      dispatch({
+        type: ACTIONS.RESOLVE_URIS_COMPLETED,
+        data: { resolveInfo: resolveInfo }
+      });
+    });
+  };
+}
+
+function doResolveUri(uri) {
+  return doResolveUris([uri]);
+}
+
+function doFetchClaimListMine() {
+  return function (dispatch) {
+    dispatch({
+      type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED
+    });
+
+    _lbry2.default.claim_list_mine().then(function (claims) {
+      dispatch({
+        type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
+        data: {
+          claims: claims
+        }
+      });
+    });
+  };
+}
+
+function doAbandonClaim(txid, nout) {
+  return function (dispatch, getState) {
+    var state = getState();
+    var myClaims = selectMyClaimsRaw(state);
+
+    var _myClaims$find = myClaims.find(function (claim) {
+      return claim.txid === txid && claim.nout === nout;
+    }),
+        claimId = _myClaims$find.claim_id,
+        name = _myClaims$find.name;
+
+    dispatch({
+      type: ACTIONS.ABANDON_CLAIM_STARTED,
+      data: {
+        claimId: claimId
+      }
+    });
+
+    var errorCallback = function errorCallback() {
+      dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
+    };
+
+    var successCallback = function successCallback(results) {
+      if (results.txid) {
+        dispatch({
+          type: ACTIONS.ABANDON_CLAIM_SUCCEEDED,
+          data: {
+            claimId: claimId
+          }
+        });
+        dispatch(doResolveUri(_lbryuri2.default.build({ name: name, claimId: claimId })));
+        dispatch(doFetchClaimListMine());
+      } else {
+        dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
+      }
+    };
+
+    _lbry2.default.claim_abandon({
+      txid: txid,
+      nout: nout
+    }).then(successCallback, errorCallback);
+  };
+}
 
 /***/ }),
-/* 2 */
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+exports.parseQueryParams = parseQueryParams;
+exports.toQueryString = toQueryString;
+function parseQueryParams(queryString) {
+  if (queryString === '') return {};
+  var parts = queryString.split('?').pop().split('&').map(function (p) {
+    return p.split('=');
+  });
+
+  var params = {};
+  parts.forEach(function (array) {
+    var _array = _slicedToArray(array, 2),
+        first = _array[0],
+        second = _array[1];
+
+    params[first] = second;
+  });
+  return params;
+}
+
+function toQueryString(params) {
+  if (!params) return '';
+
+  var parts = [];
+  Object.keys(params).forEach(function (key) {
+    if (Object.prototype.hasOwnProperty.call(params, key) && params[key]) {
+      parts.push(key + '=' + params[key]);
+    }
+  });
+
+  return parts.join('&');
+}
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _lbry = __webpack_require__(5);
+
+var _lbry2 = _interopRequireDefault(_lbry);
+
+var _querystring = __webpack_require__(14);
+
+var _querystring2 = _interopRequireDefault(_querystring);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var LbryApi = {
+  enabled: true,
+  exchangePromise: null,
+  exchangeLastFetched: null
+};
+
+var CONNECTION_STRING = process.env.LBRY_APP_API_URL ? process.env.LBRY_APP_API_URL.replace(/\/*$/, '/') // exactly one slash at the end
+: 'https://api.lbry.io/';
+
+var EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
+
+LbryApi.getExchangeRates = function () {
+  if (!LbryApi.exchangeLastFetched || Date.now() - LbryApi.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
+    LbryApi.exchangePromise = new Promise(function (resolve, reject) {
+      LbryApi.call('lbc', 'exchange_rate', {}, 'get', true).then(function (_ref) {
+        var LBC_USD = _ref.lbc_usd,
+            LBC_BTC = _ref.lbc_btc,
+            BTC_USD = _ref.btc_usd;
+
+        var rates = { LBC_USD: LBC_USD, LBC_BTC: LBC_BTC, BTC_USD: BTC_USD };
+        resolve(rates);
+      }).catch(reject);
+    });
+    LbryApi.exchangeLastFetched = Date.now();
+  }
+  return LbryApi.exchangePromise;
+};
+
+LbryApi.call = function (resource, action) {
+  var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var method = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'get';
+
+  if (!LbryApi.enabled) {
+    console.log(__('Internal API disabled'));
+    return Promise.reject(new Error(__('LBRY internal API is disabled')));
+  }
+
+  if (!(method === 'get' || method === 'post')) {
+    return Promise.reject(new Error(__('Invalid method')));
+  }
+
+  function checkAndParse(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response.json();
+    }
+    return response.json().then(function (json) {
+      var error = void 0;
+      if (json.error) {
+        error = new Error(json.error);
+      } else {
+        error = new Error('Unknown API error signature');
+      }
+      error.response = response; // This is primarily a hack used in actions/user.js
+      return Promise.reject(error);
+    });
+  }
+
+  function makeRequest(url, options) {
+    return fetch(url, options).then(checkAndParse);
+  }
+
+  var fullParams = _extends({}, params);
+  var qs = _querystring2.default.stringify(fullParams);
+  var url = '' + CONNECTION_STRING + resource + '/' + action + '?' + qs;
+
+  var options = {
+    method: 'GET'
+  };
+
+  if (method === 'post') {
+    options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: qs
+    };
+    url = '' + CONNECTION_STRING + resource + '/' + action;
+  }
+
+  return makeRequest(url, options).then(function (response) {
+    return response.data;
+  });
+};
+
+exports.default = LbryApi;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.makeSelectLoadingForUri = exports.selectUrisLoading = exports.makeSelectDownloadingForUri = exports.selectDownloadingByOutpoint = exports.makeSelectFileInfoForUri = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.selectState = undefined;
+
+var _claims = __webpack_require__(2);
+
+var _reselect = __webpack_require__(4);
+
+var selectState = exports.selectState = function selectState(state) {
+  return state.fileInfo || {};
+};
+
+var selectFileInfosByOutpoint = exports.selectFileInfosByOutpoint = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.byOutpoint || {};
+});
+
+var selectIsFetchingFileList = exports.selectIsFetchingFileList = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.isFetchingFileList;
+});
+
+var selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileListDownloadedOrPublished = (0, _reselect.createSelector)(selectIsFetchingFileList, _claims.selectIsFetchingClaimListMine, function (isFetchingFileList, isFetchingClaimListMine) {
+  return isFetchingFileList || isFetchingClaimListMine;
+});
+
+var makeSelectFileInfoForUri = exports.makeSelectFileInfoForUri = function makeSelectFileInfoForUri(uri) {
+  return (0, _reselect.createSelector)(_claims.selectClaimsByUri, selectFileInfosByOutpoint, function (claims, byOutpoint) {
+    var claim = claims[uri];
+    var outpoint = claim ? claim.txid + ':' + claim.nout : undefined;
+
+    return outpoint ? byOutpoint[outpoint] : undefined;
+  });
+};
+
+var selectDownloadingByOutpoint = exports.selectDownloadingByOutpoint = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.downloadingByOutpoint || {};
+});
+
+var makeSelectDownloadingForUri = exports.makeSelectDownloadingForUri = function makeSelectDownloadingForUri(uri) {
+  return (0, _reselect.createSelector)(selectDownloadingByOutpoint, makeSelectFileInfoForUri(uri), function (byOutpoint, fileInfo) {
+    if (!fileInfo) return false;
+    return byOutpoint[fileInfo.outpoint];
+  });
+};
+
+var selectUrisLoading = exports.selectUrisLoading = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.urisLoading || {};
+});
+
+var makeSelectLoadingForUri = exports.makeSelectLoadingForUri = function makeSelectLoadingForUri(uri) {
+  return (0, _reselect.createSelector)(selectUrisLoading, function (byUri) {
+    return byUri && byUri[uri];
+  });
+};
+
+var selectFileInfosDownloaded = exports.selectFileInfosDownloaded = (0, _reselect.createSelector)(selectFileInfosByOutpoint, _claims.selectMyClaims, function (byOutpoint, myClaims) {
+  return Object.values(byOutpoint).filter(function (fileInfo) {
+    var myClaimIds = myClaims.map(function (claim) {
+      return claim.claim_id;
+    });
+
+    return fileInfo && myClaimIds.indexOf(fileInfo.claim_id) === -1 && (fileInfo.completed || fileInfo.written_bytes);
+  });
+});
+
+// export const selectFileInfoForUri = (state, props) => {
+//   const claims = selectClaimsByUri(state),
+//     claim = claims[props.uri],
+//     fileInfos = selectAllFileInfos(state),
+//     outpoint = claim ? `${claim.txid}:${claim.nout}` : undefined;
+
+//   return outpoint && fileInfos ? fileInfos[outpoint] : undefined;
+// };
+
+var selectDownloadingFileInfos = exports.selectDownloadingFileInfos = (0, _reselect.createSelector)(selectDownloadingByOutpoint, selectFileInfosByOutpoint, function (downloadingByOutpoint, fileInfosByOutpoint) {
+  var outpoints = Object.keys(downloadingByOutpoint);
+  var fileInfos = [];
+
+  outpoints.forEach(function (outpoint) {
+    var fileInfo = fileInfosByOutpoint[outpoint];
+
+    if (fileInfo) fileInfos.push(fileInfo);
+  });
+
+  return fileInfos;
+});
+
+var selectTotalDownloadProgress = exports.selectTotalDownloadProgress = (0, _reselect.createSelector)(selectDownloadingFileInfos, function (fileInfos) {
+  var progress = [];
+
+  fileInfos.forEach(function (fileInfo) {
+    progress.push(fileInfo.written_bytes / fileInfo.total_bytes * 100);
+  });
+
+  var totalProgress = progress.reduce(function (a, b) {
+    return a + b;
+  }, 0);
+
+  if (fileInfos.length > 0) return totalProgress / fileInfos.length / 100.0;
+  return -1;
+});
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.selectWunderBarIcon = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.makeSelectLoadingForUri = exports.selectUrisLoading = exports.makeSelectDownloadingForUri = exports.selectDownloadingByOutpoint = exports.makeSelectFileInfoForUri = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.walletReducer = exports.searchReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.Lbryuri = exports.LbryApi = exports.Lbry = undefined;
+
+var _claims = __webpack_require__(6);
+
+Object.defineProperty(exports, 'doFetchClaimListMine', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doFetchClaimListMine;
+  }
+});
+Object.defineProperty(exports, 'doAbandonClaim', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doAbandonClaim;
+  }
+});
+Object.defineProperty(exports, 'doResolveUris', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doResolveUris;
+  }
+});
+Object.defineProperty(exports, 'doResolveUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doResolveUri;
+  }
+});
+
+var _cost_info = __webpack_require__(12);
+
+Object.defineProperty(exports, 'doFetchCostInfoForUri', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info.doFetchCostInfoForUri;
+  }
+});
+
+var _file_info = __webpack_require__(17);
+
+Object.defineProperty(exports, 'doFetchFileInfo', {
+  enumerable: true,
+  get: function get() {
+    return _file_info.doFetchFileInfo;
+  }
+});
+Object.defineProperty(exports, 'doFileList', {
+  enumerable: true,
+  get: function get() {
+    return _file_info.doFileList;
+  }
+});
+Object.defineProperty(exports, 'doFetchFileInfosAndPublishedClaims', {
+  enumerable: true,
+  get: function get() {
+    return _file_info.doFetchFileInfosAndPublishedClaims;
+  }
+});
+
+var _search = __webpack_require__(18);
+
+Object.defineProperty(exports, 'doSearch', {
+  enumerable: true,
+  get: function get() {
+    return _search.doSearch;
+  }
+});
+
+var _claims2 = __webpack_require__(21);
+
+Object.defineProperty(exports, 'claimsReducer', {
+  enumerable: true,
+  get: function get() {
+    return _claims2.claimsReducer;
+  }
+});
+
+var _cost_info2 = __webpack_require__(22);
+
+Object.defineProperty(exports, 'costInfoReducer', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info2.costInfoReducer;
+  }
+});
+
+var _file_info2 = __webpack_require__(23);
+
+Object.defineProperty(exports, 'fileInfoReducer', {
+  enumerable: true,
+  get: function get() {
+    return _file_info2.fileInfoReducer;
+  }
+});
+
+var _search2 = __webpack_require__(24);
+
+Object.defineProperty(exports, 'searchReducer', {
+  enumerable: true,
+  get: function get() {
+    return _search2.searchReducer;
+  }
+});
+
+var _wallet = __webpack_require__(25);
+
+Object.defineProperty(exports, 'walletReducer', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.walletReducer;
+  }
+});
+
+var _claims3 = __webpack_require__(2);
+
+Object.defineProperty(exports, 'makeSelectClaimForUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectClaimForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectClaimIsMine', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectClaimIsMine;
+  }
+});
+Object.defineProperty(exports, 'makeSelectFetchingChannelClaims', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectFetchingChannelClaims;
+  }
+});
+Object.defineProperty(exports, 'makeSelectClaimsInChannelForCurrentPage', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectClaimsInChannelForCurrentPage;
+  }
+});
+Object.defineProperty(exports, 'makeSelectMetadataForUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectMetadataForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectTitleForUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectTitleForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectContentTypeForUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectContentTypeForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectIsUriResolving', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectIsUriResolving;
+  }
+});
+Object.defineProperty(exports, 'selectClaimsById', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectClaimsById;
+  }
+});
+Object.defineProperty(exports, 'selectClaimsByUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectClaimsByUri;
+  }
+});
+Object.defineProperty(exports, 'selectAllClaimsByChannel', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectAllClaimsByChannel;
+  }
+});
+Object.defineProperty(exports, 'selectMyClaimsRaw', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectMyClaimsRaw;
+  }
+});
+Object.defineProperty(exports, 'selectAbandoningIds', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectAbandoningIds;
+  }
+});
+Object.defineProperty(exports, 'selectMyActiveClaims', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectMyActiveClaims;
+  }
+});
+Object.defineProperty(exports, 'selectAllFetchingChannelClaims', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectAllFetchingChannelClaims;
+  }
+});
+Object.defineProperty(exports, 'selectIsFetchingClaimListMine', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectIsFetchingClaimListMine;
+  }
+});
+Object.defineProperty(exports, 'selectPendingClaims', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectPendingClaims;
+  }
+});
+Object.defineProperty(exports, 'selectMyClaims', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectMyClaims;
+  }
+});
+Object.defineProperty(exports, 'selectMyClaimsWithoutChannels', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectMyClaimsWithoutChannels;
+  }
+});
+Object.defineProperty(exports, 'selectAllMyClaimsByOutpoint', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectAllMyClaimsByOutpoint;
+  }
+});
+Object.defineProperty(exports, 'selectMyClaimsOutpoints', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectMyClaimsOutpoints;
+  }
+});
+Object.defineProperty(exports, 'selectFetchingMyChannels', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectFetchingMyChannels;
+  }
+});
+Object.defineProperty(exports, 'selectMyChannelClaims', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectMyChannelClaims;
+  }
+});
+Object.defineProperty(exports, 'selectResolvingUris', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectResolvingUris;
+  }
+});
+
+var _cost_info3 = __webpack_require__(26);
+
+Object.defineProperty(exports, 'makeSelectFetchingCostInfoForUri', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info3.makeSelectFetchingCostInfoForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectCostInfoForUri', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info3.makeSelectCostInfoForUri;
+  }
+});
+Object.defineProperty(exports, 'selectAllCostInfoByUri', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info3.selectAllCostInfoByUri;
+  }
+});
+Object.defineProperty(exports, 'selectCostForCurrentPageUri', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info3.selectCostForCurrentPageUri;
+  }
+});
+Object.defineProperty(exports, 'selectFetchingCostInfo', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info3.selectFetchingCostInfo;
+  }
+});
+
+var _file_info3 = __webpack_require__(9);
+
+Object.defineProperty(exports, 'selectFileInfosByOutpoint', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectFileInfosByOutpoint;
+  }
+});
+Object.defineProperty(exports, 'selectIsFetchingFileList', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectIsFetchingFileList;
+  }
+});
+Object.defineProperty(exports, 'selectIsFetchingFileListDownloadedOrPublished', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectIsFetchingFileListDownloadedOrPublished;
+  }
+});
+Object.defineProperty(exports, 'makeSelectFileInfoForUri', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.makeSelectFileInfoForUri;
+  }
+});
+Object.defineProperty(exports, 'selectDownloadingByOutpoint', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectDownloadingByOutpoint;
+  }
+});
+Object.defineProperty(exports, 'makeSelectDownloadingForUri', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.makeSelectDownloadingForUri;
+  }
+});
+Object.defineProperty(exports, 'selectUrisLoading', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectUrisLoading;
+  }
+});
+Object.defineProperty(exports, 'makeSelectLoadingForUri', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.makeSelectLoadingForUri;
+  }
+});
+Object.defineProperty(exports, 'selectFileInfosDownloaded', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectFileInfosDownloaded;
+  }
+});
+Object.defineProperty(exports, 'selectDownloadingFileInfos', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectDownloadingFileInfos;
+  }
+});
+Object.defineProperty(exports, 'selectTotalDownloadProgress', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectTotalDownloadProgress;
+  }
+});
+
+var _search3 = __webpack_require__(27);
+
+Object.defineProperty(exports, 'makeSelectSearchUris', {
+  enumerable: true,
+  get: function get() {
+    return _search3.makeSelectSearchUris;
+  }
+});
+Object.defineProperty(exports, 'selectSearchQuery', {
+  enumerable: true,
+  get: function get() {
+    return _search3.selectSearchQuery;
+  }
+});
+Object.defineProperty(exports, 'selectIsSearching', {
+  enumerable: true,
+  get: function get() {
+    return _search3.selectIsSearching;
+  }
+});
+Object.defineProperty(exports, 'selectSearchUrisByQuery', {
+  enumerable: true,
+  get: function get() {
+    return _search3.selectSearchUrisByQuery;
+  }
+});
+Object.defineProperty(exports, 'selectWunderBarAddress', {
+  enumerable: true,
+  get: function get() {
+    return _search3.selectWunderBarAddress;
+  }
+});
+Object.defineProperty(exports, 'selectWunderBarIcon', {
+  enumerable: true,
+  get: function get() {
+    return _search3.selectWunderBarIcon;
+  }
+});
+
+var _lbry = __webpack_require__(5);
+
+var _lbry2 = _interopRequireDefault(_lbry);
+
+var _lbryapi = __webpack_require__(8);
+
+var _lbryapi2 = _interopRequireDefault(_lbryapi);
+
+var _lbryuri = __webpack_require__(1);
+
+var _lbryuri2 = _interopRequireDefault(_lbryuri);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.Lbry = _lbry2.default;
+exports.LbryApi = _lbryapi2.default;
+exports.Lbryuri = _lbryuri2.default;
+
+// actions
+// common
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -492,117 +2233,67 @@ jsonrpc.call = function (connectionString, method, params, callback, errorCallba
 exports.default = jsonrpc;
 
 /***/ }),
-/* 3 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
+
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.doFetchCostInfoForUri = doFetchCostInfoForUri;
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _action_types = __webpack_require__(0);
 
-var _lbry = __webpack_require__(0);
+var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _lbry2 = _interopRequireDefault(_lbry);
+var _lbryapi = __webpack_require__(8);
 
-var _querystring = __webpack_require__(5);
+var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
-var _querystring2 = _interopRequireDefault(_querystring);
+var _claims = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var LbryApi = {
-  exchangePromise: null,
-  exchangeLastFetched: null
-};
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var CONNECTION_STRING = process.env.LBRY_APP_API_URL ? process.env.LBRY_APP_API_URL.replace(/\/*$/, '/') // exactly one slash at the end
-: 'https://api.lbry.io/';
+// eslint-disable-next-line import/prefer-default-export
+function doFetchCostInfoForUri(uri) {
+  return function (dispatch, getState) {
+    var state = getState();
+    var claim = (0, _claims.selectClaimsByUri)(state)[uri];
 
-var EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
+    if (!claim) return;
 
-LbryApi.getExchangeRates = function () {
-  if (!LbryApi.exchangeLastFetched || Date.now() - LbryApi.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
-    LbryApi.exchangePromise = new Promise(function (resolve, reject) {
-      LbryApi.call('lbc', 'exchange_rate', {}, 'get', true).then(function (_ref) {
-        var LBC_USD = _ref.lbc_usd,
-            LBC_BTC = _ref.lbc_btc,
-            BTC_USD = _ref.btc_usd;
-
-        var rates = { LBC_USD: LBC_USD, LBC_BTC: LBC_BTC, BTC_USD: BTC_USD };
-        resolve(rates);
-      }).catch(reject);
-    });
-    LbryApi.exchangeLastFetched = Date.now();
-  }
-  return LbryApi.exchangePromise;
-};
-
-LbryApi.call = function (resource, action) {
-  var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  var method = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'get';
-
-  if (!Lbryio.enabled) {
-    console.log(__('Internal API disabled'));
-    return Promise.reject(new Error(__('LBRY internal API is disabled')));
-  }
-
-  if (!(method === 'get' || method === 'post')) {
-    return Promise.reject(new Error(__('Invalid method')));
-  }
-
-  function checkAndParse(response) {
-    if (response.status >= 200 && response.status < 300) {
-      return response.json();
+    function resolve(costInfo) {
+      dispatch({
+        type: ACTIONS.FETCH_COST_INFO_COMPLETED,
+        data: {
+          uri: uri,
+          costInfo: costInfo
+        }
+      });
     }
-    return response.json().then(function (json) {
-      var error = void 0;
-      if (json.error) {
-        error = new Error(json.error);
-      } else {
-        error = new Error('Unknown API error signature');
-      }
-      error.response = response; // This is primarily a hack used in actions/user.js
-      return Promise.reject(error);
-    });
-  }
 
-  function makeRequest(url, options) {
-    return fetch(url, options).then(checkAndParse);
-  }
+    var fee = claim.value && claim.value.stream && claim.value.stream.metadata ? claim.value.stream.metadata.fee : undefined;
 
-  var fullParams = _extends({}, params);
-  var qs = _querystring2.default.stringify(fullParams);
-  var url = '' + CONNECTION_STRING + resource + '/' + action + '?' + qs;
+    if (fee === undefined) {
+      resolve({ cost: 0, includesData: true });
+    } else if (fee.currency === 'LBC') {
+      resolve({ cost: fee.amount, includesData: true });
+    } else {
+      _lbryapi2.default.getExchangeRates().then(function (_ref) {
+        var LBC_USD = _ref.LBC_USD;
 
-  var options = {
-    method: 'GET'
+        resolve({ cost: fee.amount / LBC_USD, includesData: true });
+      });
+    }
   };
-
-  if (method === 'post') {
-    options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: qs
-    };
-    url = '' + CONNECTION_STRING + resource + '/' + action;
-  }
-
-  return makeRequest(url, options).then(function (response) {
-    return response.data;
-  });
-};
-
-exports.default = LbryApi;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+}
 
 /***/ }),
-/* 4 */
+/* 13 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -792,18 +2483,18 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 5 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-exports.decode = exports.parse = __webpack_require__(6);
-exports.encode = exports.stringify = __webpack_require__(7);
+exports.decode = exports.parse = __webpack_require__(15);
+exports.encode = exports.stringify = __webpack_require__(16);
 
 
 /***/ }),
-/* 6 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -894,7 +2585,7 @@ var isArray = Array.isArray || function (xs) {
 
 
 /***/ }),
-/* 7 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -986,7 +2677,7 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
-/* 8 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -995,9 +2686,542 @@ var objectKeys = Object.keys || function (obj) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = reducer;
+exports.doFetchFileInfo = doFetchFileInfo;
+exports.doFileList = doFileList;
+exports.doFetchFileInfosAndPublishedClaims = doFetchFileInfosAndPublishedClaims;
 
-var _action_types = __webpack_require__(9);
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+var _lbry = __webpack_require__(5);
+
+var _lbry2 = _interopRequireDefault(_lbry);
+
+var _claims = __webpack_require__(6);
+
+var _claims2 = __webpack_require__(2);
+
+var _file_info = __webpack_require__(9);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function doFetchFileInfo(uri) {
+  return function (dispatch, getState) {
+    var state = getState();
+    var claim = (0, _claims2.selectClaimsByUri)(state)[uri];
+    var outpoint = claim ? claim.txid + ':' + claim.nout : null;
+    var alreadyFetching = !!(0, _file_info.selectUrisLoading)(state)[uri];
+
+    if (!alreadyFetching) {
+      dispatch({
+        type: ACTIONS.FETCH_FILE_INFO_STARTED,
+        data: {
+          outpoint: outpoint
+        }
+      });
+
+      _lbry2.default.file_list({ outpoint: outpoint, full_status: true }).then(function (fileInfos) {
+        dispatch({
+          type: ACTIONS.FETCH_FILE_INFO_COMPLETED,
+          data: {
+            outpoint: outpoint,
+            fileInfo: fileInfos && fileInfos.length ? fileInfos[0] : null
+          }
+        });
+      });
+    }
+  };
+}
+
+function doFileList() {
+  return function (dispatch, getState) {
+    var state = getState();
+    var isFetching = (0, _file_info.selectIsFetchingFileList)(state);
+
+    if (!isFetching) {
+      dispatch({
+        type: ACTIONS.FILE_LIST_STARTED
+      });
+
+      _lbry2.default.file_list().then(function (fileInfos) {
+        dispatch({
+          type: ACTIONS.FILE_LIST_SUCCEEDED,
+          data: {
+            fileInfos: fileInfos
+          }
+        });
+      });
+    }
+  };
+}
+
+function doFetchFileInfosAndPublishedClaims() {
+  return function (dispatch, getState) {
+    var state = getState();
+    var isFetchingClaimListMine = (0, _claims2.selectIsFetchingClaimListMine)(state);
+    var isFetchingFileInfo = (0, _file_info.selectIsFetchingFileList)(state);
+
+    if (!isFetchingClaimListMine) dispatch((0, _claims.doFetchClaimListMine)());
+    if (!isFetchingFileInfo) dispatch(doFileList());
+  };
+}
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.doSearch = doSearch;
+
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+var _lbryuri = __webpack_require__(1);
+
+var _lbryuri2 = _interopRequireDefault(_lbryuri);
+
+var _claims = __webpack_require__(6);
+
+var _navigation = __webpack_require__(19);
+
+var _navigation2 = __webpack_require__(3);
+
+var _batchActions = __webpack_require__(20);
+
+var _batchActions2 = _interopRequireDefault(_batchActions);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+// eslint-disable-next-line import/prefer-default-export
+function doSearch(rawQuery) {
+  return function (dispatch, getState) {
+    var state = getState();
+    var page = (0, _navigation2.selectCurrentPage)(state);
+
+    var query = rawQuery.replace(/^lbry:\/\//i, '');
+
+    if (!query) {
+      dispatch({
+        type: ACTIONS.SEARCH_CANCELLED
+      });
+      return;
+    }
+
+    dispatch({
+      type: ACTIONS.SEARCH_STARTED,
+      data: { query: query }
+    });
+
+    if (page !== 'search') {
+      dispatch((0, _navigation.doNavigate)('search', { query: query }));
+    } else {
+      fetch('https://lighthouse.lbry.io/search?s=' + query).then(function (response) {
+        return response.status === 200 ? Promise.resolve(response.json()) : Promise.reject(new Error(response.statusText));
+      }).then(function (data) {
+        var uris = [];
+        var actions = [];
+
+        data.forEach(function (result) {
+          var uri = _lbryuri2.default.build({
+            name: result.name,
+            claimId: result.claimId
+          });
+          actions.push((0, _claims.doResolveUri)(uri));
+          uris.push(uri);
+        });
+
+        actions.push({
+          type: ACTIONS.SEARCH_COMPLETED,
+          data: {
+            query: query,
+            uris: uris
+          }
+        });
+        dispatch(_batchActions2.default.apply(undefined, actions));
+      }).catch(function () {
+        dispatch({
+          type: ACTIONS.SEARCH_CANCELLED
+        });
+      });
+    }
+  };
+}
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.doNavigate = doNavigate;
+exports.doAuthNavigate = doAuthNavigate;
+exports.doHistoryTraverse = doHistoryTraverse;
+exports.doHistoryBack = doHistoryBack;
+exports.doHistoryForward = doHistoryForward;
+exports.doRecordScroll = doRecordScroll;
+
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+var _navigation = __webpack_require__(3);
+
+var _query_params = __webpack_require__(7);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function doNavigate(path) {
+  var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+  return function (dispatch) {
+    if (!path) {
+      return;
+    }
+
+    var url = path;
+    if (params && Object.values(params).length) {
+      url += '?' + (0, _query_params.toQueryString)(params);
+    }
+
+    var scrollY = options.scrollY;
+
+
+    dispatch({
+      type: ACTIONS.HISTORY_NAVIGATE,
+      data: { url: url, index: options.index, scrollY: scrollY }
+    });
+  };
+}
+
+function doAuthNavigate() {
+  var pathAfterAuth = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+  var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  return function (dispatch) {
+    if (pathAfterAuth) {
+      dispatch({
+        type: ACTIONS.CHANGE_AFTER_AUTH_PATH,
+        data: {
+          path: pathAfterAuth + '?' + (0, _query_params.toQueryString)(params)
+        }
+      });
+    }
+    dispatch(doNavigate('/auth'));
+  };
+}
+
+function doHistoryTraverse(dispatch, state, modifier) {
+  var stack = (0, _navigation.selectHistoryStack)(state);
+  var index = (0, _navigation.selectHistoryIndex)(state) + modifier;
+
+  if (index >= 0 && index < stack.length) {
+    var historyItem = stack[index];
+    dispatch(doNavigate(historyItem.path, {}, { scrollY: historyItem.scrollY, index: index }));
+  }
+}
+
+function doHistoryBack() {
+  return function (dispatch, getState) {
+    return doHistoryTraverse(dispatch, getState(), -1);
+  };
+}
+
+function doHistoryForward() {
+  return function (dispatch, getState) {
+    return doHistoryTraverse(dispatch, getState(), 1);
+  };
+}
+
+function doRecordScroll(scroll) {
+  return function (dispatch) {
+    dispatch({
+      type: ACTIONS.WINDOW_SCROLLED,
+      data: { scrollY: scroll }
+    });
+  };
+}
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+// https://github.com/reactjs/redux/issues/911
+function batchActions() {
+  for (var _len = arguments.length, actions = Array(_len), _key = 0; _key < _len; _key++) {
+    actions[_key] = arguments[_key];
+  }
+
+  return {
+    type: 'BATCH_ACTIONS',
+    actions: actions
+  };
+}
+
+exports.default = batchActions;
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+exports.claimsReducer = claimsReducer;
+
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var reducers = {};
+
+var defaultState = {};
+
+reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = function (state, action) {
+  var resolveInfo = action.data.resolveInfo;
+
+  var byUri = Object.assign({}, state.claimsByUri);
+  var byId = Object.assign({}, state.byId);
+
+  Object.entries(resolveInfo).forEach(function (_ref) {
+    var _ref2 = _slicedToArray(_ref, 2),
+        uri = _ref2[0],
+        _ref2$ = _ref2[1],
+        certificate = _ref2$.certificate,
+        claim = _ref2$.claim;
+
+    if (claim) {
+      byId[claim.claim_id] = claim;
+      byUri[uri] = claim.claim_id;
+    } else if (claim === undefined && certificate !== undefined) {
+      byId[certificate.claim_id] = certificate;
+      // Don't point URI at the channel certificate unless it actually is
+      // a channel URI. This is brittle.
+      if (!uri.split(certificate.name)[1].match(/\//)) {
+        byUri[uri] = certificate.claim_id;
+      } else {
+        byUri[uri] = null;
+      }
+    } else {
+      byUri[uri] = null;
+    }
+  });
+
+  return Object.assign({}, state, {
+    byId: byId,
+    claimsByUri: byUri
+  });
+};
+
+reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = function (state) {
+  return Object.assign({}, state, {
+    isFetchingClaimListMine: true
+  });
+};
+
+reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = function (state, action) {
+  var claims = action.data.claims;
+
+  var byId = Object.assign({}, state.byId);
+  var pendingById = Object.assign({}, state.pendingById);
+
+  claims.filter(function (claim) {
+    return claim.category && claim.category.match(/claim/);
+  }).forEach(function (claim) {
+    byId[claim.claim_id] = claim;
+
+    var pending = Object.values(pendingById).find(function (pendingClaim) {
+      return pendingClaim.name === claim.name && pendingClaim.channel_name === claim.channel_name;
+    });
+
+    if (pending) {
+      delete pendingById[pending.claim_id];
+    }
+  });
+
+  // Remove old timed out pending publishes
+  Object.values(pendingById).filter(function (pendingClaim) {
+    return Date.now() - pendingClaim.time >= 20 * 60 * 1000;
+  }).forEach(function (pendingClaim) {
+    delete pendingById[pendingClaim.claim_id];
+  });
+
+  return Object.assign({}, state, {
+    isFetchingClaimListMine: false,
+    myClaims: claims,
+    byId: byId,
+    pendingById: pendingById
+  });
+};
+
+reducers[ACTIONS.FETCH_CHANNEL_LIST_MINE_STARTED] = function (state) {
+  return Object.assign({}, state, { fetchingMyChannels: true });
+};
+
+reducers[ACTIONS.FETCH_CHANNEL_LIST_MINE_COMPLETED] = function (state, action) {
+  var claims = action.data.claims;
+
+  var myChannelClaims = new Set(state.myChannelClaims);
+  var byId = Object.assign({}, state.byId);
+
+  claims.forEach(function (claim) {
+    myChannelClaims.add(claim.claim_id);
+    byId[claims.claim_id] = claim;
+  });
+
+  return Object.assign({}, state, {
+    byId: byId,
+    fetchingMyChannels: false,
+    myChannelClaims: myChannelClaims
+  });
+};
+
+reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED] = function (state, action) {
+  var _action$data = action.data,
+      uri = _action$data.uri,
+      page = _action$data.page;
+
+  var fetchingChannelClaims = Object.assign({}, state.fetchingChannelClaims);
+
+  fetchingChannelClaims[uri] = page;
+
+  return Object.assign({}, state, {
+    fetchingChannelClaims: fetchingChannelClaims
+  });
+};
+
+reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = function (state, action) {
+  var _action$data2 = action.data,
+      uri = _action$data2.uri,
+      claims = _action$data2.claims,
+      page = _action$data2.page;
+
+
+  var claimsByChannel = Object.assign({}, state.claimsByChannel);
+  var byChannel = Object.assign({}, claimsByChannel[uri]);
+  var allClaimIds = new Set(byChannel.all);
+  var currentPageClaimIds = [];
+  var byId = Object.assign({}, state.byId);
+  var fetchingChannelClaims = Object.assign({}, state.fetchingChannelClaims);
+
+  if (claims !== undefined) {
+    claims.forEach(function (claim) {
+      allClaimIds.add(claim.claim_id);
+      currentPageClaimIds.push(claim.claim_id);
+      byId[claim.claim_id] = claim;
+    });
+  }
+
+  byChannel.all = allClaimIds;
+  byChannel[page] = currentPageClaimIds;
+  claimsByChannel[uri] = byChannel;
+  delete fetchingChannelClaims[uri];
+
+  return Object.assign({}, state, {
+    claimsByChannel: claimsByChannel,
+    byId: byId,
+    fetchingChannelClaims: fetchingChannelClaims
+  });
+};
+
+reducers[ACTIONS.ABANDON_CLAIM_STARTED] = function (state, action) {
+  var claimId = action.data.claimId;
+
+  var abandoningById = Object.assign({}, state.abandoningById);
+
+  abandoningById[claimId] = true;
+
+  return Object.assign({}, state, {
+    abandoningById: abandoningById
+  });
+};
+
+reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = function (state, action) {
+  var claimId = action.data.claimId;
+
+  var byId = Object.assign({}, state.byId);
+  var claimsByUri = Object.assign({}, state.claimsByUri);
+
+  Object.keys(claimsByUri).forEach(function (uri) {
+    if (claimsByUri[uri] === claimId) {
+      delete claimsByUri[uri];
+    }
+  });
+
+  delete byId[claimId];
+
+  return Object.assign({}, state, {
+    byId: byId,
+    claimsByUri: claimsByUri
+  });
+};
+
+reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = function (state, action) {
+  var channelClaim = action.data.channelClaim;
+
+  var byId = Object.assign({}, state.byId);
+  var myChannelClaims = new Set(state.myChannelClaims);
+
+  byId[channelClaim.claim_id] = channelClaim;
+  myChannelClaims.add(channelClaim.claim_id);
+
+  return Object.assign({}, state, {
+    byId: byId,
+    myChannelClaims: myChannelClaims
+  });
+};
+
+function claimsReducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
+  var action = arguments[1];
+
+  var handler = reducers[action.type];
+  if (handler) return handler(state, action);
+  return state;
+}
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.costInfoReducer = costInfoReducer;
+
+var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
@@ -1034,7 +3258,7 @@ reducers[ACTIONS.FETCH_COST_INFO_COMPLETED] = function (state, action) {
   });
 };
 
-function reducer() {
+function costInfoReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
   var action = arguments[1];
 
@@ -1044,7 +3268,7 @@ function reducer() {
 }
 
 /***/ }),
-/* 9 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1053,170 +3277,568 @@ function reducer() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var OPEN_MODAL = exports.OPEN_MODAL = 'OPEN_MODAL';
-var CLOSE_MODAL = exports.CLOSE_MODAL = 'CLOSE_MODAL';
-var SHOW_SNACKBAR = exports.SHOW_SNACKBAR = 'SHOW_SNACKBAR';
-var REMOVE_SNACKBAR_SNACK = exports.REMOVE_SNACKBAR_SNACK = 'REMOVE_SNACKBAR_SNACK';
-var WINDOW_FOCUSED = exports.WINDOW_FOCUSED = 'WINDOW_FOCUSED';
-var DAEMON_READY = exports.DAEMON_READY = 'DAEMON_READY';
-var DAEMON_VERSION_MATCH = exports.DAEMON_VERSION_MATCH = 'DAEMON_VERSION_MATCH';
-var DAEMON_VERSION_MISMATCH = exports.DAEMON_VERSION_MISMATCH = 'DAEMON_VERSION_MISMATCH';
-var VOLUME_CHANGED = exports.VOLUME_CHANGED = 'VOLUME_CHANGED';
+exports.fileInfoReducer = fileInfoReducer;
 
-// Navigation
-var CHANGE_AFTER_AUTH_PATH = exports.CHANGE_AFTER_AUTH_PATH = 'CHANGE_AFTER_AUTH_PATH';
-var WINDOW_SCROLLED = exports.WINDOW_SCROLLED = 'WINDOW_SCROLLED';
-var HISTORY_NAVIGATE = exports.HISTORY_NAVIGATE = 'HISTORY_NAVIGATE';
+var _action_types = __webpack_require__(0);
 
-// Upgrades
-var UPGRADE_CANCELLED = exports.UPGRADE_CANCELLED = 'UPGRADE_CANCELLED';
-var DOWNLOAD_UPGRADE = exports.DOWNLOAD_UPGRADE = 'DOWNLOAD_UPGRADE';
-var UPGRADE_DOWNLOAD_STARTED = exports.UPGRADE_DOWNLOAD_STARTED = 'UPGRADE_DOWNLOAD_STARTED';
-var UPGRADE_DOWNLOAD_COMPLETED = exports.UPGRADE_DOWNLOAD_COMPLETED = 'UPGRADE_DOWNLOAD_COMPLETED';
-var UPGRADE_DOWNLOAD_PROGRESSED = exports.UPGRADE_DOWNLOAD_PROGRESSED = 'UPGRADE_DOWNLOAD_PROGRESSED';
-var CHECK_UPGRADE_AVAILABLE = exports.CHECK_UPGRADE_AVAILABLE = 'CHECK_UPGRADE_AVAILABLE';
-var CHECK_UPGRADE_START = exports.CHECK_UPGRADE_START = 'CHECK_UPGRADE_START';
-var CHECK_UPGRADE_SUCCESS = exports.CHECK_UPGRADE_SUCCESS = 'CHECK_UPGRADE_SUCCESS';
-var CHECK_UPGRADE_FAIL = exports.CHECK_UPGRADE_FAIL = 'CHECK_UPGRADE_FAIL';
-var CHECK_UPGRADE_SUBSCRIBE = exports.CHECK_UPGRADE_SUBSCRIBE = 'CHECK_UPGRADE_SUBSCRIBE';
-var UPDATE_VERSION = exports.UPDATE_VERSION = 'UPDATE_VERSION';
-var UPDATE_REMOTE_VERSION = exports.UPDATE_REMOTE_VERSION = 'UPDATE_REMOTE_VERSION';
-var SKIP_UPGRADE = exports.SKIP_UPGRADE = 'SKIP_UPGRADE';
-var START_UPGRADE = exports.START_UPGRADE = 'START_UPGRADE';
+var ACTIONS = _interopRequireWildcard(_action_types);
 
-// Wallet
-var GET_NEW_ADDRESS_STARTED = exports.GET_NEW_ADDRESS_STARTED = 'GET_NEW_ADDRESS_STARTED';
-var GET_NEW_ADDRESS_COMPLETED = exports.GET_NEW_ADDRESS_COMPLETED = 'GET_NEW_ADDRESS_COMPLETED';
-var FETCH_TRANSACTIONS_STARTED = exports.FETCH_TRANSACTIONS_STARTED = 'FETCH_TRANSACTIONS_STARTED';
-var FETCH_TRANSACTIONS_COMPLETED = exports.FETCH_TRANSACTIONS_COMPLETED = 'FETCH_TRANSACTIONS_COMPLETED';
-var UPDATE_BALANCE = exports.UPDATE_BALANCE = 'UPDATE_BALANCE';
-var CHECK_ADDRESS_IS_MINE_STARTED = exports.CHECK_ADDRESS_IS_MINE_STARTED = 'CHECK_ADDRESS_IS_MINE_STARTED';
-var CHECK_ADDRESS_IS_MINE_COMPLETED = exports.CHECK_ADDRESS_IS_MINE_COMPLETED = 'CHECK_ADDRESS_IS_MINE_COMPLETED';
-var SET_DRAFT_TRANSACTION_AMOUNT = exports.SET_DRAFT_TRANSACTION_AMOUNT = 'SET_DRAFT_TRANSACTION_AMOUNT';
-var SET_DRAFT_TRANSACTION_ADDRESS = exports.SET_DRAFT_TRANSACTION_ADDRESS = 'SET_DRAFT_TRANSACTION_ADDRESS';
-var SEND_TRANSACTION_STARTED = exports.SEND_TRANSACTION_STARTED = 'SEND_TRANSACTION_STARTED';
-var SEND_TRANSACTION_COMPLETED = exports.SEND_TRANSACTION_COMPLETED = 'SEND_TRANSACTION_COMPLETED';
-var SEND_TRANSACTION_FAILED = exports.SEND_TRANSACTION_FAILED = 'SEND_TRANSACTION_FAILED';
-var FETCH_BLOCK_SUCCESS = exports.FETCH_BLOCK_SUCCESS = 'FETCH_BLOCK_SUCCESS';
-var SUPPORT_TRANSACTION_STARTED = exports.SUPPORT_TRANSACTION_STARTED = 'SUPPORT_TRANSACTION_STARTED';
-var SUPPORT_TRANSACTION_COMPLETED = exports.SUPPORT_TRANSACTION_COMPLETED = 'SUPPORT_TRANSACTION_COMPLETED';
-var SUPPORT_TRANSACTION_FAILED = exports.SUPPORT_TRANSACTION_FAILED = 'SUPPORT_TRANSACTION_FAILED';
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-// Claims
-var FETCH_FEATURED_CONTENT_STARTED = exports.FETCH_FEATURED_CONTENT_STARTED = 'FETCH_FEATURED_CONTENT_STARTED';
-var FETCH_FEATURED_CONTENT_COMPLETED = exports.FETCH_FEATURED_CONTENT_COMPLETED = 'FETCH_FEATURED_CONTENT_COMPLETED';
-var RESOLVE_URIS_STARTED = exports.RESOLVE_URIS_STARTED = 'RESOLVE_URIS_STARTED';
-var RESOLVE_URIS_COMPLETED = exports.RESOLVE_URIS_COMPLETED = 'RESOLVE_URIS_COMPLETED';
-var FETCH_CHANNEL_CLAIMS_STARTED = exports.FETCH_CHANNEL_CLAIMS_STARTED = 'FETCH_CHANNEL_CLAIMS_STARTED';
-var FETCH_CHANNEL_CLAIMS_COMPLETED = exports.FETCH_CHANNEL_CLAIMS_COMPLETED = 'FETCH_CHANNEL_CLAIMS_COMPLETED';
-var FETCH_CHANNEL_CLAIM_COUNT_STARTED = exports.FETCH_CHANNEL_CLAIM_COUNT_STARTED = 'FETCH_CHANNEL_CLAIM_COUNT_STARTED';
-var FETCH_CHANNEL_CLAIM_COUNT_COMPLETED = exports.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED = 'FETCH_CHANNEL_CLAIM_COUNT_COMPLETED';
-var FETCH_CLAIM_LIST_MINE_STARTED = exports.FETCH_CLAIM_LIST_MINE_STARTED = 'FETCH_CLAIM_LIST_MINE_STARTED';
-var FETCH_CLAIM_LIST_MINE_COMPLETED = exports.FETCH_CLAIM_LIST_MINE_COMPLETED = 'FETCH_CLAIM_LIST_MINE_COMPLETED';
-var ABANDON_CLAIM_STARTED = exports.ABANDON_CLAIM_STARTED = 'ABANDON_CLAIM_STARTED';
-var ABANDON_CLAIM_SUCCEEDED = exports.ABANDON_CLAIM_SUCCEEDED = 'ABANDON_CLAIM_SUCCEEDED';
-var FETCH_CHANNEL_LIST_MINE_STARTED = exports.FETCH_CHANNEL_LIST_MINE_STARTED = 'FETCH_CHANNEL_LIST_MINE_STARTED';
-var FETCH_CHANNEL_LIST_MINE_COMPLETED = exports.FETCH_CHANNEL_LIST_MINE_COMPLETED = 'FETCH_CHANNEL_LIST_MINE_COMPLETED';
-var CREATE_CHANNEL_STARTED = exports.CREATE_CHANNEL_STARTED = 'CREATE_CHANNEL_STARTED';
-var CREATE_CHANNEL_COMPLETED = exports.CREATE_CHANNEL_COMPLETED = 'CREATE_CHANNEL_COMPLETED';
-var PUBLISH_STARTED = exports.PUBLISH_STARTED = 'PUBLISH_STARTED';
-var PUBLISH_COMPLETED = exports.PUBLISH_COMPLETED = 'PUBLISH_COMPLETED';
-var PUBLISH_FAILED = exports.PUBLISH_FAILED = 'PUBLISH_FAILED';
-var SET_PLAYING_URI = exports.SET_PLAYING_URI = 'PLAY_URI';
+var reducers = {};
+var defaultState = {};
 
-// Files
-var FILE_LIST_STARTED = exports.FILE_LIST_STARTED = 'FILE_LIST_STARTED';
-var FILE_LIST_SUCCEEDED = exports.FILE_LIST_SUCCEEDED = 'FILE_LIST_SUCCEEDED';
-var FETCH_FILE_INFO_STARTED = exports.FETCH_FILE_INFO_STARTED = 'FETCH_FILE_INFO_STARTED';
-var FETCH_FILE_INFO_COMPLETED = exports.FETCH_FILE_INFO_COMPLETED = 'FETCH_FILE_INFO_COMPLETED';
-var FETCH_COST_INFO_STARTED = exports.FETCH_COST_INFO_STARTED = 'FETCH_COST_INFO_STARTED';
-var FETCH_COST_INFO_COMPLETED = exports.FETCH_COST_INFO_COMPLETED = 'FETCH_COST_INFO_COMPLETED';
-var LOADING_VIDEO_STARTED = exports.LOADING_VIDEO_STARTED = 'LOADING_VIDEO_STARTED';
-var LOADING_VIDEO_COMPLETED = exports.LOADING_VIDEO_COMPLETED = 'LOADING_VIDEO_COMPLETED';
-var LOADING_VIDEO_FAILED = exports.LOADING_VIDEO_FAILED = 'LOADING_VIDEO_FAILED';
-var DOWNLOADING_STARTED = exports.DOWNLOADING_STARTED = 'DOWNLOADING_STARTED';
-var DOWNLOADING_PROGRESSED = exports.DOWNLOADING_PROGRESSED = 'DOWNLOADING_PROGRESSED';
-var DOWNLOADING_COMPLETED = exports.DOWNLOADING_COMPLETED = 'DOWNLOADING_COMPLETED';
-var PLAY_VIDEO_STARTED = exports.PLAY_VIDEO_STARTED = 'PLAY_VIDEO_STARTED';
-var FETCH_AVAILABILITY_STARTED = exports.FETCH_AVAILABILITY_STARTED = 'FETCH_AVAILABILITY_STARTED';
-var FETCH_AVAILABILITY_COMPLETED = exports.FETCH_AVAILABILITY_COMPLETED = 'FETCH_AVAILABILITY_COMPLETED';
-var FILE_DELETE = exports.FILE_DELETE = 'FILE_DELETE';
+reducers[ACTIONS.FILE_LIST_STARTED] = function (state) {
+  return Object.assign({}, state, {
+    isFetchingFileList: true
+  });
+};
 
-// Search
-var SEARCH_STARTED = exports.SEARCH_STARTED = 'SEARCH_STARTED';
-var SEARCH_COMPLETED = exports.SEARCH_COMPLETED = 'SEARCH_COMPLETED';
-var SEARCH_CANCELLED = exports.SEARCH_CANCELLED = 'SEARCH_CANCELLED';
+reducers[ACTIONS.FILE_LIST_SUCCEEDED] = function (state, action) {
+  var fileInfos = action.data.fileInfos;
 
-// Settings
-var DAEMON_SETTINGS_RECEIVED = exports.DAEMON_SETTINGS_RECEIVED = 'DAEMON_SETTINGS_RECEIVED';
-var CLIENT_SETTING_CHANGED = exports.CLIENT_SETTING_CHANGED = 'CLIENT_SETTING_CHANGED';
+  var newByOutpoint = Object.assign({}, state.byOutpoint);
+  var pendingByOutpoint = Object.assign({}, state.pendingByOutpoint);
 
-// User
-var AUTHENTICATION_STARTED = exports.AUTHENTICATION_STARTED = 'AUTHENTICATION_STARTED';
-var AUTHENTICATION_SUCCESS = exports.AUTHENTICATION_SUCCESS = 'AUTHENTICATION_SUCCESS';
-var AUTHENTICATION_FAILURE = exports.AUTHENTICATION_FAILURE = 'AUTHENTICATION_FAILURE';
-var USER_EMAIL_DECLINE = exports.USER_EMAIL_DECLINE = 'USER_EMAIL_DECLINE';
-var USER_EMAIL_NEW_STARTED = exports.USER_EMAIL_NEW_STARTED = 'USER_EMAIL_NEW_STARTED';
-var USER_EMAIL_NEW_SUCCESS = exports.USER_EMAIL_NEW_SUCCESS = 'USER_EMAIL_NEW_SUCCESS';
-var USER_EMAIL_NEW_EXISTS = exports.USER_EMAIL_NEW_EXISTS = 'USER_EMAIL_NEW_EXISTS';
-var USER_EMAIL_NEW_FAILURE = exports.USER_EMAIL_NEW_FAILURE = 'USER_EMAIL_NEW_FAILURE';
-var USER_EMAIL_VERIFY_STARTED = exports.USER_EMAIL_VERIFY_STARTED = 'USER_EMAIL_VERIFY_STARTED';
-var USER_EMAIL_VERIFY_SUCCESS = exports.USER_EMAIL_VERIFY_SUCCESS = 'USER_EMAIL_VERIFY_SUCCESS';
-var USER_EMAIL_VERIFY_FAILURE = exports.USER_EMAIL_VERIFY_FAILURE = 'USER_EMAIL_VERIFY_FAILURE';
-var USER_IDENTITY_VERIFY_STARTED = exports.USER_IDENTITY_VERIFY_STARTED = 'USER_IDENTITY_VERIFY_STARTED';
-var USER_IDENTITY_VERIFY_SUCCESS = exports.USER_IDENTITY_VERIFY_SUCCESS = 'USER_IDENTITY_VERIFY_SUCCESS';
-var USER_IDENTITY_VERIFY_FAILURE = exports.USER_IDENTITY_VERIFY_FAILURE = 'USER_IDENTITY_VERIFY_FAILURE';
-var USER_FETCH_STARTED = exports.USER_FETCH_STARTED = 'USER_FETCH_STARTED';
-var USER_FETCH_SUCCESS = exports.USER_FETCH_SUCCESS = 'USER_FETCH_SUCCESS';
-var USER_FETCH_FAILURE = exports.USER_FETCH_FAILURE = 'USER_FETCH_FAILURE';
-var USER_INVITE_STATUS_FETCH_STARTED = exports.USER_INVITE_STATUS_FETCH_STARTED = 'USER_INVITE_STATUS_FETCH_STARTED';
-var USER_INVITE_STATUS_FETCH_SUCCESS = exports.USER_INVITE_STATUS_FETCH_SUCCESS = 'USER_INVITE_STATUS_FETCH_SUCCESS';
-var USER_INVITE_STATUS_FETCH_FAILURE = exports.USER_INVITE_STATUS_FETCH_FAILURE = 'USER_INVITE_STATUS_FETCH_FAILURE';
-var USER_INVITE_NEW_STARTED = exports.USER_INVITE_NEW_STARTED = 'USER_INVITE_NEW_STARTED';
-var USER_INVITE_NEW_SUCCESS = exports.USER_INVITE_NEW_SUCCESS = 'USER_INVITE_NEW_SUCCESS';
-var USER_INVITE_NEW_FAILURE = exports.USER_INVITE_NEW_FAILURE = 'USER_INVITE_NEW_FAILURE';
-var FETCH_ACCESS_TOKEN_SUCCESS = exports.FETCH_ACCESS_TOKEN_SUCCESS = 'FETCH_ACCESS_TOKEN_SUCCESS';
+  fileInfos.forEach(function (fileInfo) {
+    var outpoint = fileInfo.outpoint;
 
-// Rewards
-var FETCH_REWARDS_STARTED = exports.FETCH_REWARDS_STARTED = 'FETCH_REWARDS_STARTED';
-var FETCH_REWARDS_COMPLETED = exports.FETCH_REWARDS_COMPLETED = 'FETCH_REWARDS_COMPLETED';
-var CLAIM_REWARD_STARTED = exports.CLAIM_REWARD_STARTED = 'CLAIM_REWARD_STARTED';
-var CLAIM_REWARD_SUCCESS = exports.CLAIM_REWARD_SUCCESS = 'CLAIM_REWARD_SUCCESS';
-var CLAIM_REWARD_FAILURE = exports.CLAIM_REWARD_FAILURE = 'CLAIM_REWARD_FAILURE';
-var CLAIM_REWARD_CLEAR_ERROR = exports.CLAIM_REWARD_CLEAR_ERROR = 'CLAIM_REWARD_CLEAR_ERROR';
-var FETCH_REWARD_CONTENT_COMPLETED = exports.FETCH_REWARD_CONTENT_COMPLETED = 'FETCH_REWARD_CONTENT_COMPLETED';
 
-// Language
-var DOWNLOAD_LANGUAGE_SUCCEEDED = exports.DOWNLOAD_LANGUAGE_SUCCEEDED = 'DOWNLOAD_LANGUAGE_SUCCEEDED';
-var DOWNLOAD_LANGUAGE_FAILED = exports.DOWNLOAD_LANGUAGE_FAILED = 'DOWNLOAD_LANGUAGE_FAILED';
+    if (outpoint) newByOutpoint[fileInfo.outpoint] = fileInfo;
+  });
 
-// ShapeShift
-var GET_SUPPORTED_COINS_START = exports.GET_SUPPORTED_COINS_START = 'GET_SUPPORTED_COINS_START';
-var GET_SUPPORTED_COINS_SUCCESS = exports.GET_SUPPORTED_COINS_SUCCESS = 'GET_SUPPORTED_COINS_SUCCESS';
-var GET_SUPPORTED_COINS_FAIL = exports.GET_SUPPORTED_COINS_FAIL = 'GET_SUPPORTED_COINS_FAIL';
-var GET_COIN_STATS_START = exports.GET_COIN_STATS_START = 'GET_COIN_STATS_START';
-var GET_COIN_STATS_SUCCESS = exports.GET_COIN_STATS_SUCCESS = 'GET_COIN_STATS_SUCCESS';
-var GET_COIN_STATS_FAIL = exports.GET_COIN_STATS_FAIL = 'GET_COIN_STATS_FAIL';
-var PREPARE_SHAPE_SHIFT_START = exports.PREPARE_SHAPE_SHIFT_START = 'PREPARE_SHAPE_SHIFT_START';
-var PREPARE_SHAPE_SHIFT_SUCCESS = exports.PREPARE_SHAPE_SHIFT_SUCCESS = 'PREPARE_SHAPE_SHIFT_SUCCESS';
-var PREPARE_SHAPE_SHIFT_FAIL = exports.PREPARE_SHAPE_SHIFT_FAIL = 'PREPARE_SHAPE_SHIFT_FAIL';
-var GET_ACTIVE_SHIFT_START = exports.GET_ACTIVE_SHIFT_START = 'GET_ACTIVE_SHIFT_START';
-var GET_ACTIVE_SHIFT_SUCCESS = exports.GET_ACTIVE_SHIFT_SUCCESS = 'GET_ACTIVE_SHIFT_SUCCESS';
-var GET_ACTIVE_SHIFT_FAIL = exports.GET_ACTIVE_SHIFT_FAIL = 'GET_ACTIVE_SHIFT_FAIL';
-var CLEAR_SHAPE_SHIFT = exports.CLEAR_SHAPE_SHIFT = 'CLEAR_SHAPE_SHIFT';
+  return Object.assign({}, state, {
+    isFetchingFileList: false,
+    byOutpoint: newByOutpoint,
+    pendingByOutpoint: pendingByOutpoint
+  });
+};
 
-// Subscriptions
-var CHANNEL_SUBSCRIBE = exports.CHANNEL_SUBSCRIBE = 'CHANNEL_SUBSCRIBE';
-var CHANNEL_UNSUBSCRIBE = exports.CHANNEL_UNSUBSCRIBE = 'CHANNEL_UNSUBSCRIBE';
-var HAS_FETCHED_SUBSCRIPTIONS = exports.HAS_FETCHED_SUBSCRIPTIONS = 'HAS_FETCHED_SUBSCRIPTIONS';
+reducers[ACTIONS.FETCH_FILE_INFO_STARTED] = function (state, action) {
+  var outpoint = action.data.outpoint;
 
-// Video controls
-var SET_VIDEO_PAUSE = exports.SET_VIDEO_PAUSE = 'SET_VIDEO_PAUSE';
+  var newFetching = Object.assign({}, state.fetching);
 
-// Media controls
-var MEDIA_PLAY = exports.MEDIA_PLAY = 'MEDIA_PLAY';
-var MEDIA_PAUSE = exports.MEDIA_PAUSE = 'MEDIA_PAUSE';
-var MEDIA_POSITION = exports.MEDIA_POSITION = 'MEDIA_POSITION';
+  newFetching[outpoint] = true;
+
+  return Object.assign({}, state, {
+    fetching: newFetching
+  });
+};
+
+reducers[ACTIONS.FETCH_FILE_INFO_COMPLETED] = function (state, action) {
+  var _action$data = action.data,
+      fileInfo = _action$data.fileInfo,
+      outpoint = _action$data.outpoint;
+
+
+  var newByOutpoint = Object.assign({}, state.byOutpoint);
+  var newFetching = Object.assign({}, state.fetching);
+
+  newByOutpoint[outpoint] = fileInfo;
+  delete newFetching[outpoint];
+
+  return Object.assign({}, state, {
+    byOutpoint: newByOutpoint,
+    fetching: newFetching
+  });
+};
+
+reducers[ACTIONS.DOWNLOADING_STARTED] = function (state, action) {
+  var _action$data2 = action.data,
+      uri = _action$data2.uri,
+      outpoint = _action$data2.outpoint,
+      fileInfo = _action$data2.fileInfo;
+
+
+  var newByOutpoint = Object.assign({}, state.byOutpoint);
+  var newDownloading = Object.assign({}, state.downloadingByOutpoint);
+  var newLoading = Object.assign({}, state.urisLoading);
+
+  newDownloading[outpoint] = true;
+  newByOutpoint[outpoint] = fileInfo;
+  delete newLoading[uri];
+
+  return Object.assign({}, state, {
+    downloadingByOutpoint: newDownloading,
+    urisLoading: newLoading,
+    byOutpoint: newByOutpoint
+  });
+};
+
+reducers[ACTIONS.DOWNLOADING_PROGRESSED] = function (state, action) {
+  var _action$data3 = action.data,
+      outpoint = _action$data3.outpoint,
+      fileInfo = _action$data3.fileInfo;
+
+
+  var newByOutpoint = Object.assign({}, state.byOutpoint);
+  var newDownloading = Object.assign({}, state.downloadingByOutpoint);
+
+  newByOutpoint[outpoint] = fileInfo;
+  newDownloading[outpoint] = true;
+
+  return Object.assign({}, state, {
+    byOutpoint: newByOutpoint,
+    downloadingByOutpoint: newDownloading
+  });
+};
+
+reducers[ACTIONS.DOWNLOADING_COMPLETED] = function (state, action) {
+  var _action$data4 = action.data,
+      outpoint = _action$data4.outpoint,
+      fileInfo = _action$data4.fileInfo;
+
+
+  var newByOutpoint = Object.assign({}, state.byOutpoint);
+  var newDownloading = Object.assign({}, state.downloadingByOutpoint);
+
+  newByOutpoint[outpoint] = fileInfo;
+  delete newDownloading[outpoint];
+
+  return Object.assign({}, state, {
+    byOutpoint: newByOutpoint,
+    downloadingByOutpoint: newDownloading
+  });
+};
+
+reducers[ACTIONS.FILE_DELETE] = function (state, action) {
+  var outpoint = action.data.outpoint;
+
+
+  var newByOutpoint = Object.assign({}, state.byOutpoint);
+  var downloadingByOutpoint = Object.assign({}, state.downloadingByOutpoint);
+
+  delete newByOutpoint[outpoint];
+  delete downloadingByOutpoint[outpoint];
+
+  return Object.assign({}, state, {
+    byOutpoint: newByOutpoint,
+    downloadingByOutpoint: downloadingByOutpoint
+  });
+};
+
+reducers[ACTIONS.LOADING_VIDEO_STARTED] = function (state, action) {
+  var uri = action.data.uri;
+
+
+  var newLoading = Object.assign({}, state.urisLoading);
+
+  newLoading[uri] = true;
+
+  return Object.assign({}, state, {
+    urisLoading: newLoading
+  });
+};
+
+reducers[ACTIONS.LOADING_VIDEO_FAILED] = function (state, action) {
+  var uri = action.data.uri;
+
+
+  var newLoading = Object.assign({}, state.urisLoading);
+
+  delete newLoading[uri];
+
+  return Object.assign({}, state, {
+    urisLoading: newLoading
+  });
+};
+
+reducers[ACTIONS.FETCH_DATE] = function (state, action) {
+  var time = action.data.time;
+
+  if (time) {
+    return Object.assign({}, state, {
+      publishedDate: time
+    });
+  }
+  return null;
+};
+
+function fileInfoReducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
+  var action = arguments[1];
+
+  var handler = reducers[action.type];
+  if (handler) return handler(state, action);
+  return state;
+}
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.searchReducer = searchReducer;
+
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var reducers = {};
+var defaultState = {
+  urisByQuery: {},
+  searching: false
+};
+
+reducers[ACTIONS.SEARCH_STARTED] = function (state) {
+  return Object.assign({}, state, {
+    searching: true
+  });
+};
+
+reducers[ACTIONS.SEARCH_COMPLETED] = function (state, action) {
+  var _action$data = action.data,
+      query = _action$data.query,
+      uris = _action$data.uris;
+
+
+  return Object.assign({}, state, {
+    searching: false,
+    urisByQuery: Object.assign({}, state.urisByQuery, _defineProperty({}, query, uris))
+  });
+};
+
+reducers[ACTIONS.SEARCH_CANCELLED] = function (state) {
+  return Object.assign({}, state, {
+    searching: false
+  });
+};
+
+function searchReducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
+  var action = arguments[1];
+
+  var handler = reducers[action.type];
+  if (handler) return handler(state, action);
+  return state;
+}
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.walletReducer = walletReducer;
+
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var reducers = {};
+var receiveAddress = localStorage.getItem('receiveAddress');
+var buildDraftTransaction = function buildDraftTransaction() {
+  return {
+    amount: undefined,
+    address: undefined
+  };
+};
+
+var defaultState = {
+  balance: undefined,
+  blocks: {},
+  transactions: {},
+  fetchingTransactions: false,
+  receiveAddress: receiveAddress,
+  gettingNewAddress: false,
+  draftTransaction: buildDraftTransaction(),
+  sendingSupport: false
+};
+
+reducers[ACTIONS.FETCH_TRANSACTIONS_STARTED] = function (state) {
+  return Object.assign({}, state, {
+    fetchingTransactions: true
+  });
+};
+
+reducers[ACTIONS.FETCH_TRANSACTIONS_COMPLETED] = function (state, action) {
+  var byId = Object.assign({}, state.transactions);
+
+  var transactions = action.data.transactions;
+
+
+  transactions.forEach(function (transaction) {
+    byId[transaction.txid] = transaction;
+  });
+
+  return Object.assign({}, state, {
+    transactions: byId,
+    fetchingTransactions: false
+  });
+};
+
+reducers[ACTIONS.GET_NEW_ADDRESS_STARTED] = function (state) {
+  return Object.assign({}, state, {
+    gettingNewAddress: true
+  });
+};
+
+reducers[ACTIONS.GET_NEW_ADDRESS_COMPLETED] = function (state, action) {
+  var address = action.data.address;
+
+
+  localStorage.setItem('receiveAddress', address);
+  return Object.assign({}, state, {
+    gettingNewAddress: false,
+    receiveAddress: address
+  });
+};
+
+reducers[ACTIONS.UPDATE_BALANCE] = function (state, action) {
+  return Object.assign({}, state, {
+    balance: action.data.balance
+  });
+};
+
+reducers[ACTIONS.CHECK_ADDRESS_IS_MINE_STARTED] = function (state) {
+  return Object.assign({}, state, {
+    checkingAddressOwnership: true
+  });
+};
+
+reducers[ACTIONS.CHECK_ADDRESS_IS_MINE_COMPLETED] = function (state) {
+  return Object.assign({}, state, {
+    checkingAddressOwnership: false
+  });
+};
+
+reducers[ACTIONS.SET_DRAFT_TRANSACTION_AMOUNT] = function (state, action) {
+  var oldDraft = state.draftTransaction;
+  var newDraft = Object.assign({}, oldDraft, {
+    amount: parseFloat(action.data.amount)
+  });
+
+  return Object.assign({}, state, {
+    draftTransaction: newDraft
+  });
+};
+
+reducers[ACTIONS.SET_DRAFT_TRANSACTION_ADDRESS] = function (state, action) {
+  var oldDraft = state.draftTransaction;
+  var newDraft = Object.assign({}, oldDraft, {
+    address: action.data.address
+  });
+
+  return Object.assign({}, state, {
+    draftTransaction: newDraft
+  });
+};
+
+reducers[ACTIONS.SEND_TRANSACTION_STARTED] = function (state) {
+  var newDraftTransaction = Object.assign({}, state.draftTransaction, {
+    sending: true
+  });
+
+  return Object.assign({}, state, {
+    draftTransaction: newDraftTransaction
+  });
+};
+
+reducers[ACTIONS.SEND_TRANSACTION_COMPLETED] = function (state) {
+  return Object.assign({}, state, {
+    draftTransaction: buildDraftTransaction()
+  });
+};
+
+reducers[ACTIONS.SEND_TRANSACTION_FAILED] = function (state, action) {
+  var newDraftTransaction = Object.assign({}, state.draftTransaction, {
+    sending: false,
+    error: action.data.error
+  });
+
+  return Object.assign({}, state, {
+    draftTransaction: newDraftTransaction
+  });
+};
+
+reducers[ACTIONS.SUPPORT_TRANSACTION_STARTED] = function (state) {
+  return Object.assign({}, state, {
+    sendingSupport: true
+  });
+};
+
+reducers[ACTIONS.SUPPORT_TRANSACTION_COMPLETED] = function (state) {
+  return Object.assign({}, state, {
+    sendingSupport: false
+  });
+};
+
+reducers[ACTIONS.SUPPORT_TRANSACTION_FAILED] = function (state, action) {
+  return Object.assign({}, state, {
+    error: action.data.error,
+    sendingSupport: false
+  });
+};
+
+reducers[ACTIONS.FETCH_BLOCK_SUCCESS] = function (state, action) {
+  var _action$data = action.data,
+      block = _action$data.block,
+      height = _action$data.block.height;
+
+  var blocks = Object.assign({}, state.blocks);
+
+  blocks[height] = block;
+
+  return Object.assign({}, state, { blocks: blocks });
+};
+
+function walletReducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
+  var action = arguments[1];
+
+  var handler = reducers[action.type];
+  if (handler) return handler(state, action);
+  return state;
+}
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.makeSelectFetchingCostInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.makeSelectCostInfoForUri = exports.selectAllCostInfoByUri = exports.selectState = undefined;
+
+var _reselect = __webpack_require__(4);
+
+var _navigation = __webpack_require__(3);
+
+var selectState = exports.selectState = function selectState(state) {
+  return state.costInfo || {};
+};
+
+var selectAllCostInfoByUri = exports.selectAllCostInfoByUri = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.byUri || {};
+});
+
+var makeSelectCostInfoForUri = exports.makeSelectCostInfoForUri = function makeSelectCostInfoForUri(uri) {
+  return (0, _reselect.createSelector)(selectAllCostInfoByUri, function (costInfos) {
+    return costInfos && costInfos[uri];
+  });
+};
+
+var selectCostForCurrentPageUri = exports.selectCostForCurrentPageUri = (0, _reselect.createSelector)(selectAllCostInfoByUri, _navigation.selectCurrentParams, function (costInfo, params) {
+  return params.uri && costInfo[params.uri] ? costInfo[params.uri].cost : undefined;
+});
+
+var selectFetchingCostInfo = exports.selectFetchingCostInfo = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.fetching || {};
+});
+
+var makeSelectFetchingCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = function makeSelectFetchingCostInfoForUri(uri) {
+  return (0, _reselect.createSelector)(selectFetchingCostInfo, function (fetchingByUri) {
+    return fetchingByUri && fetchingByUri[uri];
+  });
+};
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.selectWunderBarIcon = exports.selectWunderBarAddress = exports.makeSelectSearchUris = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchQuery = exports.selectState = undefined;
+
+var _navigation = __webpack_require__(3);
+
+var _reselect = __webpack_require__(4);
+
+var selectState = exports.selectState = function selectState(state) {
+  return state.search || {};
+};
+
+var selectSearchQuery = exports.selectSearchQuery = (0, _reselect.createSelector)(_navigation.selectCurrentPage, _navigation.selectCurrentParams, function (page, params) {
+  return page === 'search' ? params && params.query : null;
+});
+
+var selectIsSearching = exports.selectIsSearching = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.searching;
+});
+
+var selectSearchUrisByQuery = exports.selectSearchUrisByQuery = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.urisByQuery;
+});
+
+var makeSelectSearchUris = exports.makeSelectSearchUris = function makeSelectSearchUris(query) {
+  return (
+    // replace statement below is kind of ugly, and repeated in doSearch action
+    (0, _reselect.createSelector)(selectSearchUrisByQuery, function (byQuery) {
+      return byQuery[query ? query.replace(/^lbry:\/\//i, '') : query];
+    })
+  );
+};
+
+var selectWunderBarAddress = exports.selectWunderBarAddress = (0, _reselect.createSelector)(_navigation.selectCurrentPage, _navigation.selectPageTitle, selectSearchQuery, function (page, title, query) {
+  return page !== 'search' ? title : query || title;
+});
+
+var selectWunderBarIcon = exports.selectWunderBarIcon = (0, _reselect.createSelector)(_navigation.selectCurrentPage, _navigation.selectCurrentParams, function (page, params) {
+  switch (page) {
+    case 'auth':
+      return 'icon-user';
+    case 'settings':
+      return 'icon-gear';
+    case 'help':
+      return 'icon-question';
+    case 'report':
+      return 'icon-file';
+    case 'downloaded':
+      return 'icon-folder';
+    case 'published':
+      return 'icon-folder';
+    case 'history':
+      return 'icon-history';
+    case 'send':
+      return 'icon-send';
+    case 'rewards':
+      return 'icon-rocket';
+    case 'invite':
+      return 'icon-envelope-open';
+    case 'getcredits':
+      return 'icon-shopping-cart';
+    case 'wallet':
+    case 'backup':
+      return 'icon-bank';
+    case 'show':
+      return 'icon-file';
+    case 'publish':
+      return params.id ? __('icon-pencil') : __('icon-upload');
+    case 'developer':
+      return 'icon-code';
+    case 'discover':
+    case 'search':
+      return 'icon-search';
+    case 'subscriptions':
+      return 'icon-th-list';
+    default:
+      return 'icon-file';
+  }
+});
 
 /***/ })
 /******/ ]);
+});
