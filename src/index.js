@@ -1,14 +1,26 @@
 // common
 import Lbry from 'lbry';
-import LbryApi from 'lbryapi';
 import Lbryuri from 'lbryuri';
-export { Lbry, LbryApi, Lbryuri };
+export { Lbry, Lbryuri };
 
 // actions
+export { doOpenModal, doCloseModal, doShowSnackBar } from 'redux/actions/app';
 export { doFetchClaimListMine, doAbandonClaim, doResolveUris, doResolveUri } from 'redux/actions/claims';
 export { doFetchCostInfoForUri } from 'redux/actions/cost_info';
 export { doFetchFileInfo, doFileList, doFetchFileInfosAndPublishedClaims } from 'redux/actions/file_info';
 export { doSearch } from 'redux/actions/search';
+export {
+  doUpdateBalance,
+  doBalanceSubscribe,
+  doFetchTransactions,
+  doFetchBlock,
+  doGetNewAddress,
+  doCheckAddressIsMine,
+  doSendDraftTransaction,
+  doSetDraftTransactionAmount,
+  doSetDraftTransactionAddress,
+  doSendSupport
+} from 'redux/actions/wallet';
 
 // reducers
 export { claimsReducer  } from 'redux/reducers/claims';
@@ -54,14 +66,14 @@ export {
 } from 'redux/selectors/cost_info';
 
 export {
+  makeSelectFileInfoForUri,
+  makeSelectDownloadingForUri,
+  makeSelectLoadingForUri,
   selectFileInfosByOutpoint,
   selectIsFetchingFileList,
   selectIsFetchingFileListDownloadedOrPublished,
-  makeSelectFileInfoForUri,
   selectDownloadingByOutpoint,
-  makeSelectDownloadingForUri,
   selectUrisLoading,
-  makeSelectLoadingForUri,
   selectFileInfosDownloaded,
   selectDownloadingFileInfos,
   selectTotalDownloadProgress
@@ -75,3 +87,21 @@ export {
   selectWunderBarAddress,
   selectWunderBarIcon
 } from 'redux/selectors/search';
+
+export {
+  makeSelectBlockDate,
+  selectBalance,
+  selectTransactionsById,
+  selectTransactionItems,
+  selectRecentTransactions,
+  selectHasTransactions,
+  selectIsFetchingTransactions,
+  selectIsSendingSupport,
+  selectReceiveAddress,
+  selectGettingNewAddress,
+  selectDraftTransaction,
+  selectDraftTransactionAmount,
+  selectDraftTransactionAddress,
+  selectDraftTransactionError,
+  selectBlocks
+} from 'redux/selectors/wallet';
