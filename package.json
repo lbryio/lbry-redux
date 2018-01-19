@@ -17,6 +17,7 @@
   "main": "build/index.js",
   "scripts": {
     "build": "webpack",
+    "precommit": "lint-staged",
     "lint": "eslint 'src/**/*.{js,jsx}' --fix",
     "format": "prettier 'src/**/*.{js,jsx,scss,json}' --write"
   },

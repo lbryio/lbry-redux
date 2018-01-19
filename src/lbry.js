@@ -103,6 +103,7 @@ Lbry.connect = () => {
       // Check every half second to see if the daemon is accepting connections
       function checkDaemonStarted() {
         tryNum += 1;
+        // eslint-disable-next-line no-use-before-define
         lbryProxy
           .status()
           .then(resolve)
@@ -146,6 +147,7 @@ Lbry.publishDeprecated = (params, fileListedCallback, publishedCallback, errorCa
     { once: true }
   );
 
+  // eslint-disable-next-line no-use-before-define
   lbryProxy.publish(params).then(
     result => {
       if (returnPendingTimeout) clearTimeout(returnPendingTimeout);

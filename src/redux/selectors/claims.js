@@ -179,4 +179,3 @@ export const makeSelectIsUriResolving = uri =>
     selectResolvingUris,
     resolvingUris => resolvingUris && resolvingUris.indexOf(uri) !== -1
   );
-

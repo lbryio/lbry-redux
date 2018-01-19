@@ -1,7 +1,9 @@
 import * as ACTIONS from 'constants/action_types';
+import * as MODALS from 'constants/modal_types';
 import Lbry from 'lbry';
 import Lbryuri from 'lbryuri';
-import { selectResolvingUris } from 'redux/selectors/claims';
+import { doOpenModal } from 'redux/actions/app';
+import { selectMyClaimsRaw, selectResolvingUris } from 'redux/selectors/claims';
 
 export function doResolveUris(uris) {
   return (dispatch, getState) => {

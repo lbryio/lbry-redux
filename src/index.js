@@ -1,20 +1,30 @@
 // common
 import Lbry from 'lbry';
 import Lbryuri from 'lbryuri';
+
 export { Lbry, Lbryuri };
 
 // actions
 export { doOpenModal, doCloseModal, doShowSnackBar } from 'redux/actions/app';
-export { doFetchClaimListMine, doAbandonClaim, doResolveUris, doResolveUri } from 'redux/actions/claims';
+export {
+  doFetchClaimListMine,
+  doAbandonClaim,
+  doResolveUris,
+  doResolveUri,
+} from 'redux/actions/claims';
 export { doFetchCostInfoForUri } from 'redux/actions/cost_info';
-export { doFetchFileInfo, doFileList, doFetchFileInfosAndPublishedClaims } from 'redux/actions/file_info';
+export {
+  doFetchFileInfo,
+  doFileList,
+  doFetchFileInfosAndPublishedClaims,
+} from 'redux/actions/file_info';
 export {
   doNavigate,
   doAuthNavigate,
   doHistoryTraverse,
   doHistoryBack,
   doHistoryForward,
-  doRecordScroll
+  doRecordScroll,
 } from 'redux/actions/navigation';
 export { doSearch } from 'redux/actions/search';
 export {
@@ -27,7 +37,7 @@ export {
   doSendDraftTransaction,
   doSetDraftTransactionAmount,
   doSetDraftTransactionAddress,
-  doSendSupport
+  doSendSupport,
 } from 'redux/actions/wallet';
 
 // utils
@@ -35,7 +45,7 @@ export { batchActions } from 'util/batchActions';
 export { parseQueryParams, toQueryString } from 'util/query_params';
 
 // reducers
-export { claimsReducer  } from 'redux/reducers/claims';
+export { claimsReducer } from 'redux/reducers/claims';
 export { costInfoReducer } from 'redux/reducers/cost_info';
 export { fileInfoReducer } from 'redux/reducers/file_info';
 export { searchReducer } from 'redux/reducers/search';
@@ -66,15 +76,15 @@ export {
   selectMyClaimsOutpoints,
   selectFetchingMyChannels,
   selectMyChannelClaims,
-  selectResolvingUris
+  selectResolvingUris,
 } from 'redux/selectors/claims';
 
 export {
-    makeSelectFetchingCostInfoForUri,
-    makeSelectCostInfoForUri,
-    selectAllCostInfoByUri,
-    selectCostForCurrentPageUri,
-    selectFetchingCostInfo
+  makeSelectFetchingCostInfoForUri,
+  makeSelectCostInfoForUri,
+  selectAllCostInfoByUri,
+  selectCostForCurrentPageUri,
+  selectFetchingCostInfo,
 } from 'redux/selectors/cost_info';
 
 export {
@@ -88,7 +98,7 @@ export {
   selectUrisLoading,
   selectFileInfosDownloaded,
   selectDownloadingFileInfos,
-  selectTotalDownloadProgress
+  selectTotalDownloadProgress,
 } from 'redux/selectors/file_info';
 
 export {
@@ -104,7 +114,7 @@ export {
   selectIsForwardDisabled,
   selectHistoryIndex,
   selectHistoryStack,
-  selectActiveHistoryEntry
+  selectActiveHistoryEntry,
 } from 'redux/selectors/navigation';
 
 export {
@@ -113,7 +123,7 @@ export {
   selectIsSearching,
   selectSearchUrisByQuery,
   selectWunderBarAddress,
-  selectWunderBarIcon
+  selectWunderBarIcon,
 } from 'redux/selectors/search';
 
 export {
@@ -131,5 +141,5 @@ export {
   selectDraftTransactionAmount,
   selectDraftTransactionAddress,
   selectDraftTransactionError,
-  selectBlocks
+  selectBlocks,
 } from 'redux/selectors/wallet';

@@ -1,7 +1,6 @@
-import Lbry from 'lbry';
 import querystring from 'querystring';
 
-const LbryApi = {
+const Lbryapi = {
   enabled: true,
   exchangePromise: null,
   exchangeLastFetched: null,
@@ -13,27 +12,26 @@ const CONNECTION_STRING = process.env.LBRY_APP_API_URL
 
 const EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
 
-LbryApi.getExchangeRates = () => {
+Lbryapi.getExchangeRates = () => {
   if (
-    !LbryApi.exchangeLastFetched ||
-    Date.now() - LbryApi.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT
+    !Lbryapi.exchangeLastFetched ||
+    Date.now() - Lbryapi.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT
   ) {
-    LbryApi.exchangePromise = new Promise((resolve, reject) => {
-      LbryApi.call('lbc', 'exchange_rate', {}, 'get', true)
+    Lbryapi.exchangePromise = new Promise((resolve, reject) => {
+      Lbryapi.call('lbc', 'exchange_rate', {}, 'get', true)
         .then(({ lbc_usd: LBC_USD, lbc_btc: LBC_BTC, btc_usd: BTC_USD }) => {
           const rates = { LBC_USD, LBC_BTC, BTC_USD };
           resolve(rates);
         })
         .catch(reject);
     });
-    LbryApi.exchangeLastFetched = Date.now();
+    Lbryapi.exchangeLastFetched = Date.now();
   }
-  return LbryApi.exchangePromise;
+  return Lbryapi.exchangePromise;
 };
 
-LbryApi.call = (resource, action, params = {}, method = 'get') => {
-  if (!LbryApi.enabled) {
-    console.log(__('Internal API disabled'));
+Lbryapi.call = (resource, action, params = {}, method = 'get') => {
+  if (!Lbryapi.enabled) {
     return Promise.reject(new Error(__('LBRY internal API is disabled')));
   }
 
@@ -83,4 +81,4 @@ LbryApi.call = (resource, action, params = {}, method = 'get') => {
   return makeRequest(url, options).then(response => response.data);
 };
 
-export default LbryApi;
+export default Lbryapi;
