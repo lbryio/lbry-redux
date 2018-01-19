@@ -8,6 +8,14 @@ export { doOpenModal, doCloseModal, doShowSnackBar } from 'redux/actions/app';
 export { doFetchClaimListMine, doAbandonClaim, doResolveUris, doResolveUri } from 'redux/actions/claims';
 export { doFetchCostInfoForUri } from 'redux/actions/cost_info';
 export { doFetchFileInfo, doFileList, doFetchFileInfosAndPublishedClaims } from 'redux/actions/file_info';
+export {
+  doNavigate,
+  doAuthNavigate,
+  doHistoryTraverse,
+  doHistoryBack,
+  doHistoryForward,
+  doRecordScroll
+} from 'redux/actions/navigation';
 export { doSearch } from 'redux/actions/search';
 export {
   doUpdateBalance,
@@ -21,6 +29,10 @@ export {
   doSetDraftTransactionAddress,
   doSendSupport
 } from 'redux/actions/wallet';
+
+// utils
+export { batchActions } from 'util/batchActions';
+export { parseQueryParams, toQueryString } from 'util/query_params';
 
 // reducers
 export { claimsReducer  } from 'redux/reducers/claims';
@@ -78,6 +90,22 @@ export {
   selectDownloadingFileInfos,
   selectTotalDownloadProgress
 } from 'redux/selectors/file_info';
+
+export {
+  computePageFromPath,
+  makeSelectCurrentParam,
+  selectCurrentPath,
+  selectCurrentPage,
+  selectCurrentParams,
+  selectHeaderLinks,
+  selectPageTitle,
+  selectPathAfterAuth,
+  selectIsBackDisabled,
+  selectIsForwardDisabled,
+  selectHistoryIndex,
+  selectHistoryStack,
+  selectActiveHistoryEntry
+} from 'redux/selectors/navigation';
 
 export {
   makeSelectSearchUris,

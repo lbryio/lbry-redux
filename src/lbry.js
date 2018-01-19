@@ -262,7 +262,7 @@ Lbry.resolve = (params = {}) =>
       reject
     );
   });
-  
+
 const lbryProxy = new Proxy(Lbry, {
   get(target, name) {
     if (name in target) {
