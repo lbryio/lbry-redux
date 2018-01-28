@@ -1,9 +1,17 @@
 // common
 import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
-import Lbryuri from 'lbryuri';
 
-export { Lbry, Lbryapi, Lbryuri };
+export { Lbry, Lbryapi };
+export {
+  regexInvalidURI,
+  regexAddress,
+  parseURI,
+  buildURI,
+  normalizeURI,
+  isURIValid,
+  isURIClaimable,
+} from 'lbryURI';
 
 // actions
 export { doOpenModal, doCloseModal, doShowSnackBar } from 'redux/actions/app';

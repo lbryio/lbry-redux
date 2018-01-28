@@ -1,13 +1,13 @@
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
 import Lbry from 'lbry';
-import Lbryuri from 'lbryuri';
+import { buildURI, normalizeURI } from 'lbryURI';
 import { doOpenModal } from 'redux/actions/app';
 import { selectMyClaimsRaw, selectResolvingUris } from 'redux/selectors/claims';
 
 export function doResolveUris(uris) {
   return (dispatch, getState) => {
-    const normalizedUris = uris.map(Lbryuri.normalize);
+    const normalizedUris = uris.map(normalizeURI);
     const state = getState();
 
     // Filter out URIs that are already resolving
@@ -94,7 +94,7 @@ export function doAbandonClaim(txid, nout) {
             claimId,
           },
         });
-        dispatch(doResolveUri(Lbryuri.build({ name, claimId })));
+        dispatch(doResolveUri(buildURI({ name, claimId })));
         dispatch(doFetchClaimListMine());
       } else {
         dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
