@@ -1,12 +1,11 @@
 import * as ACTIONS from 'constants/action_types';
 import { buildURI } from 'lbryURI';
 import { doResolveUri } from 'redux/actions/claims';
-import { doNavigate } from 'redux/actions/navigation';
 import { selectCurrentPage } from 'redux/selectors/navigation';
 import batchActions from 'util/batchActions';
 
 // eslint-disable-next-line import/prefer-default-export
-export function doSearch(rawQuery) {
+export function doSearch(rawQuery, currentPageNotSearchHandler) {
   return (dispatch, getState) => {
     const state = getState();
     const page = selectCurrentPage(state);
@@ -26,7 +25,9 @@ export function doSearch(rawQuery) {
     });
 
     if (page !== 'search') {
-      dispatch(doNavigate('search', { query }));
+      if (currentPageNotSearchHandler) {
+        currentPageNotSearchHandler();
+      }
     } else {
       fetch(`https://lighthouse.lbry.io/search?s=${query}`)
         .then(

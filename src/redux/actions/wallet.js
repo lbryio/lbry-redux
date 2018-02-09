@@ -2,7 +2,6 @@ import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
 import Lbry from 'lbry';
 import { doOpenModal, doShowSnackBar } from 'redux/actions/app';
-import { doNavigate } from 'redux/actions/navigation';
 import {
   selectBalance,
   selectDraftTransaction,
@@ -155,7 +154,7 @@ export function doSetDraftTransactionAddress(address) {
   };
 }
 
-export function doSendSupport(amount, claimId, uri) {
+export function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
   return (dispatch, getState) => {
     const state = getState();
     const balance = selectBalance(state);
@@ -168,36 +167,6 @@ export function doSendSupport(amount, claimId, uri) {
     dispatch({
       type: ACTIONS.SUPPORT_TRANSACTION_STARTED,
     });
-
-    const successCallback = results => {
-      if (results.txid) {
-        dispatch({
-          type: ACTIONS.SUPPORT_TRANSACTION_COMPLETED,
-        });
-        dispatch(
-          doShowSnackBar({
-            message: __(`You sent ${amount} LBC as support, Mahalo!`),
-            linkText: __('History'),
-            linkTarget: __('/wallet'),
-          })
-        );
-        dispatch(doNavigate('/show', { uri }));
-      } else {
-        dispatch({
-          type: ACTIONS.SUPPORT_TRANSACTION_FAILED,
-          data: { error: results.code },
-        });
-        dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
-      }
-    };
-
-    const errorCallback = error => {
-      dispatch({
-        type: ACTIONS.SUPPORT_TRANSACTION_FAILED,
-        data: { error: error.code },
-      });
-      dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
-    };
 
     Lbry.wallet_send({
       claim_id: claimId,

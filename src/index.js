@@ -1,7 +1,11 @@
+// constants
+import * as ACTIONS from 'constants/action_types';
+
 // common
 import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
 
+export { ACTIONS };
 export { Lbry, Lbryapi };
 export {
   regexInvalidURI,
@@ -27,14 +31,6 @@ export {
   doFileList,
   doFetchFileInfosAndPublishedClaims,
 } from 'redux/actions/file_info';
-export {
-  doNavigate,
-  doAuthNavigate,
-  doHistoryTraverse,
-  doHistoryBack,
-  doHistoryForward,
-  doRecordScroll,
-} from 'redux/actions/navigation';
 export { doSearch } from 'redux/actions/search';
 export {
   doUpdateBalance,
