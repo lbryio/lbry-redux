@@ -1,11 +1,14 @@
-// constants
 import * as ACTIONS from 'constants/action_types';
-
-// common
 import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
 
+// types
+export { Notification } from 'types/Notification';
+
+// constants
 export { ACTIONS };
+
+// common
 export { Lbry, Lbryapi };
 export {
   regexInvalidURI,
@@ -18,20 +21,27 @@ export {
 } from 'lbryURI';
 
 // actions
+export { doNotify } from 'redux/actions/notifications';
+
 export { doOpenModal, doCloseModal, doShowSnackBar } from 'redux/actions/app';
+
 export {
   doFetchClaimListMine,
   doAbandonClaim,
   doResolveUris,
   doResolveUri,
 } from 'redux/actions/claims';
+
 export { doFetchCostInfoForUri } from 'redux/actions/cost_info';
+
 export {
   doFetchFileInfo,
   doFileList,
   doFetchFileInfosAndPublishedClaims,
 } from 'redux/actions/file_info';
+
 export { doSearch } from 'redux/actions/search';
+
 export {
   doUpdateBalance,
   doBalanceSubscribe,
@@ -53,10 +63,13 @@ export { parseQueryParams, toQueryString } from 'util/query_params';
 export { claimsReducer } from 'redux/reducers/claims';
 export { costInfoReducer } from 'redux/reducers/cost_info';
 export { fileInfoReducer } from 'redux/reducers/file_info';
+export { notificationsReducer } from 'redux/reducers/notifications';
 export { searchReducer } from 'redux/reducers/search';
 export { walletReducer } from 'redux/reducers/wallet';
 
 // selectors
+export { selectNotification } from 'redux/selectors/notifications';
+
 export {
   makeSelectClaimForUri,
   makeSelectClaimIsMine,
