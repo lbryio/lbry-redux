@@ -1,4 +1,5 @@
 import jsonrpc from 'jsonrpc';
+import 'proxy-polyfill';
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 

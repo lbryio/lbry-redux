@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 16);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -832,7 +832,7 @@ var _reselect = __webpack_require__(1);
 
 var _lbryURI = __webpack_require__(2);
 
-var _query_params = __webpack_require__(10);
+var _query_params = __webpack_require__(11);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.navigation || {};
@@ -993,9 +993,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _jsonrpc = __webpack_require__(17);
+var _jsonrpc = __webpack_require__(18);
 
 var _jsonrpc2 = _interopRequireDefault(_jsonrpc);
+
+__webpack_require__(19);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1528,1402 +1530,6 @@ var CONFIRM_CLAIM_REVOKE = exports.CONFIRM_CLAIM_REVOKE = 'confirmClaimRevoke';
 
 /***/ }),
 /* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-exports.parseQueryParams = parseQueryParams;
-exports.toQueryString = toQueryString;
-function parseQueryParams(queryString) {
-  if (queryString === '') return {};
-  var parts = queryString.split('?').pop().split('&').map(function (p) {
-    return p.split('=');
-  });
-
-  var params = {};
-  parts.forEach(function (array) {
-    var _array = _slicedToArray(array, 2),
-        first = _array[0],
-        second = _array[1];
-
-    params[first] = second;
-  });
-  return params;
-}
-
-function toQueryString(params) {
-  if (!params) return '';
-
-  var parts = [];
-  Object.keys(params).forEach(function (key) {
-    if (Object.prototype.hasOwnProperty.call(params, key) && params[key]) {
-      parts.push(key + '=' + params[key]);
-    }
-  });
-
-  return parts.join('&');
-}
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _querystring = __webpack_require__(20);
-
-var _querystring2 = _interopRequireDefault(_querystring);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Lbryapi = {
-  enabled: true,
-  exchangePromise: null,
-  exchangeLastFetched: null
-};
-
-var CONNECTION_STRING = process.env.LBRY_APP_API_URL ? process.env.LBRY_APP_API_URL.replace(/\/*$/, '/') // exactly one slash at the end
-: 'https://api.lbry.io/';
-
-var EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
-
-Lbryapi.getExchangeRates = function () {
-  if (!Lbryapi.exchangeLastFetched || Date.now() - Lbryapi.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
-    Lbryapi.exchangePromise = new Promise(function (resolve, reject) {
-      Lbryapi.call('lbc', 'exchange_rate', {}, 'get', true).then(function (_ref) {
-        var LBC_USD = _ref.lbc_usd,
-            LBC_BTC = _ref.lbc_btc,
-            BTC_USD = _ref.btc_usd;
-
-        var rates = { LBC_USD: LBC_USD, LBC_BTC: LBC_BTC, BTC_USD: BTC_USD };
-        resolve(rates);
-      }).catch(reject);
-    });
-    Lbryapi.exchangeLastFetched = Date.now();
-  }
-  return Lbryapi.exchangePromise;
-};
-
-Lbryapi.call = function (resource, action) {
-  var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  var method = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'get';
-
-  if (!Lbryapi.enabled) {
-    return Promise.reject(new Error(__('LBRY internal API is disabled')));
-  }
-
-  if (!(method === 'get' || method === 'post')) {
-    return Promise.reject(new Error(__('Invalid method')));
-  }
-
-  function checkAndParse(response) {
-    if (response.status >= 200 && response.status < 300) {
-      return response.json();
-    }
-    return response.json().then(function (json) {
-      var error = void 0;
-      if (json.error) {
-        error = new Error(json.error);
-      } else {
-        error = new Error('Unknown API error signature');
-      }
-      error.response = response; // This is primarily a hack used in actions/user.js
-      return Promise.reject(error);
-    });
-  }
-
-  function makeRequest(url, options) {
-    return fetch(url, options).then(checkAndParse);
-  }
-
-  var fullParams = _extends({}, params);
-  var qs = _querystring2.default.stringify(fullParams);
-  var url = '' + CONNECTION_STRING + resource + '/' + action + '?' + qs;
-
-  var options = {
-    method: 'GET'
-  };
-
-  if (method === 'post') {
-    options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: qs
-    };
-    url = '' + CONNECTION_STRING + resource + '/' + action;
-  }
-
-  return makeRequest(url, options).then(function (response) {
-    return response.data;
-  });
-};
-
-exports.default = Lbryapi;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19)))
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.makeSelectLoadingForUri = exports.selectUrisLoading = exports.makeSelectDownloadingForUri = exports.selectDownloadingByOutpoint = exports.makeSelectFileInfoForUri = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.selectState = undefined;
-
-var _claims = __webpack_require__(3);
-
-var _reselect = __webpack_require__(1);
-
-var selectState = exports.selectState = function selectState(state) {
-  return state.fileInfo || {};
-};
-
-var selectFileInfosByOutpoint = exports.selectFileInfosByOutpoint = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.byOutpoint || {};
-});
-
-var selectIsFetchingFileList = exports.selectIsFetchingFileList = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.isFetchingFileList;
-});
-
-var selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileListDownloadedOrPublished = (0, _reselect.createSelector)(selectIsFetchingFileList, _claims.selectIsFetchingClaimListMine, function (isFetchingFileList, isFetchingClaimListMine) {
-  return isFetchingFileList || isFetchingClaimListMine;
-});
-
-var makeSelectFileInfoForUri = exports.makeSelectFileInfoForUri = function makeSelectFileInfoForUri(uri) {
-  return (0, _reselect.createSelector)(_claims.selectClaimsByUri, selectFileInfosByOutpoint, function (claims, byOutpoint) {
-    var claim = claims[uri];
-    var outpoint = claim ? claim.txid + ':' + claim.nout : undefined;
-
-    return outpoint ? byOutpoint[outpoint] : undefined;
-  });
-};
-
-var selectDownloadingByOutpoint = exports.selectDownloadingByOutpoint = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.downloadingByOutpoint || {};
-});
-
-var makeSelectDownloadingForUri = exports.makeSelectDownloadingForUri = function makeSelectDownloadingForUri(uri) {
-  return (0, _reselect.createSelector)(selectDownloadingByOutpoint, makeSelectFileInfoForUri(uri), function (byOutpoint, fileInfo) {
-    if (!fileInfo) return false;
-    return byOutpoint[fileInfo.outpoint];
-  });
-};
-
-var selectUrisLoading = exports.selectUrisLoading = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.urisLoading || {};
-});
-
-var makeSelectLoadingForUri = exports.makeSelectLoadingForUri = function makeSelectLoadingForUri(uri) {
-  return (0, _reselect.createSelector)(selectUrisLoading, function (byUri) {
-    return byUri && byUri[uri];
-  });
-};
-
-var selectFileInfosDownloaded = exports.selectFileInfosDownloaded = (0, _reselect.createSelector)(selectFileInfosByOutpoint, _claims.selectMyClaims, function (byOutpoint, myClaims) {
-  return Object.values(byOutpoint).filter(function (fileInfo) {
-    var myClaimIds = myClaims.map(function (claim) {
-      return claim.claim_id;
-    });
-
-    return fileInfo && myClaimIds.indexOf(fileInfo.claim_id) === -1 && (fileInfo.completed || fileInfo.written_bytes);
-  });
-});
-
-// export const selectFileInfoForUri = (state, props) => {
-//   const claims = selectClaimsByUri(state),
-//     claim = claims[props.uri],
-//     fileInfos = selectAllFileInfos(state),
-//     outpoint = claim ? `${claim.txid}:${claim.nout}` : undefined;
-
-//   return outpoint && fileInfos ? fileInfos[outpoint] : undefined;
-// };
-
-var selectDownloadingFileInfos = exports.selectDownloadingFileInfos = (0, _reselect.createSelector)(selectDownloadingByOutpoint, selectFileInfosByOutpoint, function (downloadingByOutpoint, fileInfosByOutpoint) {
-  var outpoints = Object.keys(downloadingByOutpoint);
-  var fileInfos = [];
-
-  outpoints.forEach(function (outpoint) {
-    var fileInfo = fileInfosByOutpoint[outpoint];
-
-    if (fileInfo) fileInfos.push(fileInfo);
-  });
-
-  return fileInfos;
-});
-
-var selectTotalDownloadProgress = exports.selectTotalDownloadProgress = (0, _reselect.createSelector)(selectDownloadingFileInfos, function (fileInfos) {
-  var progress = [];
-
-  fileInfos.forEach(function (fileInfo) {
-    progress.push(fileInfo.written_bytes / fileInfo.total_bytes * 100);
-  });
-
-  var totalProgress = progress.reduce(function (a, b) {
-    return a + b;
-  }, 0);
-
-  if (fileInfos.length > 0) return totalProgress / fileInfos.length / 100.0;
-  return -1;
-});
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.batchActions = batchActions;
-// https://github.com/reactjs/redux/issues/911
-function batchActions() {
-  for (var _len = arguments.length, actions = Array(_len), _key = 0; _key < _len; _key++) {
-    actions[_key] = arguments[_key];
-  }
-
-  return {
-    type: 'BATCH_ACTIONS',
-    actions: actions
-  };
-}
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.makeSelectBlockDate = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.selectState = undefined;
-
-var _reselect = __webpack_require__(1);
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-var selectState = exports.selectState = function selectState(state) {
-  return state.wallet || {};
-};
-
-var selectBalance = exports.selectBalance = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.balance;
-});
-
-var selectTransactionsById = exports.selectTransactionsById = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.transactions;
-});
-
-var selectTransactionItems = exports.selectTransactionItems = (0, _reselect.createSelector)(selectTransactionsById, function (byId) {
-  var items = [];
-
-  Object.keys(byId).forEach(function (txid) {
-    var tx = byId[txid];
-
-    // ignore dust/fees
-    // it is fee only txn if all infos are also empty
-    if (Math.abs(tx.value) === Math.abs(tx.fee) && tx.claim_info.length === 0 && tx.support_info.length === 0 && tx.update_info.length === 0) {
-      return;
-    }
-
-    var append = [];
-
-    append.push.apply(append, _toConsumableArray(tx.claim_info.map(function (item) {
-      return Object.assign({}, tx, item, {
-        type: item.claim_name[0] === '@' ? 'channel' : 'publish'
-      });
-    })));
-    append.push.apply(append, _toConsumableArray(tx.support_info.map(function (item) {
-      return Object.assign({}, tx, item, {
-        type: !item.is_tip ? 'support' : 'tip'
-      });
-    })));
-    append.push.apply(append, _toConsumableArray(tx.update_info.map(function (item) {
-      return Object.assign({}, tx, item, { type: 'update' });
-    })));
-
-    if (!append.length) {
-      append.push(Object.assign({}, tx, {
-        type: tx.value < 0 ? 'spend' : 'receive'
-      }));
-    }
-
-    items.push.apply(items, _toConsumableArray(append.map(function (item) {
-      // value on transaction, amount on outpoint
-      // amount is always positive, but should match sign of value
-      var amount = parseFloat(item.balance_delta ? item.balance_delta : item.value);
-
-      return {
-        txid: txid,
-        date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
-        amount: amount,
-        fee: amount < 0 ? -1 * tx.fee / append.length : 0,
-        claim_id: item.claim_id,
-        claim_name: item.claim_name,
-        type: item.type || 'send',
-        nout: item.nout
-      };
-    })));
-  });
-  return items.reverse();
-});
-
-var selectRecentTransactions = exports.selectRecentTransactions = (0, _reselect.createSelector)(selectTransactionItems, function (transactions) {
-  var threshold = new Date();
-  threshold.setDate(threshold.getDate() - 7);
-  return transactions.filter(function (transaction) {
-    return transaction.date > threshold;
-  });
-});
-
-var selectHasTransactions = exports.selectHasTransactions = (0, _reselect.createSelector)(selectTransactionItems, function (transactions) {
-  return transactions && transactions.length > 0;
-});
-
-var selectIsFetchingTransactions = exports.selectIsFetchingTransactions = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.fetchingTransactions;
-});
-
-var selectIsSendingSupport = exports.selectIsSendingSupport = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.sendingSupport;
-});
-
-var selectReceiveAddress = exports.selectReceiveAddress = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.receiveAddress;
-});
-
-var selectGettingNewAddress = exports.selectGettingNewAddress = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.gettingNewAddress;
-});
-
-var selectDraftTransaction = exports.selectDraftTransaction = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.draftTransaction || {};
-});
-
-var selectDraftTransactionAmount = exports.selectDraftTransactionAmount = (0, _reselect.createSelector)(selectDraftTransaction, function (draft) {
-  return draft.amount;
-});
-
-var selectDraftTransactionAddress = exports.selectDraftTransactionAddress = (0, _reselect.createSelector)(selectDraftTransaction, function (draft) {
-  return draft.address;
-});
-
-var selectDraftTransactionError = exports.selectDraftTransactionError = (0, _reselect.createSelector)(selectDraftTransaction, function (draft) {
-  return draft.error;
-});
-
-var selectBlocks = exports.selectBlocks = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.blocks;
-});
-
-var makeSelectBlockDate = exports.makeSelectBlockDate = function makeSelectBlockDate(block) {
-  return (0, _reselect.createSelector)(selectBlocks, function (blocks) {
-    return blocks && blocks[block] ? new Date(blocks[block].time * 1000) : undefined;
-  });
-};
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectWunderBarIcon = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = undefined;
-exports.selectIsSearching = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectNotification = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doShowSnackBar = exports.doCloseModal = exports.doOpenModal = exports.doNotify = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.ACTIONS = exports.Notification = undefined;
-
-var _Notification = __webpack_require__(8);
-
-Object.defineProperty(exports, 'Notification', {
-  enumerable: true,
-  get: function get() {
-    return _Notification.Notification;
-  }
-});
-
-var _lbryURI = __webpack_require__(2);
-
-Object.defineProperty(exports, 'regexInvalidURI', {
-  enumerable: true,
-  get: function get() {
-    return _lbryURI.regexInvalidURI;
-  }
-});
-Object.defineProperty(exports, 'regexAddress', {
-  enumerable: true,
-  get: function get() {
-    return _lbryURI.regexAddress;
-  }
-});
-Object.defineProperty(exports, 'parseURI', {
-  enumerable: true,
-  get: function get() {
-    return _lbryURI.parseURI;
-  }
-});
-Object.defineProperty(exports, 'buildURI', {
-  enumerable: true,
-  get: function get() {
-    return _lbryURI.buildURI;
-  }
-});
-Object.defineProperty(exports, 'normalizeURI', {
-  enumerable: true,
-  get: function get() {
-    return _lbryURI.normalizeURI;
-  }
-});
-Object.defineProperty(exports, 'isURIValid', {
-  enumerable: true,
-  get: function get() {
-    return _lbryURI.isURIValid;
-  }
-});
-Object.defineProperty(exports, 'isURIClaimable', {
-  enumerable: true,
-  get: function get() {
-    return _lbryURI.isURIClaimable;
-  }
-});
-
-var _notifications = __webpack_require__(16);
-
-Object.defineProperty(exports, 'doNotify', {
-  enumerable: true,
-  get: function get() {
-    return _notifications.doNotify;
-  }
-});
-
-var _app = __webpack_require__(6);
-
-Object.defineProperty(exports, 'doOpenModal', {
-  enumerable: true,
-  get: function get() {
-    return _app.doOpenModal;
-  }
-});
-Object.defineProperty(exports, 'doCloseModal', {
-  enumerable: true,
-  get: function get() {
-    return _app.doCloseModal;
-  }
-});
-Object.defineProperty(exports, 'doShowSnackBar', {
-  enumerable: true,
-  get: function get() {
-    return _app.doShowSnackBar;
-  }
-});
-
-var _claims = __webpack_require__(7);
-
-Object.defineProperty(exports, 'doFetchClaimListMine', {
-  enumerable: true,
-  get: function get() {
-    return _claims.doFetchClaimListMine;
-  }
-});
-Object.defineProperty(exports, 'doAbandonClaim', {
-  enumerable: true,
-  get: function get() {
-    return _claims.doAbandonClaim;
-  }
-});
-Object.defineProperty(exports, 'doResolveUris', {
-  enumerable: true,
-  get: function get() {
-    return _claims.doResolveUris;
-  }
-});
-Object.defineProperty(exports, 'doResolveUri', {
-  enumerable: true,
-  get: function get() {
-    return _claims.doResolveUri;
-  }
-});
-
-var _cost_info = __webpack_require__(18);
-
-Object.defineProperty(exports, 'doFetchCostInfoForUri', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info.doFetchCostInfoForUri;
-  }
-});
-
-var _file_info = __webpack_require__(23);
-
-Object.defineProperty(exports, 'doFetchFileInfo', {
-  enumerable: true,
-  get: function get() {
-    return _file_info.doFetchFileInfo;
-  }
-});
-Object.defineProperty(exports, 'doFileList', {
-  enumerable: true,
-  get: function get() {
-    return _file_info.doFileList;
-  }
-});
-Object.defineProperty(exports, 'doFetchFileInfosAndPublishedClaims', {
-  enumerable: true,
-  get: function get() {
-    return _file_info.doFetchFileInfosAndPublishedClaims;
-  }
-});
-
-var _search = __webpack_require__(24);
-
-Object.defineProperty(exports, 'doSearch', {
-  enumerable: true,
-  get: function get() {
-    return _search.doSearch;
-  }
-});
-
-var _wallet = __webpack_require__(25);
-
-Object.defineProperty(exports, 'doUpdateBalance', {
-  enumerable: true,
-  get: function get() {
-    return _wallet.doUpdateBalance;
-  }
-});
-Object.defineProperty(exports, 'doBalanceSubscribe', {
-  enumerable: true,
-  get: function get() {
-    return _wallet.doBalanceSubscribe;
-  }
-});
-Object.defineProperty(exports, 'doFetchTransactions', {
-  enumerable: true,
-  get: function get() {
-    return _wallet.doFetchTransactions;
-  }
-});
-Object.defineProperty(exports, 'doFetchBlock', {
-  enumerable: true,
-  get: function get() {
-    return _wallet.doFetchBlock;
-  }
-});
-Object.defineProperty(exports, 'doGetNewAddress', {
-  enumerable: true,
-  get: function get() {
-    return _wallet.doGetNewAddress;
-  }
-});
-Object.defineProperty(exports, 'doCheckAddressIsMine', {
-  enumerable: true,
-  get: function get() {
-    return _wallet.doCheckAddressIsMine;
-  }
-});
-Object.defineProperty(exports, 'doSendDraftTransaction', {
-  enumerable: true,
-  get: function get() {
-    return _wallet.doSendDraftTransaction;
-  }
-});
-Object.defineProperty(exports, 'doSetDraftTransactionAmount', {
-  enumerable: true,
-  get: function get() {
-    return _wallet.doSetDraftTransactionAmount;
-  }
-});
-Object.defineProperty(exports, 'doSetDraftTransactionAddress', {
-  enumerable: true,
-  get: function get() {
-    return _wallet.doSetDraftTransactionAddress;
-  }
-});
-Object.defineProperty(exports, 'doSendSupport', {
-  enumerable: true,
-  get: function get() {
-    return _wallet.doSendSupport;
-  }
-});
-
-var _batchActions = __webpack_require__(13);
-
-Object.defineProperty(exports, 'batchActions', {
-  enumerable: true,
-  get: function get() {
-    return _batchActions.batchActions;
-  }
-});
-
-var _query_params = __webpack_require__(10);
-
-Object.defineProperty(exports, 'parseQueryParams', {
-  enumerable: true,
-  get: function get() {
-    return _query_params.parseQueryParams;
-  }
-});
-Object.defineProperty(exports, 'toQueryString', {
-  enumerable: true,
-  get: function get() {
-    return _query_params.toQueryString;
-  }
-});
-
-var _claims2 = __webpack_require__(26);
-
-Object.defineProperty(exports, 'claimsReducer', {
-  enumerable: true,
-  get: function get() {
-    return _claims2.claimsReducer;
-  }
-});
-
-var _cost_info2 = __webpack_require__(27);
-
-Object.defineProperty(exports, 'costInfoReducer', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info2.costInfoReducer;
-  }
-});
-
-var _file_info2 = __webpack_require__(28);
-
-Object.defineProperty(exports, 'fileInfoReducer', {
-  enumerable: true,
-  get: function get() {
-    return _file_info2.fileInfoReducer;
-  }
-});
-
-var _notifications2 = __webpack_require__(29);
-
-Object.defineProperty(exports, 'notificationsReducer', {
-  enumerable: true,
-  get: function get() {
-    return _notifications2.notificationsReducer;
-  }
-});
-
-var _search2 = __webpack_require__(30);
-
-Object.defineProperty(exports, 'searchReducer', {
-  enumerable: true,
-  get: function get() {
-    return _search2.searchReducer;
-  }
-});
-
-var _wallet2 = __webpack_require__(31);
-
-Object.defineProperty(exports, 'walletReducer', {
-  enumerable: true,
-  get: function get() {
-    return _wallet2.walletReducer;
-  }
-});
-
-var _notifications3 = __webpack_require__(32);
-
-Object.defineProperty(exports, 'selectNotification', {
-  enumerable: true,
-  get: function get() {
-    return _notifications3.selectNotification;
-  }
-});
-
-var _claims3 = __webpack_require__(3);
-
-Object.defineProperty(exports, 'makeSelectClaimForUri', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.makeSelectClaimForUri;
-  }
-});
-Object.defineProperty(exports, 'makeSelectClaimIsMine', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.makeSelectClaimIsMine;
-  }
-});
-Object.defineProperty(exports, 'makeSelectFetchingChannelClaims', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.makeSelectFetchingChannelClaims;
-  }
-});
-Object.defineProperty(exports, 'makeSelectClaimsInChannelForCurrentPage', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.makeSelectClaimsInChannelForCurrentPage;
-  }
-});
-Object.defineProperty(exports, 'makeSelectMetadataForUri', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.makeSelectMetadataForUri;
-  }
-});
-Object.defineProperty(exports, 'makeSelectTitleForUri', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.makeSelectTitleForUri;
-  }
-});
-Object.defineProperty(exports, 'makeSelectContentTypeForUri', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.makeSelectContentTypeForUri;
-  }
-});
-Object.defineProperty(exports, 'makeSelectIsUriResolving', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.makeSelectIsUriResolving;
-  }
-});
-Object.defineProperty(exports, 'selectClaimsById', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectClaimsById;
-  }
-});
-Object.defineProperty(exports, 'selectClaimsByUri', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectClaimsByUri;
-  }
-});
-Object.defineProperty(exports, 'selectAllClaimsByChannel', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectAllClaimsByChannel;
-  }
-});
-Object.defineProperty(exports, 'selectMyClaimsRaw', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectMyClaimsRaw;
-  }
-});
-Object.defineProperty(exports, 'selectAbandoningIds', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectAbandoningIds;
-  }
-});
-Object.defineProperty(exports, 'selectMyActiveClaims', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectMyActiveClaims;
-  }
-});
-Object.defineProperty(exports, 'selectAllFetchingChannelClaims', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectAllFetchingChannelClaims;
-  }
-});
-Object.defineProperty(exports, 'selectIsFetchingClaimListMine', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectIsFetchingClaimListMine;
-  }
-});
-Object.defineProperty(exports, 'selectPendingClaims', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectPendingClaims;
-  }
-});
-Object.defineProperty(exports, 'selectMyClaims', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectMyClaims;
-  }
-});
-Object.defineProperty(exports, 'selectMyClaimsWithoutChannels', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectMyClaimsWithoutChannels;
-  }
-});
-Object.defineProperty(exports, 'selectAllMyClaimsByOutpoint', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectAllMyClaimsByOutpoint;
-  }
-});
-Object.defineProperty(exports, 'selectMyClaimsOutpoints', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectMyClaimsOutpoints;
-  }
-});
-Object.defineProperty(exports, 'selectFetchingMyChannels', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectFetchingMyChannels;
-  }
-});
-Object.defineProperty(exports, 'selectMyChannelClaims', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectMyChannelClaims;
-  }
-});
-Object.defineProperty(exports, 'selectResolvingUris', {
-  enumerable: true,
-  get: function get() {
-    return _claims3.selectResolvingUris;
-  }
-});
-
-var _cost_info3 = __webpack_require__(33);
-
-Object.defineProperty(exports, 'makeSelectFetchingCostInfoForUri', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info3.makeSelectFetchingCostInfoForUri;
-  }
-});
-Object.defineProperty(exports, 'makeSelectCostInfoForUri', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info3.makeSelectCostInfoForUri;
-  }
-});
-Object.defineProperty(exports, 'selectAllCostInfoByUri', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info3.selectAllCostInfoByUri;
-  }
-});
-Object.defineProperty(exports, 'selectCostForCurrentPageUri', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info3.selectCostForCurrentPageUri;
-  }
-});
-Object.defineProperty(exports, 'selectFetchingCostInfo', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info3.selectFetchingCostInfo;
-  }
-});
-
-var _file_info3 = __webpack_require__(12);
-
-Object.defineProperty(exports, 'makeSelectFileInfoForUri', {
-  enumerable: true,
-  get: function get() {
-    return _file_info3.makeSelectFileInfoForUri;
-  }
-});
-Object.defineProperty(exports, 'makeSelectDownloadingForUri', {
-  enumerable: true,
-  get: function get() {
-    return _file_info3.makeSelectDownloadingForUri;
-  }
-});
-Object.defineProperty(exports, 'makeSelectLoadingForUri', {
-  enumerable: true,
-  get: function get() {
-    return _file_info3.makeSelectLoadingForUri;
-  }
-});
-Object.defineProperty(exports, 'selectFileInfosByOutpoint', {
-  enumerable: true,
-  get: function get() {
-    return _file_info3.selectFileInfosByOutpoint;
-  }
-});
-Object.defineProperty(exports, 'selectIsFetchingFileList', {
-  enumerable: true,
-  get: function get() {
-    return _file_info3.selectIsFetchingFileList;
-  }
-});
-Object.defineProperty(exports, 'selectIsFetchingFileListDownloadedOrPublished', {
-  enumerable: true,
-  get: function get() {
-    return _file_info3.selectIsFetchingFileListDownloadedOrPublished;
-  }
-});
-Object.defineProperty(exports, 'selectDownloadingByOutpoint', {
-  enumerable: true,
-  get: function get() {
-    return _file_info3.selectDownloadingByOutpoint;
-  }
-});
-Object.defineProperty(exports, 'selectUrisLoading', {
-  enumerable: true,
-  get: function get() {
-    return _file_info3.selectUrisLoading;
-  }
-});
-Object.defineProperty(exports, 'selectFileInfosDownloaded', {
-  enumerable: true,
-  get: function get() {
-    return _file_info3.selectFileInfosDownloaded;
-  }
-});
-Object.defineProperty(exports, 'selectDownloadingFileInfos', {
-  enumerable: true,
-  get: function get() {
-    return _file_info3.selectDownloadingFileInfos;
-  }
-});
-Object.defineProperty(exports, 'selectTotalDownloadProgress', {
-  enumerable: true,
-  get: function get() {
-    return _file_info3.selectTotalDownloadProgress;
-  }
-});
-
-var _navigation = __webpack_require__(4);
-
-Object.defineProperty(exports, 'computePageFromPath', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.computePageFromPath;
-  }
-});
-Object.defineProperty(exports, 'makeSelectCurrentParam', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.makeSelectCurrentParam;
-  }
-});
-Object.defineProperty(exports, 'selectCurrentPath', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectCurrentPath;
-  }
-});
-Object.defineProperty(exports, 'selectCurrentPage', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectCurrentPage;
-  }
-});
-Object.defineProperty(exports, 'selectCurrentParams', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectCurrentParams;
-  }
-});
-Object.defineProperty(exports, 'selectHeaderLinks', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectHeaderLinks;
-  }
-});
-Object.defineProperty(exports, 'selectPageTitle', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectPageTitle;
-  }
-});
-Object.defineProperty(exports, 'selectPathAfterAuth', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectPathAfterAuth;
-  }
-});
-Object.defineProperty(exports, 'selectIsBackDisabled', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectIsBackDisabled;
-  }
-});
-Object.defineProperty(exports, 'selectIsForwardDisabled', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectIsForwardDisabled;
-  }
-});
-Object.defineProperty(exports, 'selectHistoryIndex', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectHistoryIndex;
-  }
-});
-Object.defineProperty(exports, 'selectHistoryStack', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectHistoryStack;
-  }
-});
-Object.defineProperty(exports, 'selectActiveHistoryEntry', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectActiveHistoryEntry;
-  }
-});
-
-var _search3 = __webpack_require__(34);
-
-Object.defineProperty(exports, 'makeSelectSearchUris', {
-  enumerable: true,
-  get: function get() {
-    return _search3.makeSelectSearchUris;
-  }
-});
-Object.defineProperty(exports, 'selectSearchQuery', {
-  enumerable: true,
-  get: function get() {
-    return _search3.selectSearchQuery;
-  }
-});
-Object.defineProperty(exports, 'selectIsSearching', {
-  enumerable: true,
-  get: function get() {
-    return _search3.selectIsSearching;
-  }
-});
-Object.defineProperty(exports, 'selectSearchUrisByQuery', {
-  enumerable: true,
-  get: function get() {
-    return _search3.selectSearchUrisByQuery;
-  }
-});
-Object.defineProperty(exports, 'selectWunderBarAddress', {
-  enumerable: true,
-  get: function get() {
-    return _search3.selectWunderBarAddress;
-  }
-});
-Object.defineProperty(exports, 'selectWunderBarIcon', {
-  enumerable: true,
-  get: function get() {
-    return _search3.selectWunderBarIcon;
-  }
-});
-
-var _wallet3 = __webpack_require__(14);
-
-Object.defineProperty(exports, 'makeSelectBlockDate', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.makeSelectBlockDate;
-  }
-});
-Object.defineProperty(exports, 'selectBalance', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectBalance;
-  }
-});
-Object.defineProperty(exports, 'selectTransactionsById', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectTransactionsById;
-  }
-});
-Object.defineProperty(exports, 'selectTransactionItems', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectTransactionItems;
-  }
-});
-Object.defineProperty(exports, 'selectRecentTransactions', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectRecentTransactions;
-  }
-});
-Object.defineProperty(exports, 'selectHasTransactions', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectHasTransactions;
-  }
-});
-Object.defineProperty(exports, 'selectIsFetchingTransactions', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectIsFetchingTransactions;
-  }
-});
-Object.defineProperty(exports, 'selectIsSendingSupport', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectIsSendingSupport;
-  }
-});
-Object.defineProperty(exports, 'selectReceiveAddress', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectReceiveAddress;
-  }
-});
-Object.defineProperty(exports, 'selectGettingNewAddress', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectGettingNewAddress;
-  }
-});
-Object.defineProperty(exports, 'selectDraftTransaction', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectDraftTransaction;
-  }
-});
-Object.defineProperty(exports, 'selectDraftTransactionAmount', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectDraftTransactionAmount;
-  }
-});
-Object.defineProperty(exports, 'selectDraftTransactionAddress', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectDraftTransactionAddress;
-  }
-});
-Object.defineProperty(exports, 'selectDraftTransactionError', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectDraftTransactionError;
-  }
-});
-Object.defineProperty(exports, 'selectBlocks', {
-  enumerable: true,
-  get: function get() {
-    return _wallet3.selectBlocks;
-  }
-});
-
-var _action_types = __webpack_require__(0);
-
-var ACTIONS = _interopRequireWildcard(_action_types);
-
-var _lbry = __webpack_require__(5);
-
-var _lbry2 = _interopRequireDefault(_lbry);
-
-var _lbryapi = __webpack_require__(11);
-
-var _lbryapi2 = _interopRequireDefault(_lbryapi);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-// constants
-exports.ACTIONS = ACTIONS;
-
-// common
-
-exports.Lbry = _lbry2.default;
-exports.Lbryapi = _lbryapi2.default;
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.doNotify = doNotify;
-
-var _action_types = __webpack_require__(0);
-
-var ACTIONS = _interopRequireWildcard(_action_types);
-
-var _Notification = __webpack_require__(8);
-
-var _Notification2 = _interopRequireDefault(_Notification);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function doNotify(data) {
-  return {
-    type: ACTIONS.CREATE_NOTIFICATION,
-    data: data
-  };
-}
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var jsonrpc = {};
-
-jsonrpc.call = function (connectionString, method, params, callback, errorCallback, connectFailedCallback) {
-  function checkAndParse(response) {
-    if (response.status >= 200 && response.status < 300) {
-      return response.json();
-    }
-    return response.json().then(function (json) {
-      var error = void 0;
-      if (json.error) {
-        error = new Error(json.error);
-      } else {
-        error = new Error('Protocol error with unknown response signature');
-      }
-      return Promise.reject(error);
-    });
-  }
-
-  var counter = parseInt(sessionStorage.getItem('JSONRPCCounter') || 0, 10);
-  var url = connectionString;
-  var options = {
-    method: 'POST',
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      method: method,
-      params: params,
-      id: counter
-    })
-  };
-
-  sessionStorage.setItem('JSONRPCCounter', counter + 1);
-
-  return fetch(url, options).then(checkAndParse).then(function (response) {
-    var error = response.error || response.result && response.result.error;
-
-    if (!error && typeof callback === 'function') {
-      return callback(response.result);
-    }
-
-    if (error && typeof errorCallback === 'function') {
-      return errorCallback(error);
-    }
-
-    var errorEvent = new CustomEvent('unhandledError', {
-      detail: {
-        connectionString: connectionString,
-        method: method,
-        params: params,
-        code: error.code,
-        message: error.message || error,
-        data: error.data
-      }
-    });
-    document.dispatchEvent(errorEvent);
-
-    return Promise.resolve();
-  }).catch(function (error) {
-    if (connectFailedCallback) {
-      return connectFailedCallback(error);
-    }
-
-    var errorEvent = new CustomEvent('unhandledError', {
-      detail: {
-        connectionString: connectionString,
-        method: method,
-        params: params,
-        code: error.response && error.response.status,
-        message: __('Connection to API server failed')
-      }
-    });
-    document.dispatchEvent(errorEvent);
-    return Promise.resolve();
-  });
-};
-
-exports.default = jsonrpc;
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.doFetchCostInfoForUri = doFetchCostInfoForUri;
-
-var _action_types = __webpack_require__(0);
-
-var ACTIONS = _interopRequireWildcard(_action_types);
-
-var _lbryapi = __webpack_require__(11);
-
-var _lbryapi2 = _interopRequireDefault(_lbryapi);
-
-var _claims = __webpack_require__(3);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-// eslint-disable-next-line import/prefer-default-export
-function doFetchCostInfoForUri(uri) {
-  return function (dispatch, getState) {
-    var state = getState();
-    var claim = (0, _claims.selectClaimsByUri)(state)[uri];
-
-    if (!claim) return;
-
-    function resolve(costInfo) {
-      dispatch({
-        type: ACTIONS.FETCH_COST_INFO_COMPLETED,
-        data: {
-          uri: uri,
-          costInfo: costInfo
-        }
-      });
-    }
-
-    var fee = claim.value && claim.value.stream && claim.value.stream.metadata ? claim.value.stream.metadata.fee : undefined;
-
-    if (fee === undefined) {
-      resolve({ cost: 0, includesData: true });
-    } else if (fee.currency === 'LBC') {
-      resolve({ cost: fee.amount, includesData: true });
-    } else {
-      _lbryapi2.default.getExchangeRates().then(function (_ref) {
-        var LBC_USD = _ref.LBC_USD;
-
-        resolve({ cost: fee.amount / LBC_USD, includesData: true });
-      });
-    }
-  };
-}
-
-/***/ }),
-/* 19 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -3113,18 +1719,1623 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 20 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-exports.decode = exports.parse = __webpack_require__(21);
-exports.encode = exports.stringify = __webpack_require__(22);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+exports.parseQueryParams = parseQueryParams;
+exports.toQueryString = toQueryString;
+function parseQueryParams(queryString) {
+  if (queryString === '') return {};
+  var parts = queryString.split('?').pop().split('&').map(function (p) {
+    return p.split('=');
+  });
+
+  var params = {};
+  parts.forEach(function (array) {
+    var _array = _slicedToArray(array, 2),
+        first = _array[0],
+        second = _array[1];
+
+    params[first] = second;
+  });
+  return params;
+}
+
+function toQueryString(params) {
+  if (!params) return '';
+
+  var parts = [];
+  Object.keys(params).forEach(function (key) {
+    if (Object.prototype.hasOwnProperty.call(params, key) && params[key]) {
+      parts.push(key + '=' + params[key]);
+    }
+  });
+
+  return parts.join('&');
+}
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _querystring = __webpack_require__(22);
+
+var _querystring2 = _interopRequireDefault(_querystring);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Lbryapi = {
+  enabled: true,
+  exchangePromise: null,
+  exchangeLastFetched: null
+};
+
+var CONNECTION_STRING = process.env.LBRY_APP_API_URL ? process.env.LBRY_APP_API_URL.replace(/\/*$/, '/') // exactly one slash at the end
+: 'https://api.lbry.io/';
+
+var EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
+
+Lbryapi.getExchangeRates = function () {
+  if (!Lbryapi.exchangeLastFetched || Date.now() - Lbryapi.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
+    Lbryapi.exchangePromise = new Promise(function (resolve, reject) {
+      Lbryapi.call('lbc', 'exchange_rate', {}, 'get', true).then(function (_ref) {
+        var LBC_USD = _ref.lbc_usd,
+            LBC_BTC = _ref.lbc_btc,
+            BTC_USD = _ref.btc_usd;
+
+        var rates = { LBC_USD: LBC_USD, LBC_BTC: LBC_BTC, BTC_USD: BTC_USD };
+        resolve(rates);
+      }).catch(reject);
+    });
+    Lbryapi.exchangeLastFetched = Date.now();
+  }
+  return Lbryapi.exchangePromise;
+};
+
+Lbryapi.call = function (resource, action) {
+  var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var method = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'get';
+
+  if (!Lbryapi.enabled) {
+    return Promise.reject(new Error(__('LBRY internal API is disabled')));
+  }
+
+  if (!(method === 'get' || method === 'post')) {
+    return Promise.reject(new Error(__('Invalid method')));
+  }
+
+  function checkAndParse(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response.json();
+    }
+    return response.json().then(function (json) {
+      var error = void 0;
+      if (json.error) {
+        error = new Error(json.error);
+      } else {
+        error = new Error('Unknown API error signature');
+      }
+      error.response = response; // This is primarily a hack used in actions/user.js
+      return Promise.reject(error);
+    });
+  }
+
+  function makeRequest(url, options) {
+    return fetch(url, options).then(checkAndParse);
+  }
+
+  var fullParams = _extends({}, params);
+  var qs = _querystring2.default.stringify(fullParams);
+  var url = '' + CONNECTION_STRING + resource + '/' + action + '?' + qs;
+
+  var options = {
+    method: 'GET'
+  };
+
+  if (method === 'post') {
+    options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: qs
+    };
+    url = '' + CONNECTION_STRING + resource + '/' + action;
+  }
+
+  return makeRequest(url, options).then(function (response) {
+    return response.data;
+  });
+};
+
+exports.default = Lbryapi;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.makeSelectLoadingForUri = exports.selectUrisLoading = exports.makeSelectDownloadingForUri = exports.selectDownloadingByOutpoint = exports.makeSelectFileInfoForUri = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.selectState = undefined;
+
+var _claims = __webpack_require__(3);
+
+var _reselect = __webpack_require__(1);
+
+var selectState = exports.selectState = function selectState(state) {
+  return state.fileInfo || {};
+};
+
+var selectFileInfosByOutpoint = exports.selectFileInfosByOutpoint = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.byOutpoint || {};
+});
+
+var selectIsFetchingFileList = exports.selectIsFetchingFileList = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.isFetchingFileList;
+});
+
+var selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileListDownloadedOrPublished = (0, _reselect.createSelector)(selectIsFetchingFileList, _claims.selectIsFetchingClaimListMine, function (isFetchingFileList, isFetchingClaimListMine) {
+  return isFetchingFileList || isFetchingClaimListMine;
+});
+
+var makeSelectFileInfoForUri = exports.makeSelectFileInfoForUri = function makeSelectFileInfoForUri(uri) {
+  return (0, _reselect.createSelector)(_claims.selectClaimsByUri, selectFileInfosByOutpoint, function (claims, byOutpoint) {
+    var claim = claims[uri];
+    var outpoint = claim ? claim.txid + ':' + claim.nout : undefined;
+
+    return outpoint ? byOutpoint[outpoint] : undefined;
+  });
+};
+
+var selectDownloadingByOutpoint = exports.selectDownloadingByOutpoint = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.downloadingByOutpoint || {};
+});
+
+var makeSelectDownloadingForUri = exports.makeSelectDownloadingForUri = function makeSelectDownloadingForUri(uri) {
+  return (0, _reselect.createSelector)(selectDownloadingByOutpoint, makeSelectFileInfoForUri(uri), function (byOutpoint, fileInfo) {
+    if (!fileInfo) return false;
+    return byOutpoint[fileInfo.outpoint];
+  });
+};
+
+var selectUrisLoading = exports.selectUrisLoading = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.urisLoading || {};
+});
+
+var makeSelectLoadingForUri = exports.makeSelectLoadingForUri = function makeSelectLoadingForUri(uri) {
+  return (0, _reselect.createSelector)(selectUrisLoading, function (byUri) {
+    return byUri && byUri[uri];
+  });
+};
+
+var selectFileInfosDownloaded = exports.selectFileInfosDownloaded = (0, _reselect.createSelector)(selectFileInfosByOutpoint, _claims.selectMyClaims, function (byOutpoint, myClaims) {
+  return Object.values(byOutpoint).filter(function (fileInfo) {
+    var myClaimIds = myClaims.map(function (claim) {
+      return claim.claim_id;
+    });
+
+    return fileInfo && myClaimIds.indexOf(fileInfo.claim_id) === -1 && (fileInfo.completed || fileInfo.written_bytes);
+  });
+});
+
+// export const selectFileInfoForUri = (state, props) => {
+//   const claims = selectClaimsByUri(state),
+//     claim = claims[props.uri],
+//     fileInfos = selectAllFileInfos(state),
+//     outpoint = claim ? `${claim.txid}:${claim.nout}` : undefined;
+
+//   return outpoint && fileInfos ? fileInfos[outpoint] : undefined;
+// };
+
+var selectDownloadingFileInfos = exports.selectDownloadingFileInfos = (0, _reselect.createSelector)(selectDownloadingByOutpoint, selectFileInfosByOutpoint, function (downloadingByOutpoint, fileInfosByOutpoint) {
+  var outpoints = Object.keys(downloadingByOutpoint);
+  var fileInfos = [];
+
+  outpoints.forEach(function (outpoint) {
+    var fileInfo = fileInfosByOutpoint[outpoint];
+
+    if (fileInfo) fileInfos.push(fileInfo);
+  });
+
+  return fileInfos;
+});
+
+var selectTotalDownloadProgress = exports.selectTotalDownloadProgress = (0, _reselect.createSelector)(selectDownloadingFileInfos, function (fileInfos) {
+  var progress = [];
+
+  fileInfos.forEach(function (fileInfo) {
+    progress.push(fileInfo.written_bytes / fileInfo.total_bytes * 100);
+  });
+
+  var totalProgress = progress.reduce(function (a, b) {
+    return a + b;
+  }, 0);
+
+  if (fileInfos.length > 0) return totalProgress / fileInfos.length / 100.0;
+  return -1;
+});
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.batchActions = batchActions;
+// https://github.com/reactjs/redux/issues/911
+function batchActions() {
+  for (var _len = arguments.length, actions = Array(_len), _key = 0; _key < _len; _key++) {
+    actions[_key] = arguments[_key];
+  }
+
+  return {
+    type: 'BATCH_ACTIONS',
+    actions: actions
+  };
+}
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.makeSelectBlockDate = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.selectState = undefined;
+
+var _reselect = __webpack_require__(1);
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var selectState = exports.selectState = function selectState(state) {
+  return state.wallet || {};
+};
+
+var selectBalance = exports.selectBalance = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.balance;
+});
+
+var selectTransactionsById = exports.selectTransactionsById = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.transactions;
+});
+
+var selectTransactionItems = exports.selectTransactionItems = (0, _reselect.createSelector)(selectTransactionsById, function (byId) {
+  var items = [];
+
+  Object.keys(byId).forEach(function (txid) {
+    var tx = byId[txid];
+
+    // ignore dust/fees
+    // it is fee only txn if all infos are also empty
+    if (Math.abs(tx.value) === Math.abs(tx.fee) && tx.claim_info.length === 0 && tx.support_info.length === 0 && tx.update_info.length === 0) {
+      return;
+    }
+
+    var append = [];
+
+    append.push.apply(append, _toConsumableArray(tx.claim_info.map(function (item) {
+      return Object.assign({}, tx, item, {
+        type: item.claim_name[0] === '@' ? 'channel' : 'publish'
+      });
+    })));
+    append.push.apply(append, _toConsumableArray(tx.support_info.map(function (item) {
+      return Object.assign({}, tx, item, {
+        type: !item.is_tip ? 'support' : 'tip'
+      });
+    })));
+    append.push.apply(append, _toConsumableArray(tx.update_info.map(function (item) {
+      return Object.assign({}, tx, item, { type: 'update' });
+    })));
+
+    if (!append.length) {
+      append.push(Object.assign({}, tx, {
+        type: tx.value < 0 ? 'spend' : 'receive'
+      }));
+    }
+
+    items.push.apply(items, _toConsumableArray(append.map(function (item) {
+      // value on transaction, amount on outpoint
+      // amount is always positive, but should match sign of value
+      var amount = parseFloat(item.balance_delta ? item.balance_delta : item.value);
+
+      return {
+        txid: txid,
+        date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
+        amount: amount,
+        fee: amount < 0 ? -1 * tx.fee / append.length : 0,
+        claim_id: item.claim_id,
+        claim_name: item.claim_name,
+        type: item.type || 'send',
+        nout: item.nout
+      };
+    })));
+  });
+  return items.reverse();
+});
+
+var selectRecentTransactions = exports.selectRecentTransactions = (0, _reselect.createSelector)(selectTransactionItems, function (transactions) {
+  var threshold = new Date();
+  threshold.setDate(threshold.getDate() - 7);
+  return transactions.filter(function (transaction) {
+    return transaction.date > threshold;
+  });
+});
+
+var selectHasTransactions = exports.selectHasTransactions = (0, _reselect.createSelector)(selectTransactionItems, function (transactions) {
+  return transactions && transactions.length > 0;
+});
+
+var selectIsFetchingTransactions = exports.selectIsFetchingTransactions = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.fetchingTransactions;
+});
+
+var selectIsSendingSupport = exports.selectIsSendingSupport = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.sendingSupport;
+});
+
+var selectReceiveAddress = exports.selectReceiveAddress = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.receiveAddress;
+});
+
+var selectGettingNewAddress = exports.selectGettingNewAddress = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.gettingNewAddress;
+});
+
+var selectDraftTransaction = exports.selectDraftTransaction = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.draftTransaction || {};
+});
+
+var selectDraftTransactionAmount = exports.selectDraftTransactionAmount = (0, _reselect.createSelector)(selectDraftTransaction, function (draft) {
+  return draft.amount;
+});
+
+var selectDraftTransactionAddress = exports.selectDraftTransactionAddress = (0, _reselect.createSelector)(selectDraftTransaction, function (draft) {
+  return draft.address;
+});
+
+var selectDraftTransactionError = exports.selectDraftTransactionError = (0, _reselect.createSelector)(selectDraftTransaction, function (draft) {
+  return draft.error;
+});
+
+var selectBlocks = exports.selectBlocks = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.blocks;
+});
+
+var makeSelectBlockDate = exports.makeSelectBlockDate = function makeSelectBlockDate(block) {
+  return (0, _reselect.createSelector)(selectBlocks, function (blocks) {
+    return blocks && blocks[block] ? new Date(blocks[block].time * 1000) : undefined;
+  });
+};
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectWunderBarIcon = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = undefined;
+exports.selectIsSearching = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectNotification = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doShowSnackBar = exports.doCloseModal = exports.doOpenModal = exports.doNotify = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.ACTIONS = exports.Notification = undefined;
+
+var _Notification = __webpack_require__(8);
+
+Object.defineProperty(exports, 'Notification', {
+  enumerable: true,
+  get: function get() {
+    return _Notification.Notification;
+  }
+});
+
+var _lbryURI = __webpack_require__(2);
+
+Object.defineProperty(exports, 'regexInvalidURI', {
+  enumerable: true,
+  get: function get() {
+    return _lbryURI.regexInvalidURI;
+  }
+});
+Object.defineProperty(exports, 'regexAddress', {
+  enumerable: true,
+  get: function get() {
+    return _lbryURI.regexAddress;
+  }
+});
+Object.defineProperty(exports, 'parseURI', {
+  enumerable: true,
+  get: function get() {
+    return _lbryURI.parseURI;
+  }
+});
+Object.defineProperty(exports, 'buildURI', {
+  enumerable: true,
+  get: function get() {
+    return _lbryURI.buildURI;
+  }
+});
+Object.defineProperty(exports, 'normalizeURI', {
+  enumerable: true,
+  get: function get() {
+    return _lbryURI.normalizeURI;
+  }
+});
+Object.defineProperty(exports, 'isURIValid', {
+  enumerable: true,
+  get: function get() {
+    return _lbryURI.isURIValid;
+  }
+});
+Object.defineProperty(exports, 'isURIClaimable', {
+  enumerable: true,
+  get: function get() {
+    return _lbryURI.isURIClaimable;
+  }
+});
+
+var _notifications = __webpack_require__(17);
+
+Object.defineProperty(exports, 'doNotify', {
+  enumerable: true,
+  get: function get() {
+    return _notifications.doNotify;
+  }
+});
+
+var _app = __webpack_require__(6);
+
+Object.defineProperty(exports, 'doOpenModal', {
+  enumerable: true,
+  get: function get() {
+    return _app.doOpenModal;
+  }
+});
+Object.defineProperty(exports, 'doCloseModal', {
+  enumerable: true,
+  get: function get() {
+    return _app.doCloseModal;
+  }
+});
+Object.defineProperty(exports, 'doShowSnackBar', {
+  enumerable: true,
+  get: function get() {
+    return _app.doShowSnackBar;
+  }
+});
+
+var _claims = __webpack_require__(7);
+
+Object.defineProperty(exports, 'doFetchClaimListMine', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doFetchClaimListMine;
+  }
+});
+Object.defineProperty(exports, 'doAbandonClaim', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doAbandonClaim;
+  }
+});
+Object.defineProperty(exports, 'doResolveUris', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doResolveUris;
+  }
+});
+Object.defineProperty(exports, 'doResolveUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doResolveUri;
+  }
+});
+
+var _cost_info = __webpack_require__(21);
+
+Object.defineProperty(exports, 'doFetchCostInfoForUri', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info.doFetchCostInfoForUri;
+  }
+});
+
+var _file_info = __webpack_require__(25);
+
+Object.defineProperty(exports, 'doFetchFileInfo', {
+  enumerable: true,
+  get: function get() {
+    return _file_info.doFetchFileInfo;
+  }
+});
+Object.defineProperty(exports, 'doFileList', {
+  enumerable: true,
+  get: function get() {
+    return _file_info.doFileList;
+  }
+});
+Object.defineProperty(exports, 'doFetchFileInfosAndPublishedClaims', {
+  enumerable: true,
+  get: function get() {
+    return _file_info.doFetchFileInfosAndPublishedClaims;
+  }
+});
+
+var _search = __webpack_require__(26);
+
+Object.defineProperty(exports, 'doSearch', {
+  enumerable: true,
+  get: function get() {
+    return _search.doSearch;
+  }
+});
+
+var _wallet = __webpack_require__(27);
+
+Object.defineProperty(exports, 'doUpdateBalance', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doUpdateBalance;
+  }
+});
+Object.defineProperty(exports, 'doBalanceSubscribe', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doBalanceSubscribe;
+  }
+});
+Object.defineProperty(exports, 'doFetchTransactions', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doFetchTransactions;
+  }
+});
+Object.defineProperty(exports, 'doFetchBlock', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doFetchBlock;
+  }
+});
+Object.defineProperty(exports, 'doGetNewAddress', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doGetNewAddress;
+  }
+});
+Object.defineProperty(exports, 'doCheckAddressIsMine', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doCheckAddressIsMine;
+  }
+});
+Object.defineProperty(exports, 'doSendDraftTransaction', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doSendDraftTransaction;
+  }
+});
+Object.defineProperty(exports, 'doSetDraftTransactionAmount', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doSetDraftTransactionAmount;
+  }
+});
+Object.defineProperty(exports, 'doSetDraftTransactionAddress', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doSetDraftTransactionAddress;
+  }
+});
+Object.defineProperty(exports, 'doSendSupport', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doSendSupport;
+  }
+});
+
+var _batchActions = __webpack_require__(14);
+
+Object.defineProperty(exports, 'batchActions', {
+  enumerable: true,
+  get: function get() {
+    return _batchActions.batchActions;
+  }
+});
+
+var _query_params = __webpack_require__(11);
+
+Object.defineProperty(exports, 'parseQueryParams', {
+  enumerable: true,
+  get: function get() {
+    return _query_params.parseQueryParams;
+  }
+});
+Object.defineProperty(exports, 'toQueryString', {
+  enumerable: true,
+  get: function get() {
+    return _query_params.toQueryString;
+  }
+});
+
+var _claims2 = __webpack_require__(28);
+
+Object.defineProperty(exports, 'claimsReducer', {
+  enumerable: true,
+  get: function get() {
+    return _claims2.claimsReducer;
+  }
+});
+
+var _cost_info2 = __webpack_require__(29);
+
+Object.defineProperty(exports, 'costInfoReducer', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info2.costInfoReducer;
+  }
+});
+
+var _file_info2 = __webpack_require__(30);
+
+Object.defineProperty(exports, 'fileInfoReducer', {
+  enumerable: true,
+  get: function get() {
+    return _file_info2.fileInfoReducer;
+  }
+});
+
+var _notifications2 = __webpack_require__(31);
+
+Object.defineProperty(exports, 'notificationsReducer', {
+  enumerable: true,
+  get: function get() {
+    return _notifications2.notificationsReducer;
+  }
+});
+
+var _search2 = __webpack_require__(32);
+
+Object.defineProperty(exports, 'searchReducer', {
+  enumerable: true,
+  get: function get() {
+    return _search2.searchReducer;
+  }
+});
+
+var _wallet2 = __webpack_require__(33);
+
+Object.defineProperty(exports, 'walletReducer', {
+  enumerable: true,
+  get: function get() {
+    return _wallet2.walletReducer;
+  }
+});
+
+var _notifications3 = __webpack_require__(34);
+
+Object.defineProperty(exports, 'selectNotification', {
+  enumerable: true,
+  get: function get() {
+    return _notifications3.selectNotification;
+  }
+});
+
+var _claims3 = __webpack_require__(3);
+
+Object.defineProperty(exports, 'makeSelectClaimForUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectClaimForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectClaimIsMine', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectClaimIsMine;
+  }
+});
+Object.defineProperty(exports, 'makeSelectFetchingChannelClaims', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectFetchingChannelClaims;
+  }
+});
+Object.defineProperty(exports, 'makeSelectClaimsInChannelForCurrentPage', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectClaimsInChannelForCurrentPage;
+  }
+});
+Object.defineProperty(exports, 'makeSelectMetadataForUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectMetadataForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectTitleForUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectTitleForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectContentTypeForUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectContentTypeForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectIsUriResolving', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectIsUriResolving;
+  }
+});
+Object.defineProperty(exports, 'selectClaimsById', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectClaimsById;
+  }
+});
+Object.defineProperty(exports, 'selectClaimsByUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectClaimsByUri;
+  }
+});
+Object.defineProperty(exports, 'selectAllClaimsByChannel', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectAllClaimsByChannel;
+  }
+});
+Object.defineProperty(exports, 'selectMyClaimsRaw', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectMyClaimsRaw;
+  }
+});
+Object.defineProperty(exports, 'selectAbandoningIds', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectAbandoningIds;
+  }
+});
+Object.defineProperty(exports, 'selectMyActiveClaims', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectMyActiveClaims;
+  }
+});
+Object.defineProperty(exports, 'selectAllFetchingChannelClaims', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectAllFetchingChannelClaims;
+  }
+});
+Object.defineProperty(exports, 'selectIsFetchingClaimListMine', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectIsFetchingClaimListMine;
+  }
+});
+Object.defineProperty(exports, 'selectPendingClaims', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectPendingClaims;
+  }
+});
+Object.defineProperty(exports, 'selectMyClaims', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectMyClaims;
+  }
+});
+Object.defineProperty(exports, 'selectMyClaimsWithoutChannels', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectMyClaimsWithoutChannels;
+  }
+});
+Object.defineProperty(exports, 'selectAllMyClaimsByOutpoint', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectAllMyClaimsByOutpoint;
+  }
+});
+Object.defineProperty(exports, 'selectMyClaimsOutpoints', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectMyClaimsOutpoints;
+  }
+});
+Object.defineProperty(exports, 'selectFetchingMyChannels', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectFetchingMyChannels;
+  }
+});
+Object.defineProperty(exports, 'selectMyChannelClaims', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectMyChannelClaims;
+  }
+});
+Object.defineProperty(exports, 'selectResolvingUris', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectResolvingUris;
+  }
+});
+
+var _cost_info3 = __webpack_require__(35);
+
+Object.defineProperty(exports, 'makeSelectFetchingCostInfoForUri', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info3.makeSelectFetchingCostInfoForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectCostInfoForUri', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info3.makeSelectCostInfoForUri;
+  }
+});
+Object.defineProperty(exports, 'selectAllCostInfoByUri', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info3.selectAllCostInfoByUri;
+  }
+});
+Object.defineProperty(exports, 'selectCostForCurrentPageUri', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info3.selectCostForCurrentPageUri;
+  }
+});
+Object.defineProperty(exports, 'selectFetchingCostInfo', {
+  enumerable: true,
+  get: function get() {
+    return _cost_info3.selectFetchingCostInfo;
+  }
+});
+
+var _file_info3 = __webpack_require__(13);
+
+Object.defineProperty(exports, 'makeSelectFileInfoForUri', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.makeSelectFileInfoForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectDownloadingForUri', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.makeSelectDownloadingForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectLoadingForUri', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.makeSelectLoadingForUri;
+  }
+});
+Object.defineProperty(exports, 'selectFileInfosByOutpoint', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectFileInfosByOutpoint;
+  }
+});
+Object.defineProperty(exports, 'selectIsFetchingFileList', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectIsFetchingFileList;
+  }
+});
+Object.defineProperty(exports, 'selectIsFetchingFileListDownloadedOrPublished', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectIsFetchingFileListDownloadedOrPublished;
+  }
+});
+Object.defineProperty(exports, 'selectDownloadingByOutpoint', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectDownloadingByOutpoint;
+  }
+});
+Object.defineProperty(exports, 'selectUrisLoading', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectUrisLoading;
+  }
+});
+Object.defineProperty(exports, 'selectFileInfosDownloaded', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectFileInfosDownloaded;
+  }
+});
+Object.defineProperty(exports, 'selectDownloadingFileInfos', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectDownloadingFileInfos;
+  }
+});
+Object.defineProperty(exports, 'selectTotalDownloadProgress', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectTotalDownloadProgress;
+  }
+});
+
+var _navigation = __webpack_require__(4);
+
+Object.defineProperty(exports, 'computePageFromPath', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.computePageFromPath;
+  }
+});
+Object.defineProperty(exports, 'makeSelectCurrentParam', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.makeSelectCurrentParam;
+  }
+});
+Object.defineProperty(exports, 'selectCurrentPath', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.selectCurrentPath;
+  }
+});
+Object.defineProperty(exports, 'selectCurrentPage', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.selectCurrentPage;
+  }
+});
+Object.defineProperty(exports, 'selectCurrentParams', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.selectCurrentParams;
+  }
+});
+Object.defineProperty(exports, 'selectHeaderLinks', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.selectHeaderLinks;
+  }
+});
+Object.defineProperty(exports, 'selectPageTitle', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.selectPageTitle;
+  }
+});
+Object.defineProperty(exports, 'selectPathAfterAuth', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.selectPathAfterAuth;
+  }
+});
+Object.defineProperty(exports, 'selectIsBackDisabled', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.selectIsBackDisabled;
+  }
+});
+Object.defineProperty(exports, 'selectIsForwardDisabled', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.selectIsForwardDisabled;
+  }
+});
+Object.defineProperty(exports, 'selectHistoryIndex', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.selectHistoryIndex;
+  }
+});
+Object.defineProperty(exports, 'selectHistoryStack', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.selectHistoryStack;
+  }
+});
+Object.defineProperty(exports, 'selectActiveHistoryEntry', {
+  enumerable: true,
+  get: function get() {
+    return _navigation.selectActiveHistoryEntry;
+  }
+});
+
+var _search3 = __webpack_require__(36);
+
+Object.defineProperty(exports, 'makeSelectSearchUris', {
+  enumerable: true,
+  get: function get() {
+    return _search3.makeSelectSearchUris;
+  }
+});
+Object.defineProperty(exports, 'selectSearchQuery', {
+  enumerable: true,
+  get: function get() {
+    return _search3.selectSearchQuery;
+  }
+});
+Object.defineProperty(exports, 'selectIsSearching', {
+  enumerable: true,
+  get: function get() {
+    return _search3.selectIsSearching;
+  }
+});
+Object.defineProperty(exports, 'selectSearchUrisByQuery', {
+  enumerable: true,
+  get: function get() {
+    return _search3.selectSearchUrisByQuery;
+  }
+});
+Object.defineProperty(exports, 'selectWunderBarAddress', {
+  enumerable: true,
+  get: function get() {
+    return _search3.selectWunderBarAddress;
+  }
+});
+Object.defineProperty(exports, 'selectWunderBarIcon', {
+  enumerable: true,
+  get: function get() {
+    return _search3.selectWunderBarIcon;
+  }
+});
+
+var _wallet3 = __webpack_require__(15);
+
+Object.defineProperty(exports, 'makeSelectBlockDate', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.makeSelectBlockDate;
+  }
+});
+Object.defineProperty(exports, 'selectBalance', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectBalance;
+  }
+});
+Object.defineProperty(exports, 'selectTransactionsById', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectTransactionsById;
+  }
+});
+Object.defineProperty(exports, 'selectTransactionItems', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectTransactionItems;
+  }
+});
+Object.defineProperty(exports, 'selectRecentTransactions', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectRecentTransactions;
+  }
+});
+Object.defineProperty(exports, 'selectHasTransactions', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectHasTransactions;
+  }
+});
+Object.defineProperty(exports, 'selectIsFetchingTransactions', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectIsFetchingTransactions;
+  }
+});
+Object.defineProperty(exports, 'selectIsSendingSupport', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectIsSendingSupport;
+  }
+});
+Object.defineProperty(exports, 'selectReceiveAddress', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectReceiveAddress;
+  }
+});
+Object.defineProperty(exports, 'selectGettingNewAddress', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectGettingNewAddress;
+  }
+});
+Object.defineProperty(exports, 'selectDraftTransaction', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectDraftTransaction;
+  }
+});
+Object.defineProperty(exports, 'selectDraftTransactionAmount', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectDraftTransactionAmount;
+  }
+});
+Object.defineProperty(exports, 'selectDraftTransactionAddress', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectDraftTransactionAddress;
+  }
+});
+Object.defineProperty(exports, 'selectDraftTransactionError', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectDraftTransactionError;
+  }
+});
+Object.defineProperty(exports, 'selectBlocks', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectBlocks;
+  }
+});
+
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+var _lbry = __webpack_require__(5);
+
+var _lbry2 = _interopRequireDefault(_lbry);
+
+var _lbryapi = __webpack_require__(12);
+
+var _lbryapi2 = _interopRequireDefault(_lbryapi);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+// constants
+exports.ACTIONS = ACTIONS;
+
+// common
+
+exports.Lbry = _lbry2.default;
+exports.Lbryapi = _lbryapi2.default;
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.doNotify = doNotify;
+
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+var _Notification = __webpack_require__(8);
+
+var _Notification2 = _interopRequireDefault(_Notification);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function doNotify(data) {
+  return {
+    type: ACTIONS.CREATE_NOTIFICATION,
+    data: data
+  };
+}
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var jsonrpc = {};
+
+jsonrpc.call = function (connectionString, method, params, callback, errorCallback, connectFailedCallback) {
+  function checkAndParse(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response.json();
+    }
+    return response.json().then(function (json) {
+      var error = void 0;
+      if (json.error) {
+        error = new Error(json.error);
+      } else {
+        error = new Error('Protocol error with unknown response signature');
+      }
+      return Promise.reject(error);
+    });
+  }
+
+  var counter = parseInt(sessionStorage.getItem('JSONRPCCounter') || 0, 10);
+  var url = connectionString;
+  var options = {
+    method: 'POST',
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      method: method,
+      params: params,
+      id: counter
+    })
+  };
+
+  sessionStorage.setItem('JSONRPCCounter', counter + 1);
+
+  return fetch(url, options).then(checkAndParse).then(function (response) {
+    var error = response.error || response.result && response.result.error;
+
+    if (!error && typeof callback === 'function') {
+      return callback(response.result);
+    }
+
+    if (error && typeof errorCallback === 'function') {
+      return errorCallback(error);
+    }
+
+    var errorEvent = new CustomEvent('unhandledError', {
+      detail: {
+        connectionString: connectionString,
+        method: method,
+        params: params,
+        code: error.code,
+        message: error.message || error,
+        data: error.data
+      }
+    });
+    document.dispatchEvent(errorEvent);
+
+    return Promise.resolve();
+  }).catch(function (error) {
+    if (connectFailedCallback) {
+      return connectFailedCallback(error);
+    }
+
+    var errorEvent = new CustomEvent('unhandledError', {
+      detail: {
+        connectionString: connectionString,
+        method: method,
+        params: params,
+        code: error.response && error.response.status,
+        message: __('Connection to API server failed')
+      }
+    });
+    document.dispatchEvent(errorEvent);
+    return Promise.resolve();
+  });
+};
+
+exports.default = jsonrpc;
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process, global) {/*
+ * Copyright 2016 Google Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+
+
+
+(function(scope) {
+  if (scope['Proxy']) {
+    return;
+  }
+  let lastRevokeFn = null;
+
+  /**
+   * @param {*} o
+   * @return {boolean} whether this is probably a (non-null) Object
+   */
+  function isObject(o) {
+    return o ? (typeof o == 'object' || typeof o == 'function') : false;
+  }
+
+  /**
+   * @constructor
+   * @param {!Object} target
+   * @param {{apply, construct, get, set}} handler
+   */
+  scope.Proxy = function(target, handler) {
+    if (!isObject(target) || !isObject(handler)) {
+      throw new TypeError('Cannot create proxy with a non-object as target or handler');
+    }
+
+    // Construct revoke function, and set lastRevokeFn so that Proxy.revocable can steal it.
+    // The caller might get the wrong revoke function if a user replaces or wraps scope.Proxy
+    // to call itself, but that seems unlikely especially when using the polyfill.
+    let throwRevoked = function() {};
+    lastRevokeFn = function() {
+      throwRevoked = function(trap) {
+        throw new TypeError(`Cannot perform '${trap}' on a proxy that has been revoked`);
+      };
+    };
+
+    // Fail on unsupported traps: Chrome doesn't do this, but ensure that users of the polyfill
+    // are a bit more careful. Copy the internal parts of handler to prevent user changes.
+    const unsafeHandler = handler;
+    handler = {'get': null, 'set': null, 'apply': null, 'construct': null};
+    for (let k in unsafeHandler) {
+      if (!(k in handler)) {
+        throw new TypeError(`Proxy polyfill does not support trap '${k}'`);
+      }
+      handler[k] = unsafeHandler[k];
+    }
+    if (typeof unsafeHandler == 'function') {
+      // Allow handler to be a function (which has an 'apply' method). This matches what is
+      // probably a bug in native versions. It treats the apply call as a trap to be configured.
+      handler.apply = unsafeHandler.apply.bind(unsafeHandler);
+    }
+
+    // Define proxy as this, or a Function (if either it's callable, or apply is set).
+    // TODO(samthor): Closure compiler doesn't know about 'construct', attempts to rename it.
+    let proxy = this;
+    let isMethod = false;
+    const targetIsFunction = typeof target == 'function';
+    if (handler.apply || handler['construct'] || targetIsFunction) {
+      proxy = function Proxy() {
+        const usingNew = (this && this.constructor === proxy);
+        const args = Array.prototype.slice.call(arguments);
+        throwRevoked(usingNew ? 'construct' : 'apply');
+
+        if (usingNew && handler['construct']) {
+          return handler['construct'].call(this, target, args);
+        } else if (!usingNew && handler.apply) {
+          return handler.apply(target, this, args);
+        } else if (targetIsFunction) {
+          // since the target was a function, fallback to calling it directly.
+          if (usingNew) {
+            // inspired by answers to https://stackoverflow.com/q/1606797
+            args.unshift(target);  // pass class as first arg to constructor, although irrelevant
+            // nb. cast to convince Closure compiler that this is a constructor
+            const f = /** @type {!Function} */ (target.bind.apply(target, args));
+            return new f();
+          }
+          return target.apply(this, args);
+        }
+        throw new TypeError(usingNew ? 'not a constructor' : 'not a function');
+      };
+      isMethod = true;
+    }
+
+    // Create default getters/setters. Create different code paths as handler.get/handler.set can't
+    // change after creation.
+    const getter = handler.get ? function(prop) {
+      throwRevoked('get');
+      return handler.get(this, prop, proxy);
+    } : function(prop) {
+      throwRevoked('get');
+      return this[prop];
+    };
+    const setter = handler.set ? function(prop, value) {
+      throwRevoked('set');
+      const status = handler.set(this, prop, value, proxy);
+      if (!status) {
+        // TODO(samthor): If the calling code is in strict mode, throw TypeError.
+        // It's (sometimes) possible to work this out, if this code isn't strict- try to load the
+        // callee, and if it's available, that code is non-strict. However, this isn't exhaustive.
+      }
+    } : function(prop, value) {
+      throwRevoked('set');
+      this[prop] = value;
+    };
+
+    // Clone direct properties (i.e., not part of a prototype).
+    const propertyNames = Object.getOwnPropertyNames(target);
+    const propertyMap = {};
+    propertyNames.forEach(function(prop) {
+      if (isMethod && prop in proxy) {
+        return;  // ignore properties already here, e.g. 'bind', 'prototype' etc
+      }
+      const real = Object.getOwnPropertyDescriptor(target, prop);
+      const desc = {
+        enumerable: !!real.enumerable,
+        get: getter.bind(target, prop),
+        set: setter.bind(target, prop),
+      };
+      Object.defineProperty(proxy, prop, desc);
+      propertyMap[prop] = true;
+    });
+
+    // Set the prototype, or clone all prototype methods (always required if a getter is provided).
+    // TODO(samthor): We don't allow prototype methods to be set. It's (even more) awkward.
+    // An alternative here would be to _just_ clone methods to keep behavior consistent.
+    let prototypeOk = true;
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(proxy, Object.getPrototypeOf(target));
+    } else if (proxy.__proto__) {
+      proxy.__proto__ = target.__proto__;
+    } else {
+      prototypeOk = false;
+    }
+    if (handler.get || !prototypeOk) {
+      for (let k in target) {
+        if (propertyMap[k]) {
+          continue;
+        }
+        Object.defineProperty(proxy, k, {get: getter.bind(target, k)});
+      }
+    }
+
+    // The Proxy polyfill cannot handle adding new properties. Seal the target and proxy.
+    Object.seal(target);
+    Object.seal(proxy);
+
+    return proxy;  // nb. if isMethod is true, proxy != this
+  };
+
+  scope.Proxy.revocable = function(target, handler) {
+    const p = new scope.Proxy(target, handler);
+    return {'proxy': p, 'revoke': lastRevokeFn};
+  };
+
+  scope.Proxy['revocable'] = scope.Proxy.revocable;
+  scope['Proxy'] = scope.Proxy;
+})(typeof process !== 'undefined' && {}.toString.call(process) == '[object process]' ? global : self);
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(20)))
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
 
 
 /***/ }),
 /* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.doFetchCostInfoForUri = doFetchCostInfoForUri;
+
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+var _lbryapi = __webpack_require__(12);
+
+var _lbryapi2 = _interopRequireDefault(_lbryapi);
+
+var _claims = __webpack_require__(3);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+// eslint-disable-next-line import/prefer-default-export
+function doFetchCostInfoForUri(uri) {
+  return function (dispatch, getState) {
+    var state = getState();
+    var claim = (0, _claims.selectClaimsByUri)(state)[uri];
+
+    if (!claim) return;
+
+    function resolve(costInfo) {
+      dispatch({
+        type: ACTIONS.FETCH_COST_INFO_COMPLETED,
+        data: {
+          uri: uri,
+          costInfo: costInfo
+        }
+      });
+    }
+
+    var fee = claim.value && claim.value.stream && claim.value.stream.metadata ? claim.value.stream.metadata.fee : undefined;
+
+    if (fee === undefined) {
+      resolve({ cost: 0, includesData: true });
+    } else if (fee.currency === 'LBC') {
+      resolve({ cost: fee.amount, includesData: true });
+    } else {
+      _lbryapi2.default.getExchangeRates().then(function (_ref) {
+        var LBC_USD = _ref.LBC_USD;
+
+        resolve({ cost: fee.amount / LBC_USD, includesData: true });
+      });
+    }
+  };
+}
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.decode = exports.parse = __webpack_require__(23);
+exports.encode = exports.stringify = __webpack_require__(24);
+
+
+/***/ }),
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3215,7 +3426,7 @@ var isArray = Array.isArray || function (xs) {
 
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3307,7 +3518,7 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3332,7 +3543,7 @@ var _claims = __webpack_require__(7);
 
 var _claims2 = __webpack_require__(3);
 
-var _file_info = __webpack_require__(12);
+var _file_info = __webpack_require__(13);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3400,7 +3611,7 @@ function doFetchFileInfosAndPublishedClaims() {
 }
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3421,7 +3632,7 @@ var _claims = __webpack_require__(7);
 
 var _navigation = __webpack_require__(4);
 
-var _batchActions = __webpack_require__(13);
+var _batchActions = __webpack_require__(14);
 
 var _batchActions2 = _interopRequireDefault(_batchActions);
 
@@ -3487,7 +3698,7 @@ function doSearch(rawQuery, currentPageNotSearchHandler) {
 }
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3521,7 +3732,7 @@ var _lbry2 = _interopRequireDefault(_lbry);
 
 var _app = __webpack_require__(6);
 
-var _wallet = __webpack_require__(14);
+var _wallet = __webpack_require__(15);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3695,7 +3906,7 @@ function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
 }
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3923,7 +4134,7 @@ function claimsReducer() {
 }
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3981,7 +4192,7 @@ function costInfoReducer() {
 }
 
 /***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4178,7 +4389,7 @@ function fileInfoReducer() {
 }
 
 /***/ }),
-/* 29 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4224,7 +4435,7 @@ reducers[ACTIONS.NOTIFICATION_CREATED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.NOTIFICATION_DISPLAYED] = function (state, action) {
+reducers[ACTIONS.NOTIFICATION_DISPLAYED] = function (state) {
   var queue = Object.assign([], state.queue);
   queue.shift();
 
@@ -4243,7 +4454,7 @@ function notificationsReducer() {
 }
 
 /***/ }),
-/* 30 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4302,7 +4513,7 @@ function searchReducer() {
 }
 
 /***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4486,7 +4697,7 @@ function walletReducer() {
 }
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4508,7 +4719,7 @@ var selectNotification = exports.selectNotification = (0, _reselect.createSelect
 });
 
 /***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4552,7 +4763,7 @@ var makeSelectFetchingCostInfoForUri = exports.makeSelectFetchingCostInfoForUri 
 };
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
