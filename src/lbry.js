@@ -1,6 +1,3 @@
-// hack to make proxy-polyfill work in React Native
-GLOBAL.self = GLOBAL;
-
 import jsonrpc from 'jsonrpc';
 import 'proxy-polyfill';
 
