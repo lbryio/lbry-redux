@@ -1009,13 +1009,14 @@ function apiCall(method, params, resolve, reject) {
 function getLocal(key) {
   var fallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
 
-  var itemRaw = localStorage.getItem(key);
+  //const itemRaw = localStorage.getItem(key);
+  var itemRaw = null;
   return itemRaw === null ? fallback : JSON.parse(itemRaw);
 }
 
-function setLocal(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
+function setLocal(key, value) {}
+//localStorage.setItem(key, JSON.stringify(value));
+
 
 /**
  * Records a publish attempt in local storage. Returns a dictionary with all the data needed to
@@ -3786,7 +3787,7 @@ function doGetNewAddress() {
     });
 
     _lbry2.default.wallet_new_address().then(function (address) {
-      localStorage.setItem('wallet_address', address);
+      //localStorage.setItem('wallet_address', address);
       dispatch({
         type: ACTIONS.GET_NEW_ADDRESS_COMPLETED,
         data: { address: address }
@@ -4522,7 +4523,7 @@ var ACTIONS = _interopRequireWildcard(_action_types);
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var reducers = {};
-var receiveAddress = localStorage.getItem('receiveAddress');
+var receiveAddress = null; //localStorage.getItem('receiveAddress');
 var buildDraftTransaction = function buildDraftTransaction() {
   return {
     amount: undefined,
@@ -4572,8 +4573,8 @@ reducers[ACTIONS.GET_NEW_ADDRESS_STARTED] = function (state) {
 reducers[ACTIONS.GET_NEW_ADDRESS_COMPLETED] = function (state, action) {
   var address = action.data.address;
 
+  //localStorage.setItem('receiveAddress', address);
 
-  localStorage.setItem('receiveAddress', address);
   return Object.assign({}, state, {
     gettingNewAddress: false,
     receiveAddress: address

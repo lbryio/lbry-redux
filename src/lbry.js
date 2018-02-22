@@ -14,12 +14,13 @@ function apiCall(method, params, resolve, reject) {
 }
 
 function getLocal(key, fallback = undefined) {
-  const itemRaw = localStorage.getItem(key);
+  //const itemRaw = localStorage.getItem(key);
+  const itemRaw = null;
   return itemRaw === null ? fallback : JSON.parse(itemRaw);
 }
 
 function setLocal(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+  //localStorage.setItem(key, JSON.stringify(value));
 }
 
 /**
