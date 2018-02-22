@@ -1,6 +1,10 @@
 import jsonrpc from 'jsonrpc';
 import 'proxy-polyfill';
 
+// hack to make proxy-polyfill work in React Native
+var globalObject = typeof self === "undefined" ? global : self;
+module.exports = globalObject.fetch.bind(globalObject);
+
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 
 const Lbry = {
