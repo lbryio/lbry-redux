@@ -63,7 +63,7 @@ export function doGetNewAddress() {
     });
 
     Lbry.wallet_new_address().then(address => {
-      //localStorage.setItem('wallet_address', address);
+      // localStorage.setItem('wallet_address', address);
       dispatch({
         type: ACTIONS.GET_NEW_ADDRESS_COMPLETED,
         data: { address },
