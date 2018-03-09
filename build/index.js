@@ -1,14 +1,5 @@
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else {
-		var a = factory();
-		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
-	}
-})(typeof self !== 'undefined' ? self : this, function() {
-return /******/ (function(modules) { // webpackBootstrap
+module.exports =
+/******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -629,7 +620,7 @@ function isURIClaimable(URI) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.makeSelectIsUriResolving = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.selectAllFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.makeSelectClaimForUri = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = undefined;
+exports.selectRewardContentClaimIds = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.makeSelectIsUriResolving = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.selectAllFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.makeSelectClaimForUri = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = undefined;
 
 var _lbryURI = __webpack_require__(2);
 
@@ -816,6 +807,38 @@ var makeSelectIsUriResolving = exports.makeSelectIsUriResolving = function makeS
   });
 };
 
+var selectFeaturedUris = exports.selectFeaturedUris = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.featuredUris;
+});
+
+var selectFetchingFeaturedUris = exports.selectFetchingFeaturedUris = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.fetchingFeaturedContent;
+});
+
+var selectPlayingUri = exports.selectPlayingUri = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.playingUri;
+});
+
+var selectChannelClaimCounts = exports.selectChannelClaimCounts = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.channelClaimCounts || {};
+});
+
+var makeSelectTotalItemsForChannel = exports.makeSelectTotalItemsForChannel = function makeSelectTotalItemsForChannel(uri) {
+  return (0, _reselect.createSelector)(selectChannelClaimCounts, function (byUri) {
+    return byUri && byUri[uri];
+  });
+};
+
+var makeSelectTotalPagesForChannel = exports.makeSelectTotalPagesForChannel = function makeSelectTotalPagesForChannel(uri) {
+  return (0, _reselect.createSelector)(selectChannelClaimCounts, function (byUri) {
+    return byUri && byUri[uri] && Math.ceil(byUri[uri] / 10);
+  });
+};
+
+var selectRewardContentClaimIds = exports.selectRewardContentClaimIds = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.rewardedContentClaimIds;
+});
+
 /***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -832,7 +855,7 @@ var _reselect = __webpack_require__(1);
 
 var _lbryURI = __webpack_require__(2);
 
-var _query_params = __webpack_require__(11);
+var _query_params = __webpack_require__(13);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.navigation || {};
@@ -1358,12 +1381,14 @@ exports.doResolveUris = doResolveUris;
 exports.doResolveUri = doResolveUri;
 exports.doFetchClaimListMine = doFetchClaimListMine;
 exports.doAbandonClaim = doAbandonClaim;
+exports.doFetchFeaturedUris = doFetchFeaturedUris;
+exports.doFetchRewardedContent = doFetchRewardedContent;
 
 var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _modal_types = __webpack_require__(9);
+var _modal_types = __webpack_require__(11);
 
 var MODALS = _interopRequireWildcard(_modal_types);
 
@@ -1371,15 +1396,25 @@ var _lbry = __webpack_require__(5);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
+var _lbryapi = __webpack_require__(8);
+
+var _lbryapi2 = _interopRequireDefault(_lbryapi);
+
 var _lbryURI = __webpack_require__(2);
 
 var _app = __webpack_require__(6);
 
 var _claims = __webpack_require__(3);
 
+var _batchActions = __webpack_require__(9);
+
+var _batchActions2 = _interopRequireDefault(_batchActions);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function doResolveUris(uris) {
   return function (dispatch, getState) {
@@ -1470,7 +1505,7 @@ function doAbandonClaim(txid, nout) {
     });
 
     var errorCallback = function errorCallback() {
-      dispatch((0, _app.doOpenModal)(MODALS.TRANSACTION_FAILED));
+      // dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
     };
 
     var successCallback = function successCallback(results) {
@@ -1484,7 +1519,7 @@ function doAbandonClaim(txid, nout) {
         dispatch(doResolveUri((0, _lbryURI.buildURI)({ name: name, claimId: claimId })));
         dispatch(doFetchClaimListMine());
       } else {
-        dispatch((0, _app.doOpenModal)(MODALS.TRANSACTION_FAILED));
+        // dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
       }
     };
 
@@ -1495,15 +1530,207 @@ function doAbandonClaim(txid, nout) {
   };
 }
 
+function doFetchFeaturedUris() {
+  return function (dispatch) {
+    dispatch({
+      type: ACTIONS.FETCH_FEATURED_CONTENT_STARTED
+    });
+
+    var success = function success(_ref4) {
+      var Uris = _ref4.Uris;
+
+      var urisToResolve = [];
+      Object.keys(Uris).forEach(function (category) {
+        urisToResolve = [].concat(_toConsumableArray(urisToResolve), _toConsumableArray(Uris[category]));
+      });
+
+      var actions = [doResolveUris(urisToResolve), {
+        type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
+        data: {
+          uris: Uris,
+          success: true
+        }
+      }];
+      dispatch(_batchActions2.default.apply(undefined, actions));
+    };
+
+    var failure = function failure() {
+      dispatch({
+        type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
+        data: {
+          uris: {}
+        }
+      });
+    };
+
+    _lbryapi2.default.call('file', 'list_homepage').then(success, failure);
+  };
+}
+
+function doFetchRewardedContent() {
+  return function (dispatch) {
+    var success = function success(nameToClaimId) {
+      dispatch({
+        type: ACTIONS.FETCH_REWARD_CONTENT_COMPLETED,
+        data: {
+          claimIds: Object.values(nameToClaimId),
+          success: true
+        }
+      });
+    };
+
+    var failure = function failure() {
+      dispatch({
+        type: ACTIONS.FETCH_REWARD_CONTENT_COMPLETED,
+        data: {
+          claimIds: [],
+          success: false
+        }
+      });
+    };
+
+    _lbryapi2.default.call('reward', 'list_featured').then(success, failure);
+  };
+}
+
 /***/ }),
 /* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _querystring = __webpack_require__(21);
+
+var _querystring2 = _interopRequireDefault(_querystring);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Lbryapi = {
+  enabled: true,
+  exchangePromise: null,
+  exchangeLastFetched: null
+};
+
+var CONNECTION_STRING = process.env.LBRY_APP_API_URL ? process.env.LBRY_APP_API_URL.replace(/\/*$/, '/') // exactly one slash at the end
+: 'https://api.lbry.io/';
+
+var EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
+
+Lbryapi.getExchangeRates = function () {
+  if (!Lbryapi.exchangeLastFetched || Date.now() - Lbryapi.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
+    Lbryapi.exchangePromise = new Promise(function (resolve, reject) {
+      Lbryapi.call('lbc', 'exchange_rate', {}, 'get', true).then(function (_ref) {
+        var LBC_USD = _ref.lbc_usd,
+            LBC_BTC = _ref.lbc_btc,
+            BTC_USD = _ref.btc_usd;
+
+        var rates = { LBC_USD: LBC_USD, LBC_BTC: LBC_BTC, BTC_USD: BTC_USD };
+        resolve(rates);
+      }).catch(reject);
+    });
+    Lbryapi.exchangeLastFetched = Date.now();
+  }
+  return Lbryapi.exchangePromise;
+};
+
+Lbryapi.call = function (resource, action) {
+  var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var method = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'get';
+
+  if (!Lbryapi.enabled) {
+    return Promise.reject(new Error(__('LBRY internal API is disabled')));
+  }
+
+  if (!(method === 'get' || method === 'post')) {
+    return Promise.reject(new Error(__('Invalid method')));
+  }
+
+  function checkAndParse(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response.json();
+    }
+    return response.json().then(function (json) {
+      var error = void 0;
+      if (json.error) {
+        error = new Error(json.error);
+      } else {
+        error = new Error('Unknown API error signature');
+      }
+      error.response = response; // This is primarily a hack used in actions/user.js
+      return Promise.reject(error);
+    });
+  }
+
+  function makeRequest(url, options) {
+    return fetch(url, options).then(checkAndParse);
+  }
+
+  var fullParams = _extends({}, params);
+  var qs = _querystring2.default.stringify(fullParams);
+  var url = '' + CONNECTION_STRING + resource + '/' + action + '?' + qs;
+
+  var options = {
+    method: 'GET'
+  };
+
+  if (method === 'post') {
+    options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: qs
+    };
+    url = '' + CONNECTION_STRING + resource + '/' + action;
+  }
+
+  return makeRequest(url, options).then(function (response) {
+    return response.data;
+  });
+};
+
+exports.default = Lbryapi;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.batchActions = batchActions;
+// https://github.com/reactjs/redux/issues/911
+function batchActions() {
+  for (var _len = arguments.length, actions = Array(_len), _key = 0; _key < _len; _key++) {
+    actions[_key] = arguments[_key];
+  }
+
+  return {
+    type: 'BATCH_ACTIONS',
+    actions: actions
+  };
+}
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1529,7 +1756,7 @@ var AFFIRM_PURCHASE = exports.AFFIRM_PURCHASE = 'affirm_purchase';
 var CONFIRM_CLAIM_REVOKE = exports.CONFIRM_CLAIM_REVOKE = 'confirmClaimRevoke';
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -1719,7 +1946,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1764,113 +1991,7 @@ function toQueryString(params) {
 }
 
 /***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _querystring = __webpack_require__(22);
-
-var _querystring2 = _interopRequireDefault(_querystring);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Lbryapi = {
-  enabled: true,
-  exchangePromise: null,
-  exchangeLastFetched: null
-};
-
-var CONNECTION_STRING = process.env.LBRY_APP_API_URL ? process.env.LBRY_APP_API_URL.replace(/\/*$/, '/') // exactly one slash at the end
-: 'https://api.lbry.io/';
-
-var EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
-
-Lbryapi.getExchangeRates = function () {
-  if (!Lbryapi.exchangeLastFetched || Date.now() - Lbryapi.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
-    Lbryapi.exchangePromise = new Promise(function (resolve, reject) {
-      Lbryapi.call('lbc', 'exchange_rate', {}, 'get', true).then(function (_ref) {
-        var LBC_USD = _ref.lbc_usd,
-            LBC_BTC = _ref.lbc_btc,
-            BTC_USD = _ref.btc_usd;
-
-        var rates = { LBC_USD: LBC_USD, LBC_BTC: LBC_BTC, BTC_USD: BTC_USD };
-        resolve(rates);
-      }).catch(reject);
-    });
-    Lbryapi.exchangeLastFetched = Date.now();
-  }
-  return Lbryapi.exchangePromise;
-};
-
-Lbryapi.call = function (resource, action) {
-  var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  var method = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'get';
-
-  if (!Lbryapi.enabled) {
-    return Promise.reject(new Error(__('LBRY internal API is disabled')));
-  }
-
-  if (!(method === 'get' || method === 'post')) {
-    return Promise.reject(new Error(__('Invalid method')));
-  }
-
-  function checkAndParse(response) {
-    if (response.status >= 200 && response.status < 300) {
-      return response.json();
-    }
-    return response.json().then(function (json) {
-      var error = void 0;
-      if (json.error) {
-        error = new Error(json.error);
-      } else {
-        error = new Error('Unknown API error signature');
-      }
-      error.response = response; // This is primarily a hack used in actions/user.js
-      return Promise.reject(error);
-    });
-  }
-
-  function makeRequest(url, options) {
-    return fetch(url, options).then(checkAndParse);
-  }
-
-  var fullParams = _extends({}, params);
-  var qs = _querystring2.default.stringify(fullParams);
-  var url = '' + CONNECTION_STRING + resource + '/' + action + '?' + qs;
-
-  var options = {
-    method: 'GET'
-  };
-
-  if (method === 'post') {
-    options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: qs
-    };
-    url = '' + CONNECTION_STRING + resource + '/' + action;
-  }
-
-  return makeRequest(url, options).then(function (response) {
-    return response.data;
-  });
-};
-
-exports.default = Lbryapi;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
-
-/***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1977,29 +2098,6 @@ var selectTotalDownloadProgress = exports.selectTotalDownloadProgress = (0, _res
   if (fileInfos.length > 0) return totalProgress / fileInfos.length / 100.0;
   return -1;
 });
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.batchActions = batchActions;
-// https://github.com/reactjs/redux/issues/911
-function batchActions() {
-  for (var _len = arguments.length, actions = Array(_len), _key = 0; _key < _len; _key++) {
-    actions[_key] = arguments[_key];
-  }
-
-  return {
-    type: 'BATCH_ACTIONS',
-    actions: actions
-  };
-}
 
 /***/ }),
 /* 15 */
@@ -2147,10 +2245,10 @@ var makeSelectBlockDate = exports.makeSelectBlockDate = function makeSelectBlock
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectWunderBarIcon = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = undefined;
-exports.selectIsSearching = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectNotification = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doShowSnackBar = exports.doCloseModal = exports.doOpenModal = exports.doNotify = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.ACTIONS = exports.Notification = undefined;
+exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectWunderBarIcon = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = undefined;
+exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectRewardContentClaimIds = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectNotification = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchRewardedContent = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doShowSnackBar = exports.doCloseModal = exports.doOpenModal = exports.doNotify = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.ACTIONS = exports.Notification = undefined;
 
-var _Notification = __webpack_require__(8);
+var _Notification = __webpack_require__(10);
 
 Object.defineProperty(exports, 'Notification', {
   enumerable: true,
@@ -2260,8 +2358,20 @@ Object.defineProperty(exports, 'doResolveUri', {
     return _claims.doResolveUri;
   }
 });
+Object.defineProperty(exports, 'doFetchFeaturedUris', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doFetchFeaturedUris;
+  }
+});
+Object.defineProperty(exports, 'doFetchRewardedContent', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doFetchRewardedContent;
+  }
+});
 
-var _cost_info = __webpack_require__(21);
+var _cost_info = __webpack_require__(24);
 
 Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   enumerable: true,
@@ -2363,7 +2473,7 @@ Object.defineProperty(exports, 'doSendSupport', {
   }
 });
 
-var _batchActions = __webpack_require__(14);
+var _batchActions = __webpack_require__(9);
 
 Object.defineProperty(exports, 'batchActions', {
   enumerable: true,
@@ -2372,7 +2482,7 @@ Object.defineProperty(exports, 'batchActions', {
   }
 });
 
-var _query_params = __webpack_require__(11);
+var _query_params = __webpack_require__(13);
 
 Object.defineProperty(exports, 'parseQueryParams', {
   enumerable: true,
@@ -2500,6 +2610,18 @@ Object.defineProperty(exports, 'makeSelectIsUriResolving', {
     return _claims3.makeSelectIsUriResolving;
   }
 });
+Object.defineProperty(exports, 'makeSelectTotalItemsForChannel', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectTotalItemsForChannel;
+  }
+});
+Object.defineProperty(exports, 'makeSelectTotalPagesForChannel', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectTotalPagesForChannel;
+  }
+});
 Object.defineProperty(exports, 'selectClaimsById', {
   enumerable: true,
   get: function get() {
@@ -2596,6 +2718,36 @@ Object.defineProperty(exports, 'selectResolvingUris', {
     return _claims3.selectResolvingUris;
   }
 });
+Object.defineProperty(exports, 'selectFeaturedUris', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectFeaturedUris;
+  }
+});
+Object.defineProperty(exports, 'selectFetchingFeaturedUris', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectFetchingFeaturedUris;
+  }
+});
+Object.defineProperty(exports, 'selectPlayingUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectPlayingUri;
+  }
+});
+Object.defineProperty(exports, 'selectChannelClaimCounts', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectChannelClaimCounts;
+  }
+});
+Object.defineProperty(exports, 'selectRewardContentClaimIds', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectRewardContentClaimIds;
+  }
+});
 
 var _cost_info3 = __webpack_require__(35);
 
@@ -2630,7 +2782,7 @@ Object.defineProperty(exports, 'selectFetchingCostInfo', {
   }
 });
 
-var _file_info3 = __webpack_require__(13);
+var _file_info3 = __webpack_require__(14);
 
 Object.defineProperty(exports, 'makeSelectFileInfoForUri', {
   enumerable: true,
@@ -2920,7 +3072,7 @@ var _lbry = __webpack_require__(5);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryapi = __webpack_require__(12);
+var _lbryapi = __webpack_require__(8);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
@@ -2952,7 +3104,7 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _Notification = __webpack_require__(8);
+var _Notification = __webpack_require__(10);
 
 var _Notification2 = _interopRequireDefault(_Notification);
 
@@ -3234,7 +3386,7 @@ exports.default = jsonrpc;
   scope['Proxy'] = scope.Proxy;
 })(typeof process !== 'undefined' && {}.toString.call(process) == '[object process]' ? global : self);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(20)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12), __webpack_require__(20)))
 
 /***/ }),
 /* 20 */
@@ -3270,72 +3422,12 @@ module.exports = g;
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.doFetchCostInfoForUri = doFetchCostInfoForUri;
+exports.decode = exports.parse = __webpack_require__(22);
+exports.encode = exports.stringify = __webpack_require__(23);
 
-var _action_types = __webpack_require__(0);
-
-var ACTIONS = _interopRequireWildcard(_action_types);
-
-var _lbryapi = __webpack_require__(12);
-
-var _lbryapi2 = _interopRequireDefault(_lbryapi);
-
-var _claims = __webpack_require__(3);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-// eslint-disable-next-line import/prefer-default-export
-function doFetchCostInfoForUri(uri) {
-  return function (dispatch, getState) {
-    var state = getState();
-    var claim = (0, _claims.selectClaimsByUri)(state)[uri];
-
-    if (!claim) return;
-
-    function resolve(costInfo) {
-      dispatch({
-        type: ACTIONS.FETCH_COST_INFO_COMPLETED,
-        data: {
-          uri: uri,
-          costInfo: costInfo
-        }
-      });
-    }
-
-    var fee = claim.value && claim.value.stream && claim.value.stream.metadata ? claim.value.stream.metadata.fee : undefined;
-
-    if (fee === undefined) {
-      resolve({ cost: 0, includesData: true });
-    } else if (fee.currency === 'LBC') {
-      resolve({ cost: fee.amount, includesData: true });
-    } else {
-      _lbryapi2.default.getExchangeRates().then(function (_ref) {
-        var LBC_USD = _ref.LBC_USD;
-
-        resolve({ cost: fee.amount / LBC_USD, includesData: true });
-      });
-    }
-  };
-}
 
 /***/ }),
 /* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.decode = exports.parse = __webpack_require__(23);
-exports.encode = exports.stringify = __webpack_require__(24);
-
-
-/***/ }),
-/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3426,7 +3518,7 @@ var isArray = Array.isArray || function (xs) {
 
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3518,6 +3610,66 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.doFetchCostInfoForUri = doFetchCostInfoForUri;
+
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+var _lbryapi = __webpack_require__(8);
+
+var _lbryapi2 = _interopRequireDefault(_lbryapi);
+
+var _claims = __webpack_require__(3);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+// eslint-disable-next-line import/prefer-default-export
+function doFetchCostInfoForUri(uri) {
+  return function (dispatch, getState) {
+    var state = getState();
+    var claim = (0, _claims.selectClaimsByUri)(state)[uri];
+
+    if (!claim) return;
+
+    function resolve(costInfo) {
+      dispatch({
+        type: ACTIONS.FETCH_COST_INFO_COMPLETED,
+        data: {
+          uri: uri,
+          costInfo: costInfo
+        }
+      });
+    }
+
+    var fee = claim.value && claim.value.stream && claim.value.stream.metadata ? claim.value.stream.metadata.fee : undefined;
+
+    if (fee === undefined) {
+      resolve({ cost: 0, includesData: true });
+    } else if (fee.currency === 'LBC') {
+      resolve({ cost: fee.amount, includesData: true });
+    } else {
+      _lbryapi2.default.getExchangeRates().then(function (_ref) {
+        var LBC_USD = _ref.LBC_USD;
+
+        resolve({ cost: fee.amount / LBC_USD, includesData: true });
+      });
+    }
+  };
+}
+
+/***/ }),
 /* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3543,7 +3695,7 @@ var _claims = __webpack_require__(7);
 
 var _claims2 = __webpack_require__(3);
 
-var _file_info = __webpack_require__(13);
+var _file_info = __webpack_require__(14);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3632,7 +3784,7 @@ var _claims = __webpack_require__(7);
 
 var _navigation = __webpack_require__(4);
 
-var _batchActions = __webpack_require__(14);
+var _batchActions = __webpack_require__(9);
 
 var _batchActions2 = _interopRequireDefault(_batchActions);
 
@@ -3722,7 +3874,7 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _modal_types = __webpack_require__(9);
+var _modal_types = __webpack_require__(11);
 
 var MODALS = _interopRequireWildcard(_modal_types);
 
@@ -4852,4 +5004,3 @@ var selectWunderBarIcon = exports.selectWunderBarIcon = (0, _reselect.createSele
 
 /***/ })
 /******/ ]);
-});

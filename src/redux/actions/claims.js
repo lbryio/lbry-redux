@@ -1,9 +1,9 @@
 import * as ACTIONS from 'constants/action_types';
-import * as MODALS from 'constants/modal_types';
 import Lbry from 'lbry';
+import Lbryapi from 'lbryapi';
 import { buildURI, normalizeURI } from 'lbryURI';
-import { doOpenModal } from 'redux/actions/app';
 import { selectMyClaimsRaw, selectResolvingUris } from 'redux/selectors/claims';
+import batchActions from 'util/batchActions';
 
 export function doResolveUris(uris) {
   return (dispatch, getState) => {
@@ -83,7 +83,7 @@ export function doAbandonClaim(txid, nout) {
     });
 
     const errorCallback = () => {
-      dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
+      // dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
     };
 
     const successCallback = results => {
@@ -97,7 +97,7 @@ export function doAbandonClaim(txid, nout) {
         dispatch(doResolveUri(buildURI({ name, claimId })));
         dispatch(doFetchClaimListMine());
       } else {
-        dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
+        // dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
       }
     };
 
@@ -105,5 +105,69 @@ export function doAbandonClaim(txid, nout) {
       txid,
       nout,
     }).then(successCallback, errorCallback);
+  };
+}
+
+export function doFetchFeaturedUris() {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.FETCH_FEATURED_CONTENT_STARTED,
+    });
+
+    const success = ({ Uris }) => {
+      let urisToResolve = [];
+      Object.keys(Uris).forEach(category => {
+        urisToResolve = [...urisToResolve, ...Uris[category]];
+      });
+
+      const actions = [
+        doResolveUris(urisToResolve),
+        {
+          type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
+          data: {
+            uris: Uris,
+            success: true,
+          },
+        },
+      ];
+      dispatch(batchActions(...actions));
+    };
+
+    const failure = () => {
+      dispatch({
+        type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
+        data: {
+          uris: {},
+        },
+      });
+    };
+
+    Lbryapi.call('file', 'list_homepage').then(success, failure);
+  };
+}
+
+export function doFetchRewardedContent() {
+  return dispatch => {
+    const success = nameToClaimId => {
+      dispatch({
+        type: ACTIONS.FETCH_REWARD_CONTENT_COMPLETED,
+        data: {
+          claimIds: Object.values(nameToClaimId),
+          success: true,
+        },
+      });
+    };
+
+    const failure = () => {
+      dispatch({
+        type: ACTIONS.FETCH_REWARD_CONTENT_COMPLETED,
+        data: {
+          claimIds: [],
+          success: false,
+        },
+      });
+    };
+
+    Lbryapi.call('reward', 'list_featured').then(success, failure);
   };
 }

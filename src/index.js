@@ -30,6 +30,8 @@ export {
   doAbandonClaim,
   doResolveUris,
   doResolveUri,
+  doFetchFeaturedUris,
+  doFetchRewardedContent,
 } from 'redux/actions/claims';
 
 export { doFetchCostInfoForUri } from 'redux/actions/cost_info';
@@ -79,6 +81,8 @@ export {
   makeSelectTitleForUri,
   makeSelectContentTypeForUri,
   makeSelectIsUriResolving,
+  makeSelectTotalItemsForChannel,
+  makeSelectTotalPagesForChannel,
   selectClaimsById,
   selectClaimsByUri,
   selectAllClaimsByChannel,
@@ -95,6 +99,11 @@ export {
   selectFetchingMyChannels,
   selectMyChannelClaims,
   selectResolvingUris,
+  selectFeaturedUris,
+  selectFetchingFeaturedUris,
+  selectPlayingUri,
+  selectChannelClaimCounts,
+  selectRewardContentClaimIds,
 } from 'redux/selectors/claims';
 
 export {
