@@ -61,7 +61,7 @@ module.exports =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 16);
+/******/ 	return __webpack_require__(__webpack_require__.s = 15);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -855,7 +855,7 @@ var _reselect = __webpack_require__(1);
 
 var _lbryURI = __webpack_require__(2);
 
-var _query_params = __webpack_require__(13);
+var _query_params = __webpack_require__(12);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.navigation || {};
@@ -1016,11 +1016,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _jsonrpc = __webpack_require__(18);
+var _jsonrpc = __webpack_require__(17);
 
 var _jsonrpc2 = _interopRequireDefault(_jsonrpc);
 
-__webpack_require__(19);
+__webpack_require__(18);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1041,13 +1041,14 @@ function apiCall(method, params, resolve, reject) {
 function getLocal(key) {
   var fallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
 
-  var itemRaw = localStorage.getItem(key);
+  //const itemRaw = localStorage.getItem(key);
+  var itemRaw = null;
   return itemRaw === null ? fallback : JSON.parse(itemRaw);
 }
 
-function setLocal(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
+function setLocal(key, value) {}
+//localStorage.setItem(key, JSON.stringify(value));
+
 
 /**
  * Records a publish attempt in local storage. Returns a dictionary with all the data needed to
@@ -1329,51 +1330,6 @@ exports.default = lbryProxy;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.doOpenModal = doOpenModal;
-exports.doCloseModal = doCloseModal;
-exports.doShowSnackBar = doShowSnackBar;
-
-var _action_types = __webpack_require__(0);
-
-var ACTIONS = _interopRequireWildcard(_action_types);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function doOpenModal(modal) {
-  var modalProps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-  return {
-    type: ACTIONS.OPEN_MODAL,
-    data: {
-      modal: modal,
-      modalProps: modalProps
-    }
-  };
-}
-
-function doCloseModal() {
-  return {
-    type: ACTIONS.CLOSE_MODAL
-  };
-}
-
-function doShowSnackBar(data) {
-  return {
-    type: ACTIONS.SHOW_SNACKBAR,
-    data: data
-  };
-}
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -1388,25 +1344,19 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _modal_types = __webpack_require__(11);
-
-var MODALS = _interopRequireWildcard(_modal_types);
-
 var _lbry = __webpack_require__(5);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryapi = __webpack_require__(8);
+var _lbryapi = __webpack_require__(7);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
 var _lbryURI = __webpack_require__(2);
 
-var _app = __webpack_require__(6);
-
 var _claims = __webpack_require__(3);
 
-var _batchActions = __webpack_require__(9);
+var _batchActions = __webpack_require__(8);
 
 var _batchActions2 = _interopRequireDefault(_batchActions);
 
@@ -1594,7 +1544,7 @@ function doFetchRewardedContent() {
 }
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1606,7 +1556,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _querystring = __webpack_require__(21);
+var _querystring = __webpack_require__(20);
 
 var _querystring2 = _interopRequireDefault(_querystring);
 
@@ -1697,10 +1647,10 @@ Lbryapi.call = function (resource, action) {
 };
 
 exports.default = Lbryapi;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1723,14 +1673,14 @@ function batchActions() {
 }
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1739,24 +1689,43 @@ function batchActions() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var CONFIRM_FILE_REMOVE = exports.CONFIRM_FILE_REMOVE = 'confirmFileRemove';
-var INCOMPATIBLE_DAEMON = exports.INCOMPATIBLE_DAEMON = 'incompatibleDaemon';
-var FILE_TIMEOUT = exports.FILE_TIMEOUT = 'file_timeout';
-var DOWNLOADING = exports.DOWNLOADING = 'downloading';
-var ERROR = exports.ERROR = 'error';
-var INSUFFICIENT_CREDITS = exports.INSUFFICIENT_CREDITS = 'insufficient_credits';
-var UPGRADE = exports.UPGRADE = 'upgrade';
-var WELCOME = exports.WELCOME = 'welcome';
-var EMAIL_COLLECTION = exports.EMAIL_COLLECTION = 'email_collection';
-var FIRST_REWARD = exports.FIRST_REWARD = 'first_reward';
-var AUTHENTICATION_FAILURE = exports.AUTHENTICATION_FAILURE = 'auth_failure';
-var TRANSACTION_FAILED = exports.TRANSACTION_FAILED = 'transaction_failed';
-var REWARD_APPROVAL_REQUIRED = exports.REWARD_APPROVAL_REQUIRED = 'reward_approval_required';
-var AFFIRM_PURCHASE = exports.AFFIRM_PURCHASE = 'affirm_purchase';
-var CONFIRM_CLAIM_REVOKE = exports.CONFIRM_CLAIM_REVOKE = 'confirmClaimRevoke';
+exports.doOpenModal = doOpenModal;
+exports.doCloseModal = doCloseModal;
+exports.doShowSnackBar = doShowSnackBar;
+
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function doOpenModal(modal) {
+  var modalProps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  return {
+    type: ACTIONS.OPEN_MODAL,
+    data: {
+      modal: modal,
+      modalProps: modalProps
+    }
+  };
+}
+
+function doCloseModal() {
+  return {
+    type: ACTIONS.CLOSE_MODAL
+  };
+}
+
+function doShowSnackBar(data) {
+  return {
+    type: ACTIONS.SHOW_SNACKBAR,
+    data: data
+  };
+}
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -1946,7 +1915,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1991,7 +1960,7 @@ function toQueryString(params) {
 }
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2100,7 +2069,7 @@ var selectTotalDownloadProgress = exports.selectTotalDownloadProgress = (0, _res
 });
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2236,7 +2205,7 @@ var makeSelectBlockDate = exports.makeSelectBlockDate = function makeSelectBlock
 };
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2248,7 +2217,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectWunderBarIcon = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = undefined;
 exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectRewardContentClaimIds = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectNotification = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchRewardedContent = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doShowSnackBar = exports.doCloseModal = exports.doOpenModal = exports.doNotify = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.ACTIONS = exports.Notification = undefined;
 
-var _Notification = __webpack_require__(10);
+var _Notification = __webpack_require__(9);
 
 Object.defineProperty(exports, 'Notification', {
   enumerable: true,
@@ -2302,7 +2271,7 @@ Object.defineProperty(exports, 'isURIClaimable', {
   }
 });
 
-var _notifications = __webpack_require__(17);
+var _notifications = __webpack_require__(16);
 
 Object.defineProperty(exports, 'doNotify', {
   enumerable: true,
@@ -2311,7 +2280,7 @@ Object.defineProperty(exports, 'doNotify', {
   }
 });
 
-var _app = __webpack_require__(6);
+var _app = __webpack_require__(10);
 
 Object.defineProperty(exports, 'doOpenModal', {
   enumerable: true,
@@ -2332,7 +2301,7 @@ Object.defineProperty(exports, 'doShowSnackBar', {
   }
 });
 
-var _claims = __webpack_require__(7);
+var _claims = __webpack_require__(6);
 
 Object.defineProperty(exports, 'doFetchClaimListMine', {
   enumerable: true,
@@ -2371,7 +2340,7 @@ Object.defineProperty(exports, 'doFetchRewardedContent', {
   }
 });
 
-var _cost_info = __webpack_require__(24);
+var _cost_info = __webpack_require__(23);
 
 Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   enumerable: true,
@@ -2380,7 +2349,7 @@ Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   }
 });
 
-var _file_info = __webpack_require__(25);
+var _file_info = __webpack_require__(24);
 
 Object.defineProperty(exports, 'doFetchFileInfo', {
   enumerable: true,
@@ -2401,7 +2370,7 @@ Object.defineProperty(exports, 'doFetchFileInfosAndPublishedClaims', {
   }
 });
 
-var _search = __webpack_require__(26);
+var _search = __webpack_require__(25);
 
 Object.defineProperty(exports, 'doSearch', {
   enumerable: true,
@@ -2410,7 +2379,7 @@ Object.defineProperty(exports, 'doSearch', {
   }
 });
 
-var _wallet = __webpack_require__(27);
+var _wallet = __webpack_require__(26);
 
 Object.defineProperty(exports, 'doUpdateBalance', {
   enumerable: true,
@@ -2473,7 +2442,7 @@ Object.defineProperty(exports, 'doSendSupport', {
   }
 });
 
-var _batchActions = __webpack_require__(9);
+var _batchActions = __webpack_require__(8);
 
 Object.defineProperty(exports, 'batchActions', {
   enumerable: true,
@@ -2482,7 +2451,7 @@ Object.defineProperty(exports, 'batchActions', {
   }
 });
 
-var _query_params = __webpack_require__(13);
+var _query_params = __webpack_require__(12);
 
 Object.defineProperty(exports, 'parseQueryParams', {
   enumerable: true,
@@ -2782,7 +2751,7 @@ Object.defineProperty(exports, 'selectFetchingCostInfo', {
   }
 });
 
-var _file_info3 = __webpack_require__(14);
+var _file_info3 = __webpack_require__(13);
 
 Object.defineProperty(exports, 'makeSelectFileInfoForUri', {
   enumerable: true,
@@ -2971,7 +2940,7 @@ Object.defineProperty(exports, 'selectWunderBarIcon', {
   }
 });
 
-var _wallet3 = __webpack_require__(15);
+var _wallet3 = __webpack_require__(14);
 
 Object.defineProperty(exports, 'makeSelectBlockDate', {
   enumerable: true,
@@ -3072,7 +3041,7 @@ var _lbry = __webpack_require__(5);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryapi = __webpack_require__(8);
+var _lbryapi = __webpack_require__(7);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
@@ -3089,7 +3058,7 @@ exports.Lbry = _lbry2.default;
 exports.Lbryapi = _lbryapi2.default;
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3104,7 +3073,7 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _Notification = __webpack_require__(10);
+var _Notification = __webpack_require__(9);
 
 var _Notification2 = _interopRequireDefault(_Notification);
 
@@ -3120,7 +3089,7 @@ function doNotify(data) {
 }
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3207,7 +3176,7 @@ jsonrpc.call = function (connectionString, method, params, callback, errorCallba
 exports.default = jsonrpc;
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3386,10 +3355,10 @@ exports.default = jsonrpc;
   scope['Proxy'] = scope.Proxy;
 })(typeof process !== 'undefined' && {}.toString.call(process) == '[object process]' ? global : self);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12), __webpack_require__(20)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(19)))
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports) {
 
 var g;
@@ -3416,18 +3385,18 @@ module.exports = g;
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-exports.decode = exports.parse = __webpack_require__(22);
-exports.encode = exports.stringify = __webpack_require__(23);
+exports.decode = exports.parse = __webpack_require__(21);
+exports.encode = exports.stringify = __webpack_require__(22);
 
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3518,7 +3487,7 @@ var isArray = Array.isArray || function (xs) {
 
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3610,7 +3579,7 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3625,7 +3594,7 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _lbryapi = __webpack_require__(8);
+var _lbryapi = __webpack_require__(7);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
@@ -3670,7 +3639,7 @@ function doFetchCostInfoForUri(uri) {
 }
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3691,11 +3660,11 @@ var _lbry = __webpack_require__(5);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _claims = __webpack_require__(7);
+var _claims = __webpack_require__(6);
 
 var _claims2 = __webpack_require__(3);
 
-var _file_info = __webpack_require__(14);
+var _file_info = __webpack_require__(13);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3763,7 +3732,7 @@ function doFetchFileInfosAndPublishedClaims() {
 }
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3780,11 +3749,11 @@ var ACTIONS = _interopRequireWildcard(_action_types);
 
 var _lbryURI = __webpack_require__(2);
 
-var _claims = __webpack_require__(7);
+var _claims = __webpack_require__(6);
 
 var _navigation = __webpack_require__(4);
 
-var _batchActions = __webpack_require__(9);
+var _batchActions = __webpack_require__(8);
 
 var _batchActions2 = _interopRequireDefault(_batchActions);
 
@@ -3850,7 +3819,7 @@ function doSearch(rawQuery, currentPageNotSearchHandler) {
 }
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3874,7 +3843,7 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _modal_types = __webpack_require__(11);
+var _modal_types = __webpack_require__(27);
 
 var MODALS = _interopRequireWildcard(_modal_types);
 
@@ -3882,9 +3851,9 @@ var _lbry = __webpack_require__(5);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _app = __webpack_require__(6);
+var _app = __webpack_require__(10);
 
-var _wallet = __webpack_require__(15);
+var _wallet = __webpack_require__(14);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3947,7 +3916,7 @@ function doGetNewAddress() {
     });
 
     _lbry2.default.wallet_new_address().then(function (address) {
-      localStorage.setItem('wallet_address', address);
+      //localStorage.setItem('wallet_address', address);
       dispatch({
         type: ACTIONS.GET_NEW_ADDRESS_COMPLETED,
         data: { address: address }
@@ -4056,6 +4025,32 @@ function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
     }).then(successCallback, errorCallback);
   };
 }
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var CONFIRM_FILE_REMOVE = exports.CONFIRM_FILE_REMOVE = 'confirmFileRemove';
+var INCOMPATIBLE_DAEMON = exports.INCOMPATIBLE_DAEMON = 'incompatibleDaemon';
+var FILE_TIMEOUT = exports.FILE_TIMEOUT = 'file_timeout';
+var DOWNLOADING = exports.DOWNLOADING = 'downloading';
+var ERROR = exports.ERROR = 'error';
+var INSUFFICIENT_CREDITS = exports.INSUFFICIENT_CREDITS = 'insufficient_credits';
+var UPGRADE = exports.UPGRADE = 'upgrade';
+var WELCOME = exports.WELCOME = 'welcome';
+var EMAIL_COLLECTION = exports.EMAIL_COLLECTION = 'email_collection';
+var FIRST_REWARD = exports.FIRST_REWARD = 'first_reward';
+var AUTHENTICATION_FAILURE = exports.AUTHENTICATION_FAILURE = 'auth_failure';
+var TRANSACTION_FAILED = exports.TRANSACTION_FAILED = 'transaction_failed';
+var REWARD_APPROVAL_REQUIRED = exports.REWARD_APPROVAL_REQUIRED = 'reward_approval_required';
+var AFFIRM_PURCHASE = exports.AFFIRM_PURCHASE = 'affirm_purchase';
+var CONFIRM_CLAIM_REVOKE = exports.CONFIRM_CLAIM_REVOKE = 'confirmClaimRevoke';
 
 /***/ }),
 /* 28 */
@@ -4683,7 +4678,7 @@ var ACTIONS = _interopRequireWildcard(_action_types);
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var reducers = {};
-var receiveAddress = localStorage.getItem('receiveAddress');
+var receiveAddress = null; //localStorage.getItem('receiveAddress');
 var buildDraftTransaction = function buildDraftTransaction() {
   return {
     amount: undefined,
@@ -4733,8 +4728,8 @@ reducers[ACTIONS.GET_NEW_ADDRESS_STARTED] = function (state) {
 reducers[ACTIONS.GET_NEW_ADDRESS_COMPLETED] = function (state, action) {
   var address = action.data.address;
 
+  //localStorage.setItem('receiveAddress', address);
 
-  localStorage.setItem('receiveAddress', address);
   return Object.assign({}, state, {
     gettingNewAddress: false,
     receiveAddress: address

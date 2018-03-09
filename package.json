@@ -37,7 +37,7 @@
     "keytar": "^4.0.3",
     "localforage": "^1.5.0",
     "npm": "^5.5.1",
-    "proxy-polyfill": "^0.1.7",
+    "proxy-polyfill": "0.1.6",
     "qrcode.react": "^0.7.2",
     "rc-progress": "^2.0.6",
     "react": "^16.2.0",
