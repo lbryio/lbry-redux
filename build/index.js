@@ -1,14 +1,5 @@
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else {
-		var a = factory();
-		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
-	}
-})(typeof self !== 'undefined' ? self : this, function() {
-return /******/ (function(modules) { // webpackBootstrap
+module.exports =
+/******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -70,7 +61,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 16);
+/******/ 	return __webpack_require__(__webpack_require__.s = 15);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -832,7 +823,7 @@ var _reselect = __webpack_require__(1);
 
 var _lbryURI = __webpack_require__(2);
 
-var _query_params = __webpack_require__(11);
+var _query_params = __webpack_require__(10);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.navigation || {};
@@ -993,11 +984,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _jsonrpc = __webpack_require__(18);
+var _jsonrpc = __webpack_require__(17);
 
 var _jsonrpc2 = _interopRequireDefault(_jsonrpc);
 
-__webpack_require__(19);
+__webpack_require__(18);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1018,13 +1009,14 @@ function apiCall(method, params, resolve, reject) {
 function getLocal(key) {
   var fallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
 
-  var itemRaw = localStorage.getItem(key);
+  //const itemRaw = localStorage.getItem(key);
+  var itemRaw = null;
   return itemRaw === null ? fallback : JSON.parse(itemRaw);
 }
 
-function setLocal(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
+function setLocal(key, value) {}
+//localStorage.setItem(key, JSON.stringify(value));
+
 
 /**
  * Records a publish attempt in local storage. Returns a dictionary with all the data needed to
@@ -1530,196 +1522,6 @@ var CONFIRM_CLAIM_REVOKE = exports.CONFIRM_CLAIM_REVOKE = 'confirmClaimRevoke';
 
 /***/ }),
 /* 10 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1764,7 +1566,7 @@ function toQueryString(params) {
 }
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1867,10 +1669,10 @@ Lbryapi.call = function (resource, action) {
 };
 
 exports.default = Lbryapi;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(21)))
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1979,7 +1781,7 @@ var selectTotalDownloadProgress = exports.selectTotalDownloadProgress = (0, _res
 });
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2002,7 +1804,7 @@ function batchActions() {
 }
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2138,7 +1940,7 @@ var makeSelectBlockDate = exports.makeSelectBlockDate = function makeSelectBlock
 };
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2204,7 +2006,7 @@ Object.defineProperty(exports, 'isURIClaimable', {
   }
 });
 
-var _notifications = __webpack_require__(17);
+var _notifications = __webpack_require__(16);
 
 Object.defineProperty(exports, 'doNotify', {
   enumerable: true,
@@ -2261,7 +2063,7 @@ Object.defineProperty(exports, 'doResolveUri', {
   }
 });
 
-var _cost_info = __webpack_require__(21);
+var _cost_info = __webpack_require__(20);
 
 Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   enumerable: true,
@@ -2363,7 +2165,7 @@ Object.defineProperty(exports, 'doSendSupport', {
   }
 });
 
-var _batchActions = __webpack_require__(14);
+var _batchActions = __webpack_require__(13);
 
 Object.defineProperty(exports, 'batchActions', {
   enumerable: true,
@@ -2372,7 +2174,7 @@ Object.defineProperty(exports, 'batchActions', {
   }
 });
 
-var _query_params = __webpack_require__(11);
+var _query_params = __webpack_require__(10);
 
 Object.defineProperty(exports, 'parseQueryParams', {
   enumerable: true,
@@ -2630,7 +2432,7 @@ Object.defineProperty(exports, 'selectFetchingCostInfo', {
   }
 });
 
-var _file_info3 = __webpack_require__(13);
+var _file_info3 = __webpack_require__(12);
 
 Object.defineProperty(exports, 'makeSelectFileInfoForUri', {
   enumerable: true,
@@ -2819,7 +2621,7 @@ Object.defineProperty(exports, 'selectWunderBarIcon', {
   }
 });
 
-var _wallet3 = __webpack_require__(15);
+var _wallet3 = __webpack_require__(14);
 
 Object.defineProperty(exports, 'makeSelectBlockDate', {
   enumerable: true,
@@ -2920,7 +2722,7 @@ var _lbry = __webpack_require__(5);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryapi = __webpack_require__(12);
+var _lbryapi = __webpack_require__(11);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
@@ -2937,7 +2739,7 @@ exports.Lbry = _lbry2.default;
 exports.Lbryapi = _lbryapi2.default;
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2968,7 +2770,7 @@ function doNotify(data) {
 }
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3055,11 +2857,11 @@ jsonrpc.call = function (connectionString, method, params, callback, errorCallba
 exports.default = jsonrpc;
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(process, global) {/*
+/* WEBPACK VAR INJECTION */(function(global) {/*
  * Copyright 2016 Google Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -3114,7 +2916,7 @@ exports.default = jsonrpc;
 
     // Fail on unsupported traps: Chrome doesn't do this, but ensure that users of the polyfill
     // are a bit more careful. Copy the internal parts of handler to prevent user changes.
-    const unsafeHandler = handler;
+    let unsafeHandler = handler;
     handler = {'get': null, 'set': null, 'apply': null, 'construct': null};
     for (let k in unsafeHandler) {
       if (!(k in handler)) {
@@ -3132,27 +2934,27 @@ exports.default = jsonrpc;
     // TODO(samthor): Closure compiler doesn't know about 'construct', attempts to rename it.
     let proxy = this;
     let isMethod = false;
-    const targetIsFunction = typeof target == 'function';
+    let targetIsFunction = typeof target == 'function';
     if (handler.apply || handler['construct'] || targetIsFunction) {
       proxy = function Proxy() {
-        const usingNew = (this && this.constructor === proxy);
-        const args = Array.prototype.slice.call(arguments);
+        let usingNew = (this && this.constructor === proxy);
         throwRevoked(usingNew ? 'construct' : 'apply');
 
         if (usingNew && handler['construct']) {
-          return handler['construct'].call(this, target, args);
+          return handler['construct'].call(this, target, arguments);
         } else if (!usingNew && handler.apply) {
-          return handler.apply(target, this, args);
+          return handler.apply(target, this, arguments);
         } else if (targetIsFunction) {
           // since the target was a function, fallback to calling it directly.
           if (usingNew) {
             // inspired by answers to https://stackoverflow.com/q/1606797
-            args.unshift(target);  // pass class as first arg to constructor, although irrelevant
+            let all = Array.prototype.slice.call(arguments);
+            all.unshift(target);  // pass class as first arg to constructor, although irrelevant
             // nb. cast to convince Closure compiler that this is a constructor
-            const f = /** @type {!Function} */ (target.bind.apply(target, args));
+            let f = /** @type {!Function} */ (target.bind.apply(target, all));
             return new f();
           }
-          return target.apply(this, args);
+          return target.apply(this, arguments);
         }
         throw new TypeError(usingNew ? 'not a constructor' : 'not a function');
       };
@@ -3161,16 +2963,16 @@ exports.default = jsonrpc;
 
     // Create default getters/setters. Create different code paths as handler.get/handler.set can't
     // change after creation.
-    const getter = handler.get ? function(prop) {
+    let getter = handler.get ? function(prop) {
       throwRevoked('get');
       return handler.get(this, prop, proxy);
     } : function(prop) {
       throwRevoked('get');
       return this[prop];
     };
-    const setter = handler.set ? function(prop, value) {
+    let setter = handler.set ? function(prop, value) {
       throwRevoked('set');
-      const status = handler.set(this, prop, value, proxy);
+      let status = handler.set(this, prop, value, proxy);
       if (!status) {
         // TODO(samthor): If the calling code is in strict mode, throw TypeError.
         // It's (sometimes) possible to work this out, if this code isn't strict- try to load the
@@ -3182,14 +2984,14 @@ exports.default = jsonrpc;
     };
 
     // Clone direct properties (i.e., not part of a prototype).
-    const propertyNames = Object.getOwnPropertyNames(target);
-    const propertyMap = {};
+    let propertyNames = Object.getOwnPropertyNames(target);
+    let propertyMap = {};
     propertyNames.forEach(function(prop) {
       if (isMethod && prop in proxy) {
         return;  // ignore properties already here, e.g. 'bind', 'prototype' etc
       }
-      const real = Object.getOwnPropertyDescriptor(target, prop);
-      const desc = {
+      let real = Object.getOwnPropertyDescriptor(target, prop);
+      let desc = {
         enumerable: !!real.enumerable,
         get: getter.bind(target, prop),
         set: setter.bind(target, prop),
@@ -3226,18 +3028,18 @@ exports.default = jsonrpc;
   };
 
   scope.Proxy.revocable = function(target, handler) {
-    const p = new scope.Proxy(target, handler);
+    let p = new scope.Proxy(target, handler);
     return {'proxy': p, 'revoke': lastRevokeFn};
   };
 
   scope.Proxy['revocable'] = scope.Proxy.revocable;
   scope['Proxy'] = scope.Proxy;
-})(typeof process !== 'undefined' && {}.toString.call(process) == '[object process]' ? global : self);
+})(typeof module !== 'undefined' && module['exports'] ? global : window);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(20)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19)))
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports) {
 
 var g;
@@ -3264,7 +3066,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3279,7 +3081,7 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _lbryapi = __webpack_require__(12);
+var _lbryapi = __webpack_require__(11);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
@@ -3322,6 +3124,196 @@ function doFetchCostInfoForUri(uri) {
     }
   };
 }
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
 
 /***/ }),
 /* 22 */
@@ -3543,7 +3535,7 @@ var _claims = __webpack_require__(7);
 
 var _claims2 = __webpack_require__(3);
 
-var _file_info = __webpack_require__(13);
+var _file_info = __webpack_require__(12);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3632,7 +3624,7 @@ var _claims = __webpack_require__(7);
 
 var _navigation = __webpack_require__(4);
 
-var _batchActions = __webpack_require__(14);
+var _batchActions = __webpack_require__(13);
 
 var _batchActions2 = _interopRequireDefault(_batchActions);
 
@@ -3732,7 +3724,7 @@ var _lbry2 = _interopRequireDefault(_lbry);
 
 var _app = __webpack_require__(6);
 
-var _wallet = __webpack_require__(15);
+var _wallet = __webpack_require__(14);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3795,7 +3787,7 @@ function doGetNewAddress() {
     });
 
     _lbry2.default.wallet_new_address().then(function (address) {
-      localStorage.setItem('wallet_address', address);
+      //localStorage.setItem('wallet_address', address);
       dispatch({
         type: ACTIONS.GET_NEW_ADDRESS_COMPLETED,
         data: { address: address }
@@ -4531,7 +4523,7 @@ var ACTIONS = _interopRequireWildcard(_action_types);
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var reducers = {};
-var receiveAddress = localStorage.getItem('receiveAddress');
+var receiveAddress = null; //localStorage.getItem('receiveAddress');
 var buildDraftTransaction = function buildDraftTransaction() {
   return {
     amount: undefined,
@@ -4581,8 +4573,8 @@ reducers[ACTIONS.GET_NEW_ADDRESS_STARTED] = function (state) {
 reducers[ACTIONS.GET_NEW_ADDRESS_COMPLETED] = function (state, action) {
   var address = action.data.address;
 
+  //localStorage.setItem('receiveAddress', address);
 
-  localStorage.setItem('receiveAddress', address);
   return Object.assign({}, state, {
     gettingNewAddress: false,
     receiveAddress: address
@@ -4852,4 +4844,3 @@ var selectWunderBarIcon = exports.selectWunderBarIcon = (0, _reselect.createSele
 
 /***/ })
 /******/ ]);
-});

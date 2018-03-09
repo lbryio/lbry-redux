@@ -1,7 +1,7 @@
 import * as ACTIONS from 'constants/action_types';
 
 const reducers = {};
-const receiveAddress = localStorage.getItem('receiveAddress');
+const receiveAddress = null;//localStorage.getItem('receiveAddress');
 const buildDraftTransaction = () => ({
   amount: undefined,
   address: undefined,
@@ -46,7 +46,7 @@ reducers[ACTIONS.GET_NEW_ADDRESS_STARTED] = state =>
 reducers[ACTIONS.GET_NEW_ADDRESS_COMPLETED] = (state, action) => {
   const { address } = action.data;
 
-  localStorage.setItem('receiveAddress', address);
+  //localStorage.setItem('receiveAddress', address);
   return Object.assign({}, state, {
     gettingNewAddress: false,
     receiveAddress: address,
