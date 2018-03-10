@@ -23,7 +23,6 @@ jsonrpc.call = (
     });
   }
 
-  const counter = parseInt(sessionStorage.getItem('JSONRPCCounter') || 0, 10);
   const url = connectionString;
   const options = {
     method: 'POST',
@@ -31,11 +30,9 @@ jsonrpc.call = (
       jsonrpc: '2.0',
       method,
       params,
-      id: counter,
+      id: new Date().getTime(),
     }),
   };
-
-  sessionStorage.setItem('JSONRPCCounter', counter + 1);
 
   return fetch(url, options)
     .then(checkAndParse)
