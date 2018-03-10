@@ -2926,7 +2926,6 @@ jsonrpc.call = function (connectionString, method, params, callback, errorCallba
     });
   }
 
-  var counter = parseInt(sessionStorage.getItem('JSONRPCCounter') || 0, 10);
   var url = connectionString;
   var options = {
     method: 'POST',
@@ -2934,11 +2933,9 @@ jsonrpc.call = function (connectionString, method, params, callback, errorCallba
       jsonrpc: '2.0',
       method: method,
       params: params,
-      id: counter
+      id: new Date().getTime()
     })
   };
-
-  sessionStorage.setItem('JSONRPCCounter', counter + 1);
 
   return fetch(url, options).then(checkAndParse).then(function (response) {
     var error = response.error || response.result && response.result.error;
