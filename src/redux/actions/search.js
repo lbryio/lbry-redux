@@ -2,7 +2,7 @@ import * as ACTIONS from 'constants/action_types';
 import { buildURI } from 'lbryURI';
 import { doResolveUri } from 'redux/actions/claims';
 import { selectCurrentPage } from 'redux/selectors/navigation';
-import batchActions from 'util/batchActions';
+import { batchActions } from 'util/batchActions';
 
 // eslint-disable-next-line import/prefer-default-export
 export function doSearch(rawQuery, currentPageNotSearchHandler) {

@@ -102,23 +102,21 @@ Lbry.connect = () => {
     Lbry.connectPromise = new Promise((resolve, reject) => {
       let tryNum = 0;
 
-      // Check every half second to see if the daemon is accepting connections
-      function checkDaemonStarted() {
+      const checkDaemonStarted = (resolve, reject) => {
         tryNum += 1;
-        // eslint-disable-next-line no-use-before-define
-        lbryProxy
-          .status()
-          .then(resolve)
-          .catch(() => {
-            if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
-              setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
-            } else {
-              reject(new Error('Unable to connect to LBRY'));
-            }
-          });
-      }
-
-      checkDaemonStarted();
+        new Promise(() => {
+          apiCall('status', {}, resolve, reject);
+        });
+      };
+      
+      // Check every half second to see if the daemon is accepting connections
+      checkDaemonStarted(resolve, () => {
+        if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
+          setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
+        } else {
+          reject(new Error('Unable to connect to LBRY'));
+        }
+      });
     });
   }
 
@@ -188,6 +186,17 @@ Lbry.getMediaType = (contentType, fileName) => {
  * Wrappers for API methods to simulate missing or future behavior. Unlike the old-style stubs,
  * these are designed to be transparent wrappers around the corresponding API methods.
  */
+Lbry.status = () => 
+  new Promise((resolve, reject) => {
+    apiCall(
+      'status',
+      {},
+      status => {
+        resolve(status);
+      },
+      reject
+    );
+  });
 
 /**
  * Returns results from the file_list API method, plus dummy entries for pending publishes.

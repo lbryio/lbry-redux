@@ -3,7 +3,7 @@ import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
 import { buildURI, normalizeURI } from 'lbryURI';
 import { selectMyClaimsRaw, selectResolvingUris } from 'redux/selectors/claims';
-import batchActions from 'util/batchActions';
+import { batchActions } from 'util/batchActions';
 
 export function doResolveUris(uris) {
   return (dispatch, getState) => {

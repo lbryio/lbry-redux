@@ -2,12 +2,22 @@ import * as ACTIONS from 'constants/action_types';
 
 const reducers = {};
 
-const defaultState = {};
+const defaultState = {
+  rewardedContentClaimIds: [],
+  channelClaimCounts: {},
+};
 
 reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state, action) => {
   const { resolveInfo } = action.data;
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
+  const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
+
+  Object.entries(resolveInfo).forEach(([uri, { certificate, claimsInChannel }]) => {
+    if (certificate && !Number.isNaN(claimsInChannel)) {
+      channelClaimCounts[uri] = claimsInChannel;
+    }
+  });
 
   Object.entries(resolveInfo).forEach(([uri, { certificate, claim }]) => {
     if (claim) {
@@ -26,10 +36,12 @@ reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state, action) => {
       byUri[uri] = null;
     }
   });
-
+  
   return Object.assign({}, state, {
     byId,
     claimsByUri: byUri,
+    channelClaimCounts,
+    resolvingUris: (state.resolvingUris || []).filter(uri => !resolveInfo[uri])
   });
 };
 
@@ -213,22 +225,6 @@ reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state, action) => {
 
   return Object.assign({}, state, {
     resolvingUris: newResolving,
-  });
-};
-
-reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state, action) => {
-  const { resolveInfo } = action.data;
-  const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
-
-  Object.entries(resolveInfo).forEach(([uri, { certificate, claimsInChannel }]) => {
-    if (certificate && !Number.isNaN(claimsInChannel)) {
-      channelClaimCounts[uri] = claimsInChannel;
-    }
-  });
-
-  return Object.assign({}, state, {
-    channelClaimCounts,
-    resolvingUris: (state.resolvingUris || []).filter(uri => !resolveInfo[uri]),
   });
 };
 
