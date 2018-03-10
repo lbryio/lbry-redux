@@ -4268,6 +4268,91 @@ reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = function (state, action) {
   });
 };
 
+reducers[ACTIONS.FETCH_FEATURED_CONTENT_STARTED] = function (state) {
+  return Object.assign({}, state, {
+    fetchingFeaturedContent: true
+  });
+};
+
+reducers[ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED] = function (state, action) {
+  var _action$data3 = action.data,
+      uris = _action$data3.uris,
+      success = _action$data3.success;
+
+
+  return Object.assign({}, state, {
+    fetchingFeaturedContent: false,
+    fetchingFeaturedContentFailed: !success,
+    featuredUris: uris
+  });
+};
+
+reducers[ACTIONS.FETCH_REWARD_CONTENT_COMPLETED] = function (state, action) {
+  var claimIds = action.data.claimIds;
+
+
+  return Object.assign({}, state, {
+    rewardedContentClaimIds: claimIds
+  });
+};
+
+reducers[ACTIONS.RESOLVE_URIS_STARTED] = function (state, action) {
+  var uris = action.data.uris;
+
+
+  var oldResolving = state.resolvingUris || [];
+  var newResolving = Object.assign([], oldResolving);
+
+  uris.forEach(function (uri) {
+    if (!newResolving.includes(uri)) {
+      newResolving.push(uri);
+    }
+  });
+
+  return Object.assign({}, state, {
+    resolvingUris: newResolving
+  });
+};
+
+reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = function (state, action) {
+  var resolveInfo = action.data.resolveInfo;
+
+  var channelClaimCounts = Object.assign({}, state.channelClaimCounts);
+
+  Object.entries(resolveInfo).forEach(function (_ref3) {
+    var _ref4 = _slicedToArray(_ref3, 2),
+        uri = _ref4[0],
+        _ref4$ = _ref4[1],
+        certificate = _ref4$.certificate,
+        claimsInChannel = _ref4$.claimsInChannel;
+
+    if (certificate && !Number.isNaN(claimsInChannel)) {
+      channelClaimCounts[uri] = claimsInChannel;
+    }
+  });
+
+  return Object.assign({}, state, {
+    channelClaimCounts: channelClaimCounts,
+    resolvingUris: (state.resolvingUris || []).filter(function (uri) {
+      return !resolveInfo[uri];
+    })
+  });
+};
+
+reducers[ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED] = function (state, action) {
+  var channelClaimCounts = Object.assign({}, state.channelClaimCounts);
+  var _action$data4 = action.data,
+      uri = _action$data4.uri,
+      totalClaims = _action$data4.totalClaims;
+
+
+  channelClaimCounts[uri] = totalClaims;
+
+  return Object.assign({}, state, {
+    channelClaimCounts: channelClaimCounts
+  });
+};
+
 function claimsReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
   var action = arguments[1];
