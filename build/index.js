@@ -1025,13 +1025,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _jsonrpc = __webpack_require__(16);
-
-var _jsonrpc2 = _interopRequireDefault(_jsonrpc);
-
-__webpack_require__(17);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+__webpack_require__(16);
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -1043,8 +1037,43 @@ var Lbry = {
   pendingPublishTimeout: 20 * 60 * 1000
 };
 
+function checkAndParse(response) {
+  if (response.status >= 200 && response.status < 300) {
+    return response.json();
+  } else {
+    return response.json().then(function (json) {
+      var error = void 0;
+      if (json.error) {
+        error = new Error(json.error);
+      } else {
+        error = new Error("Protocol error with unknown response signature");
+      }
+      return Promise.reject(error);
+    });
+  }
+}
+
 function apiCall(method, params, resolve, reject) {
-  return _jsonrpc2.default.call(Lbry.daemonConnectionString, method, params, resolve, reject, reject);
+  var counter = new Date().getTime();
+  var options = {
+    method: "POST",
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      method: method,
+      params: params,
+      id: counter
+    })
+  };
+
+  return fetch(Lbry.daemonConnectionString, options).then(checkAndParse).then(function (response) {
+    var error = response.error || response.result && response.result.error;
+
+    if (error) {
+      return reject(error);
+    } else {
+      return resolve(response.result);
+    }
+  }).catch(reject);
 }
 
 function getLocal(key) {
@@ -1149,27 +1178,32 @@ function pendingPublishToDummyFileInfo(_ref5) {
 }
 
 // core
+Lbry.status = function () {
+  return new Promise(function (resolve, reject) {
+    apiCall('status', {}, function (status) {
+      resolve(status);
+    }, reject);
+  });
+};
+
 Lbry.connectPromise = null;
 Lbry.connect = function () {
   if (Lbry.connectPromise === null) {
     Lbry.connectPromise = new Promise(function (resolve, reject) {
       var tryNum = 0;
-
-      var checkDaemonStarted = function checkDaemonStarted(resolve, reject) {
-        tryNum += 1;
-        new Promise(function () {
-          apiCall('status', {}, resolve, reject);
-        });
-      };
-
       // Check every half second to see if the daemon is accepting connections
-      checkDaemonStarted(resolve, function () {
-        if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
-          setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
-        } else {
-          reject(new Error('Unable to connect to LBRY'));
-        }
-      });
+      function checkDaemonStarted() {
+        tryNum += 1;
+        Lbry.status().then(resolve).catch(function () {
+          if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
+            setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
+          } else {
+            reject(new Error('Unable to connect to LBRY'));
+          }
+        });
+      }
+
+      checkDaemonStarted();
     });
   }
 
@@ -1235,13 +1269,6 @@ Lbry.getMediaType = function (contentType, fileName) {
  * Wrappers for API methods to simulate missing or future behavior. Unlike the old-style stubs,
  * these are designed to be transparent wrappers around the corresponding API methods.
  */
-Lbry.status = function () {
-  return new Promise(function (resolve, reject) {
-    apiCall('status', {}, function (status) {
-      resolve(status);
-    }, reject);
-  });
-};
 
 /**
  * Returns results from the file_list API method, plus dummy entries for pending publishes.
@@ -1571,7 +1598,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _querystring = __webpack_require__(20);
+var _querystring = __webpack_require__(19);
 
 var _querystring2 = _interopRequireDefault(_querystring);
 
@@ -1662,7 +1689,7 @@ Lbryapi.call = function (resource, action) {
 };
 
 exports.default = Lbryapi;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
 
 /***/ }),
 /* 8 */
@@ -2165,7 +2192,7 @@ Object.defineProperty(exports, 'doFetchRewardedContent', {
   }
 });
 
-var _cost_info = __webpack_require__(23);
+var _cost_info = __webpack_require__(22);
 
 Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   enumerable: true,
@@ -2174,7 +2201,7 @@ Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   }
 });
 
-var _file_info = __webpack_require__(24);
+var _file_info = __webpack_require__(23);
 
 Object.defineProperty(exports, 'doFetchFileInfo', {
   enumerable: true,
@@ -2195,7 +2222,7 @@ Object.defineProperty(exports, 'doFetchFileInfosAndPublishedClaims', {
   }
 });
 
-var _search = __webpack_require__(25);
+var _search = __webpack_require__(24);
 
 Object.defineProperty(exports, 'doSearch', {
   enumerable: true,
@@ -2204,7 +2231,7 @@ Object.defineProperty(exports, 'doSearch', {
   }
 });
 
-var _wallet = __webpack_require__(26);
+var _wallet = __webpack_require__(25);
 
 Object.defineProperty(exports, 'doUpdateBalance', {
   enumerable: true,
@@ -2291,7 +2318,7 @@ Object.defineProperty(exports, 'toQueryString', {
   }
 });
 
-var _formatCredits = __webpack_require__(28);
+var _formatCredits = __webpack_require__(27);
 
 Object.defineProperty(exports, 'formatCredits', {
   enumerable: true,
@@ -2306,7 +2333,7 @@ Object.defineProperty(exports, 'formatFullPrice', {
   }
 });
 
-var _claims2 = __webpack_require__(29);
+var _claims2 = __webpack_require__(28);
 
 Object.defineProperty(exports, 'claimsReducer', {
   enumerable: true,
@@ -2315,7 +2342,7 @@ Object.defineProperty(exports, 'claimsReducer', {
   }
 });
 
-var _cost_info2 = __webpack_require__(30);
+var _cost_info2 = __webpack_require__(29);
 
 Object.defineProperty(exports, 'costInfoReducer', {
   enumerable: true,
@@ -2324,7 +2351,7 @@ Object.defineProperty(exports, 'costInfoReducer', {
   }
 });
 
-var _file_info2 = __webpack_require__(31);
+var _file_info2 = __webpack_require__(30);
 
 Object.defineProperty(exports, 'fileInfoReducer', {
   enumerable: true,
@@ -2333,7 +2360,7 @@ Object.defineProperty(exports, 'fileInfoReducer', {
   }
 });
 
-var _notifications2 = __webpack_require__(32);
+var _notifications2 = __webpack_require__(31);
 
 Object.defineProperty(exports, 'notificationsReducer', {
   enumerable: true,
@@ -2342,7 +2369,7 @@ Object.defineProperty(exports, 'notificationsReducer', {
   }
 });
 
-var _search2 = __webpack_require__(33);
+var _search2 = __webpack_require__(32);
 
 Object.defineProperty(exports, 'searchReducer', {
   enumerable: true,
@@ -2351,7 +2378,7 @@ Object.defineProperty(exports, 'searchReducer', {
   }
 });
 
-var _wallet2 = __webpack_require__(34);
+var _wallet2 = __webpack_require__(33);
 
 Object.defineProperty(exports, 'walletReducer', {
   enumerable: true,
@@ -2360,7 +2387,7 @@ Object.defineProperty(exports, 'walletReducer', {
   }
 });
 
-var _notifications3 = __webpack_require__(35);
+var _notifications3 = __webpack_require__(34);
 
 Object.defineProperty(exports, 'selectNotification', {
   enumerable: true,
@@ -2558,7 +2585,7 @@ Object.defineProperty(exports, 'selectRewardContentClaimIds', {
   }
 });
 
-var _cost_info3 = __webpack_require__(36);
+var _cost_info3 = __webpack_require__(35);
 
 Object.defineProperty(exports, 'makeSelectFetchingCostInfoForUri', {
   enumerable: true,
@@ -2741,7 +2768,7 @@ Object.defineProperty(exports, 'selectActiveHistoryEntry', {
   }
 });
 
-var _search3 = __webpack_require__(37);
+var _search3 = __webpack_require__(36);
 
 Object.defineProperty(exports, 'makeSelectSearchUris', {
   enumerable: true,
@@ -2933,90 +2960,6 @@ function doNotify(data) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var jsonrpc = {};
-
-jsonrpc.call = function (connectionString, method, params, callback, errorCallback, connectFailedCallback) {
-  function checkAndParse(response) {
-    if (response.status >= 200 && response.status < 300) {
-      return response.json();
-    }
-    return response.json().then(function (json) {
-      var error = void 0;
-      if (json.error) {
-        error = new Error(json.error);
-      } else {
-        error = new Error('Protocol error with unknown response signature');
-      }
-      return Promise.reject(error);
-    });
-  }
-
-  var url = connectionString;
-  var options = {
-    method: 'POST',
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      method: method,
-      params: params,
-      id: new Date().getTime()
-    })
-  };
-
-  return fetch(url, options).then(checkAndParse).then(function (response) {
-    var error = response.error || response.result && response.result.error;
-
-    if (!error && typeof callback === 'function') {
-      return callback(response.result);
-    }
-
-    if (error && typeof errorCallback === 'function') {
-      return errorCallback(error);
-    }
-
-    var errorEvent = new CustomEvent('unhandledError', {
-      detail: {
-        connectionString: connectionString,
-        method: method,
-        params: params,
-        code: error.code,
-        message: error.message || error,
-        data: error.data
-      }
-    });
-    document.dispatchEvent(errorEvent);
-
-    return Promise.resolve();
-  }).catch(function (error) {
-    if (connectFailedCallback) {
-      return connectFailedCallback(error);
-    }
-
-    var errorEvent = new CustomEvent('unhandledError', {
-      detail: {
-        connectionString: connectionString,
-        method: method,
-        params: params,
-        code: error.response && error.response.status,
-        message: __('Connection to API server failed')
-      }
-    });
-    document.dispatchEvent(errorEvent);
-    return Promise.resolve();
-  });
-};
-
-exports.default = jsonrpc;
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
 /* WEBPACK VAR INJECTION */(function(global) {/*
  * Copyright 2016 Google Inc. All rights reserved.
  *
@@ -3192,10 +3135,10 @@ exports.default = jsonrpc;
   scope['Proxy'] = scope.Proxy;
 })(typeof module !== 'undefined' && module['exports'] ? global : window);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17)))
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports) {
 
 var g;
@@ -3222,7 +3165,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -3412,18 +3355,18 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-exports.decode = exports.parse = __webpack_require__(21);
-exports.encode = exports.stringify = __webpack_require__(22);
+exports.decode = exports.parse = __webpack_require__(20);
+exports.encode = exports.stringify = __webpack_require__(21);
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3514,7 +3457,7 @@ var isArray = Array.isArray || function (xs) {
 
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3606,7 +3549,7 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3666,7 +3609,7 @@ function doFetchCostInfoForUri(uri) {
 }
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3759,7 +3702,7 @@ function doFetchFileInfosAndPublishedClaims() {
 }
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3842,7 +3785,7 @@ function doSearch(rawQuery, currentPageNotSearchHandler) {
 }
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3866,7 +3809,7 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _modal_types = __webpack_require__(27);
+var _modal_types = __webpack_require__(26);
 
 var MODALS = _interopRequireWildcard(_modal_types);
 
@@ -4050,7 +3993,7 @@ function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
 }
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4076,7 +4019,7 @@ var AFFIRM_PURCHASE = exports.AFFIRM_PURCHASE = 'affirm_purchase';
 var CONFIRM_CLAIM_REVOKE = exports.CONFIRM_CLAIM_REVOKE = 'confirmClaimRevoke';
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4114,7 +4057,7 @@ function formatFullPrice(amount) {
 }
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4422,7 +4365,7 @@ function claimsReducer() {
 }
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4480,7 +4423,7 @@ function costInfoReducer() {
 }
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4677,7 +4620,7 @@ function fileInfoReducer() {
 }
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4742,7 +4685,7 @@ function notificationsReducer() {
 }
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4801,7 +4744,7 @@ function searchReducer() {
 }
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4985,7 +4928,7 @@ function walletReducer() {
 }
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5007,7 +4950,7 @@ var selectNotification = exports.selectNotification = (0, _reselect.createSelect
 });
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5051,7 +4994,7 @@ var makeSelectFetchingCostInfoForUri = exports.makeSelectFetchingCostInfoForUri 
 };
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

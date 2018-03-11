@@ -1,4 +1,4 @@
-import jsonrpc from 'jsonrpc';
+// @flow
 import 'proxy-polyfill';
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
@@ -9,8 +9,52 @@ const Lbry = {
   pendingPublishTimeout: 20 * 60 * 1000,
 };
 
-function apiCall(method, params, resolve, reject) {
-  return jsonrpc.call(Lbry.daemonConnectionString, method, params, resolve, reject, reject);
+function checkAndParse(response) {
+  if (response.status >= 200 && response.status < 300) {
+    return response.json();
+  } else {
+    return response.json().then(json => {
+      let error;
+      if (json.error) {
+        error = new Error(json.error);
+      } else {
+        error = new Error("Protocol error with unknown response signature");
+      }
+      return Promise.reject(error);
+    });
+  }
+}
+
+function apiCall(
+  method: string,
+  params: ?{},
+  resolve: Function,
+  reject: Function
+) {
+  const counter = new Date().getTime();
+  const options = {
+    method: "POST",
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      method: method,
+      params: params,
+      id: counter,
+    }),
+  };
+
+  return fetch(Lbry.daemonConnectionString, options)
+    .then(checkAndParse)
+    .then(response => {
+      const error =
+        response.error || (response.result && response.result.error);
+
+      if (error) {
+        return reject(error);
+      } else {
+        return resolve(response.result);
+      }
+    })
+    .catch(reject);
 }
 
 function getLocal(key, fallback = undefined) {
@@ -96,27 +140,39 @@ function pendingPublishToDummyFileInfo({ name, outpoint, claimId }) {
 }
 
 // core
+Lbry.status = () =>
+  new Promise((resolve, reject) => {
+    apiCall(
+      'status',
+      {},
+      status => {
+        resolve(status);
+      },
+      reject
+    );
+  });
+
 Lbry.connectPromise = null;
 Lbry.connect = () => {
   if (Lbry.connectPromise === null) {
     Lbry.connectPromise = new Promise((resolve, reject) => {
       let tryNum = 0;
-
-      const checkDaemonStarted = (resolve, reject) => {
-        tryNum += 1;
-        new Promise(() => {
-          apiCall('status', {}, resolve, reject);
-        });
-      };
-
       // Check every half second to see if the daemon is accepting connections
-      checkDaemonStarted(resolve, () => {
-        if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
-          setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
-        } else {
-          reject(new Error('Unable to connect to LBRY'));
-        }
-      });
+      function checkDaemonStarted() {
+        tryNum += 1;
+        Lbry
+          .status()
+          .then(resolve)
+          .catch(() => {
+            if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
+              setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
+            } else {
+              reject(new Error('Unable to connect to LBRY'));
+            }
+          });
+      }
+      
+      checkDaemonStarted();
     });
   }
 
@@ -186,17 +242,6 @@ Lbry.getMediaType = (contentType, fileName) => {
  * Wrappers for API methods to simulate missing or future behavior. Unlike the old-style stubs,
  * these are designed to be transparent wrappers around the corresponding API methods.
  */
-Lbry.status = () =>
-  new Promise((resolve, reject) => {
-    apiCall(
-      'status',
-      {},
-      status => {
-        resolve(status);
-      },
-      reject
-    );
-  });
 
 /**
  * Returns results from the file_list API method, plus dummy entries for pending publishes.
