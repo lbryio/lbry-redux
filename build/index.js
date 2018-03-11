@@ -1040,25 +1040,24 @@ var Lbry = {
 function checkAndParse(response) {
   if (response.status >= 200 && response.status < 300) {
     return response.json();
-  } else {
-    return response.json().then(function (json) {
-      var error = void 0;
-      if (json.error) {
-        error = new Error(json.error);
-      } else {
-        error = new Error("Protocol error with unknown response signature");
-      }
-      return Promise.reject(error);
-    });
   }
+  return response.json().then(function (json) {
+    var error = void 0;
+    if (json.error) {
+      error = new Error(json.error);
+    } else {
+      error = new Error('Protocol error with unknown response signature');
+    }
+    return Promise.reject(error);
+  });
 }
 
 function apiCall(method, params, resolve, reject) {
   var counter = new Date().getTime();
   var options = {
-    method: "POST",
+    method: 'POST',
     body: JSON.stringify({
-      jsonrpc: "2.0",
+      jsonrpc: '2.0',
       method: method,
       params: params,
       id: counter
@@ -1070,9 +1069,8 @@ function apiCall(method, params, resolve, reject) {
 
     if (error) {
       return reject(error);
-    } else {
-      return resolve(response.result);
     }
+    return resolve(response.result);
   }).catch(reject);
 }
 

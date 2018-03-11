@@ -40,7 +40,7 @@
     "proxy-polyfill": "0.1.6",
     "qrcode.react": "^0.7.2",
     "rc-progress": "^2.0.6",
-    "react": "^16.2.0",
+    "react": "16.2.0",
     "react-redux": "^5.0.3",
     "react-simplemde-editor": "^3.6.11",
     "redux": "^3.6.0",
