@@ -108,7 +108,7 @@ Lbry.connect = () => {
           apiCall('status', {}, resolve, reject);
         });
       };
-      
+
       // Check every half second to see if the daemon is accepting connections
       checkDaemonStarted(resolve, () => {
         if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
@@ -186,7 +186,7 @@ Lbry.getMediaType = (contentType, fileName) => {
  * Wrappers for API methods to simulate missing or future behavior. Unlike the old-style stubs,
  * these are designed to be transparent wrappers around the corresponding API methods.
  */
-Lbry.status = () => 
+Lbry.status = () =>
   new Promise((resolve, reject) => {
     apiCall(
       'status',

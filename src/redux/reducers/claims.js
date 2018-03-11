@@ -36,12 +36,12 @@ reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state, action) => {
       byUri[uri] = null;
     }
   });
-  
+
   return Object.assign({}, state, {
     byId,
     claimsByUri: byUri,
     channelClaimCounts,
-    resolvingUris: (state.resolvingUris || []).filter(uri => !resolveInfo[uri])
+    resolvingUris: (state.resolvingUris || []).filter(uri => !resolveInfo[uri]),
   });
 };
 
