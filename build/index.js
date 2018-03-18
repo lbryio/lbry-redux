@@ -1331,6 +1331,15 @@ Lbry.claim_list_mine = function () {
   });
 };
 
+Lbry.get = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return new Promise(function (resolve, reject) {
+    apiCall('get', params, function (streamInfo) {
+      resolve(streamInfo);
+    }, reject);
+  });
+};
+
 Lbry.resolve = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return new Promise(function (resolve, reject) {
