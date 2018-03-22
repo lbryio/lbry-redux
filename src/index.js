@@ -1,4 +1,5 @@
 import * as ACTIONS from 'constants/action_types';
+import * as SETTINGS from 'constants/settings';
 import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
 
@@ -6,7 +7,7 @@ import Lbryapi from 'lbryapi';
 export { Notification } from 'types/Notification';
 
 // constants
-export { ACTIONS };
+export { ACTIONS, SETTINGS };
 
 // common
 export { Lbry, Lbryapi };

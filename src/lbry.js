@@ -294,14 +294,14 @@ Lbry.claim_list_mine = (params = {}) =>
       reject
     );
   });
-  
+
 Lbry.get = (params = {}) =>
   new Promise((resolve, reject) => {
     apiCall(
       'get',
       params,
       streamInfo => {
-        resolve(streamInfo)
+        resolve(streamInfo);
       },
       reject
     );
