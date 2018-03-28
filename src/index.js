@@ -2,6 +2,7 @@ import * as ACTIONS from 'constants/action_types';
 import * as SETTINGS from 'constants/settings';
 import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
+import { selectState as selectSearchState } from 'redux/selectors/search';
 
 // types
 export { Notification } from 'types/Notification';
@@ -148,7 +149,6 @@ export {
   selectNavLinks,
 } from 'redux/selectors/navigation';
 
-import { selectState as selectSearchState } from 'redux/selectors/search';
 export { selectSearchState };
 export {
   makeSelectSearchUris,

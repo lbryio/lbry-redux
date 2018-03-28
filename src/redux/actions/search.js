@@ -1,3 +1,4 @@
+// @flow
 import * as ACTIONS from 'constants/action_types';
 import * as SEARCH_TYPES from 'constants/search';
 import { normalizeURI, buildURI, parseURI } from 'lbryURI';
@@ -83,9 +84,8 @@ export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boole
 export const getSearchSuggestions = (value: string) => dispatch => {
   const query = value.trim();
 
-  const isPrefix = () => {
-    return query === '@' || query === 'lbry:' || query === 'lbry:/' || query === 'lbry://';
-  };
+  const isPrefix = () =>
+    query === '@' || query === 'lbry:' || query === 'lbry:/' || query === 'lbry://';
 
   if (!query || isPrefix()) {
     dispatch({

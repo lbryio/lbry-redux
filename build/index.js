@@ -3969,8 +3969,6 @@ var _search2 = __webpack_require__(13);
 
 var _batchActions = __webpack_require__(8);
 
-var _batchActions2 = _interopRequireDefault(_batchActions);
-
 var _handleFetch = __webpack_require__(27);
 
 var _handleFetch2 = _interopRequireDefault(_handleFetch);
@@ -4031,8 +4029,8 @@ var doSearch = exports.doSearch = function doSearch(rawQuery) {
           uris: uris
         }
       });
-      dispatch(_batchActions2.default.apply(undefined, actions));
-    }).catch(function () {
+      dispatch(_batchActions.batchActions.apply(undefined, actions));
+    }).catch(function (e) {
       dispatch({
         type: ACTIONS.SEARCH_FAIL
       });
