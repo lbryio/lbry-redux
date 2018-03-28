@@ -459,7 +459,7 @@ function parseURI(URI) {
 
   // Break into components. Empty sub-matches are converted to null
   var componentsRegex = new RegExp('^((?:lbry://)?)' + // protocol
-  '([^:$#/]*)' + // name (stops at the first separator or end)
+  '([^:$#/]*)' + // claim name (stops at the first separator or end)
   '([:$#]?)([^/]*)' + // modifier separator, modifier (stops at the first path separator or end)
   '(/?)(.*)' // path separator, path
   );
@@ -469,7 +469,7 @@ function parseURI(URI) {
   }),
       _componentsRegex$exec2 = _slicedToArray(_componentsRegex$exec, 6),
       proto = _componentsRegex$exec2[0],
-      name = _componentsRegex$exec2[1],
+      claimName = _componentsRegex$exec2[1],
       modSep = _componentsRegex$exec2[2],
       modVal = _componentsRegex$exec2[3],
       pathSep = _componentsRegex$exec2[4],
@@ -483,12 +483,12 @@ function parseURI(URI) {
   }
 
   // Validate and process name
-  if (!name) {
+  if (!claimName) {
     throw new Error(__('URI does not include name.'));
   }
 
-  var isChannel = name.startsWith('@');
-  var channelName = isChannel ? name.slice(1) : name;
+  var isChannel = claimName.startsWith('@');
+  var channelName = isChannel ? claimName.slice(1) : claimName;
 
   if (isChannel) {
     if (!channelName) {
@@ -502,7 +502,7 @@ function parseURI(URI) {
     contentName = path;
   }
 
-  var nameBadChars = (channelName || name).match(regexInvalidURI);
+  var nameBadChars = (channelName || claimName).match(regexInvalidURI);
   if (nameBadChars) {
     throw new Error(__('Invalid character %s in name: %s.', nameBadChars.length === 1 ? '' : 's', nameBadChars.join(', ')));
   }
@@ -555,7 +555,7 @@ function parseURI(URI) {
   }
 
   return _extends({
-    name: name,
+    claimName: claimName,
     path: path,
     isChannel: isChannel
   }, contentName ? { contentName: contentName } : {}, channelName ? { channelName: channelName } : {}, claimSequence ? { claimSequence: parseInt(claimSequence, 10) } : {}, bidPosition ? { bidPosition: parseInt(bidPosition, 10) } : {}, claimId ? { claimId: claimId } : {}, path ? { path: path } : {});
@@ -573,22 +573,22 @@ function buildURI(URIObj) {
       bidPosition = URIObj.bidPosition,
       contentName = URIObj.contentName,
       channelName = URIObj.channelName;
-  var name = URIObj.name,
+  var claimName = URIObj.claimName,
       path = URIObj.path;
 
 
   if (channelName) {
     var channelNameFormatted = channelName.startsWith('@') ? channelName : '@' + channelName;
-    if (!name) {
-      name = channelNameFormatted;
-    } else if (name !== channelNameFormatted) {
-      throw new Error(__('Received a channel content URI, but name and channelName do not match. "name" represents the value in the name position of the URI (lbry://name...), which for channel content will be the channel name. In most cases, to construct a channel URI you should just pass channelName and contentName.'));
+    if (!claimName) {
+      claimName = channelNameFormatted;
+    } else if (claimName !== channelNameFormatted) {
+      throw new Error(__('Received a channel content URI, but claim name and channelName do not match. "name" represents the value in the name position of the URI (lbry://name...), which for channel content will be the channel name. In most cases, to construct a channel URI you should just pass channelName and contentName.'));
     }
   }
 
   if (contentName) {
-    if (!name) {
-      name = contentName;
+    if (!claimName) {
+      claimName = contentName;
     } else if (!path) {
       path = contentName;
     }
@@ -597,7 +597,7 @@ function buildURI(URIObj) {
     }
   }
 
-  return (includeProto ? 'lbry://' : '') + name + (claimId ? '#' + claimId : '') + (claimSequence ? ':' + claimSequence : '') + (bidPosition ? '' + bidPosition : '') + (path ? '/' + path : '');
+  return (includeProto ? 'lbry://' : '') + claimName + (claimId ? '#' + claimId : '') + (claimSequence ? ':' + claimSequence : '') + (bidPosition ? '' + bidPosition : '') + (path ? '/' + path : '');
 }
 
 /* Takes a parseable LBRY URI and converts it to standard, canonical format */
@@ -605,13 +605,13 @@ function normalizeURI(URI) {
   if (URI.match(/pending_claim/)) return URI;
 
   var _parseURI = parseURI(URI),
-      name = _parseURI.name,
+      claimName = _parseURI.claimName,
       path = _parseURI.path,
       bidPosition = _parseURI.bidPosition,
       claimSequence = _parseURI.claimSequence,
       claimId = _parseURI.claimId;
 
-  return buildURI({ name: name, path: path, claimSequence: claimSequence, bidPosition: bidPosition, claimId: claimId });
+  return buildURI({ claimName: claimName, path: path, claimSequence: claimSequence, bidPosition: bidPosition, claimId: claimId });
 }
 
 function isURIValid(URI) {
@@ -621,14 +621,14 @@ function isURIValid(URI) {
   } catch (error) {
     return false;
   }
-  return parts && parts.name;
+  return parts && parts.claimName;
 }
 
-function isNameValid(name) {
+function isNameValid(claimName) {
   var checkCase = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
   var regexp = new RegExp('^[a-z0-9-]+$', checkCase ? '' : 'i');
-  return regexp.test(name);
+  return regexp.test(claimName);
 }
 
 function isURIClaimable(URI) {
@@ -638,7 +638,7 @@ function isURIClaimable(URI) {
   } catch (error) {
     return false;
   }
-  return parts && parts.name && !parts.claimId && !parts.bidPosition && !parts.claimSequence && !parts.isChannel && !parts.path;
+  return parts && parts.claimName && !parts.claimId && !parts.bidPosition && !parts.claimSequence && !parts.isChannel && !parts.path;
 }
 
 /***/ }),
@@ -2092,7 +2092,7 @@ var selectSearchDownloadUris = exports.selectSearchDownloadUris = function selec
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectWunderBarAddress = exports.makeSelectSearchUris = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchQuery = exports.selectSearchValue = exports.selectSearchState = exports.selectState = undefined;
+exports.selectWunderBarAddress = exports.makeSelectSearchUris = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchQuery = exports.selectSearchValue = exports.selectState = undefined;
 
 var _navigation = __webpack_require__(5);
 
@@ -2101,8 +2101,6 @@ var _reselect = __webpack_require__(1);
 var selectState = exports.selectState = function selectState(state) {
   return state.search || {};
 };
-
-var selectSearchState = exports.selectSearchState = selectState;
 
 var selectSearchValue = exports.selectSearchValue = (0, _reselect.createSelector)(selectState, function (state) {
   return state.searchQuery;
@@ -2284,7 +2282,7 @@ var makeSelectBlockDate = exports.makeSelectBlockDate = function makeSelectBlock
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.selectSearchState = exports.makeSelectSearchUris = exports.selectNavLinks = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = undefined;
+exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectNavLinks = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = undefined;
 exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectRewardContentClaimIds = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectNotification = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchRewardedContent = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doShowSnackBar = exports.doCloseModal = exports.doOpenModal = exports.doNotify = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.SETTINGS = exports.ACTIONS = exports.Notification = undefined;
 
 var _Notification = __webpack_require__(9);
@@ -3012,12 +3010,6 @@ Object.defineProperty(exports, 'makeSelectSearchUris', {
     return _search3.makeSelectSearchUris;
   }
 });
-Object.defineProperty(exports, 'selectSearchState', {
-  enumerable: true,
-  get: function get() {
-    return _search3.selectSearchState;
-  }
-});
 Object.defineProperty(exports, 'selectSearchQuery', {
   enumerable: true,
   get: function get() {
@@ -3170,6 +3162,7 @@ exports.SETTINGS = SETTINGS;
 
 exports.Lbry = _lbry2.default;
 exports.Lbryapi = _lbryapi2.default;
+exports.selectSearchState = _search3.selectState;
 
 /***/ }),
 /* 16 */
@@ -3972,9 +3965,11 @@ var _lbryURI = __webpack_require__(2);
 
 var _claims = __webpack_require__(6);
 
+var _search2 = __webpack_require__(13);
+
 var _batchActions = __webpack_require__(8);
 
-var _search2 = __webpack_require__(13);
+var _batchActions2 = _interopRequireDefault(_batchActions);
 
 var _handleFetch = __webpack_require__(27);
 
@@ -4036,7 +4031,7 @@ var doSearch = exports.doSearch = function doSearch(rawQuery) {
           uris: uris
         }
       });
-      dispatch(_batchActions.batchActions.apply(undefined, actions));
+      dispatch(_batchActions2.default.apply(undefined, actions));
     }).catch(function () {
       dispatch({
         type: ACTIONS.SEARCH_FAIL

@@ -3,8 +3,6 @@ import { createSelector } from 'reselect';
 
 export const selectState = state => state.search || {};
 
-export const selectSearchState = selectState;
-
 export const selectSearchValue = createSelector(selectState, state => state.searchQuery);
 
 export const selectSearchQuery = createSelector(

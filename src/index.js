@@ -148,9 +148,10 @@ export {
   selectNavLinks,
 } from 'redux/selectors/navigation';
 
+import { selectState as selectSearchState } from 'redux/selectors/search';
+export { selectSearchState };
 export {
   makeSelectSearchUris,
-  selectSearchState,
   selectSearchQuery,
   selectSearchValue,
   selectIsSearching,

@@ -1,9 +1,9 @@
 import * as ACTIONS from 'constants/action_types';
 import * as SEARCH_TYPES from 'constants/search';
-import { buildURI, normalizeURI, parseURI } from 'lbryURI';
+import { normalizeURI, buildURI, parseURI } from 'lbryURI';
 import { doResolveUri } from 'redux/actions/claims';
-import { batchActions } from 'util/batchActions';
 import { makeSelectSearchUris } from 'redux/selectors/search';
+import batchActions from 'util/batchActions';
 import handleFetchResponse from 'util/handle-fetch';
 
 export const doSearch = rawQuery => (dispatch, getState) => {
@@ -83,8 +83,9 @@ export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boole
 export const getSearchSuggestions = (value: string) => dispatch => {
   const query = value.trim();
 
-  const isPrefix = () =>
-    query === '@' || query === 'lbry:' || query === 'lbry:/' || query === 'lbry://';
+  const isPrefix = () => {
+    return query === '@' || query === 'lbry:' || query === 'lbry:/' || query === 'lbry://';
+  };
 
   if (!query || isPrefix()) {
     dispatch({
