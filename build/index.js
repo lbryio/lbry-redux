@@ -4277,8 +4277,8 @@ function doGetNewAddress() {
       type: ACTIONS.GET_NEW_ADDRESS_STARTED
     });
 
+    // Removed localStorage use, since address is expected to be stored in redux store
     _lbry2.default.wallet_new_address().then(function (address) {
-      // localStorage.setItem('wallet_address', address);
       dispatch({
         type: ACTIONS.GET_NEW_ADDRESS_COMPLETED,
         data: { address: address }
@@ -5204,7 +5204,6 @@ var ACTIONS = _interopRequireWildcard(_action_types);
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var reducers = {};
-var receiveAddress = null; // localStorage.getItem('receiveAddress');
 var buildDraftTransaction = function buildDraftTransaction() {
   return {
     amount: undefined,
@@ -5217,7 +5216,7 @@ var defaultState = {
   blocks: {},
   transactions: {},
   fetchingTransactions: false,
-  receiveAddress: receiveAddress,
+  receiveAddress: null,
   gettingNewAddress: false,
   draftTransaction: buildDraftTransaction(),
   sendingSupport: false
@@ -5254,7 +5253,7 @@ reducers[ACTIONS.GET_NEW_ADDRESS_STARTED] = function (state) {
 reducers[ACTIONS.GET_NEW_ADDRESS_COMPLETED] = function (state, action) {
   var address = action.data.address;
 
-  // localStorage.setItem('receiveAddress', address);
+  // Say no to localStorage!
 
   return Object.assign({}, state, {
     gettingNewAddress: false,
