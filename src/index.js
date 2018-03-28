@@ -43,7 +43,7 @@ export {
   doFetchFileInfosAndPublishedClaims,
 } from 'redux/actions/file_info';
 
-export { doSearch } from 'redux/actions/search';
+export { doSearch, doUpdateSearchQuery } from 'redux/actions/search';
 
 export {
   doUpdateBalance,
@@ -128,6 +128,7 @@ export {
   selectFileInfosDownloaded,
   selectDownloadingFileInfos,
   selectTotalDownloadProgress,
+  selectSearchDownloadUris,
 } from 'redux/selectors/file_info';
 
 export {
@@ -144,15 +145,17 @@ export {
   selectHistoryIndex,
   selectHistoryStack,
   selectActiveHistoryEntry,
+  selectNavLinks,
 } from 'redux/selectors/navigation';
 
 export {
   makeSelectSearchUris,
+  selectSearchState,
   selectSearchQuery,
+  selectSearchValue,
   selectIsSearching,
   selectSearchUrisByQuery,
   selectWunderBarAddress,
-  selectWunderBarIcon,
 } from 'redux/selectors/search';
 
 export {

@@ -34,7 +34,7 @@ export function doFetchTransactions() {
       type: ACTIONS.FETCH_TRANSACTIONS_STARTED,
     });
 
-    Lbry.transaction_list({ include_tip_info: true }).then(results => {
+    Lbry.transaction_list().then(results => {
       dispatch({
         type: ACTIONS.FETCH_TRANSACTIONS_COMPLETED,
         data: {
@@ -62,8 +62,8 @@ export function doGetNewAddress() {
       type: ACTIONS.GET_NEW_ADDRESS_STARTED,
     });
 
+    // Removed localStorage use, since address is expected to be stored in redux store
     Lbry.wallet_new_address().then(address => {
-      // localStorage.setItem('wallet_address', address);
       dispatch({
         type: ACTIONS.GET_NEW_ADDRESS_COMPLETED,
         data: { address },
