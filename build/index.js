@@ -5216,7 +5216,6 @@ var defaultState = {
   blocks: {},
   transactions: {},
   fetchingTransactions: false,
-  receiveAddress: null,
   gettingNewAddress: false,
   draftTransaction: buildDraftTransaction(),
   sendingSupport: false
