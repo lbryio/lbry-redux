@@ -143,6 +143,16 @@ Lbry.status = () =>
       reject
     );
   });
+  
+Lbry.file_delete = (params = {}) =>
+  new Promise((resolve, reject) => {
+    apiCall(
+      'file_delete',
+      params,
+      resolve,
+      reject
+    );
+  });
 
 Lbry.connectPromise = null;
 Lbry.connect = () => {

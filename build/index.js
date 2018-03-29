@@ -1040,6 +1040,13 @@ Lbry.status = function () {
   });
 };
 
+Lbry.file_delete = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return new Promise(function (resolve, reject) {
+    apiCall('file_delete', params, resolve, reject);
+  });
+};
+
 Lbry.connectPromise = null;
 Lbry.connect = function () {
   if (Lbry.connectPromise === null) {
@@ -3969,6 +3976,8 @@ var _search2 = __webpack_require__(13);
 
 var _batchActions = __webpack_require__(8);
 
+var _batchActions2 = _interopRequireDefault(_batchActions);
+
 var _handleFetch = __webpack_require__(27);
 
 var _handleFetch2 = _interopRequireDefault(_handleFetch);
@@ -4029,15 +4038,14 @@ var doSearch = exports.doSearch = function doSearch(rawQuery) {
           uris: uris
         }
       });
-      dispatch(_batchActions.batchActions.apply(undefined, actions));
-    }).catch(function (e) {
+      dispatch(_batchActions2.default.apply(undefined, actions));
+    }).catch(function () {
       dispatch({
         type: ACTIONS.SEARCH_FAIL
       });
     });
   };
 };
-
 var doUpdateSearchQuery = exports.doUpdateSearchQuery = function doUpdateSearchQuery(query, shouldSkipSuggestions) {
   return function (dispatch) {
     dispatch({
