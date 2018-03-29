@@ -167,6 +167,7 @@ var LOADING_VIDEO_FAILED = exports.LOADING_VIDEO_FAILED = 'LOADING_VIDEO_FAILED'
 var DOWNLOADING_STARTED = exports.DOWNLOADING_STARTED = 'DOWNLOADING_STARTED';
 var DOWNLOADING_PROGRESSED = exports.DOWNLOADING_PROGRESSED = 'DOWNLOADING_PROGRESSED';
 var DOWNLOADING_COMPLETED = exports.DOWNLOADING_COMPLETED = 'DOWNLOADING_COMPLETED';
+var DOWNLOADING_CANCELED = exports.DOWNLOADING_CANCELED = 'DOWNLOADING_CANCELED';
 var PLAY_VIDEO_STARTED = exports.PLAY_VIDEO_STARTED = 'PLAY_VIDEO_STARTED';
 var FETCH_AVAILABILITY_STARTED = exports.FETCH_AVAILABILITY_STARTED = 'FETCH_AVAILABILITY_STARTED';
 var FETCH_AVAILABILITY_COMPLETED = exports.FETCH_AVAILABILITY_COMPLETED = 'FETCH_AVAILABILITY_COMPLETED';
@@ -1044,6 +1045,13 @@ Lbry.file_delete = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return new Promise(function (resolve, reject) {
     apiCall('file_delete', params, resolve, reject);
+  });
+};
+
+Lbry.file_set_status = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return new Promise(function (resolve, reject) {
+    apiCall('file_set_status', params, resolve, reject);
   });
 };
 
