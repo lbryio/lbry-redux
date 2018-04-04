@@ -25,8 +25,6 @@ export {
 // actions
 export { doNotify } from 'redux/actions/notifications';
 
-export { doOpenModal, doCloseModal, doShowSnackBar } from 'redux/actions/app';
-
 export {
   doFetchClaimListMine,
   doAbandonClaim,

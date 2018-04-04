@@ -882,7 +882,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-__webpack_require__(17);
+__webpack_require__(16);
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -943,95 +943,6 @@ function setLocal(key, value) {}
 // localStorage.setItem(key, JSON.stringify(value));
 
 
-/**
- * Records a publish attempt in local storage. Returns a dictionary with all the data needed to
- * needed to make a dummy claim or file info object.
- */
-var pendingId = 0;
-function savePendingPublish(_ref) {
-  var name = _ref.name,
-      channelName = _ref.channelName;
-
-  pendingId += 1;
-  var pendingPublishes = getLocal('pendingPublishes') || [];
-  var newPendingPublish = {
-    name: name,
-    channelName: channelName,
-    claim_id: 'pending-' + pendingId,
-    txid: 'pending-' + pendingId,
-    nout: 0,
-    outpoint: 'pending-' + pendingId + ':0',
-    time: Date.now()
-  };
-  setLocal('pendingPublishes', [].concat(_toConsumableArray(pendingPublishes), [newPendingPublish]));
-  return newPendingPublish;
-}
-
-/**
- * If there is a pending publish with the given name or outpoint, remove it.
- * A channel name may also be provided along with name.
- */
-function removePendingPublishIfNeeded(_ref2) {
-  var name = _ref2.name,
-      channelName = _ref2.channelName,
-      outpoint = _ref2.outpoint;
-
-  function pubMatches(pub) {
-    return pub.outpoint === outpoint || pub.name === name && (!channelName || pub.channel_name === channelName);
-  }
-
-  setLocal('pendingPublishes', Lbry.getPendingPublishes().filter(function (pub) {
-    return !pubMatches(pub);
-  }));
-}
-
-/**
- * Gets the current list of pending publish attempts. Filters out any that have timed out and
- * removes them from the list.
- */
-Lbry.getPendingPublishes = function () {
-  var pendingPublishes = getLocal('pendingPublishes') || [];
-  var newPendingPublishes = pendingPublishes.filter(function (pub) {
-    return Date.now() - pub.time <= Lbry.pendingPublishTimeout;
-  });
-  setLocal('pendingPublishes', newPendingPublishes);
-  return newPendingPublishes;
-};
-
-/**
- * Gets a pending publish attempt by its name or (fake) outpoint. A channel name can also be
- * provided along withe the name. If no pending publish is found, returns null.
- */
-function getPendingPublish(_ref3) {
-  var name = _ref3.name,
-      channelName = _ref3.channelName,
-      outpoint = _ref3.outpoint;
-
-  var pendingPublishes = Lbry.getPendingPublishes();
-  return pendingPublishes.find(function (pub) {
-    return pub.outpoint === outpoint || pub.name === name && (!channelName || pub.channel_name === channelName);
-  }) || null;
-}
-
-function pendingPublishToDummyClaim(_ref4) {
-  var channelName = _ref4.channelName,
-      name = _ref4.name,
-      outpoint = _ref4.outpoint,
-      claimId = _ref4.claimId,
-      txid = _ref4.txid,
-      nout = _ref4.nout;
-
-  return { name: name, outpoint: outpoint, claimId: claimId, txid: txid, nout: nout, channelName: channelName };
-}
-
-function pendingPublishToDummyFileInfo(_ref5) {
-  var name = _ref5.name,
-      outpoint = _ref5.outpoint,
-      claimId = _ref5.claimId;
-
-  return { name: name, outpoint: outpoint, claimId: claimId, metadata: null };
-}
-
 // core
 Lbry.status = function () {
   return new Promise(function (resolve, reject) {
@@ -1079,38 +990,6 @@ Lbry.connect = function () {
   return Lbry.connectPromise;
 };
 
-/**
- * Publishes a file. The optional fileListedCallback is called when the file becomes available in
- * lbry.file_list() during the publish process.
- *
- * This currently includes a work-around to cache the file in local storage so that the pending
- * publish can appear in the UI immediately.
- */
-Lbry.publishDeprecated = function (params, fileListedCallback, publishedCallback, errorCallback) {
-  // Give a short grace period in case publish() returns right away or (more likely) gives an error
-  var returnPendingTimeout = setTimeout(function () {
-    var name = params.name,
-        channelName = params.channel_name;
-
-    if (publishedCallback || fileListedCallback) {
-      savePendingPublish({
-        name: name,
-        channelName: channelName
-      });
-      publishedCallback(true);
-    }
-  }, 2000, { once: true });
-
-  // eslint-disable-next-line no-use-before-define
-  lbryProxy.publish(params).then(function (result) {
-    if (returnPendingTimeout) clearTimeout(returnPendingTimeout);
-    publishedCallback(result);
-  }, function (err) {
-    if (returnPendingTimeout) clearTimeout(returnPendingTimeout);
-    errorCallback(err);
-  });
-};
-
 Lbry.getMediaType = function (contentType, fileName) {
   if (contentType) {
     return (/^[^/]+/.exec(contentType)[0]
@@ -1146,35 +1025,13 @@ Lbry.getMediaType = function (contentType, fileName) {
 Lbry.file_list = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return new Promise(function (resolve, reject) {
-    var name = params.name,
+    var claimName = params.claim_name,
         channelName = params.channel_name,
         outpoint = params.outpoint;
 
-    /**
-     * If we're searching by outpoint, check first to see if there's a matching pending publish.
-     * Pending publishes use their own faux outpoints that are always unique, so we don't need
-     * to check if there's a real file.
-     */
-
-    if (outpoint) {
-      var pendingPublish = getPendingPublish({ outpoint: outpoint });
-      if (pendingPublish) {
-        resolve([pendingPublishToDummyFileInfo(pendingPublish)]);
-        return;
-      }
-    }
 
     apiCall('file_list', params, function (fileInfos) {
-      removePendingPublishIfNeeded({ name: name, channelName: channelName, outpoint: outpoint });
-
-      // if a naked file_list call, append the pending file infos
-      if (!name && !channelName && !outpoint) {
-        var dummyFileInfos = Lbry.getPendingPublishes().map(pendingPublishToDummyFileInfo);
-
-        resolve([].concat(_toConsumableArray(fileInfos), _toConsumableArray(dummyFileInfos)));
-      } else {
-        resolve(fileInfos);
-      }
+      resolve(fileInfos);
     }, reject);
   });
 };
@@ -1183,11 +1040,11 @@ Lbry.claim_list_mine = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return new Promise(function (resolve, reject) {
     apiCall('claim_list_mine', params, function (claims) {
-      claims.forEach(function (_ref6) {
-        var name = _ref6.name,
-            channelName = _ref6.channel_name,
-            txid = _ref6.txid,
-            nout = _ref6.nout;
+      claims.forEach(function (_ref) {
+        var name = _ref.name,
+            channelName = _ref.channel_name,
+            txid = _ref.txid,
+            nout = _ref.nout;
 
         removePendingPublishIfNeeded({
           name: name,
@@ -1458,6 +1315,37 @@ var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(sele
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.doNotify = doNotify;
+
+var _action_types = __webpack_require__(0);
+
+var ACTIONS = _interopRequireWildcard(_action_types);
+
+var _Notification = __webpack_require__(10);
+
+var _Notification2 = _interopRequireDefault(_Notification);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function doNotify(data) {
+  return {
+    type: ACTIONS.CREATE_NOTIFICATION,
+    data: data
+  };
+}
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -1476,15 +1364,17 @@ var _lbry = __webpack_require__(4);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryapi = __webpack_require__(7);
+var _lbryapi = __webpack_require__(8);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
 var _lbryURI = __webpack_require__(2);
 
+var _notifications = __webpack_require__(6);
+
 var _claims = __webpack_require__(3);
 
-var _batchActions = __webpack_require__(8);
+var _batchActions = __webpack_require__(9);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1581,7 +1471,12 @@ function doAbandonClaim(txid, nout) {
     });
 
     var errorCallback = function errorCallback() {
-      // dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
+      dispatch((0, _notifications.doNotify)({
+        title: 'Transaction failed',
+        message: 'Transaction failed',
+        type: 'error',
+        displayType: ['modal', 'toast']
+      }));
     };
 
     var successCallback = function successCallback(results) {
@@ -1595,7 +1490,12 @@ function doAbandonClaim(txid, nout) {
         dispatch(doResolveUri((0, _lbryURI.buildURI)({ name: name, claimId: claimId })));
         dispatch(doFetchClaimListMine());
       } else {
-        // dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
+        dispatch((0, _notifications.doNotify)({
+          title: 'Transaction failed',
+          message: 'Transaction failed',
+          type: 'error',
+          displayType: ['modal', 'toast']
+        }));
       }
     };
 
@@ -1670,7 +1570,7 @@ function doFetchRewardedContent() {
 }
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1682,7 +1582,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _querystring = __webpack_require__(20);
+var _querystring = __webpack_require__(19);
 
 var _querystring2 = _interopRequireDefault(_querystring);
 
@@ -1773,10 +1673,10 @@ Lbryapi.call = function (resource, action) {
 };
 
 exports.default = Lbryapi;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1799,56 +1699,11 @@ function batchActions() {
 }
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/***/ }),
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.doOpenModal = doOpenModal;
-exports.doCloseModal = doCloseModal;
-exports.doShowSnackBar = doShowSnackBar;
-
-var _action_types = __webpack_require__(0);
-
-var ACTIONS = _interopRequireWildcard(_action_types);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function doOpenModal(modal) {
-  var modalProps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-  return {
-    type: ACTIONS.OPEN_MODAL,
-    data: {
-      modal: modal,
-      modalProps: modalProps
-    }
-  };
-}
-
-function doCloseModal() {
-  return {
-    type: ACTIONS.CLOSE_MODAL
-  };
-}
-
-function doShowSnackBar(data) {
-  return {
-    type: ACTIONS.SHOW_SNACKBAR,
-    data: data
-  };
-}
 
 /***/ }),
 /* 11 */
@@ -2297,10 +2152,10 @@ var makeSelectBlockDate = exports.makeSelectBlockDate = function makeSelectBlock
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectNavLinks = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = undefined;
-exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectRewardContentClaimIds = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectNotification = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchRewardedContent = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doShowSnackBar = exports.doCloseModal = exports.doOpenModal = exports.doNotify = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.SETTINGS = exports.ACTIONS = exports.Notification = undefined;
+exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectNavLinks = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = undefined;
+exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectRewardContentClaimIds = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectNotification = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchRewardedContent = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doNotify = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.SETTINGS = exports.ACTIONS = exports.Notification = undefined;
 
-var _Notification = __webpack_require__(9);
+var _Notification = __webpack_require__(10);
 
 Object.defineProperty(exports, 'Notification', {
   enumerable: true,
@@ -2354,7 +2209,7 @@ Object.defineProperty(exports, 'isURIClaimable', {
   }
 });
 
-var _notifications = __webpack_require__(16);
+var _notifications = __webpack_require__(6);
 
 Object.defineProperty(exports, 'doNotify', {
   enumerable: true,
@@ -2363,28 +2218,7 @@ Object.defineProperty(exports, 'doNotify', {
   }
 });
 
-var _app = __webpack_require__(10);
-
-Object.defineProperty(exports, 'doOpenModal', {
-  enumerable: true,
-  get: function get() {
-    return _app.doOpenModal;
-  }
-});
-Object.defineProperty(exports, 'doCloseModal', {
-  enumerable: true,
-  get: function get() {
-    return _app.doCloseModal;
-  }
-});
-Object.defineProperty(exports, 'doShowSnackBar', {
-  enumerable: true,
-  get: function get() {
-    return _app.doShowSnackBar;
-  }
-});
-
-var _claims = __webpack_require__(6);
+var _claims = __webpack_require__(7);
 
 Object.defineProperty(exports, 'doFetchClaimListMine', {
   enumerable: true,
@@ -2423,7 +2257,7 @@ Object.defineProperty(exports, 'doFetchRewardedContent', {
   }
 });
 
-var _cost_info = __webpack_require__(23);
+var _cost_info = __webpack_require__(22);
 
 Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   enumerable: true,
@@ -2432,7 +2266,7 @@ Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   }
 });
 
-var _file_info = __webpack_require__(24);
+var _file_info = __webpack_require__(23);
 
 Object.defineProperty(exports, 'doFetchFileInfo', {
   enumerable: true,
@@ -2453,7 +2287,7 @@ Object.defineProperty(exports, 'doFetchFileInfosAndPublishedClaims', {
   }
 });
 
-var _search = __webpack_require__(25);
+var _search = __webpack_require__(24);
 
 Object.defineProperty(exports, 'doSearch', {
   enumerable: true,
@@ -2468,7 +2302,7 @@ Object.defineProperty(exports, 'doUpdateSearchQuery', {
   }
 });
 
-var _wallet = __webpack_require__(28);
+var _wallet = __webpack_require__(27);
 
 Object.defineProperty(exports, 'doUpdateBalance', {
   enumerable: true,
@@ -2531,7 +2365,7 @@ Object.defineProperty(exports, 'doSendSupport', {
   }
 });
 
-var _batchActions = __webpack_require__(8);
+var _batchActions = __webpack_require__(9);
 
 Object.defineProperty(exports, 'batchActions', {
   enumerable: true,
@@ -2555,7 +2389,7 @@ Object.defineProperty(exports, 'toQueryString', {
   }
 });
 
-var _formatCredits = __webpack_require__(30);
+var _formatCredits = __webpack_require__(28);
 
 Object.defineProperty(exports, 'formatCredits', {
   enumerable: true,
@@ -2570,7 +2404,7 @@ Object.defineProperty(exports, 'formatFullPrice', {
   }
 });
 
-var _claims2 = __webpack_require__(31);
+var _claims2 = __webpack_require__(29);
 
 Object.defineProperty(exports, 'claimsReducer', {
   enumerable: true,
@@ -2579,7 +2413,7 @@ Object.defineProperty(exports, 'claimsReducer', {
   }
 });
 
-var _cost_info2 = __webpack_require__(32);
+var _cost_info2 = __webpack_require__(30);
 
 Object.defineProperty(exports, 'costInfoReducer', {
   enumerable: true,
@@ -2588,7 +2422,7 @@ Object.defineProperty(exports, 'costInfoReducer', {
   }
 });
 
-var _file_info2 = __webpack_require__(33);
+var _file_info2 = __webpack_require__(31);
 
 Object.defineProperty(exports, 'fileInfoReducer', {
   enumerable: true,
@@ -2597,7 +2431,7 @@ Object.defineProperty(exports, 'fileInfoReducer', {
   }
 });
 
-var _notifications2 = __webpack_require__(34);
+var _notifications2 = __webpack_require__(32);
 
 Object.defineProperty(exports, 'notificationsReducer', {
   enumerable: true,
@@ -2606,7 +2440,7 @@ Object.defineProperty(exports, 'notificationsReducer', {
   }
 });
 
-var _search2 = __webpack_require__(35);
+var _search2 = __webpack_require__(33);
 
 Object.defineProperty(exports, 'searchReducer', {
   enumerable: true,
@@ -2615,7 +2449,7 @@ Object.defineProperty(exports, 'searchReducer', {
   }
 });
 
-var _wallet2 = __webpack_require__(37);
+var _wallet2 = __webpack_require__(35);
 
 Object.defineProperty(exports, 'walletReducer', {
   enumerable: true,
@@ -2624,7 +2458,7 @@ Object.defineProperty(exports, 'walletReducer', {
   }
 });
 
-var _notifications3 = __webpack_require__(38);
+var _notifications3 = __webpack_require__(36);
 
 Object.defineProperty(exports, 'selectNotification', {
   enumerable: true,
@@ -2822,7 +2656,7 @@ Object.defineProperty(exports, 'selectRewardContentClaimIds', {
   }
 });
 
-var _cost_info3 = __webpack_require__(39);
+var _cost_info3 = __webpack_require__(37);
 
 Object.defineProperty(exports, 'makeSelectFetchingCostInfoForUri', {
   enumerable: true,
@@ -3153,7 +2987,7 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _settings = __webpack_require__(40);
+var _settings = __webpack_require__(38);
 
 var SETTINGS = _interopRequireWildcard(_settings);
 
@@ -3161,7 +2995,7 @@ var _lbry = __webpack_require__(4);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryapi = __webpack_require__(7);
+var _lbryapi = __webpack_require__(8);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
@@ -3181,37 +3015,6 @@ exports.selectSearchState = _search3.selectState;
 
 /***/ }),
 /* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.doNotify = doNotify;
-
-var _action_types = __webpack_require__(0);
-
-var ACTIONS = _interopRequireWildcard(_action_types);
-
-var _Notification = __webpack_require__(9);
-
-var _Notification2 = _interopRequireDefault(_Notification);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function doNotify(data) {
-  return {
-    type: ACTIONS.CREATE_NOTIFICATION,
-    data: data
-  };
-}
-
-/***/ }),
-/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3390,10 +3193,10 @@ function doNotify(data) {
   scope['Proxy'] = scope.Proxy;
 })(typeof module !== 'undefined' && module['exports'] ? global : window);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17)))
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports) {
 
 var g;
@@ -3420,7 +3223,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -3610,18 +3413,18 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-exports.decode = exports.parse = __webpack_require__(21);
-exports.encode = exports.stringify = __webpack_require__(22);
+exports.decode = exports.parse = __webpack_require__(20);
+exports.encode = exports.stringify = __webpack_require__(21);
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3712,7 +3515,7 @@ var isArray = Array.isArray || function (xs) {
 
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3804,7 +3607,7 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3819,7 +3622,7 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _lbryapi = __webpack_require__(7);
+var _lbryapi = __webpack_require__(8);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
@@ -3864,7 +3667,7 @@ function doFetchCostInfoForUri(uri) {
 }
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3885,7 +3688,7 @@ var _lbry = __webpack_require__(4);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _claims = __webpack_require__(6);
+var _claims = __webpack_require__(7);
 
 var _claims2 = __webpack_require__(3);
 
@@ -3957,7 +3760,7 @@ function doFetchFileInfosAndPublishedClaims() {
 }
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3972,21 +3775,21 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _search = __webpack_require__(26);
+var _search = __webpack_require__(25);
 
 var SEARCH_TYPES = _interopRequireWildcard(_search);
 
 var _lbryURI = __webpack_require__(2);
 
-var _claims = __webpack_require__(6);
+var _claims = __webpack_require__(7);
 
 var _search2 = __webpack_require__(13);
 
-var _batchActions = __webpack_require__(8);
+var _batchActions = __webpack_require__(9);
 
 var _batchActions2 = _interopRequireDefault(_batchActions);
 
-var _handleFetch = __webpack_require__(27);
+var _handleFetch = __webpack_require__(26);
 
 var _handleFetch2 = _interopRequireDefault(_handleFetch);
 
@@ -4161,7 +3964,7 @@ var getSearchSuggestions = exports.getSearchSuggestions = function getSearchSugg
 };
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4175,7 +3978,7 @@ var CHANNEL = exports.CHANNEL = 'channel';
 var SEARCH = exports.SEARCH = 'search';
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4190,7 +3993,7 @@ function handleFetchResponse(response) {
 }
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4214,15 +4017,11 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _modal_types = __webpack_require__(29);
-
-var MODALS = _interopRequireWildcard(_modal_types);
-
 var _lbry = __webpack_require__(4);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _app = __webpack_require__(10);
+var _notifications = __webpack_require__(6);
 
 var _wallet = __webpack_require__(14);
 
@@ -4231,14 +4030,19 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function doUpdateBalance() {
-  return function (dispatch) {
+  return function (dispatch, getState) {
+    var _getState = getState(),
+        balanceInStore = _getState.wallet.balance;
+
     _lbry2.default.wallet_balance().then(function (balance) {
-      return dispatch({
-        type: ACTIONS.UPDATE_BALANCE,
-        data: {
-          balance: balance
-        }
-      });
+      if (balanceInStore !== balance) {
+        return dispatch({
+          type: ACTIONS.UPDATE_BALANCE,
+          data: {
+            balance: balance
+          }
+        });
+      }
     });
   };
 }
@@ -4320,7 +4124,12 @@ function doSendDraftTransaction() {
     var amount = (0, _wallet.selectDraftTransactionAmount)(state);
 
     if (balance - amount <= 0) {
-      dispatch((0, _app.doOpenModal)(MODALS.INSUFFICIENT_CREDITS));
+      dispatch((0, _notifications.doNotify)({
+        title: 'Insufficient credits',
+        message: 'Insufficient credits',
+        type: 'error',
+        displayType: ['modal', 'toast']
+      }));
       return;
     }
 
@@ -4333,17 +4142,25 @@ function doSendDraftTransaction() {
         dispatch({
           type: ACTIONS.SEND_TRANSACTION_COMPLETED
         });
-        dispatch((0, _app.doShowSnackBar)({
-          message: __('You sent ' + amount + ' LBC'),
-          linkText: __('History'),
-          linkTarget: __('/wallet')
+        dispatch((0, _notifications.doNotify)({
+          title: 'Credits sent',
+          message: 'You sent ' + amount + ' LBC',
+          type: 'error',
+          displayType: ['snackbar', 'toast'],
+          linkText: 'History',
+          linkTarget: '/wallet'
         }));
       } else {
         dispatch({
           type: ACTIONS.SEND_TRANSACTION_FAILED,
           data: { error: results }
         });
-        dispatch((0, _app.doOpenModal)(MODALS.TRANSACTION_FAILED));
+        dispatch((0, _notifications.doNotify)({
+          title: 'Transaction failed',
+          message: 'Transaction failed',
+          type: 'error',
+          displayType: ['modal', 'toast']
+        }));
       }
     };
 
@@ -4352,7 +4169,12 @@ function doSendDraftTransaction() {
         type: ACTIONS.SEND_TRANSACTION_FAILED,
         data: { error: error.message }
       });
-      dispatch((0, _app.doOpenModal)(MODALS.TRANSACTION_FAILED));
+      dispatch((0, _notifications.doNotify)({
+        title: 'Transaction failed',
+        message: 'Transaction failed',
+        type: 'error',
+        displayType: ['modal', 'toast']
+      }));
     };
 
     _lbry2.default.wallet_send({
@@ -4382,7 +4204,12 @@ function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
     var balance = (0, _wallet.selectBalance)(state);
 
     if (balance - amount <= 0) {
-      dispatch((0, _app.doOpenModal)(MODALS.INSUFFICIENT_CREDITS));
+      dispatch((0, _notifications.doNotify)({
+        title: 'Insufficient credits',
+        message: 'Insufficient credits',
+        type: 'error',
+        displayType: ['modal', 'toast']
+      }));
       return;
     }
 
@@ -4398,33 +4225,7 @@ function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
 }
 
 /***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var CONFIRM_FILE_REMOVE = exports.CONFIRM_FILE_REMOVE = 'confirmFileRemove';
-var INCOMPATIBLE_DAEMON = exports.INCOMPATIBLE_DAEMON = 'incompatibleDaemon';
-var FILE_TIMEOUT = exports.FILE_TIMEOUT = 'file_timeout';
-var DOWNLOADING = exports.DOWNLOADING = 'downloading';
-var ERROR = exports.ERROR = 'error';
-var INSUFFICIENT_CREDITS = exports.INSUFFICIENT_CREDITS = 'insufficient_credits';
-var UPGRADE = exports.UPGRADE = 'upgrade';
-var WELCOME = exports.WELCOME = 'welcome';
-var EMAIL_COLLECTION = exports.EMAIL_COLLECTION = 'email_collection';
-var FIRST_REWARD = exports.FIRST_REWARD = 'first_reward';
-var AUTHENTICATION_FAILURE = exports.AUTHENTICATION_FAILURE = 'auth_failure';
-var TRANSACTION_FAILED = exports.TRANSACTION_FAILED = 'transaction_failed';
-var REWARD_APPROVAL_REQUIRED = exports.REWARD_APPROVAL_REQUIRED = 'reward_approval_required';
-var AFFIRM_PURCHASE = exports.AFFIRM_PURCHASE = 'affirm_purchase';
-var CONFIRM_CLAIM_REVOKE = exports.CONFIRM_CLAIM_REVOKE = 'confirmClaimRevoke';
-
-/***/ }),
-/* 30 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4462,7 +4263,7 @@ function formatFullPrice(amount) {
 }
 
 /***/ }),
-/* 31 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4770,7 +4571,7 @@ function claimsReducer() {
 }
 
 /***/ }),
-/* 32 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4828,7 +4629,7 @@ function costInfoReducer() {
 }
 
 /***/ }),
-/* 33 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5025,7 +4826,7 @@ function fileInfoReducer() {
 }
 
 /***/ }),
-/* 34 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5090,7 +4891,7 @@ function notificationsReducer() {
 }
 
 /***/ }),
-/* 35 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5109,7 +4910,7 @@ var _action_types = __webpack_require__(0);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(36);
+var _reduxUtils = __webpack_require__(34);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -5162,7 +4963,7 @@ var searchReducer = exports.searchReducer = (0, _reduxUtils.handleActions)((_han
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 36 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5195,7 +4996,7 @@ var handleActions = exports.handleActions = function handleActions(actionMap, de
 };
 
 /***/ }),
-/* 37 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5377,7 +5178,7 @@ function walletReducer() {
 }
 
 /***/ }),
-/* 38 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5399,7 +5200,7 @@ var selectNotification = exports.selectNotification = (0, _reselect.createSelect
 });
 
 /***/ }),
-/* 39 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5443,7 +5244,7 @@ var makeSelectFetchingCostInfoForUri = exports.makeSelectFetchingCostInfoForUri 
 };
 
 /***/ }),
-/* 40 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

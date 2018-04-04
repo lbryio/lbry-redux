@@ -1,7 +1,6 @@
 import * as ACTIONS from 'constants/action_types';
-import * as MODALS from 'constants/modal_types';
 import Lbry from 'lbry';
-import { doOpenModal, doShowSnackBar } from 'redux/actions/app';
+import { doNotify } from 'redux/actions/notifications';
 import {
   selectBalance,
   selectDraftTransaction,
@@ -9,15 +8,18 @@ import {
 } from 'redux/selectors/wallet';
 
 export function doUpdateBalance() {
-  return dispatch => {
-    Lbry.wallet_balance().then(balance =>
-      dispatch({
-        type: ACTIONS.UPDATE_BALANCE,
-        data: {
-          balance,
-        },
-      })
-    );
+  return (dispatch, getState) => {
+    const { wallet: { balance: balanceInStore } } = getState();
+    Lbry.wallet_balance().then(balance => {
+      if (balanceInStore !== balance) {
+        return dispatch({
+          type: ACTIONS.UPDATE_BALANCE,
+          data: {
+            balance,
+          },
+        });
+      }
+    });
   };
 }
 
@@ -96,7 +98,12 @@ export function doSendDraftTransaction() {
     const amount = selectDraftTransactionAmount(state);
 
     if (balance - amount <= 0) {
-      dispatch(doOpenModal(MODALS.INSUFFICIENT_CREDITS));
+      dispatch(doNotify({
+        title: 'Insufficient credits',
+        message: 'Insufficient credits',
+        type: 'error',
+        displayType: ['modal', 'toast']
+      }));
       return;
     }
 
@@ -109,19 +116,25 @@ export function doSendDraftTransaction() {
         dispatch({
           type: ACTIONS.SEND_TRANSACTION_COMPLETED,
         });
-        dispatch(
-          doShowSnackBar({
-            message: __(`You sent ${amount} LBC`),
-            linkText: __('History'),
-            linkTarget: __('/wallet'),
-          })
-        );
+        dispatch(doNotify({
+          title: 'Credits sent',
+          message: `You sent ${amount} LBC`,
+          type: 'error',
+          displayType: ['snackbar', 'toast'],
+          linkText: 'History',
+          linkTarget: '/wallet'
+        }));
       } else {
         dispatch({
           type: ACTIONS.SEND_TRANSACTION_FAILED,
           data: { error: results },
         });
-        dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
+        dispatch(doNotify({
+          title: 'Transaction failed',
+          message: 'Transaction failed',
+          type: 'error',
+          displayType: ['modal', 'toast']
+        }));
       }
     };
 
@@ -130,7 +143,12 @@ export function doSendDraftTransaction() {
         type: ACTIONS.SEND_TRANSACTION_FAILED,
         data: { error: error.message },
       });
-      dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
+      dispatch(doNotify({
+        title: 'Transaction failed',
+        message: 'Transaction failed',
+        type: 'error',
+        displayType: ['modal', 'toast']
+      }));
     };
 
     Lbry.wallet_send({
@@ -160,7 +178,12 @@ export function doSendSupport(amount, claimId, uri, successCallback, errorCallba
     const balance = selectBalance(state);
 
     if (balance - amount <= 0) {
-      dispatch(doOpenModal(MODALS.INSUFFICIENT_CREDITS));
+      dispatch(doNotify({
+        title: 'Insufficient credits',
+        message: 'Insufficient credits',
+        type: 'error',
+        displayType: ['modal', 'toast']
+      }));
       return;
     }
 

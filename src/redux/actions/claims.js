@@ -2,6 +2,7 @@ import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
 import { buildURI, normalizeURI } from 'lbryURI';
+import { doNotify } from 'redux/actions/notifications';
 import { selectMyClaimsRaw, selectResolvingUris } from 'redux/selectors/claims';
 import { batchActions } from 'util/batchActions';
 
@@ -83,7 +84,12 @@ export function doAbandonClaim(txid, nout) {
     });
 
     const errorCallback = () => {
-      // dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
+      dispatch(doNotify({
+        title: 'Transaction failed',
+        message: 'Transaction failed',
+        type: 'error',
+        displayType: ['modal', 'toast']
+      }));
     };
 
     const successCallback = results => {
@@ -97,7 +103,12 @@ export function doAbandonClaim(txid, nout) {
         dispatch(doResolveUri(buildURI({ name, claimId })));
         dispatch(doFetchClaimListMine());
       } else {
-        // dispatch(doOpenModal(MODALS.TRANSACTION_FAILED));
+        dispatch(doNotify({
+          title: 'Transaction failed',
+          message: 'Transaction failed',
+          type: 'error',
+          displayType: ['modal', 'toast']
+        }));
       }
     };
 
