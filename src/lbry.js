@@ -159,16 +159,7 @@ Lbry.claim_list_mine = (params = {}) =>
       'claim_list_mine',
       params,
       claims => {
-        claims.forEach(({ name, channel_name: channelName, txid, nout }) => {
-          removePendingPublishIfNeeded({
-            name,
-            channelName,
-            outpoint: `${txid}:${nout}`,
-          });
-        });
-
-        const dummyClaims = Lbry.getPendingPublishes().map(pendingPublishToDummyClaim);
-        resolve([...claims, ...dummyClaims]);
+        resolve(claims);
       },
       reject
     );

@@ -884,9 +884,8 @@ Object.defineProperty(exports, "__esModule", {
 
 __webpack_require__(16);
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 var CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
+
 
 var Lbry = {
   isConnected: false,
@@ -1040,21 +1039,7 @@ Lbry.claim_list_mine = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return new Promise(function (resolve, reject) {
     apiCall('claim_list_mine', params, function (claims) {
-      claims.forEach(function (_ref) {
-        var name = _ref.name,
-            channelName = _ref.channel_name,
-            txid = _ref.txid,
-            nout = _ref.nout;
-
-        removePendingPublishIfNeeded({
-          name: name,
-          channelName: channelName,
-          outpoint: txid + ':' + nout
-        });
-      });
-
-      var dummyClaims = Lbry.getPendingPublishes().map(pendingPublishToDummyClaim);
-      resolve([].concat(_toConsumableArray(claims), _toConsumableArray(dummyClaims)));
+      resolve(claims);
     }, reject);
   });
 };
