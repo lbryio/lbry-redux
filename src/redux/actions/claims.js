@@ -84,12 +84,14 @@ export function doAbandonClaim(txid, nout) {
     });
 
     const errorCallback = () => {
-      dispatch(doNotify({
-        title: 'Transaction failed',
-        message: 'Transaction failed',
-        type: 'error',
-        displayType: ['modal', 'toast']
-      }));
+      dispatch(
+        doNotify({
+          title: 'Transaction failed',
+          message: 'Transaction failed',
+          type: 'error',
+          displayType: ['modal', 'toast'],
+        })
+      );
     };
 
     const successCallback = results => {
@@ -103,12 +105,14 @@ export function doAbandonClaim(txid, nout) {
         dispatch(doResolveUri(buildURI({ name, claimId })));
         dispatch(doFetchClaimListMine());
       } else {
-        dispatch(doNotify({
-          title: 'Transaction failed',
-          message: 'Transaction failed',
-          type: 'error',
-          displayType: ['modal', 'toast']
-        }));
+        dispatch(
+          doNotify({
+            title: 'Transaction failed',
+            message: 'Transaction failed',
+            type: 'error',
+            displayType: ['modal', 'toast'],
+          })
+        );
       }
     };
 

@@ -98,12 +98,14 @@ export function doSendDraftTransaction() {
     const amount = selectDraftTransactionAmount(state);
 
     if (balance - amount <= 0) {
-      dispatch(doNotify({
-        title: 'Insufficient credits',
-        message: 'Insufficient credits',
-        type: 'error',
-        displayType: ['modal', 'toast']
-      }));
+      dispatch(
+        doNotify({
+          title: 'Insufficient credits',
+          message: 'Insufficient credits',
+          type: 'error',
+          displayType: ['modal', 'toast'],
+        })
+      );
       return;
     }
 
@@ -116,25 +118,29 @@ export function doSendDraftTransaction() {
         dispatch({
           type: ACTIONS.SEND_TRANSACTION_COMPLETED,
         });
-        dispatch(doNotify({
-          title: 'Credits sent',
-          message: `You sent ${amount} LBC`,
-          type: 'error',
-          displayType: ['snackbar', 'toast'],
-          linkText: 'History',
-          linkTarget: '/wallet'
-        }));
+        dispatch(
+          doNotify({
+            title: 'Credits sent',
+            message: `You sent ${amount} LBC`,
+            type: 'error',
+            displayType: ['snackbar', 'toast'],
+            linkText: 'History',
+            linkTarget: '/wallet',
+          })
+        );
       } else {
         dispatch({
           type: ACTIONS.SEND_TRANSACTION_FAILED,
           data: { error: results },
         });
-        dispatch(doNotify({
-          title: 'Transaction failed',
-          message: 'Transaction failed',
-          type: 'error',
-          displayType: ['modal', 'toast']
-        }));
+        dispatch(
+          doNotify({
+            title: 'Transaction failed',
+            message: 'Transaction failed',
+            type: 'error',
+            displayType: ['modal', 'toast'],
+          })
+        );
       }
     };
 
@@ -143,12 +149,14 @@ export function doSendDraftTransaction() {
         type: ACTIONS.SEND_TRANSACTION_FAILED,
         data: { error: error.message },
       });
-      dispatch(doNotify({
-        title: 'Transaction failed',
-        message: 'Transaction failed',
-        type: 'error',
-        displayType: ['modal', 'toast']
-      }));
+      dispatch(
+        doNotify({
+          title: 'Transaction failed',
+          message: 'Transaction failed',
+          type: 'error',
+          displayType: ['modal', 'toast'],
+        })
+      );
     };
 
     Lbry.wallet_send({
@@ -178,12 +186,14 @@ export function doSendSupport(amount, claimId, uri, successCallback, errorCallba
     const balance = selectBalance(state);
 
     if (balance - amount <= 0) {
-      dispatch(doNotify({
-        title: 'Insufficient credits',
-        message: 'Insufficient credits',
-        type: 'error',
-        displayType: ['modal', 'toast']
-      }));
+      dispatch(
+        doNotify({
+          title: 'Insufficient credits',
+          message: 'Insufficient credits',
+          type: 'error',
+          displayType: ['modal', 'toast'],
+        })
+      );
       return;
     }
 
