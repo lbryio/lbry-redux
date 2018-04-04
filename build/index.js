@@ -1749,9 +1749,9 @@ exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports
 
 var _claims = __webpack_require__(3);
 
-var _lbryURI = __webpack_require__(2);
-
 var _reselect = __webpack_require__(1);
+
+var _lbryURI = __webpack_require__(2);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.fileInfo || {};
@@ -1846,7 +1846,7 @@ var selectTotalDownloadProgress = exports.selectTotalDownloadProgress = (0, _res
 });
 
 var selectSearchDownloadUris = exports.selectSearchDownloadUris = function selectSearchDownloadUris(query) {
-  return (0, _reselect.createSelector)(selectFileInfosDownloaded, function (fileInfos) {
+  return (0, _reselect.createSelector)(selectFileInfosDownloaded, _claims.selectClaimsById, function (fileInfos, claimsById) {
     if (!query || !fileInfos.length) {
       return null;
     }
@@ -1869,24 +1869,24 @@ var selectSearchDownloadUris = exports.selectSearchDownloadUris = function selec
 
     var downloadResultsFromQuery = [];
     fileInfos.forEach(function (fileInfo) {
-      var channel_name = fileInfo.channel_name,
-          claim_name = fileInfo.claim_name,
+      var channelName = fileInfo.channel_name,
+          claimName = fileInfo.claim_name,
           metadata = fileInfo.metadata;
       var author = metadata.author,
           description = metadata.description,
           title = metadata.title;
 
 
-      if (channel_name) {
-        var channelName = channel_name.toLowerCase();
-        var strippedOutChannelName = channelName.slice(1); // trim off the @
-        if (searchQueryDictionary[channel_name] || searchQueryDictionary[strippedOutChannelName]) {
+      if (channelName) {
+        var lowerCaseChannel = channelName.toLowerCase();
+        var strippedOutChannelName = lowerCaseChannel.slice(1); // trim off the @
+        if (searchQueryDictionary[channelName] || searchQueryDictionary[strippedOutChannelName]) {
           downloadResultsFromQuery.push(fileInfo);
           return;
         }
       }
 
-      var nameParts = claim_name.toLowerCase().split('-');
+      var nameParts = claimName.toLowerCase().split('-');
       if (arrayContainsQueryPart(nameParts)) {
         downloadResultsFromQuery.push(fileInfo);
         return;
@@ -1917,19 +1917,24 @@ var selectSearchDownloadUris = exports.selectSearchDownloadUris = function selec
     return downloadResultsFromQuery.length ? downloadResultsFromQuery.map(function (fileInfo) {
       var channelName = fileInfo.channel_name,
           claimId = fileInfo.claim_id,
-          claimName = fileInfo.claim_name,
-          value = fileInfo.value,
-          metadata = fileInfo.metadata;
+          claimName = fileInfo.claim_name;
+
 
       var uriParams = {};
 
       if (channelName) {
+        var claim = claimsById[claimId];
+        if (claim.value) {
+          uriParams.claimId = claim.value.publisherSignature.certificateId;
+        } else {
+          uriParams.claimId = claimId;
+        }
         uriParams.channelName = channelName;
+        uriParams.contentName = claimName;
+      } else {
+        uriParams.claimId = claimId;
+        uriParams.claimName = claimName;
       }
-
-      uriParams.claimId = claimId;
-      uriParams.claimId = claimId;
-      uriParams.contentName = claimName;
 
       var uri = (0, _lbryURI.buildURI)(uriParams);
       return uri;
