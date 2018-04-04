@@ -4,7 +4,7 @@ import * as SEARCH_TYPES from 'constants/search';
 import { normalizeURI, buildURI, parseURI } from 'lbryURI';
 import { doResolveUri } from 'redux/actions/claims';
 import { makeSelectSearchUris } from 'redux/selectors/search';
-import batchActions from 'util/batchActions';
+import { batchActions } from 'util/batchActions';
 import handleFetchResponse from 'util/handle-fetch';
 
 export const doSearch = rawQuery => (dispatch, getState) => {
@@ -43,7 +43,7 @@ export const doSearch = rawQuery => (dispatch, getState) => {
     .then(data => {
       const uris = [];
       const actions = [];
-
+    
       data.forEach(result => {
         const uri = buildURI({
           claimName: result.name,
