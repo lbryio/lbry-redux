@@ -11,3 +11,7 @@ export const INSTANT_PURCHASE_ENABLED = 'instantPurchaseEnabled';
 export const INSTANT_PURCHASE_MAX = 'instantPurchaseMax';
 export const THEME = 'theme';
 export const THEMES = 'themes';
+export const AUTOMATIC_DARK_MODE_ENABLED = 'automaticDarkModeEnabled';
+
+// mobile settings
+export const KEEP_DAEMON_RUNNING = 'keepDaemonRunning';

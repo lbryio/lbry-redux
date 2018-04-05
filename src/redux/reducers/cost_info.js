@@ -27,7 +27,7 @@ reducers[ACTIONS.FETCH_COST_INFO_COMPLETED] = (state, action) => {
   });
 };
 
-export default function reducer(state = defaultState, action) {
+export function costInfoReducer(state = defaultState, action) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
   return state;
