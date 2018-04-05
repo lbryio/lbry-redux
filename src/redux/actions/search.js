@@ -43,7 +43,7 @@ export const doSearch = rawQuery => (dispatch, getState) => {
     .then(data => {
       const uris = [];
       const actions = [];
-    
+
       data.forEach(result => {
         const uri = buildURI({
           claimName: result.name,
