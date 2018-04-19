@@ -83,10 +83,6 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var OPEN_MODAL = exports.OPEN_MODAL = 'OPEN_MODAL';
-var CLOSE_MODAL = exports.CLOSE_MODAL = 'CLOSE_MODAL';
-var SHOW_SNACKBAR = exports.SHOW_SNACKBAR = 'SHOW_SNACKBAR';
-var REMOVE_SNACKBAR_SNACK = exports.REMOVE_SNACKBAR_SNACK = 'REMOVE_SNACKBAR_SNACK';
 var WINDOW_FOCUSED = exports.WINDOW_FOCUSED = 'WINDOW_FOCUSED';
 var DAEMON_READY = exports.DAEMON_READY = 'DAEMON_READY';
 var DAEMON_VERSION_MATCH = exports.DAEMON_VERSION_MATCH = 'DAEMON_VERSION_MATCH';
@@ -1323,7 +1319,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function doNotify(notification, notificationProps) {
-  var action = {
+  return {
     type: ACTIONS.CREATE_NOTIFICATION,
     data: {
       notification: notification,
@@ -1331,8 +1327,6 @@ function doNotify(notification, notificationProps) {
       notificationProps: _extends({}, notificationProps)
     }
   };
-  console.log("action", action);
-  return action;
 }
 
 function doHideNotification() {
