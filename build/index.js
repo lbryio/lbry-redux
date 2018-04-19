@@ -83,10 +83,6 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var OPEN_MODAL = exports.OPEN_MODAL = 'OPEN_MODAL';
-var CLOSE_MODAL = exports.CLOSE_MODAL = 'CLOSE_MODAL';
-var SHOW_SNACKBAR = exports.SHOW_SNACKBAR = 'SHOW_SNACKBAR';
-var REMOVE_SNACKBAR_SNACK = exports.REMOVE_SNACKBAR_SNACK = 'REMOVE_SNACKBAR_SNACK';
 var WINDOW_FOCUSED = exports.WINDOW_FOCUSED = 'WINDOW_FOCUSED';
 var DAEMON_READY = exports.DAEMON_READY = 'DAEMON_READY';
 var DAEMON_VERSION_MATCH = exports.DAEMON_VERSION_MATCH = 'DAEMON_VERSION_MATCH';
@@ -274,6 +270,10 @@ var PUBLISH_FAIL = exports.PUBLISH_FAIL = 'PUBLISH_FAIL';
 var CLEAR_PUBLISH_ERROR = exports.CLEAR_PUBLISH_ERROR = 'CLEAR_PUBLISH_ERROR';
 var REMOVE_PENDING_PUBLISH = exports.REMOVE_PENDING_PUBLISH = 'REMOVE_PENDING_PUBLISH';
 var DO_PREPARE_EDIT = exports.DO_PREPARE_EDIT = 'DO_PREPARE_EDIT';
+
+// Notifications
+var CREATE_NOTIFICATION = exports.CREATE_NOTIFICATION = 'CREATE_NOTIFICATION';
+var DISMISS_NOTIFICATION = exports.DISMISS_NOTIFICATION = 'DISMISS_NOTIFICATION';
 
 /***/ }),
 /* 1 */
@@ -1300,7 +1300,11 @@ var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(sele
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 exports.doNotify = doNotify;
+exports.doHideNotification = doHideNotification;
 
 var _action_types = __webpack_require__(0);
 
@@ -1314,10 +1318,20 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function doNotify(data) {
+function doNotify(notification, notificationProps) {
   return {
     type: ACTIONS.CREATE_NOTIFICATION,
-    data: data
+    data: {
+      notification: notification,
+      // using this syntax to create an object if notificationProps is undefined
+      notificationProps: _extends({}, notificationProps)
+    }
+  };
+}
+
+function doHideNotification() {
+  return {
+    type: ACTIONS.DISMISS_NOTIFICATION
   };
 }
 
@@ -1924,7 +1938,7 @@ var selectSearchDownloadUris = exports.selectSearchDownloadUris = function selec
 
       if (channelName) {
         var claim = claimsById[claimId];
-        if (claim.value) {
+        if (claim && claim.value) {
           uriParams.claimId = claim.value.publisherSignature.certificateId;
         } else {
           uriParams.claimId = claimId;
@@ -2142,8 +2156,8 @@ var makeSelectBlockDate = exports.makeSelectBlockDate = function makeSelectBlock
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectNavLinks = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = undefined;
-exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectRewardContentClaimIds = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectNotification = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchRewardedContent = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doNotify = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.SETTINGS = exports.ACTIONS = exports.Notification = undefined;
+exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectNavLinks = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = undefined;
+exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectRewardContentClaimIds = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchRewardedContent = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doHideNotification = exports.doNotify = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.SETTINGS = exports.ACTIONS = exports.Notification = undefined;
 
 var _Notification = __webpack_require__(10);
 
@@ -2205,6 +2219,12 @@ Object.defineProperty(exports, 'doNotify', {
   enumerable: true,
   get: function get() {
     return _notifications.doNotify;
+  }
+});
+Object.defineProperty(exports, 'doHideNotification', {
+  enumerable: true,
+  get: function get() {
+    return _notifications.doHideNotification;
   }
 });
 
@@ -2454,6 +2474,18 @@ Object.defineProperty(exports, 'selectNotification', {
   enumerable: true,
   get: function get() {
     return _notifications3.selectNotification;
+  }
+});
+Object.defineProperty(exports, 'selectNotificationProps', {
+  enumerable: true,
+  get: function get() {
+    return _notifications3.selectNotificationProps;
+  }
+});
+Object.defineProperty(exports, 'selectSnack', {
+  enumerable: true,
+  get: function get() {
+    return _notifications3.selectSnack;
   }
 });
 
@@ -4838,21 +4870,36 @@ var defaultState = {
   queue: []
 };
 
-reducers[ACTIONS.NOTIFICATION_CREATED] = function (state, action) {
+reducers[ACTIONS.CREATE_NOTIFICATION] = function (state, action) {
   var _action$data = action.data,
-      title = _action$data.title,
-      message = _action$data.message,
-      type = _action$data.type,
-      errorCode = _action$data.errorCode,
-      displayType = _action$data.displayType;
+      notification = _action$data.notification,
+      notificationProps = _action$data.notificationProps;
+  var title = notification.title,
+      message = notification.message,
+      type = notification.type,
+      error = notification.error,
+      displayType = notification.displayType,
+      id = notification.id;
+  var uri = notificationProps.uri,
+      nout = notificationProps.nout,
+      txid = notificationProps.txid;
+
 
   var queue = Object.assign([], state.queue);
   queue.push({
-    title: title,
-    message: message,
-    type: type,
-    errorCode: errorCode,
-    displayType: displayType
+    notification: {
+      id: id,
+      title: title,
+      message: message,
+      type: type,
+      error: error,
+      displayType: displayType
+    },
+    notificationProps: {
+      uri: uri,
+      txid: txid,
+      nout: nout
+    }
   });
 
   return Object.assign({}, state, {
@@ -4860,7 +4907,7 @@ reducers[ACTIONS.NOTIFICATION_CREATED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.NOTIFICATION_DISPLAYED] = function (state) {
+reducers[ACTIONS.DISMISS_NOTIFICATION] = function (state) {
   var queue = Object.assign([], state.queue);
   queue.shift();
 
@@ -5175,7 +5222,7 @@ function walletReducer() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectNotification = exports.selectState = undefined;
+exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectNotificationData = exports.selectState = undefined;
 
 var _reselect = __webpack_require__(1);
 
@@ -5183,8 +5230,26 @@ var selectState = exports.selectState = function selectState(state) {
   return state.notifications || {};
 };
 
-var selectNotification = exports.selectNotification = (0, _reselect.createSelector)(selectState, function (state) {
+var selectNotificationData = exports.selectNotificationData = (0, _reselect.createSelector)(selectState, function (state) {
   return state.queue.length > 0 ? state.queue[0] : {};
+});
+
+var selectNotification = exports.selectNotification = (0, _reselect.createSelector)(selectNotificationData, function (notificationData) {
+  return notificationData.notification;
+});
+
+var selectNotificationProps = exports.selectNotificationProps = (0, _reselect.createSelector)(selectNotificationData, function (notificationData) {
+  return notificationData.notificationProps;
+});
+
+var selectSnack = exports.selectSnack = (0, _reselect.createSelector)(
+// No props for snackbar
+selectNotification, function (notification) {
+  if (notification && notification.displayType) {
+    return notification.displayType.indexOf('snackbar') > -1 ? notification : undefined;
+  }
+
+  return undefined;
 });
 
 /***/ }),
