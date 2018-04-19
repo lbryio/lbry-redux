@@ -7,15 +7,26 @@ const defaultState = {
   queue: [],
 };
 
-reducers[ACTIONS.NOTIFICATION_CREATED] = (state, action) => {
-  const { title, message, type, errorCode, displayType } = action.data;
+reducers[ACTIONS.CREATE_NOTIFICATION] = (state, action) => {
+  const { notification, notificationProps } = action.data;
+  const { title, message, type, error, displayType, id } = notification;
+  const { uri, nout, txid } = notificationProps;
+
   const queue = Object.assign([], state.queue);
   queue.push({
-    title,
-    message,
-    type,
-    errorCode,
-    displayType,
+    notification: {
+      id,
+      title,
+      message,
+      type,
+      error,
+      displayType,
+    },
+    notificationProps: {
+      uri,
+      txid,
+      nout,
+    },
   });
 
   return Object.assign({}, state, {
@@ -23,7 +34,7 @@ reducers[ACTIONS.NOTIFICATION_CREATED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.NOTIFICATION_DISPLAYED] = state => {
+reducers[ACTIONS.DISMISS_NOTIFICATION] = state => {
   const queue = Object.assign([], state.queue);
   queue.shift();
 
