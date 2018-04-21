@@ -1,4 +1,14 @@
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else {
+		var a = factory();
+		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
+	}
+})(window, function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -190,7 +200,7 @@ Object.defineProperty(exports, 'doFetchRewardedContent', {
   }
 });
 
-var _cost_info = __webpack_require__(20);
+var _cost_info = __webpack_require__(19);
 
 Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   enumerable: true,
@@ -199,7 +209,7 @@ Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   }
 });
 
-var _file_info = __webpack_require__(21);
+var _file_info = __webpack_require__(20);
 
 Object.defineProperty(exports, 'doFetchFileInfo', {
   enumerable: true,
@@ -220,7 +230,7 @@ Object.defineProperty(exports, 'doFetchFileInfosAndPublishedClaims', {
   }
 });
 
-var _search = __webpack_require__(23);
+var _search = __webpack_require__(22);
 
 Object.defineProperty(exports, 'doSearch', {
   enumerable: true,
@@ -235,7 +245,7 @@ Object.defineProperty(exports, 'doUpdateSearchQuery', {
   }
 });
 
-var _wallet = __webpack_require__(27);
+var _wallet = __webpack_require__(26);
 
 Object.defineProperty(exports, 'doUpdateBalance', {
   enumerable: true,
@@ -298,7 +308,7 @@ Object.defineProperty(exports, 'doSendSupport', {
   }
 });
 
-var _batchActions = __webpack_require__(19);
+var _batchActions = __webpack_require__(18);
 
 Object.defineProperty(exports, 'batchActions', {
   enumerable: true,
@@ -307,7 +317,7 @@ Object.defineProperty(exports, 'batchActions', {
   }
 });
 
-var _query_params = __webpack_require__(18);
+var _query_params = __webpack_require__(17);
 
 Object.defineProperty(exports, 'parseQueryParams', {
   enumerable: true,
@@ -322,7 +332,7 @@ Object.defineProperty(exports, 'toQueryString', {
   }
 });
 
-var _formatCredits = __webpack_require__(29);
+var _formatCredits = __webpack_require__(28);
 
 Object.defineProperty(exports, 'formatCredits', {
   enumerable: true,
@@ -337,7 +347,7 @@ Object.defineProperty(exports, 'formatFullPrice', {
   }
 });
 
-var _claims2 = __webpack_require__(30);
+var _claims2 = __webpack_require__(29);
 
 Object.defineProperty(exports, 'claimsReducer', {
   enumerable: true,
@@ -346,7 +356,7 @@ Object.defineProperty(exports, 'claimsReducer', {
   }
 });
 
-var _cost_info2 = __webpack_require__(31);
+var _cost_info2 = __webpack_require__(30);
 
 Object.defineProperty(exports, 'costInfoReducer', {
   enumerable: true,
@@ -355,7 +365,7 @@ Object.defineProperty(exports, 'costInfoReducer', {
   }
 });
 
-var _file_info2 = __webpack_require__(32);
+var _file_info2 = __webpack_require__(31);
 
 Object.defineProperty(exports, 'fileInfoReducer', {
   enumerable: true,
@@ -364,7 +374,7 @@ Object.defineProperty(exports, 'fileInfoReducer', {
   }
 });
 
-var _notifications2 = __webpack_require__(33);
+var _notifications2 = __webpack_require__(32);
 
 Object.defineProperty(exports, 'notificationsReducer', {
   enumerable: true,
@@ -373,7 +383,7 @@ Object.defineProperty(exports, 'notificationsReducer', {
   }
 });
 
-var _search2 = __webpack_require__(34);
+var _search2 = __webpack_require__(33);
 
 Object.defineProperty(exports, 'searchReducer', {
   enumerable: true,
@@ -382,7 +392,7 @@ Object.defineProperty(exports, 'searchReducer', {
   }
 });
 
-var _wallet2 = __webpack_require__(36);
+var _wallet2 = __webpack_require__(35);
 
 Object.defineProperty(exports, 'walletReducer', {
   enumerable: true,
@@ -391,7 +401,7 @@ Object.defineProperty(exports, 'walletReducer', {
   }
 });
 
-var _notifications3 = __webpack_require__(37);
+var _notifications3 = __webpack_require__(36);
 
 Object.defineProperty(exports, 'selectNotification', {
   enumerable: true,
@@ -412,7 +422,7 @@ Object.defineProperty(exports, 'selectSnack', {
   }
 });
 
-var _claims3 = __webpack_require__(15);
+var _claims3 = __webpack_require__(14);
 
 Object.defineProperty(exports, 'makeSelectClaimForUri', {
   enumerable: true,
@@ -601,7 +611,7 @@ Object.defineProperty(exports, 'selectRewardContentClaimIds', {
   }
 });
 
-var _cost_info3 = __webpack_require__(38);
+var _cost_info3 = __webpack_require__(37);
 
 Object.defineProperty(exports, 'makeSelectFetchingCostInfoForUri', {
   enumerable: true,
@@ -634,7 +644,7 @@ Object.defineProperty(exports, 'selectFetchingCostInfo', {
   }
 });
 
-var _file_info3 = __webpack_require__(22);
+var _file_info3 = __webpack_require__(21);
 
 Object.defineProperty(exports, 'makeSelectFileInfoForUri', {
   enumerable: true,
@@ -709,7 +719,7 @@ Object.defineProperty(exports, 'selectSearchDownloadUris', {
   }
 });
 
-var _navigation = __webpack_require__(16);
+var _navigation = __webpack_require__(15);
 
 Object.defineProperty(exports, 'computePageFromPath', {
   enumerable: true,
@@ -796,7 +806,7 @@ Object.defineProperty(exports, 'selectNavLinks', {
   }
 });
 
-var _search3 = __webpack_require__(25);
+var _search3 = __webpack_require__(24);
 
 Object.defineProperty(exports, 'makeSelectSearchUris', {
   enumerable: true,
@@ -835,7 +845,7 @@ Object.defineProperty(exports, 'selectWunderBarAddress', {
   }
 });
 
-var _wallet3 = __webpack_require__(28);
+var _wallet3 = __webpack_require__(27);
 
 Object.defineProperty(exports, 'makeSelectBlockDate', {
   enumerable: true,
@@ -932,7 +942,7 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _settings = __webpack_require__(39);
+var _settings = __webpack_require__(38);
 
 var SETTINGS = _interopRequireWildcard(_settings);
 
@@ -940,7 +950,7 @@ var _lbry = __webpack_require__(6);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryapi = __webpack_require__(11);
+var _lbryapi = __webpack_require__(9);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
@@ -1497,7 +1507,7 @@ var _lbry = __webpack_require__(6);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryapi = __webpack_require__(11);
+var _lbryapi = __webpack_require__(9);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
@@ -1505,9 +1515,9 @@ var _lbryURI = __webpack_require__(2);
 
 var _notifications = __webpack_require__(3);
 
-var _claims = __webpack_require__(15);
+var _claims = __webpack_require__(14);
 
-var _batchActions = __webpack_require__(19);
+var _batchActions = __webpack_require__(18);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1903,8 +1913,8 @@ exports.default = lbryProxy;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(process, global) {/*
- * Copyright 2018 Google Inc. All rights reserved.
+/* WEBPACK VAR INJECTION */(function(global) {/*
+ * Copyright 2016 Google Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -1921,18 +1931,299 @@ exports.default = lbryProxy;
 
 
 
+
 (function(scope) {
   if (scope['Proxy']) {
     return;
   }
-  scope.Proxy = __webpack_require__(10)();
-  scope.Proxy['revocable'] = scope.Proxy.revocable;
-})("undefined" !== typeof process && "[object process]" === {}.toString.call(process) ? global : self);
+  let lastRevokeFn = null;
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(8), __webpack_require__(9)))
+  /**
+   * @param {*} o
+   * @return {boolean} whether this is probably a (non-null) Object
+   */
+  function isObject(o) {
+    return o ? (typeof o == 'object' || typeof o == 'function') : false;
+  }
+
+  /**
+   * @constructor
+   * @param {!Object} target
+   * @param {{apply, construct, get, set}} handler
+   */
+  scope.Proxy = function(target, handler) {
+    if (!isObject(target) || !isObject(handler)) {
+      throw new TypeError('Cannot create proxy with a non-object as target or handler');
+    }
+
+    // Construct revoke function, and set lastRevokeFn so that Proxy.revocable can steal it.
+    // The caller might get the wrong revoke function if a user replaces or wraps scope.Proxy
+    // to call itself, but that seems unlikely especially when using the polyfill.
+    let throwRevoked = function() {};
+    lastRevokeFn = function() {
+      throwRevoked = function(trap) {
+        throw new TypeError(`Cannot perform '${trap}' on a proxy that has been revoked`);
+      };
+    };
+
+    // Fail on unsupported traps: Chrome doesn't do this, but ensure that users of the polyfill
+    // are a bit more careful. Copy the internal parts of handler to prevent user changes.
+    let unsafeHandler = handler;
+    handler = {'get': null, 'set': null, 'apply': null, 'construct': null};
+    for (let k in unsafeHandler) {
+      if (!(k in handler)) {
+        throw new TypeError(`Proxy polyfill does not support trap '${k}'`);
+      }
+      handler[k] = unsafeHandler[k];
+    }
+    if (typeof unsafeHandler == 'function') {
+      // Allow handler to be a function (which has an 'apply' method). This matches what is
+      // probably a bug in native versions. It treats the apply call as a trap to be configured.
+      handler.apply = unsafeHandler.apply.bind(unsafeHandler);
+    }
+
+    // Define proxy as this, or a Function (if either it's callable, or apply is set).
+    // TODO(samthor): Closure compiler doesn't know about 'construct', attempts to rename it.
+    let proxy = this;
+    let isMethod = false;
+    let targetIsFunction = typeof target == 'function';
+    if (handler.apply || handler['construct'] || targetIsFunction) {
+      proxy = function Proxy() {
+        let usingNew = (this && this.constructor === proxy);
+        throwRevoked(usingNew ? 'construct' : 'apply');
+
+        if (usingNew && handler['construct']) {
+          return handler['construct'].call(this, target, arguments);
+        } else if (!usingNew && handler.apply) {
+          return handler.apply(target, this, arguments);
+        } else if (targetIsFunction) {
+          // since the target was a function, fallback to calling it directly.
+          if (usingNew) {
+            // inspired by answers to https://stackoverflow.com/q/1606797
+            let all = Array.prototype.slice.call(arguments);
+            all.unshift(target);  // pass class as first arg to constructor, although irrelevant
+            // nb. cast to convince Closure compiler that this is a constructor
+            let f = /** @type {!Function} */ (target.bind.apply(target, all));
+            return new f();
+          }
+          return target.apply(this, arguments);
+        }
+        throw new TypeError(usingNew ? 'not a constructor' : 'not a function');
+      };
+      isMethod = true;
+    }
+
+    // Create default getters/setters. Create different code paths as handler.get/handler.set can't
+    // change after creation.
+    let getter = handler.get ? function(prop) {
+      throwRevoked('get');
+      return handler.get(this, prop, proxy);
+    } : function(prop) {
+      throwRevoked('get');
+      return this[prop];
+    };
+    let setter = handler.set ? function(prop, value) {
+      throwRevoked('set');
+      let status = handler.set(this, prop, value, proxy);
+      if (!status) {
+        // TODO(samthor): If the calling code is in strict mode, throw TypeError.
+        // It's (sometimes) possible to work this out, if this code isn't strict- try to load the
+        // callee, and if it's available, that code is non-strict. However, this isn't exhaustive.
+      }
+    } : function(prop, value) {
+      throwRevoked('set');
+      this[prop] = value;
+    };
+
+    // Clone direct properties (i.e., not part of a prototype).
+    let propertyNames = Object.getOwnPropertyNames(target);
+    let propertyMap = {};
+    propertyNames.forEach(function(prop) {
+      if (isMethod && prop in proxy) {
+        return;  // ignore properties already here, e.g. 'bind', 'prototype' etc
+      }
+      let real = Object.getOwnPropertyDescriptor(target, prop);
+      let desc = {
+        enumerable: !!real.enumerable,
+        get: getter.bind(target, prop),
+        set: setter.bind(target, prop),
+      };
+      Object.defineProperty(proxy, prop, desc);
+      propertyMap[prop] = true;
+    });
+
+    // Set the prototype, or clone all prototype methods (always required if a getter is provided).
+    // TODO(samthor): We don't allow prototype methods to be set. It's (even more) awkward.
+    // An alternative here would be to _just_ clone methods to keep behavior consistent.
+    let prototypeOk = true;
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(proxy, Object.getPrototypeOf(target));
+    } else if (proxy.__proto__) {
+      proxy.__proto__ = target.__proto__;
+    } else {
+      prototypeOk = false;
+    }
+    if (handler.get || !prototypeOk) {
+      for (let k in target) {
+        if (propertyMap[k]) {
+          continue;
+        }
+        Object.defineProperty(proxy, k, {get: getter.bind(target, k)});
+      }
+    }
+
+    // The Proxy polyfill cannot handle adding new properties. Seal the target and proxy.
+    Object.seal(target);
+    Object.seal(proxy);
+
+    return proxy;  // nb. if isMethod is true, proxy != this
+  };
+
+  scope.Proxy.revocable = function(target, handler) {
+    let p = new scope.Proxy(target, handler);
+    return {'proxy': p, 'revoke': lastRevokeFn};
+  };
+
+  scope.Proxy['revocable'] = scope.Proxy.revocable;
+  scope['Proxy'] = scope.Proxy;
+})(typeof module !== 'undefined' && module['exports'] ? global : window);
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(8)))
 
 /***/ }),
 /* 8 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1, eval)("this");
+} catch (e) {
+	// This works if the window reference is available
+	if (typeof window === "object") g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _querystring = __webpack_require__(11);
+
+var _querystring2 = _interopRequireDefault(_querystring);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Lbryapi = {
+  enabled: true,
+  exchangePromise: null,
+  exchangeLastFetched: null
+};
+
+var CONNECTION_STRING = process.env.LBRY_APP_API_URL ? process.env.LBRY_APP_API_URL.replace(/\/*$/, '/') // exactly one slash at the end
+: 'https://api.lbry.io/';
+
+var EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
+
+Lbryapi.getExchangeRates = function () {
+  if (!Lbryapi.exchangeLastFetched || Date.now() - Lbryapi.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
+    Lbryapi.exchangePromise = new Promise(function (resolve, reject) {
+      Lbryapi.call('lbc', 'exchange_rate', {}, 'get', true).then(function (_ref) {
+        var LBC_USD = _ref.lbc_usd,
+            LBC_BTC = _ref.lbc_btc,
+            BTC_USD = _ref.btc_usd;
+
+        var rates = { LBC_USD: LBC_USD, LBC_BTC: LBC_BTC, BTC_USD: BTC_USD };
+        resolve(rates);
+      }).catch(reject);
+    });
+    Lbryapi.exchangeLastFetched = Date.now();
+  }
+  return Lbryapi.exchangePromise;
+};
+
+Lbryapi.call = function (resource, action) {
+  var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var method = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'get';
+
+  if (!Lbryapi.enabled) {
+    return Promise.reject(new Error(__('LBRY internal API is disabled')));
+  }
+
+  if (!(method === 'get' || method === 'post')) {
+    return Promise.reject(new Error(__('Invalid method')));
+  }
+
+  function checkAndParse(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response.json();
+    }
+    return response.json().then(function (json) {
+      var error = void 0;
+      if (json.error) {
+        error = new Error(json.error);
+      } else {
+        error = new Error('Unknown API error signature');
+      }
+      error.response = response; // This is primarily a hack used in actions/user.js
+      return Promise.reject(error);
+    });
+  }
+
+  function makeRequest(url, options) {
+    return fetch(url, options).then(checkAndParse);
+  }
+
+  var fullParams = _extends({}, params);
+  var qs = _querystring2.default.stringify(fullParams);
+  var url = '' + CONNECTION_STRING + resource + '/' + action + '?' + qs;
+
+  var options = {
+    method: 'GET'
+  };
+
+  if (method === 'post') {
+    options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: qs
+    };
+    url = '' + CONNECTION_STRING + resource + '/' + action;
+  }
+
+  return makeRequest(url, options).then(function (response) {
+    return response.data;
+  });
+};
+
+exports.default = Lbryapi;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10)))
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -2122,325 +2413,18 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1, eval)("this");
-} catch (e) {
-	// This works if the window reference is available
-	if (typeof window === "object") g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-/*
- * Copyright 2016 Google Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
-module.exports = function proxyPolyfill() {
-  let lastRevokeFn = null;
-  let ProxyPolyfill;
-
-  /**
-   * @param {*} o
-   * @return {boolean} whether this is probably a (non-null) Object
-   */
-  function isObject(o) {
-    return o ? (typeof o === 'object' || typeof o === 'function') : false;
-  }
-
-  /**
-   * @constructor
-   * @param {!Object} target
-   * @param {{apply, construct, get, set}} handler
-   */
-  ProxyPolyfill = function(target, handler) {
-    if (!isObject(target) || !isObject(handler)) {
-      throw new TypeError('Cannot create proxy with a non-object as target or handler');
-    }
-
-    // Construct revoke function, and set lastRevokeFn so that Proxy.revocable can steal it.
-    // The caller might get the wrong revoke function if a user replaces or wraps scope.Proxy
-    // to call itself, but that seems unlikely especially when using the polyfill.
-    let throwRevoked = function() {};
-    lastRevokeFn = function() {
-      throwRevoked = function(trap) {
-        throw new TypeError(`Cannot perform '${trap}' on a proxy that has been revoked`);
-      };
-    };
-
-    // Fail on unsupported traps: Chrome doesn't do this, but ensure that users of the polyfill
-    // are a bit more careful. Copy the internal parts of handler to prevent user changes.
-    const unsafeHandler = handler;
-    handler = { 'get': null, 'set': null, 'apply': null, 'construct': null };
-    for (let k in unsafeHandler) {
-      if (!(k in handler)) {
-        throw new TypeError(`Proxy polyfill does not support trap '${k}'`);
-      }
-      handler[k] = unsafeHandler[k];
-    }
-    if (typeof unsafeHandler === 'function') {
-      // Allow handler to be a function (which has an 'apply' method). This matches what is
-      // probably a bug in native versions. It treats the apply call as a trap to be configured.
-      handler.apply = unsafeHandler.apply.bind(unsafeHandler);
-    }
-
-    // Define proxy as this, or a Function (if either it's callable, or apply is set).
-    // TODO(samthor): Closure compiler doesn't know about 'construct', attempts to rename it.
-    let proxy = this;
-    let isMethod = false;
-    let isArray = false;
-    if (typeof target === 'function') {
-      proxy = function ProxyPolyfill() {
-        const usingNew = (this && this.constructor === proxy);
-        const args = Array.prototype.slice.call(arguments);
-        throwRevoked(usingNew ? 'construct' : 'apply');
-
-        if (usingNew && handler['construct']) {
-          return handler['construct'].call(this, target, args);
-        } else if (!usingNew && handler.apply) {
-          return handler.apply(target, this, args);
-        }
-
-        // since the target was a function, fallback to calling it directly.
-        if (usingNew) {
-          // inspired by answers to https://stackoverflow.com/q/1606797
-          args.unshift(target);  // pass class as first arg to constructor, although irrelevant
-          // nb. cast to convince Closure compiler that this is a constructor
-          const f = /** @type {!Function} */ (target.bind.apply(target, args));
-          return new f();
-        }
-        return target.apply(this, args);
-      };
-      isMethod = true;
-    } else if (target instanceof Array) {
-      proxy = [];
-      isArray = true;
-    }
-
-    // Create default getters/setters. Create different code paths as handler.get/handler.set can't
-    // change after creation.
-    const getter = handler.get ? function(prop) {
-      throwRevoked('get');
-      return handler.get(this, prop, proxy);
-    } : function(prop) {
-      throwRevoked('get');
-      return this[prop];
-    };
-    const setter = handler.set ? function(prop, value) {
-      throwRevoked('set');
-      const status = handler.set(this, prop, value, proxy);
-      // TODO(samthor): If the calling code is in strict mode, throw TypeError.
-      // if (!status) {
-        // It's (sometimes) possible to work this out, if this code isn't strict- try to load the
-        // callee, and if it's available, that code is non-strict. However, this isn't exhaustive.
-      // }
-    } : function(prop, value) {
-      throwRevoked('set');
-      this[prop] = value;
-    };
-
-    // Clone direct properties (i.e., not part of a prototype).
-    const propertyNames = Object.getOwnPropertyNames(target);
-    const propertyMap = {};
-    propertyNames.forEach(function(prop) {
-      if ((isMethod || isArray) && prop in proxy) {
-        return;  // ignore properties already here, e.g. 'bind', 'prototype' etc
-      }
-      const real = Object.getOwnPropertyDescriptor(target, prop);
-      const desc = {
-        enumerable: !!real.enumerable,
-        get: getter.bind(target, prop),
-        set: setter.bind(target, prop),
-      };
-      Object.defineProperty(proxy, prop, desc);
-      propertyMap[prop] = true;
-    });
-
-    // Set the prototype, or clone all prototype methods (always required if a getter is provided).
-    // TODO(samthor): We don't allow prototype methods to be set. It's (even more) awkward.
-    // An alternative here would be to _just_ clone methods to keep behavior consistent.
-    let prototypeOk = true;
-    if (Object.setPrototypeOf) {
-      Object.setPrototypeOf(proxy, Object.getPrototypeOf(target));
-    } else if (proxy.__proto__) {
-      proxy.__proto__ = target.__proto__;
-    } else {
-      prototypeOk = false;
-    }
-    if (handler.get || !prototypeOk) {
-      for (let k in target) {
-        if (propertyMap[k]) {
-          continue;
-        }
-        Object.defineProperty(proxy, k, { get: getter.bind(target, k) });
-      }
-    }
-
-    // The Proxy polyfill cannot handle adding new properties. Seal the target and proxy.
-    Object.seal(target);
-    Object.seal(proxy);
-
-    return proxy;  // nb. if isMethod is true, proxy != this
-  };
-
-  ProxyPolyfill.revocable = function(target, handler) {
-    const p = new ProxyPolyfill(target, handler);
-    return { 'proxy': p, 'revoke': lastRevokeFn };
-  };
-
-  return ProxyPolyfill;
-}
-
-/***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+exports.decode = exports.parse = __webpack_require__(12);
+exports.encode = exports.stringify = __webpack_require__(13);
 
-var _querystring = __webpack_require__(12);
-
-var _querystring2 = _interopRequireDefault(_querystring);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Lbryapi = {
-  enabled: true,
-  exchangePromise: null,
-  exchangeLastFetched: null
-};
-
-var CONNECTION_STRING = process.env.LBRY_APP_API_URL ? process.env.LBRY_APP_API_URL.replace(/\/*$/, '/') // exactly one slash at the end
-: 'https://api.lbry.io/';
-
-var EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
-
-Lbryapi.getExchangeRates = function () {
-  if (!Lbryapi.exchangeLastFetched || Date.now() - Lbryapi.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
-    Lbryapi.exchangePromise = new Promise(function (resolve, reject) {
-      Lbryapi.call('lbc', 'exchange_rate', {}, 'get', true).then(function (_ref) {
-        var LBC_USD = _ref.lbc_usd,
-            LBC_BTC = _ref.lbc_btc,
-            BTC_USD = _ref.btc_usd;
-
-        var rates = { LBC_USD: LBC_USD, LBC_BTC: LBC_BTC, BTC_USD: BTC_USD };
-        resolve(rates);
-      }).catch(reject);
-    });
-    Lbryapi.exchangeLastFetched = Date.now();
-  }
-  return Lbryapi.exchangePromise;
-};
-
-Lbryapi.call = function (resource, action) {
-  var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  var method = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'get';
-
-  if (!Lbryapi.enabled) {
-    return Promise.reject(new Error(__('LBRY internal API is disabled')));
-  }
-
-  if (!(method === 'get' || method === 'post')) {
-    return Promise.reject(new Error(__('Invalid method')));
-  }
-
-  function checkAndParse(response) {
-    if (response.status >= 200 && response.status < 300) {
-      return response.json();
-    }
-    return response.json().then(function (json) {
-      var error = void 0;
-      if (json.error) {
-        error = new Error(json.error);
-      } else {
-        error = new Error('Unknown API error signature');
-      }
-      error.response = response; // This is primarily a hack used in actions/user.js
-      return Promise.reject(error);
-    });
-  }
-
-  function makeRequest(url, options) {
-    return fetch(url, options).then(checkAndParse);
-  }
-
-  var fullParams = _extends({}, params);
-  var qs = _querystring2.default.stringify(fullParams);
-  var url = '' + CONNECTION_STRING + resource + '/' + action + '?' + qs;
-
-  var options = {
-    method: 'GET'
-  };
-
-  if (method === 'post') {
-    options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: qs
-    };
-    url = '' + CONNECTION_STRING + resource + '/' + action;
-  }
-
-  return makeRequest(url, options).then(function (response) {
-    return response.data;
-  });
-};
-
-exports.default = Lbryapi;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(8)))
 
 /***/ }),
 /* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.decode = exports.parse = __webpack_require__(13);
-exports.encode = exports.stringify = __webpack_require__(14);
-
-
-/***/ }),
-/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2531,7 +2515,7 @@ var isArray = Array.isArray || function (xs) {
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2623,7 +2607,7 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2636,9 +2620,9 @@ exports.selectRewardContentClaimIds = exports.makeSelectTotalPagesForChannel = e
 
 var _lbryURI = __webpack_require__(2);
 
-var _navigation = __webpack_require__(16);
+var _navigation = __webpack_require__(15);
 
-var _reselect = __webpack_require__(17);
+var _reselect = __webpack_require__(16);
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -2852,7 +2836,7 @@ var selectRewardContentClaimIds = exports.selectRewardContentClaimIds = (0, _res
 });
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2863,9 +2847,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.selectNavLinks = exports.selectPageTitle = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsHome = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.makeSelectCurrentParam = exports.selectCurrentParams = exports.selectCurrentPage = exports.computePageFromPath = exports.selectCurrentPath = exports.selectState = undefined;
 
-var _reselect = __webpack_require__(17);
+var _reselect = __webpack_require__(16);
 
-var _query_params = __webpack_require__(18);
+var _query_params = __webpack_require__(17);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.navigation || {};
@@ -3058,7 +3042,7 @@ var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(sele
 });
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3189,7 +3173,7 @@ function createStructuredSelector(selectors) {
 }
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3234,7 +3218,7 @@ function toQueryString(params) {
 }
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3257,7 +3241,7 @@ function batchActions() {
 }
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3272,11 +3256,11 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _lbryapi = __webpack_require__(11);
+var _lbryapi = __webpack_require__(9);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
-var _claims = __webpack_require__(15);
+var _claims = __webpack_require__(14);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3317,7 +3301,7 @@ function doFetchCostInfoForUri(uri) {
 }
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3340,9 +3324,9 @@ var _lbry2 = _interopRequireDefault(_lbry);
 
 var _claims = __webpack_require__(5);
 
-var _claims2 = __webpack_require__(15);
+var _claims2 = __webpack_require__(14);
 
-var _file_info = __webpack_require__(22);
+var _file_info = __webpack_require__(21);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3410,7 +3394,7 @@ function doFetchFileInfosAndPublishedClaims() {
 }
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3421,9 +3405,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.makeSelectLoadingForUri = exports.selectUrisLoading = exports.makeSelectDownloadingForUri = exports.selectDownloadingByOutpoint = exports.makeSelectFileInfoForUri = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.selectState = undefined;
 
-var _claims = __webpack_require__(15);
+var _claims = __webpack_require__(14);
 
-var _reselect = __webpack_require__(17);
+var _reselect = __webpack_require__(16);
 
 var _lbryURI = __webpack_require__(2);
 
@@ -3617,7 +3601,7 @@ var selectSearchDownloadUris = exports.selectSearchDownloadUris = function selec
 };
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3632,7 +3616,7 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _search = __webpack_require__(24);
+var _search = __webpack_require__(23);
 
 var SEARCH_TYPES = _interopRequireWildcard(_search);
 
@@ -3640,11 +3624,11 @@ var _lbryURI = __webpack_require__(2);
 
 var _claims = __webpack_require__(5);
 
-var _search2 = __webpack_require__(25);
+var _search2 = __webpack_require__(24);
 
-var _batchActions = __webpack_require__(19);
+var _batchActions = __webpack_require__(18);
 
-var _handleFetch = __webpack_require__(26);
+var _handleFetch = __webpack_require__(25);
 
 var _handleFetch2 = _interopRequireDefault(_handleFetch);
 
@@ -3819,7 +3803,7 @@ var doUpdateSearchQuery = exports.doUpdateSearchQuery = function doUpdateSearchQ
 };
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3833,7 +3817,7 @@ var CHANNEL = exports.CHANNEL = 'channel';
 var SEARCH = exports.SEARCH = 'search';
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3844,9 +3828,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.selectWunderBarAddress = exports.makeSelectSearchUris = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchQuery = exports.selectSearchValue = exports.selectState = undefined;
 
-var _navigation = __webpack_require__(16);
+var _navigation = __webpack_require__(15);
 
-var _reselect = __webpack_require__(17);
+var _reselect = __webpack_require__(16);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.search || {};
@@ -3887,7 +3871,7 @@ var selectWunderBarAddress = exports.selectWunderBarAddress = (0, _reselect.crea
 });
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3902,7 +3886,7 @@ function handleFetchResponse(response) {
 }
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3932,7 +3916,7 @@ var _lbry2 = _interopRequireDefault(_lbry);
 
 var _notifications = __webpack_require__(3);
 
-var _wallet = __webpack_require__(28);
+var _wallet = __webpack_require__(27);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4134,7 +4118,7 @@ function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
 }
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4145,7 +4129,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.makeSelectBlockDate = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.selectState = undefined;
 
-var _reselect = __webpack_require__(17);
+var _reselect = __webpack_require__(16);
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -4270,7 +4254,7 @@ var makeSelectBlockDate = exports.makeSelectBlockDate = function makeSelectBlock
 };
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4308,7 +4292,7 @@ function formatFullPrice(amount) {
 }
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4616,7 +4600,7 @@ function claimsReducer() {
 }
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4674,7 +4658,7 @@ function costInfoReducer() {
 }
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4871,7 +4855,7 @@ function fileInfoReducer() {
 }
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4951,7 +4935,7 @@ function notificationsReducer() {
 }
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4971,7 +4955,7 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(35);
+var _reduxUtils = __webpack_require__(34);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -5056,7 +5040,7 @@ var searchReducer = exports.searchReducer = (0, _reduxUtils.handleActions)((_han
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5089,7 +5073,7 @@ var handleActions = exports.handleActions = function handleActions(actionMap, de
 };
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5271,7 +5255,7 @@ function walletReducer() {
 }
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5282,7 +5266,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectNotificationData = exports.selectState = undefined;
 
-var _reselect = __webpack_require__(17);
+var _reselect = __webpack_require__(16);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.notifications || {};
@@ -5311,7 +5295,7 @@ selectNotification, function (notification) {
 });
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5322,9 +5306,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.makeSelectFetchingCostInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.makeSelectCostInfoForUri = exports.selectAllCostInfoByUri = exports.selectState = undefined;
 
-var _reselect = __webpack_require__(17);
+var _reselect = __webpack_require__(16);
 
-var _navigation = __webpack_require__(16);
+var _navigation = __webpack_require__(15);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.costInfo || {};
@@ -5355,7 +5339,7 @@ var makeSelectFetchingCostInfoForUri = exports.makeSelectFetchingCostInfoForUri 
 };
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5384,3 +5368,4 @@ var KEEP_DAEMON_RUNNING = exports.KEEP_DAEMON_RUNNING = 'keepDaemonRunning';
 
 /***/ })
 /******/ ]);
+});
