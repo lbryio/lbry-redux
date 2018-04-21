@@ -50,13 +50,25 @@ function apiCall(method: string, params: ?{}, resolve: Function, reject: Functio
 }
 
 // core
-Lbry.status = () =>
+Lbry.status = (params = {}) =>
   new Promise((resolve, reject) => {
     apiCall(
       'status',
-      {},
+      params,
       status => {
         resolve(status);
+      },
+      reject
+    );
+  });
+
+Lbry.version = () =>
+  new Promise((resolve, reject) => {
+    apiCall(
+      'version',
+      {},
+      versionInfo => {
+        resolve(versionInfo);
       },
       reject
     );

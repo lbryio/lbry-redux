@@ -1773,9 +1773,18 @@ function apiCall(method /*: string*/, params /*: ?{}*/, resolve /*: Function*/, 
 
 // core
 Lbry.status = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return new Promise(function (resolve, reject) {
-    apiCall('status', {}, function (status) {
+    apiCall('status', params, function (status) {
       resolve(status);
+    }, reject);
+  });
+};
+
+Lbry.version = function () {
+  return new Promise(function (resolve, reject) {
+    apiCall('version', {}, function (versionInfo) {
+      resolve(versionInfo);
     }, reject);
   });
 };
