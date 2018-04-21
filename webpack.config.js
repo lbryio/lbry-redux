@@ -1,31 +1,25 @@
+/* eslint-disable import/no-commonjs */
 const path = require('path');
+const FlowBabelWebpackPlugin = require('flow-babel-webpack-plugin');
+
 module.exports = {
+  mode: 'none',
   entry: './src/index.js',
   output: {
-    path: path.resolve(__dirname, 'build'),
-    filename: 'index.js',
-    libraryTarget: 'umd'
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
   },
   module: {
     rules: [
       {
         test: /\.js$/,
-        include: path.resolve(__dirname, 'src'),
-        exclude: /(node_modules|bower_components|build)/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['env', 'react', 'stage-2']
-          }
-        }
-      }
-    ]
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+      },
+    ],
   },
   resolve: {
-    modules: [path.resolve(__dirname, 'src/'), 'node_modules', __dirname],
-    extensions: ['.js', '.jsx', '.scss'],
+    modules: [path.resolve(__dirname, 'src'), 'node_modules'],
   },
-  externals: {
-    'react': 'commonjs react'
-  }
+  plugins: [new FlowBabelWebpackPlugin()],
 };

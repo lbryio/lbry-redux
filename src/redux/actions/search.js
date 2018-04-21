@@ -69,18 +69,6 @@ export const doSearch = rawQuery => (dispatch, getState) => {
     });
 };
 
-export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boolean) => dispatch => {
-  dispatch({
-    type: ACTIONS.UPDATE_SEARCH_QUERY,
-    data: { query },
-  });
-
-  // Don't fetch new suggestions if the user just added a space
-  if (!query.endsWith(' ') || !shouldSkipSuggestions) {
-    dispatch(getSearchSuggestions(query));
-  }
-};
-
 export const getSearchSuggestions = (value: string) => dispatch => {
   const query = value.trim();
 
@@ -121,7 +109,7 @@ export const getSearchSuggestions = (value: string) => dispatch => {
     );
 
     // If it's a valid url, don't fetch any extra search results
-    return dispatch({
+    dispatch({
       type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
       data: { suggestions },
     });
@@ -146,7 +134,7 @@ export const getSearchSuggestions = (value: string) => dispatch => {
     searchValue = searchValue.substring(0, searchValue.indexOf('#'));
   }
 
-  return fetch(`https://lighthouse.lbry.io/autocomplete?s=${searchValue}`)
+  fetch(`https://lighthouse.lbry.io/autocomplete?s=${searchValue}`)
     .then(handleFetchResponse)
     .then(apiSuggestions => {
       const formattedSuggestions = apiSuggestions.slice(0, 6).map(suggestion => {
@@ -171,4 +159,16 @@ export const getSearchSuggestions = (value: string) => dispatch => {
       // If the fetch fails, do nothing
       // Basic search suggestions are already populated at this point
     });
+};
+
+export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boolean) => dispatch => {
+  dispatch({
+    type: ACTIONS.UPDATE_SEARCH_QUERY,
+    data: { query },
+  });
+
+  // Don't fetch new suggestions if the user just added a space
+  if (!query.endsWith(' ') || !shouldSkipSuggestions) {
+    dispatch(getSearchSuggestions(query));
+  }
 };

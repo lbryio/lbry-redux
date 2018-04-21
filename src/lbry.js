@@ -49,16 +49,6 @@ function apiCall(method: string, params: ?{}, resolve: Function, reject: Functio
     .catch(reject);
 }
 
-function getLocal(key, fallback = undefined) {
-  // const itemRaw = localStorage.getItem(key);
-  const itemRaw = null;
-  return itemRaw === null ? fallback : JSON.parse(itemRaw);
-}
-
-function setLocal(key, value) {
-  // localStorage.setItem(key, JSON.stringify(value));
-}
-
 // core
 Lbry.status = () =>
   new Promise((resolve, reject) => {
@@ -141,8 +131,6 @@ Lbry.getMediaType = (contentType, fileName) => {
  */
 Lbry.file_list = (params = {}) =>
   new Promise((resolve, reject) => {
-    const { claim_name: claimName, channel_name: channelName, outpoint } = params;
-
     apiCall(
       'file_list',
       params,
