@@ -26,7 +26,7 @@
     "format": "prettier 'src/**/*.{js,json}' --write"
   },
   "dependencies": {
-    "proxy-polyfill": "^0.2.0",
+    "proxy-polyfill": "0.1.6",
     "reselect": "^3.0.0"
   },
   "devDependencies": {
