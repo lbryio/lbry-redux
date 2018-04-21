@@ -23,7 +23,7 @@ export {
 } from 'lbryURI';
 
 // actions
-export { doNotify } from 'redux/actions/notifications';
+export { doNotify, doHideNotification } from 'redux/actions/notifications';
 
 export {
   doFetchClaimListMine,
@@ -71,7 +71,11 @@ export { searchReducer } from 'redux/reducers/search';
 export { walletReducer } from 'redux/reducers/wallet';
 
 // selectors
-export { selectNotification } from 'redux/selectors/notifications';
+export {
+  selectNotification,
+  selectNotificationProps,
+  selectSnack,
+} from 'redux/selectors/notifications';
 
 export {
   makeSelectClaimForUri,
