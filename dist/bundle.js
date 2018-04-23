@@ -5364,6 +5364,8 @@ var THEMES = exports.THEMES = 'themes';
 var AUTOMATIC_DARK_MODE_ENABLED = exports.AUTOMATIC_DARK_MODE_ENABLED = 'automaticDarkModeEnabled';
 
 // mobile settings
+var BACKGROUND_PLAY_ENABLED = exports.BACKGROUND_PLAY_ENABLED = 'backgroundPlayEnabled';
+var FOREGROUND_NOTIFICATION_ENABLED = exports.FOREGROUND_NOTIFICATION_ENABLED = 'foregroundNotificationEnabled';
 var KEEP_DAEMON_RUNNING = exports.KEEP_DAEMON_RUNNING = 'keepDaemonRunning';
 
 /***/ })
