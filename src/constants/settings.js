@@ -14,4 +14,6 @@ export const THEMES = 'themes';
 export const AUTOMATIC_DARK_MODE_ENABLED = 'automaticDarkModeEnabled';
 
 // mobile settings
+export const BACKGROUND_PLAY_ENABLED = 'backgroundPlayEnabled';
+export const FOREGROUND_NOTIFICATION_ENABLED = 'foregroundNotificationEnabled';
 export const KEEP_DAEMON_RUNNING = 'keepDaemonRunning';
