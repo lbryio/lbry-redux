@@ -20,6 +20,7 @@ export {
   normalizeURI,
   isURIValid,
   isURIClaimable,
+  isNameValid
 } from 'lbryURI';
 
 // actions
