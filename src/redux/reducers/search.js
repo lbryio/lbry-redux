@@ -94,7 +94,7 @@ export const searchReducer = handleActions(
     // sets isActive to false so the uri will be populated correctly if the
     // user is on a file page. The search query will still be present on any
     // other page
-    [ACTIONS.CLOSE_MODAL]: (state: SearchState): SearchState => ({
+    [ACTIONS.DISMISS_NOTIFICATION]: (state: SearchState): SearchState => ({
       ...state,
       isActive: false,
     }),
