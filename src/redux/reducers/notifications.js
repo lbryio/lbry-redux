@@ -1,4 +1,5 @@
 import * as ACTIONS from 'constants/action_types';
+import * as MODALS from 'constants/modal_types';
 
 const reducers = {};
 
@@ -41,6 +42,15 @@ reducers[ACTIONS.DISMISS_NOTIFICATION] = state => {
   return Object.assign({}, state, {
     queue,
   });
+};
+
+reducers[ACTIONS.HISTORY_NAVIGATE] = state => {
+  const queue = Object.assign([], state.queue);
+  if (queue[0] && queue[0].notification.id === MODALS.SEARCH) {
+    queue.shift();
+    return Object.assign({}, state, { queue });
+  }
+  return state;
 };
 
 export function notificationsReducer(state = defaultState, action) {

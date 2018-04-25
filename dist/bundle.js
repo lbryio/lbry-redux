@@ -398,7 +398,7 @@ Object.defineProperty(exports, 'notificationsReducer', {
   }
 });
 
-var _search2 = __webpack_require__(34);
+var _search2 = __webpack_require__(35);
 
 Object.defineProperty(exports, 'searchReducer', {
   enumerable: true,
@@ -407,7 +407,7 @@ Object.defineProperty(exports, 'searchReducer', {
   }
 });
 
-var _wallet2 = __webpack_require__(36);
+var _wallet2 = __webpack_require__(37);
 
 Object.defineProperty(exports, 'walletReducer', {
   enumerable: true,
@@ -416,7 +416,7 @@ Object.defineProperty(exports, 'walletReducer', {
   }
 });
 
-var _blacklist2 = __webpack_require__(37);
+var _blacklist2 = __webpack_require__(38);
 
 Object.defineProperty(exports, 'blacklistReducer', {
   enumerable: true,
@@ -425,7 +425,7 @@ Object.defineProperty(exports, 'blacklistReducer', {
   }
 });
 
-var _blacklist3 = __webpack_require__(38);
+var _blacklist3 = __webpack_require__(39);
 
 Object.defineProperty(exports, 'selectBlackListedOutpoints', {
   enumerable: true,
@@ -434,7 +434,7 @@ Object.defineProperty(exports, 'selectBlackListedOutpoints', {
   }
 });
 
-var _notifications3 = __webpack_require__(39);
+var _notifications3 = __webpack_require__(40);
 
 Object.defineProperty(exports, 'selectNotification', {
   enumerable: true,
@@ -644,7 +644,7 @@ Object.defineProperty(exports, 'selectRewardContentClaimIds', {
   }
 });
 
-var _cost_info3 = __webpack_require__(40);
+var _cost_info3 = __webpack_require__(41);
 
 Object.defineProperty(exports, 'makeSelectFetchingCostInfoForUri', {
   enumerable: true,
@@ -975,7 +975,7 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _settings = __webpack_require__(41);
+var _settings = __webpack_require__(42);
 
 var SETTINGS = _interopRequireWildcard(_settings);
 
@@ -4999,6 +4999,10 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
+var _modal_types = __webpack_require__(34);
+
+var MODALS = _interopRequireWildcard(_modal_types);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var reducers = {};
@@ -5054,6 +5058,15 @@ reducers[ACTIONS.DISMISS_NOTIFICATION] = function (state) {
   });
 };
 
+reducers[ACTIONS.HISTORY_NAVIGATE] = function (state) {
+  var queue = Object.assign([], state.queue);
+  if (queue[0] && queue[0].notification.id === MODALS.SEARCH) {
+    queue.shift();
+    return Object.assign({}, state, { queue: queue });
+  }
+  return state;
+};
+
 function notificationsReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
   var action = arguments[1];
@@ -5073,6 +5086,33 @@ function notificationsReducer() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+var CONFIRM_FILE_REMOVE = exports.CONFIRM_FILE_REMOVE = 'confirmFileRemove';
+var INCOMPATIBLE_DAEMON = exports.INCOMPATIBLE_DAEMON = 'incompatibleDaemon';
+var FILE_TIMEOUT = exports.FILE_TIMEOUT = 'file_timeout';
+var DOWNLOADING = exports.DOWNLOADING = 'downloading';
+var ERROR = exports.ERROR = 'error';
+var INSUFFICIENT_CREDITS = exports.INSUFFICIENT_CREDITS = 'insufficient_credits';
+var UPGRADE = exports.UPGRADE = 'upgrade';
+var WELCOME = exports.WELCOME = 'welcome';
+var EMAIL_COLLECTION = exports.EMAIL_COLLECTION = 'email_collection';
+var FIRST_REWARD = exports.FIRST_REWARD = 'first_reward';
+var AUTHENTICATION_FAILURE = exports.AUTHENTICATION_FAILURE = 'auth_failure';
+var TRANSACTION_FAILED = exports.TRANSACTION_FAILED = 'transaction_failed';
+var REWARD_APPROVAL_REQUIRED = exports.REWARD_APPROVAL_REQUIRED = 'reward_approval_required';
+var AFFIRM_PURCHASE = exports.AFFIRM_PURCHASE = 'affirm_purchase';
+var CONFIRM_CLAIM_REVOKE = exports.CONFIRM_CLAIM_REVOKE = 'confirmClaimRevoke';
+var SEARCH = exports.SEARCH = 'search';
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 exports.searchReducer = undefined;
 
 var _handleActions;
@@ -5084,7 +5124,7 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(35);
+var _reduxUtils = __webpack_require__(36);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -5162,14 +5202,14 @@ var searchReducer = exports.searchReducer = (0, _reduxUtils.handleActions)((_han
     suggestions: [],
     isActive: false
   });
-}), _defineProperty(_handleActions, ACTIONS.CLOSE_MODAL, function (state /*: SearchState*/) /*: SearchState*/ {
+}), _defineProperty(_handleActions, ACTIONS.DISMISS_NOTIFICATION, function (state /*: SearchState*/) /*: SearchState*/ {
   return _extends({}, state, {
     isActive: false
   });
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5202,7 +5242,7 @@ var handleActions = exports.handleActions = function handleActions(actionMap, de
 };
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5384,7 +5424,7 @@ function walletReducer() {
 }
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5403,7 +5443,7 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(35);
+var _reduxUtils = __webpack_require__(36);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -5443,7 +5483,7 @@ var blacklistReducer = exports.blacklistReducer = (0, _reduxUtils.handleActions)
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5465,7 +5505,7 @@ var selectBlackListedOutpoints = exports.selectBlackListedOutpoints = (0, _resel
 });
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5505,7 +5545,7 @@ selectNotification, function (notification) {
 });
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5549,7 +5589,7 @@ var makeSelectFetchingCostInfoForUri = exports.makeSelectFetchingCostInfoForUri 
 };
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
