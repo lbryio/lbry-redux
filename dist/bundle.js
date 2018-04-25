@@ -4138,12 +4138,10 @@ function doCheckAddressIsMine(address) {
   };
 }
 
-function doSendDraftTransaction() {
+function doSendDraftTransaction(address, amount) {
   return function (dispatch, getState) {
     var state = getState();
-    var draftTx = (0, _wallet.selectDraftTransaction)(state);
     var balance = (0, _wallet.selectBalance)(state);
-    var amount = (0, _wallet.selectDraftTransactionAmount)(state);
 
     if (balance - amount <= 0) {
       dispatch((0, _notifications.doNotify)({
@@ -4181,7 +4179,7 @@ function doSendDraftTransaction() {
           title: 'Transaction failed',
           message: 'Transaction failed',
           type: 'error',
-          displayType: ['modal', 'toast']
+          displayType: ['snackbar', 'toast']
         }));
       }
     };
@@ -4195,13 +4193,13 @@ function doSendDraftTransaction() {
         title: 'Transaction failed',
         message: 'Transaction failed',
         type: 'error',
-        displayType: ['modal', 'toast']
+        displayType: ['snackbar', 'toast']
       }));
     };
 
     _lbry2.default.wallet_send({
-      amount: draftTx.amount,
-      address: draftTx.address
+      amount: amount,
+      address: address
     }).then(successCallback, errorCallback);
   };
 }
@@ -4235,6 +4233,19 @@ function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
       return;
     }
 
+    var success = function success() {
+      dispatch((0, _notifications.doNotify)({
+        message: __('You sent ' + amount + ' LBC as support, Mahalo!'),
+        linkText: __('History'),
+        linkTarget: __('/wallet'),
+        displayType: ['snackbar']
+      }));
+
+      if (successCallback) {
+        successCallback();
+      }
+    };
+
     dispatch({
       type: ACTIONS.SUPPORT_TRANSACTION_STARTED
     });
@@ -4242,7 +4253,7 @@ function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
     _lbry2.default.wallet_send({
       claim_id: claimId,
       amount: amount
-    }).then(successCallback, errorCallback);
+    }).then(success, errorCallback);
   };
 }
 

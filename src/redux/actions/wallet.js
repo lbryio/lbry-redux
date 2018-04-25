@@ -1,15 +1,13 @@
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import { doNotify } from 'redux/actions/notifications';
-import {
-  selectBalance,
-  selectDraftTransaction,
-  selectDraftTransactionAmount,
-} from 'redux/selectors/wallet';
+import { selectBalance } from 'redux/selectors/wallet';
 
 export function doUpdateBalance() {
   return (dispatch, getState) => {
-    const { wallet: { balance: balanceInStore } } = getState();
+    const {
+      wallet: { balance: balanceInStore },
+    } = getState();
     Lbry.wallet_balance().then(balance => {
       if (balanceInStore !== balance) {
         dispatch({
@@ -90,12 +88,10 @@ export function doCheckAddressIsMine(address) {
   };
 }
 
-export function doSendDraftTransaction() {
+export function doSendDraftTransaction(address, amount) {
   return (dispatch, getState) => {
     const state = getState();
-    const draftTx = selectDraftTransaction(state);
     const balance = selectBalance(state);
-    const amount = selectDraftTransactionAmount(state);
 
     if (balance - amount <= 0) {
       dispatch(
@@ -138,7 +134,7 @@ export function doSendDraftTransaction() {
             title: 'Transaction failed',
             message: 'Transaction failed',
             type: 'error',
-            displayType: ['modal', 'toast'],
+            displayType: ['snackbar', 'toast'],
           })
         );
       }
@@ -154,14 +150,14 @@ export function doSendDraftTransaction() {
           title: 'Transaction failed',
           message: 'Transaction failed',
           type: 'error',
-          displayType: ['modal', 'toast'],
+          displayType: ['snackbar', 'toast'],
         })
       );
     };
 
     Lbry.wallet_send({
-      amount: draftTx.amount,
-      address: draftTx.address,
+      amount,
+      address,
     }).then(successCallback, errorCallback);
   };
 }
@@ -197,6 +193,21 @@ export function doSendSupport(amount, claimId, uri, successCallback, errorCallba
       return;
     }
 
+    const success = () => {
+      dispatch(
+        doNotify({
+          message: __(`You sent ${amount} LBC as support, Mahalo!`),
+          linkText: __('History'),
+          linkTarget: __('/wallet'),
+          displayType: ['snackbar'],
+        })
+      );
+
+      if (successCallback) {
+        successCallback();
+      }
+    };
+
     dispatch({
       type: ACTIONS.SUPPORT_TRANSACTION_STARTED,
     });
@@ -204,6 +215,6 @@ export function doSendSupport(amount, claimId, uri, successCallback, errorCallba
     Lbry.wallet_send({
       claim_id: claimId,
       amount,
-    }).then(successCallback, errorCallback);
+    }).then(success, errorCallback);
   };
 }
