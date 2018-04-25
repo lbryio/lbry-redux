@@ -4567,9 +4567,9 @@ promise-inflight@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/promise-inflight/-/promise-inflight-1.0.1.tgz#98472870bf228132fcbdd868129bad12c3c029e3"
 
-proxy-polyfill@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/proxy-polyfill/-/proxy-polyfill-0.2.0.tgz#3c9d2a0fe7682c3903674e304f5d27797b711446"
+proxy-polyfill@0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/proxy-polyfill/-/proxy-polyfill-0.1.6.tgz#ef41ec6c66f534db15db36c54493a62d184b364e"
 
 prr@~1.0.1:
   version "1.0.1"
