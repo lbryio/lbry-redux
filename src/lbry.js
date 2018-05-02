@@ -49,40 +49,33 @@ function apiCall(method: string, params: ?{}, resolve: Function, reject: Functio
     .catch(reject);
 }
 
-// core
-Lbry.status = (params = {}) =>
+const daemonCallWithResult = (name, params = {}) =>
   new Promise((resolve, reject) => {
     apiCall(
-      'status',
+      name,
       params,
-      status => {
-        resolve(status);
+      result => {
+        resolve(result);
       },
       reject
     );
   });
 
-Lbry.version = () =>
-  new Promise((resolve, reject) => {
-    apiCall(
-      'version',
-      {},
-      versionInfo => {
-        resolve(versionInfo);
-      },
-      reject
-    );
-  });
+// core
+Lbry.status = (params = {}) => daemonCallWithResult('status', params);
+Lbry.version = () => daemonCallWithResult('version', {});
+Lbry.file_delete = (params = {}) => daemonCallWithResult('file_delete', params);
+Lbry.file_set_status = (params = {}) => daemonCallWithResult('file_set_status', params);
 
-Lbry.file_delete = (params = {}) =>
-  new Promise((resolve, reject) => {
-    apiCall('file_delete', params, resolve, reject);
-  });
-
-Lbry.file_set_status = (params = {}) =>
-  new Promise((resolve, reject) => {
-    apiCall('file_set_status', params, resolve, reject);
-  });
+// wallet
+Lbry.wallet_balance = (params = {}) => daemonCallWithResult('wallet_balance', params);
+Lbry.wallet_is_address_mine = (params = {}) =>
+  daemonCallWithResult('wallet_is_address_mine', params);
+Lbry.wallet_new_address = (params = {}) => daemonCallWithResult('wallet_new_address', params);
+Lbry.wallet_send = (params = {}) => daemonCallWithResult('wallet_send', params);
+Lbry.wallet_encrypt = (params = {}) => daemonCallWithResult('wallet_encrypt', params);
+Lbry.wallet_decrypt = () => daemonCallWithResult('wallet_decrypt', {});
+Lbry.wallet_unlock = (params = {}) => daemonCallWithResult('wallet_unlock', params);
 
 Lbry.connectPromise = null;
 Lbry.connect = () => {
@@ -117,12 +110,16 @@ Lbry.getMediaType = (contentType, fileName) => {
     const formats = [
       [/^.+\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
       [/^.+\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
-      [/^.+\.(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document']];
-    const res = formats.reduce(function extensionMatch(ret, testpair) {
+      [/^.+\.(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'],
+    ];
+    const res = formats.reduce((ret, testpair) => {
       switch (testpair[0].test(ret)) {
-        case true:  return testpair[1];
-        default:    return ret; }
-      }, fileName);
+        case true:
+          return testpair[1];
+        default:
+          return ret;
+      }
+    }, fileName);
     return res === fileName ? 'unknown' : res;
   }
   return 'unknown';
