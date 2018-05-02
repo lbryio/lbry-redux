@@ -77,6 +77,9 @@ Lbry.wallet_encrypt = (params = {}) => daemonCallWithResult('wallet_encrypt', pa
 Lbry.wallet_decrypt = () => daemonCallWithResult('wallet_decrypt', {});
 Lbry.wallet_unlock = (params = {}) => daemonCallWithResult('wallet_unlock', params);
 
+// transactions
+Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
+
 Lbry.connectPromise = null;
 Lbry.connect = () => {
   if (Lbry.connectPromise === null) {

@@ -1863,6 +1863,12 @@ Lbry.wallet_unlock = function () {
   return daemonCallWithResult('wallet_unlock', params);
 };
 
+// transactions
+Lbry.transaction_list = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('transaction_list', params);
+};
+
 Lbry.connectPromise = null;
 Lbry.connect = function () {
   if (Lbry.connectPromise === null) {
@@ -1893,12 +1899,13 @@ Lbry.getMediaType = function (contentType, fileName) {
     );
   } else if (fileName) {
     var formats = [[/^.+\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^.+\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^.+\.(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document']];
-    var res = formats.reduce(function extensionMatch(ret, testpair) {
+    var res = formats.reduce(function (ret, testpair) {
       switch (testpair[0].test(ret)) {
         case true:
           return testpair[1];
         default:
-          return ret;}
+          return ret;
+      }
     }, fileName);
     return res === fileName ? 'unknown' : res;
   }
