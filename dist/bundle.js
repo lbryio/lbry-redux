@@ -1808,36 +1808,65 @@ function apiCall(method /*: string*/, params /*: ?{}*/, resolve /*: Function*/, 
   }).catch(reject);
 }
 
+var daemonCallWithResult = function daemonCallWithResult(name) {
+  var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  return new Promise(function (resolve, reject) {
+    apiCall(name, params, function (result) {
+      resolve(result);
+    }, reject);
+  });
+};
+
 // core
 Lbry.status = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return new Promise(function (resolve, reject) {
-    apiCall('status', params, function (status) {
-      resolve(status);
-    }, reject);
-  });
+  return daemonCallWithResult('status', params);
 };
-
 Lbry.version = function () {
-  return new Promise(function (resolve, reject) {
-    apiCall('version', {}, function (versionInfo) {
-      resolve(versionInfo);
-    }, reject);
-  });
+  return daemonCallWithResult('version', {});
 };
-
 Lbry.file_delete = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return new Promise(function (resolve, reject) {
-    apiCall('file_delete', params, resolve, reject);
-  });
+  return daemonCallWithResult('file_delete', params);
 };
-
 Lbry.file_set_status = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return new Promise(function (resolve, reject) {
-    apiCall('file_set_status', params, resolve, reject);
-  });
+  return daemonCallWithResult('file_set_status', params);
+};
+
+// wallet
+Lbry.wallet_balance = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('wallet_balance', params);
+};
+Lbry.wallet_is_address_mine = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('wallet_is_address_mine', params);
+};
+Lbry.wallet_new_address = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('wallet_new_address', params);
+};
+Lbry.wallet_send = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('wallet_send', params);
+};
+Lbry.wallet_encrypt = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('wallet_encrypt', params);
+};
+Lbry.wallet_decrypt = function () {
+  return daemonCallWithResult('wallet_decrypt', {});
+};
+Lbry.wallet_unlock = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('wallet_unlock', params);
+};
+
+// transactions
+Lbry.transaction_list = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('transaction_list', params);
 };
 
 Lbry.connectPromise = null;
@@ -1869,20 +1898,16 @@ Lbry.getMediaType = function (contentType, fileName) {
     return (/^[^/]+/.exec(contentType)[0]
     );
   } else if (fileName) {
-    var dotIndex = fileName.lastIndexOf('.');
-    if (dotIndex === -1) {
-      return 'unknown';
-    }
-
-    var ext = fileName.substr(dotIndex + 1);
-    if (/^mp4|m4v|webm|flv|f4v|ogv$/i.test(ext)) {
-      return 'video';
-    } else if (/^mp3|m4a|aac|wav|flac|ogg|opus$/i.test(ext)) {
-      return 'audio';
-    } else if (/^html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org$/i.test(ext)) {
-      return 'document';
-    }
-    return 'unknown';
+    var formats = [[/^.+\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^.+\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^.+\.(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document']];
+    var res = formats.reduce(function (ret, testpair) {
+      switch (testpair[0].test(ret)) {
+        case true:
+          return testpair[1];
+        default:
+          return ret;
+      }
+    }, fileName);
+    return res === fileName ? 'unknown' : res;
   }
   return 'unknown';
 };
