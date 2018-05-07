@@ -15,7 +15,7 @@ npm link lbry-redux
 ````
 
 ### Build
-Run `$ npm build`.
+Run `$ yarn build`. If the symlink does not work, just build the file and move the `bundle.js` file in to the `node_modules/` folder.
 
 ## License
 
