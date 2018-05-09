@@ -203,6 +203,10 @@ export function doSendSupport(amount, claimId, uri, successCallback, errorCallba
         })
       );
 
+      dispatch({
+        type: ACTIONS.SUPPORT_TRANSACTION_COMPLETED,
+      });
+
       if (successCallback) {
         successCallback();
       }
