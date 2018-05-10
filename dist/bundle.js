@@ -5132,6 +5132,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var CONFIRM_FILE_REMOVE = exports.CONFIRM_FILE_REMOVE = 'confirm_file_remove';
+var CONFIRM_EXTERNAL_LINK = exports.CONFIRM_EXTERNAL_LINK = 'confirm_external_link';
 var INCOMPATIBLE_DAEMON = exports.INCOMPATIBLE_DAEMON = 'incompatible_daemon';
 var FILE_TIMEOUT = exports.FILE_TIMEOUT = 'file_timeout';
 var DOWNLOADING = exports.DOWNLOADING = 'downloading';
