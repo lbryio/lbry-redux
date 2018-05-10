@@ -15,5 +15,4 @@ export type Notification = {
 // Used for retreiving data from redux store
 export type NotificationProps = {
   uri: ?string,
-  url: ?string,
 };
