@@ -4271,6 +4271,10 @@ function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
         displayType: ['snackbar']
       }));
 
+      dispatch({
+        type: ACTIONS.SUPPORT_TRANSACTION_COMPLETED
+      });
+
       if (successCallback) {
         successCallback();
       }
