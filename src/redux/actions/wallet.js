@@ -212,6 +212,26 @@ export function doSendSupport(amount, claimId, uri, successCallback, errorCallba
       }
     };
 
+    const error = err => {
+      dispatch(
+        doNotify({
+          message: __(`There was an error sending support funds.`),
+          displayType: ['snackbar'],
+        })
+      );
+
+      dispatch({
+        type: ACTIONS.SUPPORT_TRANSACTION_FAILED,
+        data: {
+          error: err,
+        },
+      });
+
+      if (errorCallback) {
+        errorCallback();
+      }
+    };
+
     dispatch({
       type: ACTIONS.SUPPORT_TRANSACTION_STARTED,
     });
@@ -219,6 +239,6 @@ export function doSendSupport(amount, claimId, uri, successCallback, errorCallba
     Lbry.wallet_send({
       claim_id: claimId,
       amount,
-    }).then(success, errorCallback);
+    }).then(success, error);
   };
 }
