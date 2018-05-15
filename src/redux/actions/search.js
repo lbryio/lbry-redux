@@ -172,3 +172,13 @@ export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boole
     dispatch(getSearchSuggestions(query));
   }
 };
+
+export const doFocusSearchInput = () => dispatch =>
+  dispatch({
+    type: ACTIONS.SEARCH_FOCUS,
+  });
+
+export const doBlurSearchInput = () => dispatch =>
+  dispatch({
+    type: ACTIONS.SEARCH_BLUR,
+  });

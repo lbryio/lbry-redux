@@ -35,3 +35,5 @@ export const selectWunderBarAddress = createSelector(
     return query;
   }
 );
+
+export const selectSearchBarFocused = createSelector(selectState, state => state.focused);

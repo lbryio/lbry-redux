@@ -44,7 +44,12 @@ export {
   doFetchFileInfosAndPublishedClaims,
 } from 'redux/actions/file_info';
 
-export { doSearch, doUpdateSearchQuery } from 'redux/actions/search';
+export {
+  doSearch,
+  doUpdateSearchQuery,
+  doFocusSearchInput,
+  doBlurSearchInput,
+} from 'redux/actions/search';
 
 export { doBlackListedOutpointsSubscribe } from 'redux/actions/blacklist';
 
@@ -166,6 +171,7 @@ export {
   selectIsSearching,
   selectSearchUrisByQuery,
   selectWunderBarAddress,
+  selectSearchBarFocused,
 } from 'redux/selectors/search';
 
 export {
