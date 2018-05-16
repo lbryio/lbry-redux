@@ -4587,11 +4587,11 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.FETCH_CHANNEL_LIST_MINE_STARTED] = function (state) {
+reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = function (state) {
   return Object.assign({}, state, { fetchingMyChannels: true });
 };
 
-reducers[ACTIONS.FETCH_CHANNEL_LIST_MINE_COMPLETED] = function (state, action) {
+reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = function (state, action) {
   var claims = action.data.claims;
 
   var myChannelClaims = new Set(state.myChannelClaims);
