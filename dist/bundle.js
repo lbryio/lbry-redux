@@ -3840,16 +3840,34 @@ var getSearchSuggestions = exports.getSearchSuggestions = function getSearchSugg
     }
 
     fetch('https://lighthouse.lbry.io/autocomplete?s=' + searchValue).then(_handleFetch2.default).then(function (apiSuggestions) {
+      // Suggestion could be a channel, uri, or search term
       var formattedSuggestions = apiSuggestions.slice(0, 6).map(function (suggestion) {
-        // This will need to be more robust when the api starts returning lbry uris
-        var isChannel = suggestion.startsWith('@');
-        var suggestionObj = {
-          value: isChannel ? 'lbry://' + suggestion : suggestion,
-          shorthand: isChannel ? suggestion.slice(1) : '',
-          type: isChannel ? 'channel' : 'search'
-        };
+        if (suggestion.includes(' ')) {
+          return {
+            value: suggestion,
+            type: SEARCH_TYPES.SEARCH
+          };
+        }
 
-        return suggestionObj;
+        try {
+          var _uri = (0, _lbryURI.normalizeURI)(suggestion);
+
+          var _parseURI2 = (0, _lbryURI.parseURI)(_uri),
+              _claimName = _parseURI2.claimName,
+              _isChannel = _parseURI2.isChannel;
+
+          return {
+            value: _uri,
+            shorthand: _isChannel ? _claimName.slice(1) : _claimName,
+            type: _isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE
+          };
+        } catch (e) {
+          // search result includes some character that isn't valid in claim names
+          return {
+            value: suggestion,
+            type: SEARCH_TYPES.SEARCH
+          };
+        }
       });
 
       suggestions = suggestions.concat(formattedSuggestions);
