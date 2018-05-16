@@ -38,7 +38,8 @@ type SearchState = {
 };
 
 const defaultState = {
-  isActive: false,
+  isActive: false, // does the user have any typed text in the search input
+  focused: false, // is the search input focused
   searchQuery: '', // needs to be an empty string for input focusing
   suggestions: [],
   urisByQuery: {},
@@ -97,6 +98,15 @@ export const searchReducer = handleActions(
     [ACTIONS.DISMISS_NOTIFICATION]: (state: SearchState): SearchState => ({
       ...state,
       isActive: false,
+    }),
+
+    [ACTIONS.SEARCH_FOCUS]: (state: SearchState): SearchState => ({
+      ...state,
+      focused: true,
+    }),
+    [ACTIONS.SEARCH_BLUR]: (state: SearchState): SearchState => ({
+      ...state,
+      focused: false,
     }),
   },
   defaultState
