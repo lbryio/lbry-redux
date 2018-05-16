@@ -137,16 +137,31 @@ export const getSearchSuggestions = (value: string) => dispatch => {
   fetch(`https://lighthouse.lbry.io/autocomplete?s=${searchValue}`)
     .then(handleFetchResponse)
     .then(apiSuggestions => {
+      // Suggestion could be a channel, uri, or search term
       const formattedSuggestions = apiSuggestions.slice(0, 6).map(suggestion => {
-        // This will need to be more robust when the api starts returning lbry uris
-        const isChannel = suggestion.startsWith('@');
-        const suggestionObj = {
-          value: isChannel ? `lbry://${suggestion}` : suggestion,
-          shorthand: isChannel ? suggestion.slice(1) : '',
-          type: isChannel ? 'channel' : 'search',
-        };
+        if (suggestion.includes(' ')) {
+          return {
+            value: suggestion,
+            type: SEARCH_TYPES.SEARCH,
+          };
+        }
 
-        return suggestionObj;
+        try {
+          const uri = normalizeURI(suggestion);
+          const { claimName, isChannel } = parseURI(uri);
+
+          return {
+            value: uri,
+            shorthand: isChannel ? claimName.slice(1) : claimName,
+            type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE,
+          };
+        } catch (e) {
+          // search result includes some character that isn't valid in claim names
+          return {
+            value: suggestion,
+            type: SEARCH_TYPES.SEARCH,
+          };
+        }
       });
 
       suggestions = suggestions.concat(formattedSuggestions);
