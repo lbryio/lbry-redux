@@ -145,7 +145,7 @@ export function parseURI(URI, requireProto = false) {
  *
  * The channelName key will accept names with or without the @ prefix.
  */
-export function buildURI(URIObj, includeProto = true) {
+export function buildURI(URIObj, includeProto = true, protoDefault = 'lbry://') {
   const { claimId, claimSequence, bidPosition, contentName, channelName } = URIObj;
 
   let { claimName, path } = URIObj;
@@ -179,7 +179,7 @@ export function buildURI(URIObj, includeProto = true) {
   }
 
   return (
-    (includeProto ? 'lbry://' : '') +
+    (includeProto ? protoDefault : '') +
     claimName +
     (claimId ? `#${claimId}` : '') +
     (claimSequence ? `:${claimSequence}` : '') +
@@ -226,5 +226,16 @@ export function isURIClaimable(URI) {
     !parts.claimSequence &&
     !parts.isChannel &&
     !parts.path
+  );
+}
+
+export function convertToShareLink(URI) {
+  if (URI.match(/pending_claim/)) return URI;
+
+  const { claimName, path, bidPosition, claimSequence, claimId } = parseURI(URI);
+  return buildURI(
+    { claimName, path, claimSequence, bidPosition, claimId },
+    true,
+    'https://open.lbry.io/'
   );
 }
