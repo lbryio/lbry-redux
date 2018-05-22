@@ -59,10 +59,10 @@ export const selectNavLinks = createSelector(
       page === 'getcredits' ||
       page === 'rewards' ||
       page === 'history' ||
-      page === 'invite';
+      page === 'invite' ||
+      page === 'backup';
 
-    const isMyLbryPage = page =>
-      page === 'downloaded' || page === 'published' || page === 'settings';
+    const isMyLbryPage = page => page === 'downloaded' || page === 'published';
 
     const previousStack = historyStack.slice().reverse();
 
@@ -108,6 +108,11 @@ export const selectNavLinks = createSelector(
         active: currentPage === 'send',
       },
       {
+        label: 'Transactions',
+        path: '/history',
+        active: currentPage === 'history',
+      },
+      {
         label: 'Get Credits',
         path: '/getcredits',
         active: currentPage === 'getcredits',
@@ -123,9 +128,9 @@ export const selectNavLinks = createSelector(
         active: currentPage === 'invite',
       },
       {
-        label: 'Transactions',
-        path: '/history',
-        active: currentPage === 'history',
+        label: 'Backup',
+        path: '/backup',
+        active: currentPage === 'backup',
       },
     ];
 
@@ -139,16 +144,6 @@ export const selectNavLinks = createSelector(
         label: 'Publishes',
         path: '/published',
         active: currentPage === 'published',
-      },
-      {
-        label: 'Settings',
-        path: '/settings',
-        active: currentPage === 'settings',
-      },
-      {
-        label: 'Backup',
-        path: '/backup',
-        active: currentPage === 'backup',
       },
     ];
 
@@ -177,7 +172,7 @@ export const selectNavLinks = createSelector(
         },
         {
           label: 'My LBRY',
-          icon: 'Settings',
+          icon: 'Folder',
           subLinks: myLbrySubLinks,
           path: isCurrentlyMyLbryPage ? '/downloaded' : getActiveSublink('myLbry'),
           active: isMyLbryPage(currentPage),
@@ -189,10 +184,16 @@ export const selectNavLinks = createSelector(
           active: currentPage === 'publish',
         },
         {
+          label: 'Settings',
+          icon: 'Settings',
+          path: '/settings',
+          active: currentPage === 'settings',
+        },
+        {
           label: 'Help',
           path: '/help',
-          active: currentPage === 'help',
           icon: 'HelpCircle',
+          active: currentPage === 'help',
         },
       ],
     };
