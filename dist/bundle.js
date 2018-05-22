@@ -3014,11 +3014,11 @@ var selectPageTitle = exports.selectPageTitle = (0, _reselect.createSelector)(se
 
 var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(selectCurrentPage, selectHistoryStack, function (currentPage, historyStack) {
   var isWalletPage = function isWalletPage(page) {
-    return page === 'wallet' || page === 'send' || page === 'getcredits' || page === 'rewards' || page === 'history' || page === 'invite';
+    return page === 'wallet' || page === 'send' || page === 'getcredits' || page === 'rewards' || page === 'history' || page === 'invite' || page === 'backup';
   };
 
   var isMyLbryPage = function isMyLbryPage(page) {
-    return page === 'downloaded' || page === 'published' || page === 'settings';
+    return page === 'downloaded' || page === 'published';
   };
 
   var previousStack = historyStack.slice().reverse();
@@ -3062,6 +3062,10 @@ var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(sele
     path: '/send',
     active: currentPage === 'send'
   }, {
+    label: 'Transactions',
+    path: '/history',
+    active: currentPage === 'history'
+  }, {
     label: 'Get Credits',
     path: '/getcredits',
     active: currentPage === 'getcredits'
@@ -3074,9 +3078,9 @@ var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(sele
     path: '/invite',
     active: currentPage === 'invite'
   }, {
-    label: 'Transactions',
-    path: '/history',
-    active: currentPage === 'history'
+    label: 'Backup',
+    path: '/backup',
+    active: currentPage === 'backup'
   }];
 
   var myLbrySubLinks = [{
@@ -3087,14 +3091,6 @@ var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(sele
     label: 'Publishes',
     path: '/published',
     active: currentPage === 'published'
-  }, {
-    label: 'Settings',
-    path: '/settings',
-    active: currentPage === 'settings'
-  }, {
-    label: 'Backup',
-    path: '/backup',
-    active: currentPage === 'backup'
   }];
 
   var navLinks = {
@@ -3117,7 +3113,7 @@ var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(sele
       active: isWalletPage(currentPage)
     }, {
       label: 'My LBRY',
-      icon: 'Settings',
+      icon: 'Folder',
       subLinks: myLbrySubLinks,
       path: isCurrentlyMyLbryPage ? '/downloaded' : getActiveSublink('myLbry'),
       active: isMyLbryPage(currentPage)
@@ -3127,10 +3123,15 @@ var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(sele
       path: '/publish',
       active: currentPage === 'publish'
     }, {
+      label: 'Settings',
+      icon: 'Settings',
+      path: '/settings',
+      active: currentPage === 'settings'
+    }, {
       label: 'Help',
       path: '/help',
-      active: currentPage === 'help',
-      icon: 'HelpCircle'
+      icon: 'HelpCircle',
+      active: currentPage === 'help'
     }]
   };
 
