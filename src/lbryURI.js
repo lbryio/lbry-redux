@@ -230,12 +230,5 @@ export function isURIClaimable(URI) {
 }
 
 export function convertToShareLink(URI) {
-  if (URI.match(/pending_claim/)) return URI;
-
-  const { claimName, path, bidPosition, claimSequence, claimId } = parseURI(URI);
-  return buildURI(
-    { claimName, path, claimSequence, bidPosition, claimId },
-    true,
-    'https://open.lbry.io/'
-  );
+  return buildURI(parseURI(URI), true, 'https://open.lbry.io/');
 }
