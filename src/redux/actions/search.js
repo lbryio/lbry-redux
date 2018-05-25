@@ -107,12 +107,6 @@ export const getSearchSuggestions = (value: string) => dispatch => {
         type: SEARCH_TYPES.SEARCH,
       }
     );
-
-    // If it's a valid url, don't fetch any extra search results
-    dispatch({
-      type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
-      data: { suggestions },
-    });
   } catch (e) {
     suggestions.push({
       value: query,
@@ -138,31 +132,34 @@ export const getSearchSuggestions = (value: string) => dispatch => {
     .then(handleFetchResponse)
     .then(apiSuggestions => {
       // Suggestion could be a channel, uri, or search term
-      const formattedSuggestions = apiSuggestions.slice(0, 6).map(suggestion => {
-        if (suggestion.includes(' ')) {
-          return {
-            value: suggestion,
-            type: SEARCH_TYPES.SEARCH,
-          };
-        }
+      const formattedSuggestions = apiSuggestions
+        .slice(0, 6)
+        .filter(suggestion => suggestion !== query)
+        .map(suggestion => {
+          if (suggestion.includes(' ')) {
+            return {
+              value: suggestion,
+              type: SEARCH_TYPES.SEARCH,
+            };
+          }
 
-        try {
-          const uri = normalizeURI(suggestion);
-          const { claimName, isChannel } = parseURI(uri);
+          try {
+            const uri = normalizeURI(suggestion);
+            const { claimName, isChannel } = parseURI(uri);
 
-          return {
-            value: uri,
-            shorthand: isChannel ? claimName.slice(1) : claimName,
-            type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE,
-          };
-        } catch (e) {
-          // search result includes some character that isn't valid in claim names
-          return {
-            value: suggestion,
-            type: SEARCH_TYPES.SEARCH,
-          };
-        }
-      });
+            return {
+              value: uri,
+              shorthand: isChannel ? claimName.slice(1) : claimName,
+              type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE,
+            };
+          } catch (e) {
+            // search result includes some character that isn't valid in claim names
+            return {
+              value: suggestion,
+              type: SEARCH_TYPES.SEARCH,
+            };
+          }
+        });
 
       suggestions = suggestions.concat(formattedSuggestions);
       dispatch({
