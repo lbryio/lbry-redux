@@ -70,6 +70,16 @@ export const selectAllFetchingChannelClaims = createSelector(
 export const makeSelectFetchingChannelClaims = uri =>
   createSelector(selectAllFetchingChannelClaims, fetching => fetching && fetching[uri]);
 
+export const makeSelectClaimsInChannelForPage = (uri, page) =>
+  createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
+    const byChannel = allClaims[uri] || {};
+    const claimIds = byChannel[page || 1];
+
+    if (!claimIds) return claimIds;
+
+    return claimIds.map(claimId => byId[claimId]);
+  });
+
 export const makeSelectClaimsInChannelForCurrentPage = uri => {
   const pageSelector = makeSelectCurrentParam('page');
 

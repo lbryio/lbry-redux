@@ -67,6 +67,9 @@ Lbry.version = () => daemonCallWithResult('version', {});
 Lbry.file_delete = (params = {}) => daemonCallWithResult('file_delete', params);
 Lbry.file_set_status = (params = {}) => daemonCallWithResult('file_set_status', params);
 
+// claims
+Lbry.claim_list_by_channel = (params = {}) => daemonCallWithResult('claim_list_by_channel', params);
+
 // wallet
 Lbry.wallet_balance = (params = {}) => daemonCallWithResult('wallet_balance', params);
 Lbry.wallet_is_address_mine = (params = {}) =>

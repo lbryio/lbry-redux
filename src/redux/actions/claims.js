@@ -186,3 +186,48 @@ export function doFetchRewardedContent() {
     Lbryapi.call('reward', 'list_featured').then(success, failure);
   };
 }
+
+export function doFetchClaimsByChannel(uri, page) {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED,
+      data: { uri, page },
+    });
+
+    Lbry.claim_list_by_channel({ uri, page: page || 1 }).then(result => {
+      const claimResult = result[uri] || {};
+      const { claims_in_channel: claimsInChannel, returned_page: returnedPage } = claimResult;
+
+      dispatch({
+        type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
+        data: {
+          uri,
+          claims: claimsInChannel || [],
+          page: returnedPage || undefined,
+        },
+      });
+    });
+  };
+}
+
+export function doFetchClaimCountByChannel(uri) {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_STARTED,
+      data: { uri },
+    });
+
+    Lbry.claim_list_by_channel({ uri }).then(result => {
+      const claimResult = result[uri];
+      const totalClaims = claimResult ? claimResult.claims_in_channel : 0;
+
+      dispatch({
+        type: ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED,
+        data: {
+          uri,
+          totalClaims,
+        },
+      });
+    });
+  };
+}
