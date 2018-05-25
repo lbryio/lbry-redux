@@ -4636,7 +4636,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = function (state, action) {
   var pendingById = Object.assign({}, state.pendingById);
 
   claims.filter(function (claim) {
-    return claim.category && claim.category.match(/claim/);
+    return claim.category && (claim.category.match(/claim/) || claim.category.match(/update/));
   }).forEach(function (claim) {
     byId[claim.claim_id] = claim;
 
