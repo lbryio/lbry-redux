@@ -28,6 +28,8 @@ export {
 export { doNotify, doHideNotification } from 'redux/actions/notifications';
 
 export {
+  doFetchClaimsByChannel,
+  doFetchClaimCountByChannel,
   doFetchClaimListMine,
   doAbandonClaim,
   doResolveUris,
@@ -94,6 +96,7 @@ export {
   makeSelectClaimIsMine,
   makeSelectFetchingChannelClaims,
   makeSelectClaimsInChannelForCurrentPage,
+  makeSelectClaimsInChannelForPage,
   makeSelectMetadataForUri,
   makeSelectTitleForUri,
   makeSelectContentTypeForUri,
