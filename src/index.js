@@ -1,6 +1,7 @@
 import * as ACTIONS from 'constants/action_types';
-import * as SETTINGS from 'constants/settings';
 import * as MODALS from 'constants/modal_types';
+import * as SEARCH_TYPES from 'constants/search';
+import * as SETTINGS from 'constants/settings';
 import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
 import { selectState as selectSearchState } from 'redux/selectors/search';
@@ -9,7 +10,7 @@ import { selectState as selectSearchState } from 'redux/selectors/search';
 export { Notification } from 'types/Notification';
 
 // constants
-export { ACTIONS, SETTINGS, MODALS };
+export { ACTIONS, MODALS, SEARCH_TYPES, SETTINGS };
 
 // common
 export { Lbry, Lbryapi };
