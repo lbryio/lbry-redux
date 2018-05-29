@@ -3924,12 +3924,6 @@ var getSearchSuggestions = exports.getSearchSuggestions = function getSearchSugg
         value: claimName,
         type: SEARCH_TYPES.SEARCH
       });
-
-      // If it's a valid url, don't fetch any extra search results
-      dispatch({
-        type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
-        data: { suggestions: suggestions }
-      });
     } catch (e) {
       suggestions.push({
         value: query,
@@ -3953,7 +3947,9 @@ var getSearchSuggestions = exports.getSearchSuggestions = function getSearchSugg
 
     fetch('https://lighthouse.lbry.io/autocomplete?s=' + searchValue).then(_handleFetch2.default).then(function (apiSuggestions) {
       // Suggestion could be a channel, uri, or search term
-      var formattedSuggestions = apiSuggestions.slice(0, 6).map(function (suggestion) {
+      var formattedSuggestions = apiSuggestions.slice(0, 6).filter(function (suggestion) {
+        return suggestion !== query;
+      }).map(function (suggestion) {
         if (suggestion.includes(' ')) {
           return {
             value: suggestion,
