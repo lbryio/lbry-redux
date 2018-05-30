@@ -2,7 +2,7 @@
 import * as ACTIONS from 'constants/action_types';
 import Notification from 'types/Notification';
 
-export function doNotify(notification: Notification, notificationProps) {
+export function doNotify(notification: Notification, notificationProps: NotificationProps) {
   return {
     type: ACTIONS.CREATE_NOTIFICATION,
     data: {
