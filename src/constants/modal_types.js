@@ -21,3 +21,4 @@ export const FIRST_SUBSCRIPTION = 'firstSubscription';
 export const SEND_TIP = 'send_tip';
 export const PUBLISH = 'publish';
 export const SEARCH = 'search';
+export const CONFIRM_TRANSACTION = 'confirm_transaction';

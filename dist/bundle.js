@@ -5233,7 +5233,9 @@ reducers[ACTIONS.CREATE_NOTIFICATION] = function (state, action) {
       id = notification.id;
   var uri = notificationProps.uri,
       nout = notificationProps.nout,
-      txid = notificationProps.txid;
+      txid = notificationProps.txid,
+      amount = notificationProps.amount,
+      address = notificationProps.address;
 
 
   var queue = Object.assign([], state.queue);
@@ -5249,7 +5251,9 @@ reducers[ACTIONS.CREATE_NOTIFICATION] = function (state, action) {
     notificationProps: {
       uri: uri,
       txid: txid,
-      nout: nout
+      nout: nout,
+      amount: amount,
+      address: address
     }
   });
 
@@ -5318,6 +5322,7 @@ var FIRST_SUBSCRIPTION = exports.FIRST_SUBSCRIPTION = 'firstSubscription';
 var SEND_TIP = exports.SEND_TIP = 'send_tip';
 var PUBLISH = exports.PUBLISH = 'publish';
 var SEARCH = exports.SEARCH = 'search';
+var CONFIRM_TRANSACTION = exports.CONFIRM_TRANSACTION = 'confirm_transaction';
 
 /***/ }),
 /* 35 */
