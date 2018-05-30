@@ -5420,7 +5420,6 @@ var searchReducer = exports.searchReducer = (0, _reduxUtils.handleActions)((_han
   });
 }), _defineProperty(_handleActions, ACTIONS.HISTORY_NAVIGATE, function (state /*: SearchState*/) /*: SearchState*/ {
   return _extends({}, state, {
-    searchQuery: '',
     suggestions: [],
     isActive: false
   });
