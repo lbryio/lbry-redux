@@ -23,6 +23,7 @@ export {
   isURIValid,
   isURIClaimable,
   isNameValid,
+  convertToShareLink,
 } from 'lbryURI';
 
 // actions
