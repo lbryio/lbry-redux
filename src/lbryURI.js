@@ -230,5 +230,6 @@ export function isURIClaimable(URI) {
 }
 
 export function convertToShareLink(URI) {
-  return buildURI(parseURI(URI), true, 'https://open.lbry.io/');
+  const { claimName, path, bidPosition, claimSequence, claimId } = parseURI(URI);
+  return buildURI({ claimName, path, claimSequence, bidPosition, claimId }, true, 'https://open.lbry.io/');
 }
