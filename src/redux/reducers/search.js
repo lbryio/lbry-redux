@@ -88,6 +88,7 @@ export const searchReducer = handleActions(
     // if going home, it should be blank
     [ACTIONS.HISTORY_NAVIGATE]: (state: SearchState): SearchState => ({
       ...state,
+      searchQuery: '',
       suggestions: [],
       isActive: false,
     }),
