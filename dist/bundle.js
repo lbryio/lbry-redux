@@ -1319,7 +1319,14 @@ function isURIClaimable(URI) {
 }
 
 function convertToShareLink(URI) {
-  return buildURI(parseURI(URI), true, 'https://open.lbry.io/');
+  var _parseURI2 = parseURI(URI),
+      claimName = _parseURI2.claimName,
+      path = _parseURI2.path,
+      bidPosition = _parseURI2.bidPosition,
+      claimSequence = _parseURI2.claimSequence,
+      claimId = _parseURI2.claimId;
+
+  return buildURI({ claimName: claimName, path: path, claimSequence: claimSequence, bidPosition: bidPosition, claimId: claimId }, true, 'https://open.lbry.io/');
 }
 
 /***/ }),
