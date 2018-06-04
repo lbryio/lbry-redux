@@ -37,6 +37,15 @@ type SearchState = {
   urisByQuery: {},
 };
 
+type HistoryNavigate = {
+  type: ACTIONS.HISTORY_NAVIGATE,
+  data: {
+    url: string,
+    index?: number,
+    scrollY?: number,
+  },
+};
+
 const defaultState = {
   isActive: false, // does the user have any typed text in the search input
   focused: false, // is the search input focused
@@ -83,15 +92,17 @@ export const searchReducer = handleActions(
       suggestions: action.data.suggestions,
     }),
 
-    // clear the searchQuery on back/forward
-    // it may be populated by the page title for search/file pages
-    // if going home, it should be blank
-    [ACTIONS.HISTORY_NAVIGATE]: (state: SearchState): SearchState => ({
-      ...state,
-      searchQuery: '',
-      suggestions: [],
-      isActive: false,
-    }),
+    // clear the searchQuery on back/forward unless to search page
+    [ACTIONS.HISTORY_NAVIGATE]: (state: SearchState, action: HistoryNavigate): SearchState => {
+      const { url } = action.data;
+      return {
+        ...state,
+        searchQuery: url.indexOf('/search') === 0 ? url.slice(14) : '',
+        suggestions: [],
+        isActive: url.indexOf('/search') === 0,
+      };
+    },
+
     // sets isActive to false so the uri will be populated correctly if the
     // user is on a file page. The search query will still be present on any
     // other page
