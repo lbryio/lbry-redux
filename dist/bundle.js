@@ -46,32 +46,17 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -1371,9 +1356,14 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
+var _Notification = __webpack_require__(1);
+
+var _Notification2 = _interopRequireDefault(_Notification);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-/*:: import type {Notification} from 'types/Notification';*/
 function doNotify(notification /*: Notification*/, notificationProps /*: NotificationProps*/) {
   return {
     type: ACTIONS.CREATE_NOTIFICATION,
@@ -2036,7 +2026,7 @@ Lbry.getMediaType = function (contentType, fileName) {
     return (/^[^/]+/.exec(contentType)[0]
     );
   } else if (fileName) {
-    var formats = [[/^.+\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^.+\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^.+\.(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document']];
+    var formats = [[/^.+\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^.+\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^.+\.(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^.+\.(stl|obj|fbx|gcode)$/i, '3D-file']];
     var res = formats.reduce(function (ret, testpair) {
       switch (testpair[0].test(ret)) {
         case true:
@@ -5410,9 +5400,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   data: {
     url: string,
     index?: number,
-    scrollY?: number
-  }
-}*/
+    scrollY?: number,
+  },
+};*/
 
 
 var defaultState = {
