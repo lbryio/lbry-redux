@@ -38,6 +38,7 @@ export {
   doResolveUris,
   doResolveUri,
   doFetchFeaturedUris,
+  doFetchTrendingUris,
   doFetchRewardedContent,
 } from 'redux/actions/claims';
 
@@ -124,6 +125,8 @@ export {
   selectResolvingUris,
   selectFeaturedUris,
   selectFetchingFeaturedUris,
+  selectTrendingUris,
+  selectFetchingTrendingUris,
   selectPlayingUri,
   selectChannelClaimCounts,
   selectRewardContentClaimIds,
