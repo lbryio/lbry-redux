@@ -117,6 +117,7 @@ Lbry.getMediaType = (contentType, fileName) => {
       [/^.+\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
       [/^.+\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
       [/^.+\.(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'],
+      [/^.+\.(stl|obj|fbx|gcode)$/i, '3D-file'],
     ];
     const res = formats.reduce((ret, testpair) => {
       switch (testpair[0].test(ret)) {
