@@ -186,7 +186,7 @@ export function doFetchTrendingUris() {
       dispatch({
         type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
         data: {
-          uris: {},
+          uris: [],
         },
       });
     };
