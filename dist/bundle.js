@@ -5337,6 +5337,7 @@ var SEND_TIP = exports.SEND_TIP = 'send_tip';
 var PUBLISH = exports.PUBLISH = 'publish';
 var SEARCH = exports.SEARCH = 'search';
 var CONFIRM_TRANSACTION = exports.CONFIRM_TRANSACTION = 'confirm_transaction';
+var CONFIRM_THUMBNAIL_UPLOAD = exports.CONFIRM_THUMBNAIL_UPLOAD = 'confirm_thumbnail_upload';
 
 /***/ }),
 /* 35 */
