@@ -161,6 +161,40 @@ export function doFetchFeaturedUris() {
   };
 }
 
+export function doFetchTrendingUris() {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.FETCH_TRENDING_CONTENT_STARTED,
+    });
+
+    const success = data => {
+      const urisToResolve = data.map(uri => uri.url);
+      const actions = [
+        doResolveUris(urisToResolve),
+        {
+          type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
+          data: {
+            uris: data,
+            success: true,
+          },
+        },
+      ];
+      dispatch(batchActions(...actions));
+    };
+
+    const failure = () => {
+      dispatch({
+        type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
+        data: {
+          uris: [],
+        },
+      });
+    };
+
+    Lbryapi.call('file', 'list_trending').then(success, failure);
+  };
+}
+
 export function doFetchRewardedContent() {
   return dispatch => {
     const success = nameToClaimId => {

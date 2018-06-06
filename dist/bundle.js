@@ -89,8 +89,8 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectNavLinks = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = undefined;
-exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectRewardContentClaimIds = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchRewardedContent = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doHideNotification = exports.doNotify = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.SETTINGS = exports.SEARCH_TYPES = exports.STATUSES = exports.MODALS = exports.ACTIONS = exports.Notification = undefined;
+exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectNavLinks = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = undefined;
+exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectRewardContentClaimIds = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchRewardedContent = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doHideNotification = exports.doNotify = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.SETTINGS = exports.SEARCH_TYPES = exports.STATUSES = exports.MODALS = exports.ACTIONS = exports.Notification = undefined;
 
 var _Notification = __webpack_require__(1);
 
@@ -215,6 +215,12 @@ Object.defineProperty(exports, 'doFetchFeaturedUris', {
   enumerable: true,
   get: function get() {
     return _claims.doFetchFeaturedUris;
+  }
+});
+Object.defineProperty(exports, 'doFetchTrendingUris', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doFetchTrendingUris;
   }
 });
 Object.defineProperty(exports, 'doFetchRewardedContent', {
@@ -659,6 +665,18 @@ Object.defineProperty(exports, 'selectFetchingFeaturedUris', {
   enumerable: true,
   get: function get() {
     return _claims3.selectFetchingFeaturedUris;
+  }
+});
+Object.defineProperty(exports, 'selectTrendingUris', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectTrendingUris;
+  }
+});
+Object.defineProperty(exports, 'selectFetchingTrendingUris', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.selectFetchingTrendingUris;
   }
 });
 Object.defineProperty(exports, 'selectPlayingUri', {
@@ -1439,6 +1457,8 @@ var SUPPORT_TRANSACTION_FAILED = exports.SUPPORT_TRANSACTION_FAILED = 'SUPPORT_T
 // Claims
 var FETCH_FEATURED_CONTENT_STARTED = exports.FETCH_FEATURED_CONTENT_STARTED = 'FETCH_FEATURED_CONTENT_STARTED';
 var FETCH_FEATURED_CONTENT_COMPLETED = exports.FETCH_FEATURED_CONTENT_COMPLETED = 'FETCH_FEATURED_CONTENT_COMPLETED';
+var FETCH_TRENDING_CONTENT_STARTED = exports.FETCH_TRENDING_CONTENT_STARTED = 'FETCH_TRENDING_CONTENT_STARTED';
+var FETCH_TRENDING_CONTENT_COMPLETED = exports.FETCH_TRENDING_CONTENT_COMPLETED = 'FETCH_TRENDING_CONTENT_COMPLETED';
 var RESOLVE_URIS_STARTED = exports.RESOLVE_URIS_STARTED = 'RESOLVE_URIS_STARTED';
 var RESOLVE_URIS_COMPLETED = exports.RESOLVE_URIS_COMPLETED = 'RESOLVE_URIS_COMPLETED';
 var FETCH_CHANNEL_CLAIMS_STARTED = exports.FETCH_CHANNEL_CLAIMS_STARTED = 'FETCH_CHANNEL_CLAIMS_STARTED';
@@ -1607,6 +1627,7 @@ exports.doResolveUri = doResolveUri;
 exports.doFetchClaimListMine = doFetchClaimListMine;
 exports.doAbandonClaim = doAbandonClaim;
 exports.doFetchFeaturedUris = doFetchFeaturedUris;
+exports.doFetchTrendingUris = doFetchTrendingUris;
 exports.doFetchRewardedContent = doFetchRewardedContent;
 exports.doFetchClaimsByChannel = doFetchClaimsByChannel;
 exports.doFetchClaimCountByChannel = doFetchClaimCountByChannel;
@@ -1795,6 +1816,39 @@ function doFetchFeaturedUris() {
     };
 
     _lbryapi2.default.call('file', 'list_homepage').then(success, failure);
+  };
+}
+
+function doFetchTrendingUris() {
+  return function (dispatch) {
+    dispatch({
+      type: ACTIONS.FETCH_TRENDING_CONTENT_STARTED
+    });
+
+    var success = function success(data) {
+      var urisToResolve = data.map(function (uri) {
+        return uri.url;
+      });
+      var actions = [doResolveUris(urisToResolve), {
+        type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
+        data: {
+          uris: data,
+          success: true
+        }
+      }];
+      dispatch(_batchActions.batchActions.apply(undefined, actions));
+    };
+
+    var failure = function failure() {
+      dispatch({
+        type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
+        data: {
+          uris: {}
+        }
+      });
+    };
+
+    _lbryapi2.default.call('file', 'list_trending').then(success, failure);
   };
 }
 
@@ -2815,7 +2869,7 @@ var objectKeys = Object.keys || function (obj) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectRewardContentClaimIds = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.makeSelectIsUriResolving = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectClaimsInChannelForPage = exports.makeSelectFetchingChannelClaims = exports.selectAllFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.makeSelectClaimForUri = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = undefined;
+exports.selectRewardContentClaimIds = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.makeSelectIsUriResolving = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectClaimsInChannelForPage = exports.makeSelectFetchingChannelClaims = exports.selectAllFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.makeSelectClaimForUri = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = undefined;
 
 var _lbryURI = __webpack_require__(2);
 
@@ -3021,6 +3075,14 @@ var selectFeaturedUris = exports.selectFeaturedUris = (0, _reselect.createSelect
 
 var selectFetchingFeaturedUris = exports.selectFetchingFeaturedUris = (0, _reselect.createSelector)(selectState, function (state) {
   return state.fetchingFeaturedContent;
+});
+
+var selectTrendingUris = exports.selectTrendingUris = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.trendingUris;
+});
+
+var selectFetchingTrendingUris = exports.selectFetchingTrendingUris = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.fetchingTrendingContent;
 });
 
 var selectPlayingUri = exports.selectPlayingUri = (0, _reselect.createSelector)(selectState, function (state) {
@@ -4912,6 +4974,25 @@ reducers[ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED] = function (state, action) {
   });
 };
 
+reducers[ACTIONS.FETCH_TRENDING_CONTENT_STARTED] = function (state) {
+  return Object.assign({}, state, {
+    fetchingTrendingContent: true
+  });
+};
+
+reducers[ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED] = function (state, action) {
+  var _action$data4 = action.data,
+      uris = _action$data4.uris,
+      success = _action$data4.success;
+
+
+  return Object.assign({}, state, {
+    fetchingTrendingContent: false,
+    fetchingTrendingContentFailed: !success,
+    trendingUris: uris
+  });
+};
+
 reducers[ACTIONS.FETCH_REWARD_CONTENT_COMPLETED] = function (state, action) {
   var claimIds = action.data.claimIds;
 
@@ -4941,9 +5022,9 @@ reducers[ACTIONS.RESOLVE_URIS_STARTED] = function (state, action) {
 
 reducers[ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED] = function (state, action) {
   var channelClaimCounts = Object.assign({}, state.channelClaimCounts);
-  var _action$data4 = action.data,
-      uri = _action$data4.uri,
-      totalClaims = _action$data4.totalClaims;
+  var _action$data5 = action.data,
+      uri = _action$data5.uri,
+      totalClaims = _action$data5.totalClaims;
 
 
   channelClaimCounts[uri] = totalClaims;
