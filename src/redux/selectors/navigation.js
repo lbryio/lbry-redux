@@ -103,7 +103,7 @@ export const selectNavLinks = createSelector(
         active: currentPage === 'wallet',
       },
       {
-        label: 'Send & Recieve',
+        label: 'Send & Receive',
         path: '/send',
         active: currentPage === 'send',
       },
