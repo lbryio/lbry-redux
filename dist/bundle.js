@@ -3236,7 +3236,7 @@ var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(sele
     path: '/wallet',
     active: currentPage === 'wallet'
   }, {
-    label: 'Send & Recieve',
+    label: 'Send & Receive',
     path: '/send',
     active: currentPage === 'send'
   }, {
