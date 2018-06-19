@@ -4504,7 +4504,7 @@ function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
 
     var success = function success() {
       dispatch((0, _notifications.doNotify)({
-        message: __('You sent ' + amount + ' LBC as support, Mahalo!'),
+        message: __('You sent ' + amount + ' LBC as a tip, Mahalo!'),
         linkText: __('History'),
         linkTarget: __('/wallet'),
         displayType: ['snackbar']
