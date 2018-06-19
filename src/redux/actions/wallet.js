@@ -196,7 +196,7 @@ export function doSendSupport(amount, claimId, uri, successCallback, errorCallba
     const success = () => {
       dispatch(
         doNotify({
-          message: __(`You sent ${amount} LBC as support, Mahalo!`),
+          message: __(`You sent ${amount} LBC as a tip, Mahalo!`),
           linkText: __('History'),
           linkTarget: __('/wallet'),
           displayType: ['snackbar'],
