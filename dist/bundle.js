@@ -3911,7 +3911,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+var DEFAULTSEARCHRESULTSIZE = 10; // @flow
+
+var DEFAULTSEARCHRESULTFROM = 0;
+
 var doSearch = exports.doSearch = function doSearch(rawQuery) {
+  var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULTSEARCHRESULTSIZE;
+  var from = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULTSEARCHRESULTFROM;
   return function (dispatch, getState) {
     var state = getState();
     var query = rawQuery.replace(/^lbry:\/\//i, '');
@@ -3942,8 +3948,7 @@ var doSearch = exports.doSearch = function doSearch(rawQuery) {
         data: { searchQuery: query }
       });
     }
-
-    fetch('https://lighthouse.lbry.io/search?s=' + query).then(_handleFetch2.default).then(function (data) {
+    fetch('https://lighthouse.lbry.io/search?s=' + query + '&size=' + size + '&from=' + from).then(_handleFetch2.default).then(function (data) {
       var uris = [];
       var actions = [];
 
@@ -3970,7 +3975,8 @@ var doSearch = exports.doSearch = function doSearch(rawQuery) {
       });
     });
   };
-}; // @flow
+};
+
 var getSearchSuggestions = exports.getSearchSuggestions = function getSearchSuggestions(value /*: string*/) {
   return function (dispatch) {
     var query = value.trim();

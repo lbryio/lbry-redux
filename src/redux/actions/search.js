@@ -7,7 +7,14 @@ import { makeSelectSearchUris } from 'redux/selectors/search';
 import { batchActions } from 'util/batchActions';
 import handleFetchResponse from 'util/handle-fetch';
 
-export const doSearch = rawQuery => (dispatch, getState) => {
+const DEFAULTSEARCHRESULTSIZE = 10;
+const DEFAULTSEARCHRESULTFROM = 0;
+
+export const doSearch = (
+  rawQuery,
+  size = DEFAULTSEARCHRESULTSIZE,
+  from = DEFAULTSEARCHRESULTFROM
+) => (dispatch, getState) => {
   const state = getState();
   const query = rawQuery.replace(/^lbry:\/\//i, '');
 
@@ -37,8 +44,7 @@ export const doSearch = rawQuery => (dispatch, getState) => {
       data: { searchQuery: query },
     });
   }
-
-  fetch(`https://lighthouse.lbry.io/search?s=${query}`)
+  fetch(`https://lighthouse.lbry.io/search?s=${query}&size=${size}&from=${from}`)
     .then(handleFetchResponse)
     .then(data => {
       const uris = [];
