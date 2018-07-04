@@ -110,9 +110,7 @@ Lbry.connect = () => {
 };
 
 Lbry.getMediaType = (contentType, fileName) => {
-  if (contentType) {
-    return /^[^/]+/.exec(contentType)[0];
-  } else if (fileName) {
+  if (fileName) {
     const formats = [
       [/^.+\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
       [/^.+\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
@@ -128,7 +126,9 @@ Lbry.getMediaType = (contentType, fileName) => {
       }
     }, fileName);
     return res === fileName ? 'unknown' : res;
-  }
+  } else if (contentType) {
+    return /^[^/]+/.exec(contentType)[0];
+  } 
   return 'unknown';
 };
 
