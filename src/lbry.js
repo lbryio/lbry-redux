@@ -109,15 +109,13 @@ Lbry.connect = () => {
   return Lbry.connectPromise;
 };
 
-Lbry.getMediaType = (contentType, fileName) => {
-  if (contentType) {
-    return /^[^/]+/.exec(contentType)[0];
-  } else if (fileName) {
+Lbry.getMediaType = (contentType, extname) => {
+  if (extname) {
     const formats = [
-      [/^.+\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
-      [/^.+\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
-      [/^.+\.(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'],
-      [/^.+\.(stl|obj|fbx|gcode)$/i, '3D-file'],
+      [/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
+      [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
+      [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'],
+      [/^(stl|obj|fbx|gcode)$/i, '3D-file'],
     ];
     const res = formats.reduce((ret, testpair) => {
       switch (testpair[0].test(ret)) {
@@ -126,9 +124,11 @@ Lbry.getMediaType = (contentType, fileName) => {
         default:
           return ret;
       }
-    }, fileName);
-    return res === fileName ? 'unknown' : res;
-  }
+    }, extname);
+    return res === extname ? 'unknown' : res;
+  } else if (contentType) {
+    return /^[^/]+/.exec(contentType)[0];
+  } 
   return 'unknown';
 };
 
