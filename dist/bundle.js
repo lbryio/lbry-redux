@@ -2075,12 +2075,9 @@ Lbry.connect = function () {
   return Lbry.connectPromise;
 };
 
-Lbry.getMediaType = function (contentType, fileName) {
-  if (contentType) {
-    return (/^[^/]+/.exec(contentType)[0]
-    );
-  } else if (fileName) {
-    var formats = [[/^.+\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^.+\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^.+\.(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^.+\.(stl|obj|fbx|gcode)$/i, '3D-file']];
+Lbry.getMediaType = function (contentType, extname) {
+  if (extname) {
+    var formats = [[/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^(stl|obj|fbx|gcode)$/i, '3D-file']];
     var res = formats.reduce(function (ret, testpair) {
       switch (testpair[0].test(ret)) {
         case true:
@@ -2088,8 +2085,11 @@ Lbry.getMediaType = function (contentType, fileName) {
         default:
           return ret;
       }
-    }, fileName);
-    return res === fileName ? 'unknown' : res;
+    }, extname);
+    return res === extname ? 'unknown' : res;
+  } else if (contentType) {
+    return (/^[^/]+/.exec(contentType)[0]
+    );
   }
   return 'unknown';
 };
