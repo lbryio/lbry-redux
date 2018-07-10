@@ -107,6 +107,8 @@ export {
   makeSelectIsUriResolving,
   makeSelectTotalItemsForChannel,
   makeSelectTotalPagesForChannel,
+  makeSelectNsfwCountFromUris,
+  makeSelectNsfwCountForChannel,
   selectClaimsById,
   selectClaimsByUri,
   selectAllClaimsByChannel,
