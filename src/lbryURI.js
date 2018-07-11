@@ -3,7 +3,7 @@ const claimIdMaxLength = 40;
 
 export const regexInvalidURI = /[^A-Za-z0-9-]/g;
 export const regexAddress = /^b(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
-
+export const regtestRegexAddress = /^m(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 /**
  * Parses a LBRY name into its component parts. Throws errors with user-friendly
  * messages for invalid names.
@@ -231,5 +231,9 @@ export function isURIClaimable(URI) {
 
 export function convertToShareLink(URI) {
   const { claimName, path, bidPosition, claimSequence, claimId } = parseURI(URI);
-  return buildURI({ claimName, path, claimSequence, bidPosition, claimId }, true, 'https://open.lbry.io/');
+  return buildURI(
+    { claimName, path, claimSequence, bidPosition, claimId },
+    true,
+    'https://open.lbry.io/'
+  );
 }
