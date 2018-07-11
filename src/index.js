@@ -18,7 +18,6 @@ export { Lbry, Lbryapi };
 export {
   regexInvalidURI,
   regexAddress,
-  regtestRegexAddress,
   parseURI,
   buildURI,
   normalizeURI,
