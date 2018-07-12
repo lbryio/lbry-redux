@@ -18,7 +18,8 @@ export const selectTransactionItems = createSelector(selectTransactionsById, byI
       Math.abs(tx.value) === Math.abs(tx.fee) &&
       tx.claim_info.length === 0 &&
       tx.support_info.length === 0 &&
-      tx.update_info.length === 0
+      tx.update_info.length === 0 &&
+      tx.abandon_info.length === 0
     ) {
       return;
     }
@@ -40,6 +41,7 @@ export const selectTransactionItems = createSelector(selectTransactionsById, byI
       )
     );
     append.push(...tx.update_info.map(item => Object.assign({}, tx, item, { type: 'update' })));
+    append.push(...tx.abandon_info.map(item => Object.assign({}, tx, item, { type: 'abandon' })));
 
     if (!append.length) {
       append.push(
@@ -59,7 +61,7 @@ export const selectTransactionItems = createSelector(selectTransactionsById, byI
           txid,
           date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
           amount,
-          fee: amount < 0 ? -1 * tx.fee / append.length : 0,
+          fee: amount < 0 ? (-1 * tx.fee) / append.length : 0,
           claim_id: item.claim_id,
           claim_name: item.claim_name,
           type: item.type || 'send',
