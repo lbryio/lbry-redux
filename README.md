@@ -1,5 +1,5 @@
 # lbry-redux
-lbry-redux is a module which contains common React and redux code shared between lbry-app and lbry-android.
+lbry-redux is a module which contains common React and redux code shared between lbry-desktop and lbry-android.
 
 ## Installation
 Add `lbry-redux` as a dependency to your `package.json` file.
