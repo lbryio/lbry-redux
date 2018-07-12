@@ -1,6 +1,7 @@
 import { normalizeURI } from 'lbryURI';
 import { makeSelectCurrentParam } from 'redux/selectors/navigation';
 import { createSelector } from 'reselect';
+import { isClaimNsfw } from 'util/claim';
 
 const selectState = state => state.claims || {};
 
@@ -224,3 +225,38 @@ export const selectRewardContentClaimIds = createSelector(
   selectState,
   state => state.rewardedContentClaimIds
 );
+
+export const makeSelectNsfwCountFromUris = uris =>
+  createSelector(selectClaimsByUri, claims =>
+    uris.reduce((acc, uri) => {
+      const claim = claims[uri];
+      if (isClaimNsfw(claim)) {
+        return acc + 1;
+      }
+      return acc;
+    }, 0)
+  );
+
+export const makeSelectNsfwCountForChannel = uri => {
+  const pageSelector = makeSelectCurrentParam('page');
+
+  return createSelector(
+    selectClaimsById,
+    selectAllClaimsByChannel,
+    pageSelector,
+    (byId, allClaims, page) => {
+      const byChannel = allClaims[uri] || {};
+      const claimIds = byChannel[page || 1];
+
+      if (!claimIds) return 0;
+
+      return claimIds.reduce((acc, claimId) => {
+        const claim = byId[claimId];
+        if (isClaimNsfw(claim)) {
+          return acc + 1;
+        }
+        return acc;
+      }, 0);
+    }
+  );
+};
