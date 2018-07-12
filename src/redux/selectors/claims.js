@@ -174,7 +174,7 @@ export const selectMyChannelClaims = createSelector(
 
     ids.forEach(id => {
       if (byId[id]) {
-        // I'm not sure why this check is necessary, but it ought to be a quick fix for https://github.com/lbryio/lbry-app/issues/544
+        // I'm not sure why this check is necessary, but it ought to be a quick fix for https://github.com/lbryio/lbry-desktop/issues/544
         claims.push(byId[id]);
       }
     });
