@@ -3080,7 +3080,7 @@ var selectMyChannelClaims = exports.selectMyChannelClaims = (0, _reselect.create
 
   ids.forEach(function (id) {
     if (byId[id]) {
-      // I'm not sure why this check is necessary, but it ought to be a quick fix for https://github.com/lbryio/lbry-app/issues/544
+      // I'm not sure why this check is necessary, but it ought to be a quick fix for https://github.com/lbryio/lbry-desktop/issues/544
       claims.push(byId[id]);
     }
   });
@@ -5194,6 +5194,9 @@ function costInfoReducer() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 exports.fileInfoReducer = fileInfoReducer;
 
 var _action_types = __webpack_require__(4);
@@ -5340,11 +5343,14 @@ reducers[ACTIONS.LOADING_VIDEO_STARTED] = function (state, action) {
 
 
   var newLoading = Object.assign({}, state.urisLoading);
-
   newLoading[uri] = true;
 
+  var newErrors = _extends({}, state.errors);
+  if (uri in newErrors) delete newErrors[uri];
+
   return Object.assign({}, state, {
-    urisLoading: newLoading
+    urisLoading: newLoading,
+    errors: _extends({}, newErrors)
   });
 };
 
@@ -5353,11 +5359,14 @@ reducers[ACTIONS.LOADING_VIDEO_FAILED] = function (state, action) {
 
 
   var newLoading = Object.assign({}, state.urisLoading);
-
   delete newLoading[uri];
 
+  var newErrors = _extends({}, state.errors);
+  newErrors[uri] = true;
+
   return Object.assign({}, state, {
-    urisLoading: newLoading
+    urisLoading: newLoading,
+    errors: _extends({}, newErrors)
   });
 };
 
