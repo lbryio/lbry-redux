@@ -109,29 +109,6 @@ Lbry.connect = () => {
   return Lbry.connectPromise;
 };
 
-Lbry.getMediaType = (contentType, extname) => {
-  if (extname) {
-    const formats = [
-      [/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
-      [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
-      [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'],
-      [/^(stl|obj|fbx|gcode)$/i, '3D-file'],
-    ];
-    const res = formats.reduce((ret, testpair) => {
-      switch (testpair[0].test(ret)) {
-        case true:
-          return testpair[1];
-        default:
-          return ret;
-      }
-    }, extname);
-    return res === extname ? 'unknown' : res;
-  } else if (contentType) {
-    return /^[^/]+/.exec(contentType)[0];
-  } 
-  return 'unknown';
-};
-
 /**
  * Wrappers for API methods to simulate missing or future behavior. Unlike the old-style stubs,
  * these are designed to be transparent wrappers around the corresponding API methods.
