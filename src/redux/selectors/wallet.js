@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect';
+import * as TRANSACTIONS from 'constants/transaction_types';
 
 export const selectState = state => state.wallet || {};
 
@@ -29,24 +30,28 @@ export const selectTransactionItems = createSelector(selectTransactionsById, byI
     append.push(
       ...tx.claim_info.map(item =>
         Object.assign({}, tx, item, {
-          type: item.claim_name[0] === '@' ? 'channel' : 'publish',
+          type: item.claim_name[0] === '@' ? TRANSACTIONS.CHANNEL : TRANSACTIONS.PUBLISH,
         })
       )
     );
     append.push(
       ...tx.support_info.map(item =>
         Object.assign({}, tx, item, {
-          type: !item.is_tip ? 'support' : 'tip',
+          type: !item.is_tip ? TRANSACTIONS.SUPPORT : TRANSACTIONS.TIP,
         })
       )
     );
-    append.push(...tx.update_info.map(item => Object.assign({}, tx, item, { type: 'update' })));
-    append.push(...tx.abandon_info.map(item => Object.assign({}, tx, item, { type: 'abandon' })));
+    append.push(
+      ...tx.update_info.map(item => Object.assign({}, tx, item, { type: TRANSACTIONS.UPDATE }))
+    );
+    append.push(
+      ...tx.abandon_info.map(item => Object.assign({}, tx, item, { type: TRANSACTIONS.ABANDON }))
+    );
 
     if (!append.length) {
       append.push(
         Object.assign({}, tx, {
-          type: tx.value < 0 ? 'spend' : 'receive',
+          type: tx.value < 0 ? TRANSACTIONS.SPEND : TRANSACTIONS.RECEIVE,
         })
       );
     }
@@ -64,7 +69,7 @@ export const selectTransactionItems = createSelector(selectTransactionsById, byI
           fee: amount < 0 ? (-1 * tx.fee) / append.length : 0,
           claim_id: item.claim_id,
           claim_name: item.claim_name,
-          type: item.type || 'send',
+          type: item.type || TRANSACTIONS.SPEND,
           nout: item.nout,
         };
       })
