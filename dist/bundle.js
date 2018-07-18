@@ -46,32 +46,17 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -104,8 +89,8 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectNavLinks = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = undefined;
-exports.selectRewardContentClaimIds = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchRewardedContent = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doHideNotification = exports.doNotify = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.MODALS = exports.ACTIONS = exports.Notification = undefined;
+exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectNavLinks = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectRewardContentClaimIds = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = undefined;
+exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchRewardedContent = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doHideNotification = exports.doNotify = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.MODALS = exports.ACTIONS = exports.Notification = undefined;
 
 var _Notification = __webpack_require__(1);
 
@@ -371,6 +356,30 @@ Object.defineProperty(exports, 'doSendSupport', {
   enumerable: true,
   get: function get() {
     return _wallet.doSendSupport;
+  }
+});
+Object.defineProperty(exports, 'doWalletEncrypt', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doWalletEncrypt;
+  }
+});
+Object.defineProperty(exports, 'doWalletDecrypt', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doWalletDecrypt;
+  }
+});
+Object.defineProperty(exports, 'doWalletUnlock', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doWalletUnlock;
+  }
+});
+Object.defineProperty(exports, 'doWalletStatus', {
+  enumerable: true,
+  get: function get() {
+    return _wallet.doWalletStatus;
   }
 });
 
@@ -1057,6 +1066,54 @@ Object.defineProperty(exports, 'selectBlocks', {
     return _wallet3.selectBlocks;
   }
 });
+Object.defineProperty(exports, 'selectWalletIsEncrypted', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectWalletIsEncrypted;
+  }
+});
+Object.defineProperty(exports, 'selectWalletState', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectWalletState;
+  }
+});
+Object.defineProperty(exports, 'selectWalletEncryptPending', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectWalletEncryptPending;
+  }
+});
+Object.defineProperty(exports, 'selectWalletEncryptSucceeded', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectWalletEncryptSucceeded;
+  }
+});
+Object.defineProperty(exports, 'selectWalletDecryptPending', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectWalletDecryptPending;
+  }
+});
+Object.defineProperty(exports, 'selectWalletDecryptSucceeded', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectWalletDecryptSucceeded;
+  }
+});
+Object.defineProperty(exports, 'selectWalletUnlockPending', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectWalletUnlockPending;
+  }
+});
+Object.defineProperty(exports, 'selectWalletUnlockSucceeded', {
+  enumerable: true,
+  get: function get() {
+    return _wallet3.selectWalletUnlockSucceeded;
+  }
+});
 
 var _action_types = __webpack_require__(4);
 
@@ -1485,6 +1542,18 @@ var FETCH_BLOCK_SUCCESS = exports.FETCH_BLOCK_SUCCESS = 'FETCH_BLOCK_SUCCESS';
 var SUPPORT_TRANSACTION_STARTED = exports.SUPPORT_TRANSACTION_STARTED = 'SUPPORT_TRANSACTION_STARTED';
 var SUPPORT_TRANSACTION_COMPLETED = exports.SUPPORT_TRANSACTION_COMPLETED = 'SUPPORT_TRANSACTION_COMPLETED';
 var SUPPORT_TRANSACTION_FAILED = exports.SUPPORT_TRANSACTION_FAILED = 'SUPPORT_TRANSACTION_FAILED';
+var WALLET_ENCRYPT_START = exports.WALLET_ENCRYPT_START = 'WALLET_ENCRYPT_START';
+var WALLET_ENCRYPT_COMPLETED = exports.WALLET_ENCRYPT_COMPLETED = 'WALLET_ENCRYPT_COMPLETED';
+var WALLET_UNLOCK_START = exports.WALLET_UNLOCK_START = 'WALLET_UNLOCK_START';
+var WALLET_UNLOCK_COMPLETED = exports.WALLET_UNLOCK_COMPLETED = 'WALLET_UNLOCK_COMPLETED';
+var WALLET_UNLOCK_FAILED = exports.WALLET_UNLOCK_FAILED = 'WALLET_UNLOCK_FAILED';
+var WALLET_DECRYPT_START = exports.WALLET_DECRYPT_START = 'WALLET_DECRYPT_START';
+var WALLET_DECRYPT_COMPLETED = exports.WALLET_DECRYPT_COMPLETED = 'WALLET_DECRYPT_COMPLETED';
+var WALLET_LOCK_START = exports.WALLET_LOCK_START = 'WALLET_LOCK_START';
+var WALLET_LOCK_COMPLETED = exports.WALLET_LOCK_COMPLETED = 'WALLET_LOCK_COMPLETED';
+var WALLET_STATUS_START = exports.WALLET_STATUS_START = 'WALLET_STATUS_START';
+var WALLET_STATUS_COMPLETED = exports.WALLET_STATUS_COMPLETED = 'WALLET_STATUS_COMPLETED';
+var WALLET_STATUS_FAILED = exports.WALLET_STATUS_FAILED = 'WALLET_STATUS_FAILED';
 
 // Claims
 var FETCH_FEATURED_CONTENT_STARTED = exports.FETCH_FEATURED_CONTENT_STARTED = 'FETCH_FEATURED_CONTENT_STARTED';
@@ -2075,6 +2144,9 @@ Lbry.wallet_decrypt = function () {
 Lbry.wallet_unlock = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('wallet_unlock', params);
+};
+Lbry.wallet_lock = function () {
+  return daemonCallWithResult('wallet_lock', {});
 };
 
 // transactions
@@ -4382,6 +4454,11 @@ exports.doSendDraftTransaction = doSendDraftTransaction;
 exports.doSetDraftTransactionAmount = doSetDraftTransactionAmount;
 exports.doSetDraftTransactionAddress = doSetDraftTransactionAddress;
 exports.doSendSupport = doSendSupport;
+exports.doWalletEncrypt = doWalletEncrypt;
+exports.doWalletUnlock = doWalletUnlock;
+exports.doWalletLock = doWalletLock;
+exports.doWalletDecrypt = doWalletDecrypt;
+exports.doWalletStatus = doWalletStatus;
 
 var _action_types = __webpack_require__(4);
 
@@ -4627,6 +4704,116 @@ function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
   };
 }
 
+function doWalletEncrypt(newPassword) {
+  return function (dispatch) {
+    dispatch({
+      type: ACTIONS.WALLET_ENCRYPT_START
+    });
+
+    _lbry2.default.wallet_encrypt({ new_password: newPassword }).then(function (result) {
+      if (result === true) {
+        dispatch({
+          type: ACTIONS.WALLET_ENCRYPT_COMPLETED,
+          result: result
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.WALLET_ENCRYPT_FAILED,
+          result: result
+        });
+      }
+    });
+  };
+}
+
+function doWalletUnlock(password) {
+  return function (dispatch) {
+    dispatch({
+      type: ACTIONS.WALLET_UNLOCK_START
+    });
+
+    _lbry2.default.wallet_unlock({ password: password }).then(function (result) {
+      if (result === true) {
+        dispatch({
+          type: ACTIONS.WALLET_UNLOCK_COMPLETED,
+          result: result
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.WALLET_UNLOCK_FAILED,
+          result: result
+        });
+      }
+    });
+  };
+}
+
+function doWalletLock() {
+  return function (dispatch) {
+    dispatch({
+      type: ACTIONS.WALLET_LOCK_START
+    });
+
+    _lbry2.default.wallet_lock().then(function (result) {
+      if (result === true) {
+        dispatch({
+          type: ACTIONS.WALLET_LOCK_COMPLETED,
+          result: result
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.WALLET_LOCK_FAILED,
+          result: result
+        });
+      }
+    });
+  };
+}
+
+function doWalletDecrypt() {
+  return function (dispatch) {
+    dispatch({
+      type: ACTIONS.WALLET_DECRYPT_START
+    });
+
+    _lbry2.default.wallet_decrypt().then(function (result) {
+      if (result === true) {
+        dispatch({
+          type: ACTIONS.WALLET_DECRYPT_COMPLETED,
+          result: result
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.WALLET_DECRYPT_FAILED,
+          result: result
+        });
+      }
+    });
+  };
+}
+
+function doWalletStatus() {
+  return function (dispatch) {
+    dispatch({
+      type: ACTIONS.WALLET_STATUS_START
+    });
+
+    _lbry2.default.status().then(function (result) {
+      if (result && !result.error) {
+        dispatch({
+          type: ACTIONS.WALLET_STATUS_COMPLETED,
+          result: result
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.WALLET_STATUS_FAILED,
+          result: result
+        });
+      }
+    });
+  };
+}
+
 /***/ }),
 /* 29 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -4637,7 +4824,7 @@ function doSendSupport(amount, claimId, uri, successCallback, errorCallback) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.makeSelectBlockDate = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.selectState = undefined;
+exports.makeSelectBlockDate = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.selectWalletLockResult = exports.selectWalletLockSucceeded = exports.selectWalletLockPending = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletIsEncrypted = exports.selectWalletState = exports.selectState = undefined;
 
 var _reselect = __webpack_require__(16);
 
@@ -4652,6 +4839,60 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 var selectState = exports.selectState = function selectState(state) {
   return state.wallet || {};
 };
+
+var selectWalletState = exports.selectWalletState = selectState;
+
+var selectWalletIsEncrypted = exports.selectWalletIsEncrypted = function selectWalletIsEncrypted(state) {
+  return selectWalletState(state).walletIsEncrypted === true;
+};
+
+var selectWalletEncryptPending = exports.selectWalletEncryptPending = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.walletEncryptPending;
+});
+
+var selectWalletEncryptSucceeded = exports.selectWalletEncryptSucceeded = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.walletEncryptSucceded;
+});
+
+var selectWalletEncryptResult = exports.selectWalletEncryptResult = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.walletEncryptResult;
+});
+
+var selectWalletDecryptPending = exports.selectWalletDecryptPending = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.walletDecryptPending;
+});
+
+var selectWalletDecryptSucceeded = exports.selectWalletDecryptSucceeded = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.walletDecryptSucceded;
+});
+
+var selectWalletDecryptResult = exports.selectWalletDecryptResult = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.walletDecryptResult;
+});
+
+var selectWalletUnlockPending = exports.selectWalletUnlockPending = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.walletUnlockPending;
+});
+
+var selectWalletUnlockSucceeded = exports.selectWalletUnlockSucceeded = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.walletUnlockSucceded;
+});
+
+var selectWalletUnlockResult = exports.selectWalletUnlockResult = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.walletUnlockResult;
+});
+
+var selectWalletLockPending = exports.selectWalletLockPending = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.walletLockPending;
+});
+
+var selectWalletLockSucceeded = exports.selectWalletLockSucceeded = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.walletLockSucceded;
+});
+
+var selectWalletLockResult = exports.selectWalletLockResult = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.walletLockResult;
+});
 
 var selectBalance = exports.selectBalance = (0, _reselect.createSelector)(selectState, function (state) {
   return state.balance;
@@ -5533,6 +5774,9 @@ var PUBLISH = exports.PUBLISH = 'publish';
 var SEARCH = exports.SEARCH = 'search';
 var CONFIRM_TRANSACTION = exports.CONFIRM_TRANSACTION = 'confirm_transaction';
 var CONFIRM_THUMBNAIL_UPLOAD = exports.CONFIRM_THUMBNAIL_UPLOAD = 'confirm_thumbnail_upload';
+var WALLET_ENCRYPT = exports.WALLET_ENCRYPT = 'wallet_encrypt';
+var WALLET_DECRYPT = exports.WALLET_DECRYPT = 'wallet_decrypt';
+var WALLET_UNLOCK = exports.WALLET_UNLOCK = 'wallet_unlock';
 
 /***/ }),
 /* 37 */
@@ -5724,7 +5968,15 @@ var defaultState = {
   fetchingTransactions: false,
   gettingNewAddress: false,
   draftTransaction: buildDraftTransaction(),
-  sendingSupport: false
+  sendingSupport: false,
+  walletIsEncrypted: false,
+  walletEncryptPending: false,
+  walletEncryptSucceded: null,
+  walletDecryptPending: false,
+  walletDecryptSucceded: null,
+  walletUnlockPending: false,
+  walletUnlockSucceded: null,
+  walletLockResult: null
 };
 
 reducers[ACTIONS.FETCH_TRANSACTIONS_STARTED] = function (state) {
@@ -5862,6 +6114,108 @@ reducers[ACTIONS.FETCH_BLOCK_SUCCESS] = function (state, action) {
   blocks[height] = block;
 
   return Object.assign({}, state, { blocks: blocks });
+};
+
+reducers[ACTIONS.WALLET_STATUS_COMPLETED] = function (state, action) {
+  return Object.assign({}, state, {
+    walletIsEncrypted: !!action.result.wallet_is_encrypted
+  });
+};
+
+reducers[ACTIONS.WALLET_ENCRYPT_START] = function (state) {
+  return Object.assign({}, state, {
+    walletEncryptPending: true,
+    walletEncryptSucceded: null,
+    walletEncryptResult: null
+  });
+};
+
+reducers[ACTIONS.WALLET_ENCRYPT_COMPLETED] = function (state, action) {
+  return Object.assign({}, state, {
+    walletEncryptPending: false,
+    walletEncryptSucceded: true,
+    walletEncryptResult: action.result
+  });
+};
+
+reducers[ACTIONS.WALLET_ENCRYPT_FAILED] = function (state, action) {
+  return Object.assign({}, state, {
+    walletEncryptPending: false,
+    walletEncryptSucceded: false,
+    walletEncryptResult: action.result
+  });
+};
+
+reducers[ACTIONS.WALLET_DECRYPT_START] = function (state) {
+  return Object.assign({}, state, {
+    walletDecryptPending: true,
+    walletDecryptSucceded: null,
+    walletDecryptResult: null
+  });
+};
+
+reducers[ACTIONS.WALLET_DECRYPT_COMPLETED] = function (state, action) {
+  return Object.assign({}, state, {
+    walletDecryptPending: false,
+    walletDecryptSucceded: true,
+    walletDecryptResult: action.result
+  });
+};
+
+reducers[ACTIONS.WALLET_DECRYPT_FAILED] = function (state, action) {
+  return Object.assign({}, state, {
+    walletDecryptPending: false,
+    walletDecryptSucceded: false,
+    walletDecryptResult: action.result
+  });
+};
+
+reducers[ACTIONS.WALLET_UNLOCK_START] = function (state) {
+  return Object.assign({}, state, {
+    walletUnlockPending: true,
+    walletUnlockSucceded: null,
+    walletUnlockResult: null
+  });
+};
+
+reducers[ACTIONS.WALLET_UNLOCK_COMPLETED] = function (state, action) {
+  return Object.assign({}, state, {
+    walletUnlockPending: false,
+    walletUnlockSucceded: true,
+    walletUnlockResult: action.result
+  });
+};
+
+reducers[ACTIONS.WALLET_UNLOCK_FAILED] = function (state, action) {
+  return Object.assign({}, state, {
+    walletUnlockPending: false,
+    walletUnlockSucceded: false,
+    walletUnlockResult: action.result
+  });
+};
+
+reducers[ACTIONS.WALLET_LOCK_START] = function (state) {
+  return Object.assign({}, state, {
+    walletLockPending: false,
+    walletLockSucceded: null,
+    walletLockResult: null
+  });
+};
+
+reducers[ACTIONS.WALLET_LOCK_COMPLETED] = function (state, action) {
+  return Object.assign({}, state, {
+    walletLockPending: false,
+    walletLockSucceded: true,
+    walletLockResult: action.result
+  });
+};
+
+reducers[ACTIONS.WALLET_LOCK_FAILED] = function (state, action) {
+  return Object.assign({}, state, {
+    walletLockPending: false,
+    walletLockSucceded: false,
+    walletLockResult: action.result
+  });
 };
 
 function walletReducer() {
