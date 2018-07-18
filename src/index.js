@@ -3,6 +3,7 @@ import * as MODALS from 'constants/modal_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import * as SEARCH_TYPES from 'constants/search';
 import * as SETTINGS from 'constants/settings';
+import * as TRANSACTIONS from 'constants/transaction_types';
 import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
 import { selectState as selectSearchState } from 'redux/selectors/search';
@@ -11,7 +12,7 @@ import { selectState as selectSearchState } from 'redux/selectors/search';
 export { Notification } from 'types/Notification';
 
 // constants
-export { ACTIONS, MODALS, THUMBNAIL_STATUSES, SEARCH_TYPES, SETTINGS };
+export { ACTIONS, MODALS, THUMBNAIL_STATUSES, SEARCH_TYPES, SETTINGS, TRANSACTIONS };
 
 // common
 export { Lbry, Lbryapi };
