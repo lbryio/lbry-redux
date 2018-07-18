@@ -17,6 +17,11 @@ export const selectWalletEncryptSucceeded = createSelector(
   state => state.walletEncryptSucceded
 );
 
+export const selectWalletEncryptResult = createSelector(
+  selectState,
+  state => state.walletEncryptResult
+);
+
 export const selectWalletDecryptPending = createSelector(
   selectState,
   state => state.walletDecryptPending
@@ -25,6 +30,11 @@ export const selectWalletDecryptPending = createSelector(
 export const selectWalletDecryptSucceeded = createSelector(
   selectState,
   state => state.walletDecryptSucceded
+);
+
+export const selectWalletDecryptResult = createSelector(
+  selectState,
+  state => state.walletDecryptResult
 );
 
 export const selectWalletUnlockPending = createSelector(
@@ -36,6 +46,23 @@ export const selectWalletUnlockSucceeded = createSelector(
   selectState,
   state => state.walletUnlockSucceded
 );
+
+export const selectWalletUnlockResult = createSelector(
+  selectState,
+  state => state.walletUnlockResult
+);
+
+export const selectWalletLockPending = createSelector(
+  selectState,
+  state => state.walletLockPending
+);
+
+export const selectWalletLockSucceeded = createSelector(
+  selectState,
+  state => state.walletLockSucceded
+);
+
+export const selectWalletLockResult = createSelector(selectState, state => state.walletLockResult);
 
 export const selectBalance = createSelector(selectState, state => state.balance);
 

@@ -293,10 +293,18 @@ export function doWalletLock() {
       type: ACTIONS.WALLET_LOCK_START,
     });
 
-    Lbry.wallet_lock().then(() => {
-      dispatch({
-        type: ACTIONS.WALLET_LOCK_COMPLETED,
-      });
+    Lbry.wallet_lock().then(result => {
+      if (result === true) {
+        dispatch({
+          type: ACTIONS.WALLET_LOCK_COMPLETED,
+          result,
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.WALLET_LOCK_FAILED,
+          result,
+        });
+      }
     });
   };
 }
