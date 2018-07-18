@@ -210,8 +210,11 @@ export {
   selectWalletState,
   selectWalletEncryptPending,
   selectWalletEncryptSucceeded,
+  selectWalletEncryptResult,
   selectWalletDecryptPending,
   selectWalletDecryptSucceeded,
+  selectWalletDecryptResult,
   selectWalletUnlockPending,
   selectWalletUnlockSucceeded,
+  selectWalletUnlockResult,
 } from 'redux/selectors/wallet';

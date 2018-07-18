@@ -5,7 +5,10 @@ export const selectState = state => state.wallet || {};
 
 export const selectWalletState = selectState;
 
-export const selectWalletIsEncrypted = state => selectWalletState(state).walletIsEncrypted === true;
+export const selectWalletIsEncrypted = createSelector(
+  selectState,
+  state => state.walletIsEncrypted
+);
 
 export const selectWalletEncryptPending = createSelector(
   selectState,
