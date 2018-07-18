@@ -2,6 +2,40 @@ import { createSelector } from 'reselect';
 
 export const selectState = state => state.wallet || {};
 
+export const selectWalletState = selectState;
+
+export const selectWalletIsEncrypted = state => selectWalletState(state).walletIsEncrypted === true;
+
+export const selectWalletEncryptPending = createSelector(
+  selectState,
+  state => state.walletEncryptPending
+);
+
+export const selectWalletEncryptSucceeded = createSelector(
+  selectState,
+  state => state.walletEncryptSucceded
+);
+
+export const selectWalletDecryptPending = createSelector(
+  selectState,
+  state => state.walletDecryptPending
+);
+
+export const selectWalletDecryptSucceeded = createSelector(
+  selectState,
+  state => state.walletDecryptSucceded
+);
+
+export const selectWalletUnlockPending = createSelector(
+  selectState,
+  state => state.walletUnlockPending
+);
+
+export const selectWalletUnlockSucceeded = createSelector(
+  selectState,
+  state => state.walletUnlockSucceded
+);
+
 export const selectBalance = createSelector(selectState, state => state.balance);
 
 export const selectTransactionsById = createSelector(selectState, state => state.transactions);
@@ -61,7 +95,7 @@ export const selectTransactionItems = createSelector(selectTransactionsById, byI
           txid,
           date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
           amount,
-          fee: amount < 0 ? (-1 * tx.fee) / append.length : 0,
+          fee: amount < 0 ? -1 * tx.fee / append.length : 0,
           claim_id: item.claim_id,
           claim_name: item.claim_name,
           type: item.type || 'send',

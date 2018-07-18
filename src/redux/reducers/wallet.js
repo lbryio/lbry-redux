@@ -14,6 +14,13 @@ const defaultState = {
   gettingNewAddress: false,
   draftTransaction: buildDraftTransaction(),
   sendingSupport: false,
+  walletIsEncrypted: false,
+  walletEncryptPending: false,
+  walletEncryptSucceded: null,
+  walletDecryptPending: false,
+  walletDecryptSucceded: null,
+  walletUnlockPending: false,
+  walletUnlockSucceded: null,
 };
 
 reducers[ACTIONS.FETCH_TRANSACTIONS_STARTED] = state =>
@@ -131,13 +138,75 @@ reducers[ACTIONS.SUPPORT_TRANSACTION_FAILED] = (state, action) =>
   });
 
 reducers[ACTIONS.FETCH_BLOCK_SUCCESS] = (state, action) => {
-  const { block, block: { height } } = action.data;
+  const {
+    block,
+    block: { height },
+  } = action.data;
   const blocks = Object.assign({}, state.blocks);
 
   blocks[height] = block;
 
   return Object.assign({}, state, { blocks });
 };
+
+reducers[ACTIONS.WALLET_STATUS_COMPLETED] = (state, action) =>
+  Object.assign({}, state, {
+    walletIsEncrypted: !!action.result.wallet_is_encrypted,
+  });
+
+reducers[ACTIONS.WALLET_ENCRYPT_START] = state =>
+  Object.assign({}, state, {
+    walletEncryptPending: true,
+    walletEncryptSucceded: null,
+  });
+
+reducers[ACTIONS.WALLET_ENCRYPT_COMPLETED] = state =>
+  Object.assign({}, state, {
+    walletEncryptPending: false,
+    walletEncryptSucceded: true,
+  });
+
+reducers[ACTIONS.WALLET_ENCRYPT_FAILED] = state =>
+  Object.assign({}, state, {
+    walletEncryptPending: false,
+    walletEncryptSucceded: false,
+  });
+
+reducers[ACTIONS.WALLET_DECRYPT_START] = state =>
+  Object.assign({}, state, {
+    walletDecryptPending: true,
+    walletDecryptSucceded: null,
+  });
+
+reducers[ACTIONS.WALLET_DECRYPT_COMPLETED] = state =>
+  Object.assign({}, state, {
+    walletDecryptPending: false,
+    walletDecryptSucceded: true,
+  });
+
+reducers[ACTIONS.WALLET_DECRYPT_FAILED] = state =>
+  Object.assign({}, state, {
+    walletDecryptPending: false,
+    walletDecryptSucceded: false,
+  });
+
+reducers[ACTIONS.WALLET_UNLOCK_START] = state =>
+  Object.assign({}, state, {
+    walletUnlockPending: true,
+    walletUnlockSucceded: null,
+  });
+
+reducers[ACTIONS.WALLET_UNLOCK_COMPLETED] = state =>
+  Object.assign({}, state, {
+    walletUnlockPending: false,
+    walletUnlockSucceded: true,
+  });
+
+reducers[ACTIONS.WALLET_UNLOCK_FAILED] = state =>
+  Object.assign({}, state, {
+    walletUnlockPending: false,
+    walletUnlockSucceded: false,
+  });
 
 export function walletReducer(state = defaultState, action) {
   const handler = reducers[action.type];
