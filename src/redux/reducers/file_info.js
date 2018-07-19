@@ -119,11 +119,14 @@ reducers[ACTIONS.LOADING_VIDEO_STARTED] = (state, action) => {
   const { uri } = action.data;
 
   const newLoading = Object.assign({}, state.urisLoading);
-
   newLoading[uri] = true;
+
+  const newErrors = { ...state.errors };
+  if (uri in newErrors) delete newErrors[uri];
 
   return Object.assign({}, state, {
     urisLoading: newLoading,
+    errors: { ...newErrors },
   });
 };
 
@@ -131,11 +134,14 @@ reducers[ACTIONS.LOADING_VIDEO_FAILED] = (state, action) => {
   const { uri } = action.data;
 
   const newLoading = Object.assign({}, state.urisLoading);
-
   delete newLoading[uri];
+
+  const newErrors = { ...state.errors };
+  newErrors[uri] = true;
 
   return Object.assign({}, state, {
     urisLoading: newLoading,
+    errors: { ...newErrors },
   });
 };
 
