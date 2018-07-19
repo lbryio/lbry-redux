@@ -5001,12 +5001,14 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = function (state, action) {
   var currentPageClaimIds = [];
   var byId = Object.assign({}, state.byId);
   var fetchingChannelClaims = Object.assign({}, state.fetchingChannelClaims);
+  var claimsByUri = Object.assign({}, state.claimsByUri);
 
   if (claims !== undefined) {
     claims.forEach(function (claim) {
       allClaimIds.add(claim.claim_id);
       currentPageClaimIds.push(claim.claim_id);
       byId[claim.claim_id] = claim;
+      claimsByUri['lbry://' + claim.name + '#' + claim.claim_id] = claim.claim_id;
     });
   }
 
@@ -5018,7 +5020,8 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = function (state, action) {
   return Object.assign({}, state, {
     claimsByChannel: claimsByChannel,
     byId: byId,
-    fetchingChannelClaims: fetchingChannelClaims
+    fetchingChannelClaims: fetchingChannelClaims,
+    claimsByUri: claimsByUri
   });
 };
 

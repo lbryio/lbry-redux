@@ -127,12 +127,14 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
   const currentPageClaimIds = [];
   const byId = Object.assign({}, state.byId);
   const fetchingChannelClaims = Object.assign({}, state.fetchingChannelClaims);
+  const claimsByUri = Object.assign({}, state.claimsByUri);
 
   if (claims !== undefined) {
     claims.forEach(claim => {
       allClaimIds.add(claim.claim_id);
       currentPageClaimIds.push(claim.claim_id);
       byId[claim.claim_id] = claim;
+      claimsByUri[`lbry://${claim.name}#${claim.claim_id}`] = claim.claim_id;
     });
   }
 
@@ -145,6 +147,7 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
     claimsByChannel,
     byId,
     fetchingChannelClaims,
+    claimsByUri,
   });
 };
 
