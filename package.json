@@ -21,6 +21,7 @@
   "main": "dist/bundle.js",
   "scripts": {
     "build": "webpack",
+    "dev": "webpack --watch",
     "precommit": "lint-staged",
     "lint": "eslint 'src/**/*.js' --fix",
     "format": "prettier 'src/**/*.{js,json}' --write"

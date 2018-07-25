@@ -1,6 +1,5 @@
 /* eslint-disable import/no-commonjs */
 const path = require('path');
-//const FlowBabelWebpackPlugin = require('flow-babel-webpack-plugin');
 const FlowWebpackPlugin = require('flow-webpack-plugin')
 
 module.exports = {
