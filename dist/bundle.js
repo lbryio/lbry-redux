@@ -5982,6 +5982,35 @@ var buildDraftTransaction = function buildDraftTransaction() {
   };
 };
 
+// TODO: Split into common success and failure types
+// See details in https://github.com/lbryio/lbry/issues/1307
+/*:: type ActionResult = {
+  result: any,
+};*/
+/*:: type WalletState = {
+  balance: any,
+  blocks: any,
+  transactions: any,
+  fetchingTransactions: boolean,
+  gettingNewAddress: boolean,
+  draftTransaction: any,
+  sendingSupport: boolean,
+  walletIsEncrypted: boolean,
+  walletEncryptPending: boolean,
+  walletEncryptSucceded: ?boolean,
+  walletEncryptResult: ?boolean,
+  walletDecryptPending: boolean,
+  walletDecryptSucceded: ?boolean,
+  walletDecryptResult: ?boolean,
+  walletUnlockPending: boolean,
+  walletUnlockSucceded: ?boolean,
+  walletUnlockResult: ?boolean,
+  walletLockPending: boolean,
+  walletLockSucceded: ?boolean,
+  walletLockResult: ?boolean,
+}*/
+
+
 var defaultState = {
   balance: undefined,
   blocks: {},
@@ -5993,20 +6022,25 @@ var defaultState = {
   walletIsEncrypted: false,
   walletEncryptPending: false,
   walletEncryptSucceded: null,
+  walletEncryptResult: null,
   walletDecryptPending: false,
   walletDecryptSucceded: null,
+  walletDecryptResult: null,
   walletUnlockPending: false,
   walletUnlockSucceded: null,
+  walletUnlockResult: null,
+  walletLockPending: false,
+  walletLockSucceded: null,
   walletLockResult: null
 };
 
-reducers[ACTIONS.FETCH_TRANSACTIONS_STARTED] = function (state) {
+reducers[ACTIONS.FETCH_TRANSACTIONS_STARTED] = function (state /*: WalletState*/) {
   return Object.assign({}, state, {
     fetchingTransactions: true
   });
 };
 
-reducers[ACTIONS.FETCH_TRANSACTIONS_COMPLETED] = function (state, action) {
+reducers[ACTIONS.FETCH_TRANSACTIONS_COMPLETED] = function (state /*: WalletState*/, action) {
   var byId = Object.assign({}, state.transactions);
 
   var transactions = action.data.transactions;
@@ -6022,13 +6056,13 @@ reducers[ACTIONS.FETCH_TRANSACTIONS_COMPLETED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.GET_NEW_ADDRESS_STARTED] = function (state) {
+reducers[ACTIONS.GET_NEW_ADDRESS_STARTED] = function (state /*: WalletState*/) {
   return Object.assign({}, state, {
     gettingNewAddress: true
   });
 };
 
-reducers[ACTIONS.GET_NEW_ADDRESS_COMPLETED] = function (state, action) {
+reducers[ACTIONS.GET_NEW_ADDRESS_COMPLETED] = function (state /*: WalletState*/, action) {
   var address = action.data.address;
 
   // Say no to localStorage!
@@ -6039,25 +6073,25 @@ reducers[ACTIONS.GET_NEW_ADDRESS_COMPLETED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.UPDATE_BALANCE] = function (state, action) {
+reducers[ACTIONS.UPDATE_BALANCE] = function (state /*: WalletState*/, action) {
   return Object.assign({}, state, {
     balance: action.data.balance
   });
 };
 
-reducers[ACTIONS.CHECK_ADDRESS_IS_MINE_STARTED] = function (state) {
+reducers[ACTIONS.CHECK_ADDRESS_IS_MINE_STARTED] = function (state /*: WalletState*/) {
   return Object.assign({}, state, {
     checkingAddressOwnership: true
   });
 };
 
-reducers[ACTIONS.CHECK_ADDRESS_IS_MINE_COMPLETED] = function (state) {
+reducers[ACTIONS.CHECK_ADDRESS_IS_MINE_COMPLETED] = function (state /*: WalletState*/) {
   return Object.assign({}, state, {
     checkingAddressOwnership: false
   });
 };
 
-reducers[ACTIONS.SET_DRAFT_TRANSACTION_AMOUNT] = function (state, action) {
+reducers[ACTIONS.SET_DRAFT_TRANSACTION_AMOUNT] = function (state /*: WalletState*/, action) {
   var oldDraft = state.draftTransaction;
   var newDraft = Object.assign({}, oldDraft, {
     amount: parseFloat(action.data.amount)
@@ -6068,7 +6102,7 @@ reducers[ACTIONS.SET_DRAFT_TRANSACTION_AMOUNT] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.SET_DRAFT_TRANSACTION_ADDRESS] = function (state, action) {
+reducers[ACTIONS.SET_DRAFT_TRANSACTION_ADDRESS] = function (state /*: WalletState*/, action) {
   var oldDraft = state.draftTransaction;
   var newDraft = Object.assign({}, oldDraft, {
     address: action.data.address
@@ -6079,7 +6113,7 @@ reducers[ACTIONS.SET_DRAFT_TRANSACTION_ADDRESS] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.SEND_TRANSACTION_STARTED] = function (state) {
+reducers[ACTIONS.SEND_TRANSACTION_STARTED] = function (state /*: WalletState*/) {
   var newDraftTransaction = Object.assign({}, state.draftTransaction, {
     sending: true
   });
@@ -6089,13 +6123,13 @@ reducers[ACTIONS.SEND_TRANSACTION_STARTED] = function (state) {
   });
 };
 
-reducers[ACTIONS.SEND_TRANSACTION_COMPLETED] = function (state) {
+reducers[ACTIONS.SEND_TRANSACTION_COMPLETED] = function (state /*: WalletState*/) {
   return Object.assign({}, state, {
     draftTransaction: buildDraftTransaction()
   });
 };
 
-reducers[ACTIONS.SEND_TRANSACTION_FAILED] = function (state, action) {
+reducers[ACTIONS.SEND_TRANSACTION_FAILED] = function (state /*: WalletState*/, action) {
   var newDraftTransaction = Object.assign({}, state.draftTransaction, {
     sending: false,
     error: action.data.error
@@ -6106,26 +6140,26 @@ reducers[ACTIONS.SEND_TRANSACTION_FAILED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.SUPPORT_TRANSACTION_STARTED] = function (state) {
+reducers[ACTIONS.SUPPORT_TRANSACTION_STARTED] = function (state /*: WalletState*/) {
   return Object.assign({}, state, {
     sendingSupport: true
   });
 };
 
-reducers[ACTIONS.SUPPORT_TRANSACTION_COMPLETED] = function (state) {
+reducers[ACTIONS.SUPPORT_TRANSACTION_COMPLETED] = function (state /*: WalletState*/) {
   return Object.assign({}, state, {
     sendingSupport: false
   });
 };
 
-reducers[ACTIONS.SUPPORT_TRANSACTION_FAILED] = function (state, action) {
+reducers[ACTIONS.SUPPORT_TRANSACTION_FAILED] = function (state /*: WalletState*/, action) {
   return Object.assign({}, state, {
     error: action.data.error,
     sendingSupport: false
   });
 };
 
-reducers[ACTIONS.FETCH_BLOCK_SUCCESS] = function (state, action) {
+reducers[ACTIONS.FETCH_BLOCK_SUCCESS] = function (state /*: WalletState*/, action) {
   var _action$data = action.data,
       block = _action$data.block,
       height = _action$data.block.height;
@@ -6137,13 +6171,13 @@ reducers[ACTIONS.FETCH_BLOCK_SUCCESS] = function (state, action) {
   return Object.assign({}, state, { blocks: blocks });
 };
 
-reducers[ACTIONS.WALLET_STATUS_COMPLETED] = function (state, action) {
+reducers[ACTIONS.WALLET_STATUS_COMPLETED] = function (state /*: WalletState*/, action) {
   return Object.assign({}, state, {
     walletIsEncrypted: !!action.result.wallet_is_encrypted
   });
 };
 
-reducers[ACTIONS.WALLET_ENCRYPT_START] = function (state) {
+reducers[ACTIONS.WALLET_ENCRYPT_START] = function (state /*: WalletState*/) {
   return Object.assign({}, state, {
     walletEncryptPending: true,
     walletEncryptSucceded: null,
@@ -6151,7 +6185,7 @@ reducers[ACTIONS.WALLET_ENCRYPT_START] = function (state) {
   });
 };
 
-reducers[ACTIONS.WALLET_ENCRYPT_COMPLETED] = function (state, action) {
+reducers[ACTIONS.WALLET_ENCRYPT_COMPLETED] = function (state /*: WalletState*/, action /*: ActionResult*/) {
   return Object.assign({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: true,
@@ -6159,7 +6193,7 @@ reducers[ACTIONS.WALLET_ENCRYPT_COMPLETED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.WALLET_ENCRYPT_FAILED] = function (state, action) {
+reducers[ACTIONS.WALLET_ENCRYPT_FAILED] = function (state /*: WalletState*/, action /*: ActionResult*/) {
   return Object.assign({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: false,
@@ -6167,7 +6201,7 @@ reducers[ACTIONS.WALLET_ENCRYPT_FAILED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.WALLET_DECRYPT_START] = function (state) {
+reducers[ACTIONS.WALLET_DECRYPT_START] = function (state /*: WalletState*/) {
   return Object.assign({}, state, {
     walletDecryptPending: true,
     walletDecryptSucceded: null,
@@ -6175,7 +6209,7 @@ reducers[ACTIONS.WALLET_DECRYPT_START] = function (state) {
   });
 };
 
-reducers[ACTIONS.WALLET_DECRYPT_COMPLETED] = function (state, action) {
+reducers[ACTIONS.WALLET_DECRYPT_COMPLETED] = function (state /*: WalletState*/, action /*: ActionResult*/) {
   return Object.assign({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: true,
@@ -6183,7 +6217,7 @@ reducers[ACTIONS.WALLET_DECRYPT_COMPLETED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.WALLET_DECRYPT_FAILED] = function (state, action) {
+reducers[ACTIONS.WALLET_DECRYPT_FAILED] = function (state /*: WalletState*/, action /*: ActionResult*/) {
   return Object.assign({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: false,
@@ -6191,7 +6225,7 @@ reducers[ACTIONS.WALLET_DECRYPT_FAILED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.WALLET_UNLOCK_START] = function (state) {
+reducers[ACTIONS.WALLET_UNLOCK_START] = function (state /*: WalletState*/) {
   return Object.assign({}, state, {
     walletUnlockPending: true,
     walletUnlockSucceded: null,
@@ -6199,7 +6233,7 @@ reducers[ACTIONS.WALLET_UNLOCK_START] = function (state) {
   });
 };
 
-reducers[ACTIONS.WALLET_UNLOCK_COMPLETED] = function (state, action) {
+reducers[ACTIONS.WALLET_UNLOCK_COMPLETED] = function (state /*: WalletState*/, action /*: ActionResult*/) {
   return Object.assign({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: true,
@@ -6207,7 +6241,7 @@ reducers[ACTIONS.WALLET_UNLOCK_COMPLETED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.WALLET_UNLOCK_FAILED] = function (state, action) {
+reducers[ACTIONS.WALLET_UNLOCK_FAILED] = function (state /*: WalletState*/, action /*: ActionResult*/) {
   return Object.assign({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: false,
@@ -6215,7 +6249,7 @@ reducers[ACTIONS.WALLET_UNLOCK_FAILED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.WALLET_LOCK_START] = function (state) {
+reducers[ACTIONS.WALLET_LOCK_START] = function (state /*: WalletState*/) {
   return Object.assign({}, state, {
     walletLockPending: false,
     walletLockSucceded: null,
@@ -6223,7 +6257,7 @@ reducers[ACTIONS.WALLET_LOCK_START] = function (state) {
   });
 };
 
-reducers[ACTIONS.WALLET_LOCK_COMPLETED] = function (state, action) {
+reducers[ACTIONS.WALLET_LOCK_COMPLETED] = function (state /*: WalletState*/, action /*: ActionResult*/) {
   return Object.assign({}, state, {
     walletLockPending: false,
     walletLockSucceded: true,
@@ -6231,7 +6265,7 @@ reducers[ACTIONS.WALLET_LOCK_COMPLETED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.WALLET_LOCK_FAILED] = function (state, action) {
+reducers[ACTIONS.WALLET_LOCK_FAILED] = function (state /*: WalletState*/, action /*: ActionResult*/) {
   return Object.assign({}, state, {
     walletLockPending: false,
     walletLockSucceded: false,
