@@ -242,3 +242,113 @@ export function doSendSupport(amount, claimId, uri, successCallback, errorCallba
     }).then(success, error);
   };
 }
+
+export function doWalletEncrypt(newPassword) {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.WALLET_ENCRYPT_START,
+    });
+
+    Lbry.wallet_encrypt({ new_password: newPassword }).then(result => {
+      if (result === true) {
+        dispatch({
+          type: ACTIONS.WALLET_ENCRYPT_COMPLETED,
+          result,
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.WALLET_ENCRYPT_FAILED,
+          result,
+        });
+      }
+    });
+  };
+}
+
+export function doWalletUnlock(password) {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.WALLET_UNLOCK_START,
+    });
+
+    Lbry.wallet_unlock({ password }).then(result => {
+      if (result === true) {
+        dispatch({
+          type: ACTIONS.WALLET_UNLOCK_COMPLETED,
+          result,
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.WALLET_UNLOCK_FAILED,
+          result,
+        });
+      }
+    });
+  };
+}
+
+export function doWalletLock() {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.WALLET_LOCK_START,
+    });
+
+    Lbry.wallet_lock().then(result => {
+      if (result === true) {
+        dispatch({
+          type: ACTIONS.WALLET_LOCK_COMPLETED,
+          result,
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.WALLET_LOCK_FAILED,
+          result,
+        });
+      }
+    });
+  };
+}
+
+export function doWalletDecrypt() {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.WALLET_DECRYPT_START,
+    });
+
+    Lbry.wallet_decrypt().then(result => {
+      if (result === true) {
+        dispatch({
+          type: ACTIONS.WALLET_DECRYPT_COMPLETED,
+          result,
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.WALLET_DECRYPT_FAILED,
+          result,
+        });
+      }
+    });
+  };
+}
+
+export function doWalletStatus() {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.WALLET_STATUS_START,
+    });
+
+    Lbry.status().then(result => {
+      if (result && !result.error) {
+        dispatch({
+          type: ACTIONS.WALLET_STATUS_COMPLETED,
+          result,
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.WALLET_STATUS_FAILED,
+          result,
+        });
+      }
+    });
+  };
+}

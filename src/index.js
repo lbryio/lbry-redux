@@ -71,6 +71,10 @@ export {
   doSetDraftTransactionAmount,
   doSetDraftTransactionAddress,
   doSendSupport,
+  doWalletEncrypt,
+  doWalletDecrypt,
+  doWalletUnlock,
+  doWalletStatus,
 } from 'redux/actions/wallet';
 
 // utils
@@ -202,4 +206,15 @@ export {
   selectDraftTransactionAddress,
   selectDraftTransactionError,
   selectBlocks,
+  selectWalletIsEncrypted,
+  selectWalletState,
+  selectWalletEncryptPending,
+  selectWalletEncryptSucceeded,
+  selectWalletEncryptResult,
+  selectWalletDecryptPending,
+  selectWalletDecryptSucceeded,
+  selectWalletDecryptResult,
+  selectWalletUnlockPending,
+  selectWalletUnlockSucceeded,
+  selectWalletUnlockResult,
 } from 'redux/selectors/wallet';

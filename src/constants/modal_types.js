@@ -23,3 +23,6 @@ export const PUBLISH = 'publish';
 export const SEARCH = 'search';
 export const CONFIRM_TRANSACTION = 'confirm_transaction';
 export const CONFIRM_THUMBNAIL_UPLOAD = 'confirm_thumbnail_upload';
+export const WALLET_ENCRYPT = 'wallet_encrypt';
+export const WALLET_DECRYPT = 'wallet_decrypt';
+export const WALLET_UNLOCK = 'wallet_unlock';

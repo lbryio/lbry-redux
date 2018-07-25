@@ -79,6 +79,7 @@ Lbry.wallet_send = (params = {}) => daemonCallWithResult('wallet_send', params);
 Lbry.wallet_encrypt = (params = {}) => daemonCallWithResult('wallet_encrypt', params);
 Lbry.wallet_decrypt = () => daemonCallWithResult('wallet_decrypt', {});
 Lbry.wallet_unlock = (params = {}) => daemonCallWithResult('wallet_unlock', params);
+Lbry.wallet_lock = () => daemonCallWithResult('wallet_lock', {});
 
 // transactions
 Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
@@ -128,7 +129,7 @@ Lbry.getMediaType = (contentType, extname) => {
     return res === extname ? 'unknown' : res;
   } else if (contentType) {
     return /^[^/]+/.exec(contentType)[0];
-  } 
+  }
   return 'unknown';
 };
 
