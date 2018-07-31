@@ -62,7 +62,8 @@ export const selectNavLinks = createSelector(
       page === 'invite' ||
       page === 'backup';
 
-    const isMyLbryPage = page => page === 'downloaded' || page === 'published';
+    const isMyLbryPage = page =>
+      page === 'downloaded' || page === 'published' || page === 'user_history';
 
     const previousStack = historyStack.slice().reverse();
 
@@ -144,6 +145,11 @@ export const selectNavLinks = createSelector(
         label: 'Publishes',
         path: '/published',
         active: currentPage === 'published',
+      },
+      {
+        label: 'History',
+        path: '/user_history',
+        active: currentPage === 'user_history',
       },
     ];
 

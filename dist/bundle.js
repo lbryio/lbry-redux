@@ -3369,7 +3369,7 @@ var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(sele
   };
 
   var isMyLbryPage = function isMyLbryPage(page) {
-    return page === 'downloaded' || page === 'published';
+    return page === 'downloaded' || page === 'published' || page === 'user_history';
   };
 
   var previousStack = historyStack.slice().reverse();
@@ -3442,6 +3442,10 @@ var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(sele
     label: 'Publishes',
     path: '/published',
     active: currentPage === 'published'
+  }, {
+    label: 'History',
+    path: '/user_history',
+    active: currentPage === 'user_history'
   }];
 
   var navLinks = {
