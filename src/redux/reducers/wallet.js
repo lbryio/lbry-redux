@@ -275,7 +275,7 @@ reducers[ACTIONS.WALLET_LOCK_FAILED] = (state: WalletState, action: ActionResult
     walletLockResult: action.result,
   });
 
-export function walletReducer(state = defaultState, action) {
+export function walletReducer(state: WalletState = defaultState, action: ActionResult) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
   return state;

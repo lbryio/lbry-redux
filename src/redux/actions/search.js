@@ -8,13 +8,15 @@ import handleFetchResponse from 'util/handle-fetch';
 
 const DEFAULTSEARCHRESULTSIZE = 10;
 const DEFAULTSEARCHRESULTFROM = 0;
+type Dispatch = (action: any) => any;
+type GetState = () => {};
 
 export const doSearch = (
   rawQuery,
   size = DEFAULTSEARCHRESULTSIZE,
   from = DEFAULTSEARCHRESULTFROM,
   isBackgroundSearch
-) => (dispatch, getState) => {
+) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
@@ -81,7 +83,7 @@ export const doSearch = (
     });
 };
 
-export const getSearchSuggestions = (value: string) => (dispatch, getState) => {
+export const getSearchSuggestions = (value: string) => (dispatch: Dispatch) => {
   const query = value.trim();
 
   // strip out any basic stuff for more accurate search results
@@ -114,7 +116,9 @@ export const getSearchSuggestions = (value: string) => (dispatch, getState) => {
     });
 };
 
-export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boolean) => dispatch => {
+export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boolean) => (
+  dispatch: Dispatch
+) => {
   dispatch({
     type: ACTIONS.UPDATE_SEARCH_QUERY,
     data: { query },
@@ -126,12 +130,12 @@ export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boole
   }
 };
 
-export const doFocusSearchInput = () => dispatch =>
+export const doFocusSearchInput = () => (dispatch: Dispatch) =>
   dispatch({
     type: ACTIONS.SEARCH_FOCUS,
   });
 
-export const doBlurSearchInput = () => dispatch =>
+export const doBlurSearchInput = () => (dispatch: Dispatch) =>
   dispatch({
     type: ACTIONS.SEARCH_BLUR,
   });
