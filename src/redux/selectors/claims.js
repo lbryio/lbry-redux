@@ -1,5 +1,6 @@
 import { normalizeURI } from 'lbryURI';
 import { makeSelectCurrentParam } from 'redux/selectors/navigation';
+import { selectSearchUrisByQuery } from 'redux/selectors/search';
 import { createSelector } from 'reselect';
 import { isClaimNsfw } from 'util/claim';
 
@@ -260,3 +261,29 @@ export const makeSelectNsfwCountForChannel = uri => {
     }
   );
 };
+
+export const makeSelectRecommendedContentForUri = uri =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    selectSearchUrisByQuery,
+    (claim, searchUrisByQuery) => {
+      let recommendedContent;
+
+      if (claim) {
+        const {
+          value: {
+            stream: {
+              metadata: { title },
+            },
+          },
+        } = claim;
+        let searchUris = searchUrisByQuery[title];
+        if (searchUris) {
+          searchUris = searchUris.filter(searchUri => searchUri !== uri);
+          recommendedContent = searchUris;
+        }
+      }
+
+      return recommendedContent;
+    }
+  );
