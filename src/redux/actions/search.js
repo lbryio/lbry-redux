@@ -13,7 +13,8 @@ const DEFAULTSEARCHRESULTFROM = 0;
 export const doSearch = (
   rawQuery,
   size = DEFAULTSEARCHRESULTSIZE,
-  from = DEFAULTSEARCHRESULTFROM
+  from = DEFAULTSEARCHRESULTFROM,
+  isBackgroundSearch
 ) => (dispatch, getState) => {
   const state = getState();
   const query = rawQuery.replace(/^lbry:\/\//i, '');
@@ -38,7 +39,8 @@ export const doSearch = (
   // If the user is on the file page with a pre-populated uri and they select
   // the search option without typing anything, searchQuery will be empty
   // We need to populate it so the input is filled on the search page
-  if (!state.search.searchQuery) {
+  // isBackgroundSearch means the search is happening in the background, don't update the search query
+  if (!state.search.searchQuery && !isBackgroundSearch) {
     dispatch({
       type: ACTIONS.UPDATE_SEARCH_QUERY,
       data: { searchQuery: query },
