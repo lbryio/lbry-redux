@@ -245,7 +245,7 @@ Object.defineProperty(exports, 'doFetchRewardedContent', {
   }
 });
 
-var _cost_info = __webpack_require__(20);
+var _cost_info = __webpack_require__(21);
 
 Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   enumerable: true,
@@ -254,7 +254,7 @@ Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   }
 });
 
-var _file_info = __webpack_require__(21);
+var _file_info = __webpack_require__(22);
 
 Object.defineProperty(exports, 'doFetchFileInfo', {
   enumerable: true,
@@ -275,7 +275,7 @@ Object.defineProperty(exports, 'doFetchFileInfosAndPublishedClaims', {
   }
 });
 
-var _search = __webpack_require__(23);
+var _search = __webpack_require__(24);
 
 Object.defineProperty(exports, 'doSearch', {
   enumerable: true,
@@ -398,7 +398,7 @@ Object.defineProperty(exports, 'doWalletStatus', {
   }
 });
 
-var _batchActions = __webpack_require__(19);
+var _batchActions = __webpack_require__(20);
 
 Object.defineProperty(exports, 'batchActions', {
   enumerable: true,
@@ -788,7 +788,7 @@ Object.defineProperty(exports, 'selectFetchingCostInfo', {
   }
 });
 
-var _file_info3 = __webpack_require__(22);
+var _file_info3 = __webpack_require__(23);
 
 Object.defineProperty(exports, 'makeSelectFileInfoForUri', {
   enumerable: true,
@@ -950,7 +950,7 @@ Object.defineProperty(exports, 'selectNavLinks', {
   }
 });
 
-var _search3 = __webpack_require__(25);
+var _search3 = __webpack_require__(18);
 
 Object.defineProperty(exports, 'makeSelectSearchUris', {
   enumerable: true,
@@ -1166,7 +1166,7 @@ var _thumbnail_upload_statuses = __webpack_require__(44);
 
 var THUMBNAIL_STATUSES = _interopRequireWildcard(_thumbnail_upload_statuses);
 
-var _search4 = __webpack_require__(24);
+var _search4 = __webpack_require__(25);
 
 var SEARCH_TYPES = _interopRequireWildcard(_search4);
 
@@ -1565,6 +1565,7 @@ var SKIP_UPGRADE = exports.SKIP_UPGRADE = 'SKIP_UPGRADE';
 var START_UPGRADE = exports.START_UPGRADE = 'START_UPGRADE';
 var AUTO_UPDATE_DECLINED = exports.AUTO_UPDATE_DECLINED = 'AUTO_UPDATE_DECLINED';
 var AUTO_UPDATE_DOWNLOADED = exports.AUTO_UPDATE_DOWNLOADED = 'AUTO_UPDATE_DOWNLOADED';
+var CLEAR_UPGRADE_TIMER = exports.CLEAR_UPGRADE_TIMER = 'CLEAR_UPGRADE_TIMER';
 
 // Wallet
 var GET_NEW_ADDRESS_STARTED = exports.GET_NEW_ADDRESS_STARTED = 'GET_NEW_ADDRESS_STARTED';
@@ -1793,7 +1794,7 @@ var _notifications = __webpack_require__(3);
 
 var _claims = __webpack_require__(14);
 
-var _batchActions = __webpack_require__(19);
+var _batchActions = __webpack_require__(20);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3021,11 +3022,11 @@ var _lbryURI = __webpack_require__(2);
 
 var _navigation = __webpack_require__(15);
 
-var _search = __webpack_require__(25);
+var _search = __webpack_require__(18);
 
 var _reselect = __webpack_require__(16);
 
-var _claim = __webpack_require__(18);
+var _claim = __webpack_require__(19);
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -3703,12 +3704,70 @@ function toQueryString(params) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.makeSelectSearchUris = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchQuery = exports.selectSearchValue = exports.selectState = undefined;
+
+var _navigation = __webpack_require__(15);
+
+var _reselect = __webpack_require__(16);
+
+var selectState = exports.selectState = function selectState(state) {
+  return state.search || {};
+};
+
+var selectSearchValue = exports.selectSearchValue = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.searchQuery;
+});
+
+var selectSearchQuery = exports.selectSearchQuery = (0, _reselect.createSelector)(_navigation.selectCurrentPage, _navigation.selectCurrentParams, function (page, params) {
+  return page === 'search' ? params && params.query : null;
+});
+
+var selectIsSearching = exports.selectIsSearching = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.searching;
+});
+
+var selectSearchUrisByQuery = exports.selectSearchUrisByQuery = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.urisByQuery;
+});
+
+var makeSelectSearchUris = exports.makeSelectSearchUris = function makeSelectSearchUris(query) {
+  return (
+    // replace statement below is kind of ugly, and repeated in doSearch action
+    (0, _reselect.createSelector)(selectSearchUrisByQuery, function (byQuery) {
+      return byQuery[query ? query.replace(/^lbry:\/\//i, '') : query];
+    })
+  );
+};
+
+var selectWunderBarAddress = exports.selectWunderBarAddress = (0, _reselect.createSelector)(_navigation.selectCurrentPage, selectSearchQuery, _navigation.selectCurrentParams, function (page, query, params) {
+  // only populate the wunderbar address if we are on the file/channel pages
+  // or show the search query
+  if (page === 'show') {
+    return params.uri;
+  }
+  return query;
+});
+
+var selectSearchBarFocused = exports.selectSearchBarFocused = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.focused;
+});
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 var isClaimNsfw = exports.isClaimNsfw = function isClaimNsfw(claim) {
   return claim && claim.value && claim.value.stream && claim.value.stream.metadata.nsfw;
 };
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3731,7 +3790,7 @@ function batchActions() {
 }
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3791,7 +3850,7 @@ function doFetchCostInfoForUri(uri) {
 }
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3816,7 +3875,7 @@ var _claims = __webpack_require__(5);
 
 var _claims2 = __webpack_require__(14);
 
-var _file_info = __webpack_require__(22);
+var _file_info = __webpack_require__(23);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3884,7 +3943,7 @@ function doFetchFileInfosAndPublishedClaims() {
 }
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4091,7 +4150,7 @@ var selectSearchDownloadUris = exports.selectSearchDownloadUris = function selec
 };
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4106,7 +4165,7 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _search = __webpack_require__(24);
+var _search = __webpack_require__(25);
 
 var SEARCH_TYPES = _interopRequireWildcard(_search);
 
@@ -4114,9 +4173,9 @@ var _lbryURI = __webpack_require__(2);
 
 var _claims = __webpack_require__(5);
 
-var _search2 = __webpack_require__(25);
+var _search2 = __webpack_require__(18);
 
-var _batchActions = __webpack_require__(19);
+var _batchActions = __webpack_require__(20);
 
 var _handleFetch = __webpack_require__(26);
 
@@ -4329,7 +4388,7 @@ var doBlurSearchInput = exports.doBlurSearchInput = function doBlurSearchInput()
 };
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4341,64 +4400,6 @@ Object.defineProperty(exports, "__esModule", {
 var FILE = exports.FILE = 'file';
 var CHANNEL = exports.CHANNEL = 'channel';
 var SEARCH = exports.SEARCH = 'search';
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.makeSelectSearchUris = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchQuery = exports.selectSearchValue = exports.selectState = undefined;
-
-var _navigation = __webpack_require__(15);
-
-var _reselect = __webpack_require__(16);
-
-var selectState = exports.selectState = function selectState(state) {
-  return state.search || {};
-};
-
-var selectSearchValue = exports.selectSearchValue = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.searchQuery;
-});
-
-var selectSearchQuery = exports.selectSearchQuery = (0, _reselect.createSelector)(_navigation.selectCurrentPage, _navigation.selectCurrentParams, function (page, params) {
-  return page === 'search' ? params && params.query : null;
-});
-
-var selectIsSearching = exports.selectIsSearching = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.searching;
-});
-
-var selectSearchUrisByQuery = exports.selectSearchUrisByQuery = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.urisByQuery;
-});
-
-var makeSelectSearchUris = exports.makeSelectSearchUris = function makeSelectSearchUris(query) {
-  return (
-    // replace statement below is kind of ugly, and repeated in doSearch action
-    (0, _reselect.createSelector)(selectSearchUrisByQuery, function (byQuery) {
-      return byQuery[query ? query.replace(/^lbry:\/\//i, '') : query];
-    })
-  );
-};
-
-var selectWunderBarAddress = exports.selectWunderBarAddress = (0, _reselect.createSelector)(_navigation.selectCurrentPage, selectSearchQuery, _navigation.selectCurrentParams, function (page, query, params) {
-  // only populate the wunderbar address if we are on the file/channel pages
-  // or show the search query
-  if (page === 'show') {
-    return params.uri;
-  }
-  return query;
-});
-
-var selectSearchBarFocused = exports.selectSearchBarFocused = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.focused;
-});
 
 /***/ }),
 /* 26 */
