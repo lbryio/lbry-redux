@@ -1,9 +1,8 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
-import * as SEARCH_TYPES from 'constants/search';
-import { normalizeURI, buildURI, parseURI } from 'lbryURI';
+import { buildURI } from 'lbryURI';
 import { doResolveUri } from 'redux/actions/claims';
-import { makeSelectSearchUris } from 'redux/selectors/search';
+import { makeSelectSearchUris, selectSuggestions } from 'redux/selectors/search';
 import { batchActions } from 'util/batchActions';
 import handleFetchResponse from 'util/handle-fetch';
 
@@ -77,102 +76,31 @@ export const doSearch = (
     });
 };
 
-export const getSearchSuggestions = (value: string) => dispatch => {
+export const getSearchSuggestions = (value: string) => (dispatch, getState) => {
   const query = value.trim();
 
-  const isPrefix = () =>
-    query === '@' || query === 'lbry:' || query === 'lbry:/' || query === 'lbry://';
-
-  if (!query || isPrefix()) {
-    dispatch({
-      type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
-      data: { suggestions: [] },
-    });
-    return;
-  }
-
-  let suggestions = [];
-  try {
-    // If the user is about to manually add the claim id ignore it until they
-    // actually add one. This would hardly ever happen, but then the search
-    // suggestions won't change just from adding a '#' after a uri
-    let uriQuery = query;
-    if (uriQuery.endsWith('#')) {
-      uriQuery = uriQuery.slice(0, -1);
-    }
-
-    const uri = normalizeURI(uriQuery);
-    const { claimName, isChannel } = parseURI(uri);
-
-    suggestions.push(
-      {
-        value: uri,
-        shorthand: isChannel ? claimName.slice(1) : claimName,
-        type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE,
-      },
-      {
-        value: claimName,
-        type: SEARCH_TYPES.SEARCH,
-      }
-    );
-  } catch (e) {
-    suggestions.push({
-      value: query,
-      type: SEARCH_TYPES.SEARCH,
-    });
-  }
-
-  // Populate the current search query suggestion before fetching results
-  dispatch({
-    type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
-    data: { suggestions },
-  });
-
   // strip out any basic stuff for more accurate search results
-  let searchValue = value.replace(/lbry:\/\//g, '').replace(/-/g, ' ');
+  let searchValue = query.replace(/lbry:\/\//g, '').replace(/-/g, ' ');
   if (searchValue.includes('#')) {
     // This should probably be more robust, but I think it's fine for now
     // Remove everything after # to get rid of the claim id
     searchValue = searchValue.substring(0, searchValue.indexOf('#'));
   }
 
+  const suggestions = selectSuggestions(getState());
+  if (suggestions[searchValue]) {
+    return;
+  }
+
   fetch(`https://lighthouse.lbry.io/autocomplete?s=${searchValue}`)
     .then(handleFetchResponse)
     .then(apiSuggestions => {
-      // Suggestion could be a channel, uri, or search term
-      const formattedSuggestions = apiSuggestions
-        .slice(0, 6)
-        .filter(suggestion => suggestion !== query)
-        .map(suggestion => {
-          if (suggestion.includes(' ')) {
-            return {
-              value: suggestion,
-              type: SEARCH_TYPES.SEARCH,
-            };
-          }
-
-          try {
-            const uri = normalizeURI(suggestion);
-            const { claimName, isChannel } = parseURI(uri);
-
-            return {
-              value: uri,
-              shorthand: isChannel ? claimName.slice(1) : claimName,
-              type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE,
-            };
-          } catch (e) {
-            // search result includes some character that isn't valid in claim names
-            return {
-              value: suggestion,
-              type: SEARCH_TYPES.SEARCH,
-            };
-          }
-        });
-
-      suggestions = suggestions.concat(formattedSuggestions);
       dispatch({
         type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
-        data: { suggestions },
+        data: {
+          query: searchValue,
+          suggestions: apiSuggestions,
+        },
       });
     })
     .catch(() => {
