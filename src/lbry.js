@@ -61,6 +61,10 @@ const daemonCallWithResult = (name, params = {}) =>
     );
   });
 
+// blobs
+Lbry.blob_delete = (params = {}) => daemonCallWithResult('blob_delete', params);
+Lbry.blob_list = (params = {}) => daemonCallWithResult('blob_list', params);
+
 // core
 Lbry.status = (params = {}) => daemonCallWithResult('status', params);
 Lbry.version = () => daemonCallWithResult('version', {});
