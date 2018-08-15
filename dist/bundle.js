@@ -1596,7 +1596,6 @@ var WALLET_LOCK_COMPLETED = exports.WALLET_LOCK_COMPLETED = 'WALLET_LOCK_COMPLET
 var WALLET_LOCK_FAILED = exports.WALLET_LOCK_FAILED = 'WALLET_LOCK_FAILED';
 var WALLET_STATUS_START = exports.WALLET_STATUS_START = 'WALLET_STATUS_START';
 var WALLET_STATUS_COMPLETED = exports.WALLET_STATUS_COMPLETED = 'WALLET_STATUS_COMPLETED';
-var WALLET_STATUS_FAILED = exports.WALLET_STATUS_FAILED = 'WALLET_STATUS_FAILED';
 
 // Claims
 var FETCH_FEATURED_CONTENT_STARTED = exports.FETCH_FEATURED_CONTENT_STARTED = 'FETCH_FEATURED_CONTENT_STARTED';
@@ -4192,6 +4191,7 @@ var DEFAULTSEARCHRESULTFROM = 0;
 var doSearch = exports.doSearch = function doSearch(rawQuery) {
   var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULTSEARCHRESULTSIZE;
   var from = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULTSEARCHRESULTFROM;
+  var isBackgroundSearch = arguments[3];
   return function (dispatch, getState) {
     var state = getState();
     var query = rawQuery.replace(/^lbry:\/\//i, '');
@@ -4216,7 +4216,8 @@ var doSearch = exports.doSearch = function doSearch(rawQuery) {
     // If the user is on the file page with a pre-populated uri and they select
     // the search option without typing anything, searchQuery will be empty
     // We need to populate it so the input is filled on the search page
-    if (!state.search.searchQuery) {
+    // isBackgroundSearch means the search is happening in the background, don't update the search query
+    if (!state.search.searchQuery && !isBackgroundSearch) {
       dispatch({
         type: ACTIONS.UPDATE_SEARCH_QUERY,
         data: { searchQuery: query }
@@ -4863,16 +4864,11 @@ function doWalletStatus() {
       type: ACTIONS.WALLET_STATUS_START
     });
 
-    _lbry2.default.status().then(function (result) {
-      if (result && !result.error) {
+    _lbry2.default.status().then(function (status) {
+      if (status && status.wallet) {
         dispatch({
           type: ACTIONS.WALLET_STATUS_COMPLETED,
-          result: result
-        });
-      } else {
-        dispatch({
-          type: ACTIONS.WALLET_STATUS_FAILED,
-          result: result
+          result: status.wallet.is_encrypted
         });
       }
     });
@@ -6231,7 +6227,7 @@ reducers[ACTIONS.FETCH_BLOCK_SUCCESS] = function (state /*: WalletState*/, actio
 
 reducers[ACTIONS.WALLET_STATUS_COMPLETED] = function (state /*: WalletState*/, action) {
   return Object.assign({}, state, {
-    walletIsEncrypted: !!action.result.wallet_is_encrypted
+    walletIsEncrypted: action.result
   });
 };
 
