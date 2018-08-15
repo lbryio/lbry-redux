@@ -188,7 +188,7 @@ reducers[ACTIONS.FETCH_BLOCK_SUCCESS] = (state: WalletState, action) => {
 
 reducers[ACTIONS.WALLET_STATUS_COMPLETED] = (state: WalletState, action) =>
   Object.assign({}, state, {
-    walletIsEncrypted: !!action.result.wallet_is_encrypted,
+    walletIsEncrypted: action.result,
   });
 
 reducers[ACTIONS.WALLET_ENCRYPT_START] = (state: WalletState) =>
