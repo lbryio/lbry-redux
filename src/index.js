@@ -189,6 +189,7 @@ export {
   selectSearchUrisByQuery,
   selectWunderBarAddress,
   selectSearchBarFocused,
+  selectSearchSuggestions,
 } from 'redux/selectors/search';
 
 export {

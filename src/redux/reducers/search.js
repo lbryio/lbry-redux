@@ -26,6 +26,7 @@ type SearchSuggestion = {
 type UpdateSearchSuggestions = {
   type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
   data: {
+    query: string,
     suggestions: Array<SearchSuggestion>,
   },
 };
@@ -50,7 +51,7 @@ const defaultState = {
   isActive: false, // does the user have any typed text in the search input
   focused: false, // is the search input focused
   searchQuery: '', // needs to be an empty string for input focusing
-  suggestions: [],
+  suggestions: {},
   urisByQuery: {},
 };
 
@@ -89,7 +90,10 @@ export const searchReducer = handleActions(
       action: UpdateSearchSuggestions
     ): SearchState => ({
       ...state,
-      suggestions: action.data.suggestions,
+      suggestions: {
+        ...state.suggestions,
+        [action.data.query]: action.data.suggestions,
+      },
     }),
 
     // clear the searchQuery on back/forward unless to search page
@@ -98,8 +102,8 @@ export const searchReducer = handleActions(
       return {
         ...state,
         searchQuery: url.indexOf('/search') === 0 ? url.slice(14) : '',
-        suggestions: [],
         isActive: url.indexOf('/search') === 0,
+        suggestions: {},
       };
     },
 
