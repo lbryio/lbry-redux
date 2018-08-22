@@ -16,7 +16,7 @@ export const doSearch = (
   isBackgroundSearch
 ) => (dispatch, getState) => {
   const state = getState();
-  const query = rawQuery.replace(/^lbry:\/\//i, '');
+  const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
   if (!query) {
     dispatch({
