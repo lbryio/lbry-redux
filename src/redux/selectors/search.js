@@ -23,7 +23,7 @@ export const makeSelectSearchUris = query =>
   // replace statement below is kind of ugly, and repeated in doSearch action
   createSelector(
     selectSearchUrisByQuery,
-    byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '') : query]
+    byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query]
   );
 
 export const selectWunderBarAddress = createSelector(

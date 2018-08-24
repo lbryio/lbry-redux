@@ -277,7 +277,7 @@ export const makeSelectRecommendedContentForUri = uri =>
             },
           },
         } = claim;
-        let searchUris = searchUrisByQuery[title];
+        let searchUris = searchUrisByQuery[title.replace(/\//, ' ')];
         if (searchUris) {
           searchUris = searchUris.filter(searchUri => searchUri !== uri);
           recommendedContent = searchUris;
