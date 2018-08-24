@@ -2166,9 +2166,19 @@ Lbry.wallet_balance = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('wallet_balance', params);
 };
+Lbry.wallet_decrypt = function () {
+  return daemonCallWithResult('wallet_decrypt', {});
+};
+Lbry.wallet_encrypt = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('wallet_encrypt', params);
+};
 Lbry.wallet_is_address_mine = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('wallet_is_address_mine', params);
+};
+Lbry.wallet_lock = function () {
+  return daemonCallWithResult('wallet_lock', {});
 };
 Lbry.wallet_new_address = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -2178,19 +2188,12 @@ Lbry.wallet_send = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('wallet_send', params);
 };
-Lbry.wallet_encrypt = function () {
-  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return daemonCallWithResult('wallet_encrypt', params);
-};
-Lbry.wallet_decrypt = function () {
-  return daemonCallWithResult('wallet_decrypt', {});
-};
 Lbry.wallet_unlock = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('wallet_unlock', params);
 };
-Lbry.wallet_lock = function () {
-  return daemonCallWithResult('wallet_lock', {});
+Lbry.wallet_unused_address = function () {
+  return daemonCallWithResult('wallet_unused_address', {});
 };
 
 // transactions
