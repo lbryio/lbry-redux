@@ -267,8 +267,9 @@ export const makeSelectRecommendedContentForUri = uri =>
     makeSelectClaimForUri(uri),
     selectSearchUrisByQuery,
     (claim, searchUrisByQuery) => {
-      let recommendedContent;
+      const atVanityURI = !uri.includes('#');
 
+      let recommendedContent;
       if (claim) {
         const {
           value: {
@@ -279,6 +280,12 @@ export const makeSelectRecommendedContentForUri = uri =>
         } = claim;
         let searchUris = searchUrisByQuery[title.replace(/\//, ' ')];
         if (searchUris) {
+          // If we are at a vanity uri, we can't do a uri match
+          // The first search result _should_ be the same as the claim a user is on
+          if (atVanityURI) {
+            searchUris = searchUris.slice(1);
+          }
+
           searchUris = searchUris.filter(searchUri => searchUri !== uri);
           recommendedContent = searchUris;
         }
