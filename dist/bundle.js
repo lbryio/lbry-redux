@@ -3312,13 +3312,20 @@ var makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountForChannel = func
 
 var makeSelectRecommendedContentForUri = exports.makeSelectRecommendedContentForUri = function makeSelectRecommendedContentForUri(uri) {
   return (0, _reselect.createSelector)(makeSelectClaimForUri(uri), _search.selectSearchUrisByQuery, function (claim, searchUrisByQuery) {
-    var recommendedContent = void 0;
+    var atVanityURI = !uri.includes('#');
 
+    var recommendedContent = void 0;
     if (claim) {
       var title = claim.value.stream.metadata.title;
 
       var searchUris = searchUrisByQuery[title.replace(/\//, ' ')];
       if (searchUris) {
+        // If we are at a vanity uri, we can't do a uri match
+        // The first search result _should_ be the same as the claim a user is on
+        if (atVanityURI) {
+          searchUris = searchUris.slice(1);
+        }
+
         searchUris = searchUris.filter(function (searchUri) {
           return searchUri !== uri;
         });
