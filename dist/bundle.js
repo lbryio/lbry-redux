@@ -46,17 +46,32 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -89,7 +104,7 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectNavLinks = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = undefined;
+exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = undefined;
 exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doHideNotification = exports.doNotify = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.MODALS = exports.ACTIONS = exports.Notification = undefined;
 
 var _Notification = __webpack_require__(1);
@@ -916,12 +931,6 @@ Object.defineProperty(exports, 'selectActiveHistoryEntry', {
     return _navigation.selectActiveHistoryEntry;
   }
 });
-Object.defineProperty(exports, 'selectNavLinks', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectNavLinks;
-  }
-});
 
 var _search3 = __webpack_require__(18);
 
@@ -1481,14 +1490,9 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _Notification = __webpack_require__(1);
-
-var _Notification2 = _interopRequireDefault(_Notification);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+/*:: import type { Notification, NotificationProps } from 'types/Notification';*/
 function doNotify(notification /*: Notification*/, notificationProps /*: NotificationProps*/) {
   return {
     type: ACTIONS.CREATE_NOTIFICATION,
@@ -1598,11 +1602,15 @@ var CREATE_CHANNEL_COMPLETED = exports.CREATE_CHANNEL_COMPLETED = 'CREATE_CHANNE
 var PUBLISH_STARTED = exports.PUBLISH_STARTED = 'PUBLISH_STARTED';
 var PUBLISH_COMPLETED = exports.PUBLISH_COMPLETED = 'PUBLISH_COMPLETED';
 var PUBLISH_FAILED = exports.PUBLISH_FAILED = 'PUBLISH_FAILED';
-var SET_PLAYING_URI = exports.SET_PLAYING_URI = 'PLAY_URI';
 var FETCH_BLACK_LISTED_CONTENT_STARTED = exports.FETCH_BLACK_LISTED_CONTENT_STARTED = 'FETCH_BLACK_LISTED_CONTENT_STARTED';
 var FETCH_BLACK_LISTED_CONTENT_COMPLETED = exports.FETCH_BLACK_LISTED_CONTENT_COMPLETED = 'FETCH_BLACK_LISTED_CONTENT_COMPLETED';
 var FETCH_BLACK_LISTED_CONTENT_FAILED = exports.FETCH_BLACK_LISTED_CONTENT_FAILED = 'FETCH_BLACK_LISTED_CONTENT_FAILED';
 var BLACK_LISTED_CONTENT_SUBSCRIBE = exports.BLACK_LISTED_CONTENT_SUBSCRIBE = 'BLACK_LISTED_CONTENT_SUBSCRIBE';
+var SET_PLAYING_URI = exports.SET_PLAYING_URI = 'SET_PLAYING_URI';
+var SET_CONTENT_POSITION = exports.SET_CONTENT_POSITION = 'SET_CONTENT_POSITION';
+var SET_CONTENT_LAST_VIEWED = exports.SET_CONTENT_LAST_VIEWED = 'SET_CONTENT_LAST_VIEWED';
+var CLEAR_CONTENT_HISTORY_URI = exports.CLEAR_CONTENT_HISTORY_URI = 'CLEAR_CONTENT_HISTORY_URI';
+var CLEAR_CONTENT_HISTORY_ALL = exports.CLEAR_CONTENT_HISTORY_ALL = 'CLEAR_CONTENT_HISTORY_ALL';
 
 // Files
 var FILE_LIST_STARTED = exports.FILE_LIST_STARTED = 'FILE_LIST_STARTED';
@@ -1709,14 +1717,6 @@ var SET_SUBSCRIPTION_NOTIFICATIONS = exports.SET_SUBSCRIPTION_NOTIFICATIONS = 'S
 var CHECK_SUBSCRIPTION_STARTED = exports.CHECK_SUBSCRIPTION_STARTED = 'CHECK_SUBSCRIPTION_STARTED';
 var CHECK_SUBSCRIPTION_COMPLETED = exports.CHECK_SUBSCRIPTION_COMPLETED = 'CHECK_SUBSCRIPTION_COMPLETED';
 var CHECK_SUBSCRIPTIONS_SUBSCRIBE = exports.CHECK_SUBSCRIPTIONS_SUBSCRIBE = 'CHECK_SUBSCRIPTIONS_SUBSCRIBE';
-
-// Video controls
-var SET_VIDEO_PAUSE = exports.SET_VIDEO_PAUSE = 'SET_VIDEO_PAUSE';
-
-// Media controls
-var MEDIA_PLAY = exports.MEDIA_PLAY = 'MEDIA_PLAY';
-var MEDIA_PAUSE = exports.MEDIA_PAUSE = 'MEDIA_PAUSE';
-var MEDIA_POSITION = exports.MEDIA_POSITION = 'MEDIA_POSITION';
 
 // Publishing
 var CLEAR_PUBLISH = exports.CLEAR_PUBLISH = 'CLEAR_PUBLISH';
@@ -3289,7 +3289,7 @@ var makeSelectRecommendedContentForUri = exports.makeSelectRecommendedContentFor
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectNavLinks = exports.selectPageTitle = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsHome = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.makeSelectCurrentParam = exports.selectCurrentParams = exports.selectCurrentPage = exports.computePageFromPath = exports.selectCurrentPath = exports.selectState = undefined;
+exports.selectPageTitle = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsHome = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.makeSelectCurrentParam = exports.selectCurrentParams = exports.selectCurrentPage = exports.computePageFromPath = exports.selectCurrentPath = exports.selectState = undefined;
 
 var _reselect = __webpack_require__(16);
 
@@ -3358,132 +3358,6 @@ var selectPageTitle = exports.selectPageTitle = (0, _reselect.createSelector)(se
     default:
       return '';
   }
-});
-
-var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(selectCurrentPage, selectHistoryStack, function (currentPage, historyStack) {
-  var isWalletPage = function isWalletPage(page) {
-    return page === 'wallet' || page === 'send' || page === 'getcredits' || page === 'rewards' || page === 'history' || page === 'invite' || page === 'backup';
-  };
-
-  var isMyLbryPage = function isMyLbryPage(page) {
-    return page === 'downloaded' || page === 'published';
-  };
-
-  var previousStack = historyStack.slice().reverse();
-
-  var getPreviousSubLinkPath = function getPreviousSubLinkPath(checkIfValidPage) {
-    for (var i = 0; i < previousStack.length; i += 1) {
-      var currentStackItem = previousStack[i];
-
-      // Trim off the "/" from the path
-      var pageInStack = currentStackItem.path.slice(1);
-      if (checkIfValidPage(pageInStack)) {
-        return currentStackItem.path;
-      }
-    }
-
-    return undefined;
-  };
-
-  // Gets the last active sublink in a section
-  var getActiveSublink = function getActiveSublink(category) {
-    if (category === 'wallet') {
-      var previousPath = getPreviousSubLinkPath(isWalletPage);
-      return previousPath || '/wallet';
-    } else if (category === 'myLbry') {
-      var _previousPath = getPreviousSubLinkPath(isMyLbryPage);
-      return _previousPath || '/downloaded';
-    }
-
-    return undefined;
-  };
-
-  var isCurrentlyWalletPage = isWalletPage(currentPage);
-  var isCurrentlyMyLbryPage = isMyLbryPage(currentPage);
-
-  var walletSubLinks = [{
-    label: 'Overview',
-    path: '/wallet',
-    active: currentPage === 'wallet'
-  }, {
-    label: 'Send & Receive',
-    path: '/send',
-    active: currentPage === 'send'
-  }, {
-    label: 'Transactions',
-    path: '/history',
-    active: currentPage === 'history'
-  }, {
-    label: 'Get Credits',
-    path: '/getcredits',
-    active: currentPage === 'getcredits'
-  }, {
-    label: 'Rewards',
-    path: '/rewards',
-    active: currentPage === 'rewards'
-  }, {
-    label: 'Invites',
-    path: '/invite',
-    active: currentPage === 'invite'
-  }, {
-    label: 'Backup',
-    path: '/backup',
-    active: currentPage === 'backup'
-  }];
-
-  var myLbrySubLinks = [{
-    label: 'Downloads',
-    path: '/downloaded',
-    active: currentPage === 'downloaded'
-  }, {
-    label: 'Publishes',
-    path: '/published',
-    active: currentPage === 'published'
-  }];
-
-  var navLinks = {
-    primary: [{
-      label: 'Explore',
-      path: '/discover',
-      active: currentPage === 'discover',
-      icon: 'Compass'
-    }, {
-      label: 'Subscriptions',
-      path: '/subscriptions',
-      active: currentPage === 'subscriptions',
-      icon: 'AtSign'
-    }],
-    secondary: [{
-      label: 'Wallet',
-      icon: 'CreditCard',
-      subLinks: walletSubLinks,
-      path: isCurrentlyWalletPage ? '/wallet' : getActiveSublink('wallet'),
-      active: isWalletPage(currentPage)
-    }, {
-      label: 'My LBRY',
-      icon: 'Folder',
-      subLinks: myLbrySubLinks,
-      path: isCurrentlyMyLbryPage ? '/downloaded' : getActiveSublink('myLbry'),
-      active: isMyLbryPage(currentPage)
-    }, {
-      label: 'Publish',
-      icon: 'UploadCloud',
-      path: '/publish',
-      active: currentPage === 'publish'
-    }, {
-      label: 'Settings',
-      icon: 'Settings',
-      path: '/settings',
-      active: currentPage === 'settings'
-    }, {
-      label: 'Help',
-      path: '/help',
-      icon: 'HelpCircle',
-      active: currentPage === 'help'
-    }]
-  };
-
-  return navLinks;
 });
 
 /***/ }),
@@ -4252,12 +4126,13 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 // @flow
 var DEFAULTSEARCHRESULTSIZE = 10;
 var DEFAULTSEARCHRESULTFROM = 0;
-
+/*:: type Dispatch = (action: any) => any;*/
+/*:: type GetState = () => {};*/
 var doSearch = exports.doSearch = function doSearch(rawQuery) {
   var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULTSEARCHRESULTSIZE;
   var from = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULTSEARCHRESULTFROM;
   var isBackgroundSearch = arguments[3];
-  return function (dispatch, getState) {
+  return function (dispatch /*: Dispatch*/, getState /*: GetState*/) {
     var state = getState();
     var query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
@@ -4321,7 +4196,7 @@ var doSearch = exports.doSearch = function doSearch(rawQuery) {
 };
 
 var getSearchSuggestions = exports.getSearchSuggestions = function getSearchSuggestions(value /*: string*/) {
-  return function (dispatch, getState) {
+  return function (dispatch /*: Dispatch*/) {
     var query = value.trim();
 
     // strip out any basic stuff for more accurate search results
@@ -4353,7 +4228,7 @@ var getSearchSuggestions = exports.getSearchSuggestions = function getSearchSugg
 };
 
 var doUpdateSearchQuery = exports.doUpdateSearchQuery = function doUpdateSearchQuery(query /*: string*/, shouldSkipSuggestions /*: ?boolean*/) {
-  return function (dispatch) {
+  return function (dispatch /*: Dispatch*/) {
     dispatch({
       type: ACTIONS.UPDATE_SEARCH_QUERY,
       data: { query: query }
@@ -4367,7 +4242,7 @@ var doUpdateSearchQuery = exports.doUpdateSearchQuery = function doUpdateSearchQ
 };
 
 var doFocusSearchInput = exports.doFocusSearchInput = function doFocusSearchInput() {
-  return function (dispatch) {
+  return function (dispatch /*: Dispatch*/) {
     return dispatch({
       type: ACTIONS.SEARCH_FOCUS
     });
@@ -4375,7 +4250,7 @@ var doFocusSearchInput = exports.doFocusSearchInput = function doFocusSearchInpu
 };
 
 var doBlurSearchInput = exports.doBlurSearchInput = function doBlurSearchInput() {
-  return function (dispatch) {
+  return function (dispatch /*: Dispatch*/) {
     return dispatch({
       type: ACTIONS.SEARCH_BLUR
     });
@@ -6299,8 +6174,8 @@ reducers[ACTIONS.WALLET_LOCK_FAILED] = function (state /*: WalletState*/, action
 };
 
 function walletReducer() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
-  var action = arguments[1];
+  var state /*: WalletState*/ = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
+  var action /*: ActionResult*/ = arguments[1];
 
   var handler = reducers[action.type];
   if (handler) return handler(state, action);

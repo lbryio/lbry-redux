@@ -1,6 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
-import Notification from 'types/Notification';
+import type { Notification, NotificationProps } from 'types/Notification';
 
 export function doNotify(notification: Notification, notificationProps: NotificationProps) {
   return {
