@@ -222,11 +222,6 @@ export const makeSelectTotalPagesForChannel = uri =>
     byUri => byUri && byUri[uri] && Math.ceil(byUri[uri] / 10)
   );
 
-export const selectRewardContentClaimIds = createSelector(
-  selectState,
-  state => state.rewardedContentClaimIds
-);
-
 export const makeSelectNsfwCountFromUris = uris =>
   createSelector(selectClaimsByUri, claims =>
     uris.reduce((acc, uri) => {

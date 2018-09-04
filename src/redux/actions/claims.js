@@ -195,32 +195,6 @@ export function doFetchTrendingUris() {
   };
 }
 
-export function doFetchRewardedContent() {
-  return dispatch => {
-    const success = nameToClaimId => {
-      dispatch({
-        type: ACTIONS.FETCH_REWARD_CONTENT_COMPLETED,
-        data: {
-          claimIds: Object.values(nameToClaimId),
-          success: true,
-        },
-      });
-    };
-
-    const failure = () => {
-      dispatch({
-        type: ACTIONS.FETCH_REWARD_CONTENT_COMPLETED,
-        data: {
-          claimIds: [],
-          success: false,
-        },
-      });
-    };
-
-    Lbryapi.call('reward', 'list_featured').then(success, failure);
-  };
-}
-
 export function doFetchClaimsByChannel(uri, page) {
   return dispatch => {
     dispatch({

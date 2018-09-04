@@ -40,7 +40,6 @@ export {
   doResolveUri,
   doFetchFeaturedUris,
   doFetchTrendingUris,
-  doFetchRewardedContent,
 } from 'redux/actions/claims';
 
 export { doFetchCostInfoForUri } from 'redux/actions/cost_info';
@@ -137,7 +136,6 @@ export {
   selectFetchingTrendingUris,
   selectPlayingUri,
   selectChannelClaimCounts,
-  selectRewardContentClaimIds,
 } from 'redux/selectors/claims';
 
 export {
