@@ -175,7 +175,6 @@ export {
   selectHistoryIndex,
   selectHistoryStack,
   selectActiveHistoryEntry,
-  selectNavLinks,
 } from 'redux/selectors/navigation';
 
 export { selectSearchState };

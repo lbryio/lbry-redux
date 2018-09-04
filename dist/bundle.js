@@ -104,7 +104,7 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectNavLinks = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = undefined;
+exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = undefined;
 exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doHideNotification = exports.doNotify = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.MODALS = exports.ACTIONS = exports.Notification = undefined;
 
 var _Notification = __webpack_require__(1);
@@ -929,12 +929,6 @@ Object.defineProperty(exports, 'selectActiveHistoryEntry', {
   enumerable: true,
   get: function get() {
     return _navigation.selectActiveHistoryEntry;
-  }
-});
-Object.defineProperty(exports, 'selectNavLinks', {
-  enumerable: true,
-  get: function get() {
-    return _navigation.selectNavLinks;
   }
 });
 
@@ -3295,7 +3289,7 @@ var makeSelectRecommendedContentForUri = exports.makeSelectRecommendedContentFor
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectNavLinks = exports.selectPageTitle = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsHome = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.makeSelectCurrentParam = exports.selectCurrentParams = exports.selectCurrentPage = exports.computePageFromPath = exports.selectCurrentPath = exports.selectState = undefined;
+exports.selectPageTitle = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsHome = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.makeSelectCurrentParam = exports.selectCurrentParams = exports.selectCurrentPage = exports.computePageFromPath = exports.selectCurrentPath = exports.selectState = undefined;
 
 var _reselect = __webpack_require__(16);
 
@@ -3364,136 +3358,6 @@ var selectPageTitle = exports.selectPageTitle = (0, _reselect.createSelector)(se
     default:
       return '';
   }
-});
-
-var selectNavLinks = exports.selectNavLinks = (0, _reselect.createSelector)(selectCurrentPage, selectHistoryStack, function (currentPage, historyStack) {
-  var isWalletPage = function isWalletPage(page) {
-    return page === 'wallet' || page === 'send' || page === 'getcredits' || page === 'rewards' || page === 'history' || page === 'invite' || page === 'backup';
-  };
-
-  var isMyLbryPage = function isMyLbryPage(page) {
-    return page === 'downloaded' || page === 'published' || page === 'user_history';
-  };
-
-  var previousStack = historyStack.slice().reverse();
-
-  var getPreviousSubLinkPath = function getPreviousSubLinkPath(checkIfValidPage) {
-    for (var i = 0; i < previousStack.length; i += 1) {
-      var currentStackItem = previousStack[i];
-
-      // Trim off the "/" from the path
-      var pageInStack = currentStackItem.path.slice(1);
-      if (checkIfValidPage(pageInStack)) {
-        return currentStackItem.path;
-      }
-    }
-
-    return undefined;
-  };
-
-  // Gets the last active sublink in a section
-  var getActiveSublink = function getActiveSublink(category) {
-    if (category === 'wallet') {
-      var previousPath = getPreviousSubLinkPath(isWalletPage);
-      return previousPath || '/wallet';
-    } else if (category === 'myLbry') {
-      var _previousPath = getPreviousSubLinkPath(isMyLbryPage);
-      return _previousPath || '/downloaded';
-    }
-
-    return undefined;
-  };
-
-  var isCurrentlyWalletPage = isWalletPage(currentPage);
-  var isCurrentlyMyLbryPage = isMyLbryPage(currentPage);
-
-  var walletSubLinks = [{
-    label: 'Overview',
-    path: '/wallet',
-    active: currentPage === 'wallet'
-  }, {
-    label: 'Send & Receive',
-    path: '/send',
-    active: currentPage === 'send'
-  }, {
-    label: 'Transactions',
-    path: '/history',
-    active: currentPage === 'history'
-  }, {
-    label: 'Get Credits',
-    path: '/getcredits',
-    active: currentPage === 'getcredits'
-  }, {
-    label: 'Rewards',
-    path: '/rewards',
-    active: currentPage === 'rewards'
-  }, {
-    label: 'Invites',
-    path: '/invite',
-    active: currentPage === 'invite'
-  }, {
-    label: 'Backup',
-    path: '/backup',
-    active: currentPage === 'backup'
-  }];
-
-  var myLbrySubLinks = [{
-    label: 'Downloads',
-    path: '/downloaded',
-    active: currentPage === 'downloaded'
-  }, {
-    label: 'Publishes',
-    path: '/published',
-    active: currentPage === 'published'
-  }, {
-    label: 'History',
-    path: '/user_history',
-    active: currentPage === 'user_history'
-  }];
-
-  var navLinks = {
-    primary: [{
-      label: 'Explore',
-      path: '/discover',
-      active: currentPage === 'discover',
-      icon: 'Compass'
-    }, {
-      label: 'Subscriptions',
-      path: '/subscriptions',
-      active: currentPage === 'subscriptions',
-      icon: 'AtSign'
-    }],
-    secondary: [{
-      label: 'Wallet',
-      icon: 'CreditCard',
-      subLinks: walletSubLinks,
-      path: isCurrentlyWalletPage ? '/wallet' : getActiveSublink('wallet'),
-      active: isWalletPage(currentPage)
-    }, {
-      label: 'My LBRY',
-      icon: 'Folder',
-      subLinks: myLbrySubLinks,
-      path: isCurrentlyMyLbryPage ? '/downloaded' : getActiveSublink('myLbry'),
-      active: isMyLbryPage(currentPage)
-    }, {
-      label: 'Publish',
-      icon: 'UploadCloud',
-      path: '/publish',
-      active: currentPage === 'publish'
-    }, {
-      label: 'Settings',
-      icon: 'Settings',
-      path: '/settings',
-      active: currentPage === 'settings'
-    }, {
-      label: 'Help',
-      path: '/help',
-      icon: 'HelpCircle',
-      active: currentPage === 'help'
-    }]
-  };
-
-  return navLinks;
 });
 
 /***/ }),
