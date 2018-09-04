@@ -3,7 +3,6 @@ import * as ACTIONS from 'constants/action_types';
 const reducers = {};
 
 const defaultState = {
-  rewardedContentClaimIds: [],
   channelClaimCounts: {},
 };
 
@@ -222,14 +221,6 @@ reducers[ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED] = (state, action) => {
     fetchingTrendingContent: false,
     fetchingTrendingContentFailed: !success,
     trendingUris: uris,
-  });
-};
-
-reducers[ACTIONS.FETCH_REWARD_CONTENT_COMPLETED] = (state, action) => {
-  const { claimIds } = action.data;
-
-  return Object.assign({}, state, {
-    rewardedContentClaimIds: claimIds,
   });
 };
 
