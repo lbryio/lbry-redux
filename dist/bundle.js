@@ -4164,9 +4164,8 @@ var doSearch = exports.doSearch = function doSearch(rawQuery) {
       });
     }
 
-    // For some reason the app doesn't automatically encode the pound sign (#)
-    // If we don't do it manually everything after the '#' gets removed
-    fetch('https://lighthouse.lbry.io/search?s=' + query.replace('#', '%23') + '&size=' + size + '&from=' + from).then(_handleFetch2.default).then(function (data) {
+    var encodedQuery = encodeURIComponent(query);
+    fetch('https://lighthouse.lbry.io/search?s=' + encodedQuery + '&size=' + size + '&from=' + from).then(_handleFetch2.default).then(function (data) {
       var uris = [];
       var actions = [];
 
@@ -4196,7 +4195,7 @@ var doSearch = exports.doSearch = function doSearch(rawQuery) {
 };
 
 var getSearchSuggestions = exports.getSearchSuggestions = function getSearchSuggestions(value /*: string*/) {
-  return function (dispatch /*: Dispatch*/) {
+  return function (dispatch /*: Dispatch*/, getState /*: GetState*/) {
     var query = value.trim();
 
     // strip out any basic stuff for more accurate search results
