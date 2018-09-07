@@ -5687,6 +5687,7 @@ var AFFIRM_PURCHASE = exports.AFFIRM_PURCHASE = 'affirm_purchase';
 var CONFIRM_CLAIM_REVOKE = exports.CONFIRM_CLAIM_REVOKE = 'confirm_claim_revoke';
 var FIRST_SUBSCRIPTION = exports.FIRST_SUBSCRIPTION = 'firstSubscription';
 var SEND_TIP = exports.SEND_TIP = 'send_tip';
+var SOCIAL_SHARE = exports.SOCIAL_SHARE = 'social_share';
 var PUBLISH = exports.PUBLISH = 'publish';
 var SEARCH = exports.SEARCH = 'search';
 var CONFIRM_TRANSACTION = exports.CONFIRM_TRANSACTION = 'confirm_transaction';
