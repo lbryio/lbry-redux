@@ -2,6 +2,11 @@ import { createSelector } from 'reselect';
 
 export const selectState = state => state.notifications || {};
 
+export const selectNotifications = createSelector(
+  selectState,
+  state => state.stack
+);
+
 export const selectNotificationData = createSelector(
   selectState,
   state => (state.queue.length > 0 ? state.queue[0] : {})
