@@ -6,8 +6,10 @@ const reducers = {};
 const defaultState = {
   // First-in, first-out
   queue: [],
+  stack: [],
 };
 
+// Instant notification: snackbar and modals
 reducers[ACTIONS.CREATE_NOTIFICATION] = (state, action) => {
   const { notification, notificationProps } = action.data;
   const { title, message, type, error, displayType, id } = notification;
@@ -30,12 +32,53 @@ reducers[ACTIONS.CREATE_NOTIFICATION] = (state, action) => {
   });
 };
 
+// Add to stack
+reducers[ACTIONS.PUSH_NOTIFICATION] = (state, action) => {
+  const { notification, notificationProps } = action.data;
+  const { title, message, type, error, displayType, id } = notification;
+  const stack = Object.assign([], state.stack);
+  stack.push({
+    notification: {
+      id,
+      title,
+      message,
+      type,
+      error,
+      displayType,
+    },
+    notificationProps,
+  });
+
+  return Object.assign({}, state, {
+    stack,
+  });
+};
+
 reducers[ACTIONS.DISMISS_NOTIFICATION] = state => {
   const queue = Object.assign([], state.queue);
   queue.shift();
 
   return Object.assign({}, state, {
     queue,
+  });
+};
+
+reducers[ACTIONS.REMOVE_NOTIFICATION] = (state, action) => {
+  const stack = Object.assign([], state.stack);
+  const { index } = action.data;
+  stack.splice(index, 1);
+
+  return Object.assign({}, state, {
+    stack,
+  });
+};
+
+reducers[ACTIONS.CLEAR_NOTIFICATIONS] = state => {
+  const stack = Object.assign([], state.stack);
+  stack.splice(0, stack.length);
+
+  return Object.assign({}, state, {
+    stack,
   });
 };
 

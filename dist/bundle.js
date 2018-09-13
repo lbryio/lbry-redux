@@ -89,8 +89,8 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = undefined;
-exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doHideNotification = exports.doNotify = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.MODALS = exports.ACTIONS = exports.Notification = undefined;
+exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = undefined;
+exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectSnack = exports.selectNotificationProps = exports.selectNotifications = exports.selectNotification = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doClearNotifyStack = exports.doRemoveNotification = exports.doNotifyStack = exports.doHideNotification = exports.doNotify = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.MODALS = exports.ACTIONS = exports.Notification = undefined;
 
 var _Notification = __webpack_require__(1);
 
@@ -170,6 +170,24 @@ Object.defineProperty(exports, 'doHideNotification', {
   enumerable: true,
   get: function get() {
     return _notifications.doHideNotification;
+  }
+});
+Object.defineProperty(exports, 'doNotifyStack', {
+  enumerable: true,
+  get: function get() {
+    return _notifications.doNotifyStack;
+  }
+});
+Object.defineProperty(exports, 'doRemoveNotification', {
+  enumerable: true,
+  get: function get() {
+    return _notifications.doRemoveNotification;
+  }
+});
+Object.defineProperty(exports, 'doClearNotifyStack', {
+  enumerable: true,
+  get: function get() {
+    return _notifications.doClearNotifyStack;
   }
 });
 
@@ -494,6 +512,12 @@ Object.defineProperty(exports, 'selectNotification', {
   enumerable: true,
   get: function get() {
     return _notifications3.selectNotification;
+  }
+});
+Object.defineProperty(exports, 'selectNotifications', {
+  enumerable: true,
+  get: function get() {
+    return _notifications3.selectNotifications;
   }
 });
 Object.defineProperty(exports, 'selectNotificationProps', {
@@ -1469,7 +1493,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 
 exports.doNotify = doNotify;
+exports.doNotifyStack = doNotifyStack;
+exports.doClearNotifyStack = doClearNotifyStack;
 exports.doHideNotification = doHideNotification;
+exports.doRemoveNotification = doRemoveNotification;
 
 var _action_types = __webpack_require__(4);
 
@@ -1489,9 +1516,32 @@ function doNotify(notification /*: Notification*/, notificationProps /*: Notific
   };
 }
 
+function doNotifyStack(notification /*: Notification*/, notificationProps /*: NotificationProps*/) {
+  return {
+    type: ACTIONS.PUSH_NOTIFICATION,
+    data: {
+      notification: notification,
+      notificationProps: _extends({}, notificationProps)
+    }
+  };
+}
+
+function doClearNotifyStack() {
+  return {
+    type: ACTIONS.CLEAR_NOTIFICATIONS
+  };
+}
+
 function doHideNotification() {
   return {
     type: ACTIONS.DISMISS_NOTIFICATION
+  };
+}
+
+function doRemoveNotification(index) {
+  return {
+    type: ACTIONS.REMOVE_NOTIFICATION,
+    data: { index: index }
   };
 }
 
@@ -1714,8 +1764,11 @@ var REMOVE_PENDING_PUBLISH = exports.REMOVE_PENDING_PUBLISH = 'REMOVE_PENDING_PU
 var DO_PREPARE_EDIT = exports.DO_PREPARE_EDIT = 'DO_PREPARE_EDIT';
 
 // Notifications
+var PUSH_NOTIFICATION = exports.PUSH_NOTIFICATION = 'CREATE_NOTIFICATION';
 var CREATE_NOTIFICATION = exports.CREATE_NOTIFICATION = 'CREATE_NOTIFICATION';
 var DISMISS_NOTIFICATION = exports.DISMISS_NOTIFICATION = 'DISMISS_NOTIFICATION';
+var REMOVE_NOTIFICATION = exports.REMOVE_NOTIFICATION = 'REMOVE_NOTIFICATION';
+var CLEAR_NOTIFICATIONS = exports.CLEAR_NOTIFICATIONS = 'CLEAR_NOTIFICATIONS';
 
 /***/ }),
 /* 5 */
@@ -5581,9 +5634,11 @@ var reducers = {};
 
 var defaultState = {
   // First-in, first-out
-  queue: []
+  queue: [],
+  stack: []
 };
 
+// Instant notification: snackbar and modals
 reducers[ACTIONS.CREATE_NOTIFICATION] = function (state, action) {
   var _action$data = action.data,
       notification = _action$data.notification,
@@ -5614,12 +5669,62 @@ reducers[ACTIONS.CREATE_NOTIFICATION] = function (state, action) {
   });
 };
 
+// Add to stack
+reducers[ACTIONS.PUSH_NOTIFICATION] = function (state, action) {
+  var _action$data2 = action.data,
+      notification = _action$data2.notification,
+      notificationProps = _action$data2.notificationProps;
+  var title = notification.title,
+      message = notification.message,
+      type = notification.type,
+      error = notification.error,
+      displayType = notification.displayType,
+      id = notification.id;
+
+  var stack = Object.assign([], state.stack);
+  stack.push({
+    notification: {
+      id: id,
+      title: title,
+      message: message,
+      type: type,
+      error: error,
+      displayType: displayType
+    },
+    notificationProps: notificationProps
+  });
+
+  return Object.assign({}, state, {
+    stack: stack
+  });
+};
+
 reducers[ACTIONS.DISMISS_NOTIFICATION] = function (state) {
   var queue = Object.assign([], state.queue);
   queue.shift();
 
   return Object.assign({}, state, {
     queue: queue
+  });
+};
+
+reducers[ACTIONS.REMOVE_NOTIFICATION] = function (state, action) {
+  var stack = Object.assign([], state.stack);
+  var index = action.data.index;
+
+  stack.splice(index, 1);
+
+  return Object.assign({}, state, {
+    stack: stack
+  });
+};
+
+reducers[ACTIONS.CLEAR_NOTIFICATIONS] = function (state) {
+  var stack = Object.assign([], state.stack);
+  stack.splice(0, stack.length);
+
+  return Object.assign({}, state, {
+    stack: stack
   });
 };
 
@@ -6258,13 +6363,17 @@ var selectBlackListedOutpoints = exports.selectBlackListedOutpoints = (0, _resel
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectNotificationData = exports.selectState = undefined;
+exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectNotificationData = exports.selectNotifications = exports.selectState = undefined;
 
 var _reselect = __webpack_require__(16);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.notifications || {};
 };
+
+var selectNotifications = exports.selectNotifications = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.stack;
+});
 
 var selectNotificationData = exports.selectNotificationData = (0, _reselect.createSelector)(selectState, function (state) {
   return state.queue.length > 0 ? state.queue[0] : {};

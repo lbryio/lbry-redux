@@ -13,8 +13,31 @@ export function doNotify(notification: Notification, notificationProps: Notifica
   };
 }
 
+export function doNotifyStack(notification: Notification, notificationProps: NotificationProps) {
+  return {
+    type: ACTIONS.PUSH_NOTIFICATION,
+    data: {
+      notification,
+      notificationProps: { ...notificationProps },
+    },
+  };
+}
+
+export function doClearNotifyStack() {
+  return {
+    type: ACTIONS.CLEAR_NOTIFICATIONS,
+  };
+}
+
 export function doHideNotification() {
   return {
     type: ACTIONS.DISMISS_NOTIFICATION,
+  };
+}
+
+export function doRemoveNotification(index) {
+  return {
+    type: ACTIONS.REMOVE_NOTIFICATION,
+    data: { index },
   };
 }

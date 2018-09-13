@@ -29,7 +29,13 @@ export {
 } from 'lbryURI';
 
 // actions
-export { doNotify, doHideNotification } from 'redux/actions/notifications';
+export {
+  doNotify,
+  doHideNotification,
+  doNotifyStack,
+  doRemoveNotification,
+  doClearNotifyStack,
+} from 'redux/actions/notifications';
 
 export {
   doFetchClaimsByChannel,
@@ -95,6 +101,7 @@ export { selectBlackListedOutpoints } from 'redux/selectors/blacklist';
 
 export {
   selectNotification,
+  selectNotifications,
   selectNotificationProps,
   selectSnack,
 } from 'redux/selectors/notifications';
