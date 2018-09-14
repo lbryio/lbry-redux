@@ -17,3 +17,11 @@ export type NotificationProps = {
   uri: ?string,
   path: ?string,
 };
+
+export type NotificationTile = {
+  icon: ?string,
+  title: ?string,
+  message: ?string,
+  type: string,
+  date: ?string,
+};

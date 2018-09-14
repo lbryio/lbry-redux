@@ -1,6 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
-import type { Notification, NotificationProps } from 'types/Notification';
+import type { Notification, NotificationProps, NotificationTile } from 'types/Notification';
 
 export function doNotify(notification: Notification, notificationProps: NotificationProps) {
   return {
@@ -13,7 +13,10 @@ export function doNotify(notification: Notification, notificationProps: Notifica
   };
 }
 
-export function doNotifyStack(notification: Notification, notificationProps: NotificationProps) {
+export function doNotifyStack(
+  notification: NotificationTile,
+  notificationProps: NotificationProps
+) {
   return {
     type: ACTIONS.STACK_NOTIFICATION,
     data: {
