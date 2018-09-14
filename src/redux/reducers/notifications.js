@@ -33,11 +33,11 @@ reducers[ACTIONS.CREATE_NOTIFICATION] = (state, action) => {
 };
 
 // Add to stack
-reducers[ACTIONS.PUSH_NOTIFICATION] = (state, action) => {
+reducers[ACTIONS.STACK_NOTIFICATION] = (state, action) => {
   const { notification, notificationProps } = action.data;
   const { title, message, type, error, displayType, id } = notification;
   const stack = Object.assign([], state.stack);
-  stack.push({
+  stack.unshift({
     notification: {
       id,
       title,

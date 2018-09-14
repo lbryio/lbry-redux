@@ -15,7 +15,7 @@ export function doNotify(notification: Notification, notificationProps: Notifica
 
 export function doNotifyStack(notification: Notification, notificationProps: NotificationProps) {
   return {
-    type: ACTIONS.PUSH_NOTIFICATION,
+    type: ACTIONS.STACK_NOTIFICATION,
     data: {
       notification,
       notificationProps: { ...notificationProps },
