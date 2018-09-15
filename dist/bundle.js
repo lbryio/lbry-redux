@@ -1228,6 +1228,13 @@ exports.selectSearchState = _search3.selectState;
   uri: ?string,
   path: ?string,
 };*/
+/*:: export type NotificationTile = {
+  icon: ?string,
+  title: ?string,
+  message: ?string,
+  type: string,
+  date: ?string,
+};*/
 
 /***/ }),
 /* 2 */
@@ -1504,7 +1511,7 @@ var ACTIONS = _interopRequireWildcard(_action_types);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-/*:: import type { Notification, NotificationProps } from 'types/Notification';*/
+/*:: import type { Notification, NotificationProps, NotificationTile } from 'types/Notification';*/
 function doNotify(notification /*: Notification*/, notificationProps /*: NotificationProps*/) {
   return {
     type: ACTIONS.CREATE_NOTIFICATION,
@@ -1516,9 +1523,9 @@ function doNotify(notification /*: Notification*/, notificationProps /*: Notific
   };
 }
 
-function doNotifyStack(notification /*: Notification*/, notificationProps /*: NotificationProps*/) {
+function doNotifyStack(notification /*: NotificationTile*/, notificationProps /*: NotificationProps*/) {
   return {
-    type: ACTIONS.PUSH_NOTIFICATION,
+    type: ACTIONS.STACK_NOTIFICATION,
     data: {
       notification: notification,
       notificationProps: _extends({}, notificationProps)
@@ -1764,7 +1771,7 @@ var REMOVE_PENDING_PUBLISH = exports.REMOVE_PENDING_PUBLISH = 'REMOVE_PENDING_PU
 var DO_PREPARE_EDIT = exports.DO_PREPARE_EDIT = 'DO_PREPARE_EDIT';
 
 // Notifications
-var PUSH_NOTIFICATION = exports.PUSH_NOTIFICATION = 'PUSH_NOTIFICATION';
+var STACK_NOTIFICATION = exports.STACK_NOTIFICATION = 'STACK_NOTIFICATION';
 var CREATE_NOTIFICATION = exports.CREATE_NOTIFICATION = 'CREATE_NOTIFICATION';
 var DISMISS_NOTIFICATION = exports.DISMISS_NOTIFICATION = 'DISMISS_NOTIFICATION';
 var REMOVE_NOTIFICATION = exports.REMOVE_NOTIFICATION = 'REMOVE_NOTIFICATION';
@@ -5670,27 +5677,20 @@ reducers[ACTIONS.CREATE_NOTIFICATION] = function (state, action) {
 };
 
 // Add to stack
-reducers[ACTIONS.PUSH_NOTIFICATION] = function (state, action) {
+reducers[ACTIONS.STACK_NOTIFICATION] = function (state, action) {
   var _action$data2 = action.data,
       notification = _action$data2.notification,
       notificationProps = _action$data2.notificationProps;
-  var title = notification.title,
+  var icon = notification.icon,
+      title = notification.title,
       message = notification.message,
-      type = notification.type,
-      error = notification.error,
-      displayType = notification.displayType,
-      id = notification.id;
+      type = notification.type;
 
   var stack = Object.assign([], state.stack);
-  stack.push({
-    notification: {
-      id: id,
-      title: title,
-      message: message,
-      type: type,
-      error: error,
-      displayType: displayType
-    },
+  var date = notification.date || new Date().toISOString();
+
+  stack.unshift({
+    notification: { icon: icon, title: title, message: message, type: type, date: date },
     notificationProps: notificationProps
   });
 
