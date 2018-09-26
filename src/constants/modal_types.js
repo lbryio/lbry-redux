@@ -15,6 +15,7 @@ export const FIRST_REWARD = 'first_reward';
 export const AUTHENTICATION_FAILURE = 'auth_failure';
 export const TRANSACTION_FAILED = 'transaction_failed';
 export const REWARD_APPROVAL_REQUIRED = 'reward_approval_required';
+export const REWARD_GENERATED_CODE = 'reward_generated_code';
 export const AFFIRM_PURCHASE = 'affirm_purchase';
 export const CONFIRM_CLAIM_REVOKE = 'confirm_claim_revoke';
 export const FIRST_SUBSCRIPTION = 'firstSubscription';

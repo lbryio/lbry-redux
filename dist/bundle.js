@@ -5668,6 +5668,7 @@ var FIRST_REWARD = exports.FIRST_REWARD = 'first_reward';
 var AUTHENTICATION_FAILURE = exports.AUTHENTICATION_FAILURE = 'auth_failure';
 var TRANSACTION_FAILED = exports.TRANSACTION_FAILED = 'transaction_failed';
 var REWARD_APPROVAL_REQUIRED = exports.REWARD_APPROVAL_REQUIRED = 'reward_approval_required';
+var REWARD_GENERATED_CODE = exports.REWARD_GENERATED_CODE = 'reward_generated_code';
 var AFFIRM_PURCHASE = exports.AFFIRM_PURCHASE = 'affirm_purchase';
 var CONFIRM_CLAIM_REVOKE = exports.CONFIRM_CLAIM_REVOKE = 'confirm_claim_revoke';
 var FIRST_SUBSCRIPTION = exports.FIRST_SUBSCRIPTION = 'firstSubscription';
