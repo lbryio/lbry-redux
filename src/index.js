@@ -48,6 +48,8 @@ export {
   doFetchFileInfo,
   doFileList,
   doFetchFileInfosAndPublishedClaims,
+  doSetDownloadListSort,
+  doSetPublishListSort,
 } from 'redux/actions/file_info';
 
 export {
@@ -74,6 +76,7 @@ export {
   doWalletDecrypt,
   doWalletUnlock,
   doWalletStatus,
+  doSetTransactionListFilter,
 } from 'redux/actions/wallet';
 
 // utils
@@ -159,6 +162,8 @@ export {
   selectDownloadingFileInfos,
   selectTotalDownloadProgress,
   selectSearchDownloadUris,
+  selectPublishListSort,
+  selectDownloadListSort,
 } from 'redux/selectors/file_info';
 
 export {
@@ -216,4 +221,5 @@ export {
   selectWalletUnlockPending,
   selectWalletUnlockSucceeded,
   selectWalletUnlockResult,
+  selectTransactionListFilter,
 } from 'redux/selectors/wallet';

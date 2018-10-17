@@ -97,7 +97,7 @@ export const selectTotalDownloadProgress = createSelector(selectDownloadingFileI
   const progress = [];
 
   fileInfos.forEach(fileInfo => {
-    progress.push(fileInfo.written_bytes / fileInfo.total_bytes * 100);
+    progress.push((fileInfo.written_bytes / fileInfo.total_bytes) * 100);
   });
 
   const totalProgress = progress.reduce((a, b) => a + b, 0);
@@ -195,3 +195,13 @@ export const selectSearchDownloadUris = query =>
         })
       : null;
   });
+
+export const selectPublishListSort = createSelector(
+  selectState,
+  state => state.publishListSort || ''
+);
+
+export const selectDownloadListSort = createSelector(
+  selectState,
+  state => state.downloadListSort || ''
+);
