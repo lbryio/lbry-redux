@@ -1,7 +1,10 @@
 import * as ACTIONS from 'constants/action_types';
 
 const reducers = {};
-const defaultState = {};
+const defaultState = {
+  downloadListSort: '',
+  publishListSort: '',
+};
 
 reducers[ACTIONS.FILE_LIST_STARTED] = state =>
   Object.assign({}, state, {
@@ -154,6 +157,16 @@ reducers[ACTIONS.FETCH_DATE] = (state, action) => {
   }
   return null;
 };
+
+reducers[ACTIONS.SET_PUBLISH_LIST_SORT] = (state, action) =>
+  Object.assign({}, state, {
+    publishListSort: action.data,
+  });
+
+reducers[ACTIONS.SET_DOWNLOAD_LIST_SORT] = (state, action) =>
+  Object.assign({}, state, {
+    downloadListSort: action.data,
+  });
 
 export function fileInfoReducer(state = defaultState, action) {
   const handler = reducers[action.type];

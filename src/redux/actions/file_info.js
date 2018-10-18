@@ -64,3 +64,17 @@ export function doFetchFileInfosAndPublishedClaims() {
     if (!isFetchingFileInfo) dispatch(doFileList());
   };
 }
+
+export function doSetPublishListSort(sortOption) {
+  return {
+    type: ACTIONS.SET_PUBLISH_LIST_SORT,
+    data: sortOption,
+  };
+}
+
+export function doSetDownloadListSort(sortOption) {
+  return {
+    type: ACTIONS.SET_DOWNLOAD_LIST_SORT,
+    data: sortOption,
+  };
+}

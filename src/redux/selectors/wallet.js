@@ -130,7 +130,7 @@ export const selectTransactionItems = createSelector(selectTransactionsById, byI
           txid,
           date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
           amount,
-          fee: amount < 0 ? -1 * tx.fee / append.length : 0,
+          fee: amount < 0 ? (-1 * tx.fee) / append.length : 0,
           claim_id: item.claim_id,
           claim_name: item.claim_name,
           type: item.type || TRANSACTIONS.SPEND,
@@ -194,3 +194,8 @@ export const makeSelectBlockDate = block =>
     selectBlocks,
     blocks => (blocks && blocks[block] ? new Date(blocks[block].time * 1000) : undefined)
   );
+
+export const selectTransactionListFilter = createSelector(
+  selectState,
+  state => state.transactionListFilter || ''
+);

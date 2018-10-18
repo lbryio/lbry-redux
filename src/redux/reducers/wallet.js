@@ -58,6 +58,7 @@ const defaultState = {
   walletLockPending: false,
   walletLockSucceded: null,
   walletLockResult: null,
+  transactionListFilter: 'all',
 };
 
 reducers[ACTIONS.FETCH_TRANSACTIONS_STARTED] = (state: WalletState) =>
@@ -273,6 +274,11 @@ reducers[ACTIONS.WALLET_LOCK_FAILED] = (state: WalletState, action: ActionResult
     walletLockPending: false,
     walletLockSucceded: false,
     walletLockResult: action.result,
+  });
+
+reducers[ACTIONS.SET_TRANSACTION_LIST_FILTER] = (state: WalletState, action: {}) =>
+  Object.assign({}, state, {
+    transactionListFilter: action.data,
   });
 
 export function walletReducer(state: WalletState = defaultState, action: ActionResult) {

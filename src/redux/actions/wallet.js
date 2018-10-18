@@ -347,3 +347,10 @@ export function doWalletStatus() {
     });
   };
 }
+
+export function doSetTransactionListFilter(filterOption) {
+  return {
+    type: ACTIONS.SET_TRANSACTION_LIST_FILTER,
+    data: filterOption,
+  };
+}
