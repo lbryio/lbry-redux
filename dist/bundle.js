@@ -5014,6 +5014,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 // eslint-disable-next-line import/prefer-default-export
+var ALL = exports.ALL = 'all';
 var SPEND = exports.SPEND = 'spend';
 var RECEIVE = exports.RECEIVE = 'receive';
 var PUBLISH = exports.PUBLISH = 'publish';
