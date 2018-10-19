@@ -3,6 +3,7 @@ import { makeSelectCurrentParam } from 'redux/selectors/navigation';
 import { selectSearchUrisByQuery } from 'redux/selectors/search';
 import { createSelector } from 'reselect';
 import { isClaimNsfw } from 'util/claim';
+import { buildURI } from 'lbryURI';
 
 const selectState = state => state.claims || {};
 
@@ -289,3 +290,19 @@ export const makeSelectRecommendedContentForUri = uri =>
       return recommendedContent;
     }
   );
+
+// Returns the associated channel uri for a given claim uri
+export const makeSelectChannelForClaimUri = (uri, includePrefix = false) =>
+  createSelector(makeSelectClaimForUri(uri), claim => {
+    if (!claim) {
+      return null;
+    }
+
+    const { channel_name: channelName, value } = claim;
+    const channelClaimId =
+      value && value.publisherSignature && value.publisherSignature.certificateId;
+
+    return channelName && channelClaimId
+      ? buildURI({ channelName, claimId: channelClaimId }, includePrefix)
+      : null;
+  });

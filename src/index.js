@@ -117,6 +117,7 @@ export {
   makeSelectNsfwCountFromUris,
   makeSelectNsfwCountForChannel,
   makeSelectRecommendedContentForUri,
+  makeSelectChannelForClaimUri,
   selectClaimsById,
   selectClaimsByUri,
   selectAllClaimsByChannel,
