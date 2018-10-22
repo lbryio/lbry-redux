@@ -85,6 +85,17 @@ reducers[ACTIONS.DOWNLOADING_PROGRESSED] = (state, action) => {
   });
 };
 
+reducers[ACTIONS.DOWNLOADING_CANCELED] = (state, action) => {
+  const { outpoint } = action.data;
+
+  const newDownloading = Object.assign({}, state.downloadingByOutpoint);
+  delete newDownloading[outpoint];
+
+  return Object.assign({}, state, {
+    downloadingByOutpoint: newDownloading,
+  });
+};
+
 reducers[ACTIONS.DOWNLOADING_COMPLETED] = (state, action) => {
   const { outpoint, fileInfo } = action.data;
 
