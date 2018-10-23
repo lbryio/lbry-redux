@@ -1,9 +1,12 @@
 import * as ACTIONS from 'constants/action_types';
+import * as SORT_OPTIONS from 'constants/sort_options';
+import * as PAGES from 'constants/pages';
 
 const reducers = {};
 const defaultState = {
-  downloadListSort: '',
-  publishListSort: '',
+  fileListPublishedSort: SORT_OPTIONS.DATE_NEW,
+  fileListDownloadedSort: SORT_OPTIONS.DATE_NEW,
+  fileListSubscriptionSort: SORT_OPTIONS.DATE_NEW,
 };
 
 reducers[ACTIONS.FILE_LIST_STARTED] = state =>
@@ -158,15 +161,19 @@ reducers[ACTIONS.FETCH_DATE] = (state, action) => {
   return null;
 };
 
-reducers[ACTIONS.SET_PUBLISH_LIST_SORT] = (state, action) =>
-  Object.assign({}, state, {
-    publishListSort: action.data,
-  });
+reducers[ACTIONS.SET_FILE_LIST_SORT] = (state, action) => {
+  const pageSortStates = {
+    [PAGES.PUBLISHED]: 'fileListPublishedSort',
+    [PAGES.DOWNLOADED]: 'fileListDownloadedSort',
+    [PAGES.SUBSCRIPTIONS]: 'fileListSubscriptionSort',
+  };
+  const pageSortState = pageSortStates[action.data.page];
+  const { value } = action.data;
 
-reducers[ACTIONS.SET_DOWNLOAD_LIST_SORT] = (state, action) =>
-  Object.assign({}, state, {
-    downloadListSort: action.data,
+  return Object.assign({}, state, {
+    [pageSortState]: value,
   });
+};
 
 export function fileInfoReducer(state = defaultState, action) {
   const handler = reducers[action.type];
