@@ -5571,6 +5571,18 @@ reducers[ACTIONS.DOWNLOADING_PROGRESSED] = function (state, action) {
   });
 };
 
+reducers[ACTIONS.DOWNLOADING_CANCELED] = function (state, action) {
+  var outpoint = action.data.outpoint;
+
+
+  var newDownloading = Object.assign({}, state.downloadingByOutpoint);
+  delete newDownloading[outpoint];
+
+  return Object.assign({}, state, {
+    downloadingByOutpoint: newDownloading
+  });
+};
+
 reducers[ACTIONS.DOWNLOADING_COMPLETED] = function (state, action) {
   var _action$data4 = action.data,
       outpoint = _action$data4.outpoint,
