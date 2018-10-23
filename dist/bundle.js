@@ -46,17 +46,32 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -89,8 +104,8 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectTransactionListFilter = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectDownloadListSort = exports.selectPublishListSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = undefined;
-exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectChannelForClaimUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetPublishListSort = exports.doSetDownloadListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doHideNotification = exports.doNotify = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.MODALS = exports.ACTIONS = exports.Notification = undefined;
+exports.selectTransactionListFilter = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectFileListSubscriptionSort = exports.selectFileListPublishedSort = exports.selectFileListDownloadedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = undefined;
+exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.makeSelectChannelForClaimUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendSupport = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetFileListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doHideNotification = exports.doNotify = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.PAGES = exports.SORT_OPTIONS = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.MODALS = exports.ACTIONS = exports.Notification = undefined;
 
 var _Notification = __webpack_require__(1);
 
@@ -253,16 +268,10 @@ Object.defineProperty(exports, 'doFetchFileInfosAndPublishedClaims', {
     return _file_info.doFetchFileInfosAndPublishedClaims;
   }
 });
-Object.defineProperty(exports, 'doSetDownloadListSort', {
+Object.defineProperty(exports, 'doSetFileListSort', {
   enumerable: true,
   get: function get() {
-    return _file_info.doSetDownloadListSort;
-  }
-});
-Object.defineProperty(exports, 'doSetPublishListSort', {
-  enumerable: true,
-  get: function get() {
-    return _file_info.doSetPublishListSort;
+    return _file_info.doSetFileListSort;
   }
 });
 
@@ -461,7 +470,7 @@ Object.defineProperty(exports, 'fileInfoReducer', {
   }
 });
 
-var _notifications2 = __webpack_require__(35);
+var _notifications2 = __webpack_require__(37);
 
 Object.defineProperty(exports, 'notificationsReducer', {
   enumerable: true,
@@ -470,7 +479,7 @@ Object.defineProperty(exports, 'notificationsReducer', {
   }
 });
 
-var _search2 = __webpack_require__(37);
+var _search2 = __webpack_require__(39);
 
 Object.defineProperty(exports, 'searchReducer', {
   enumerable: true,
@@ -479,7 +488,7 @@ Object.defineProperty(exports, 'searchReducer', {
   }
 });
 
-var _wallet2 = __webpack_require__(39);
+var _wallet2 = __webpack_require__(41);
 
 Object.defineProperty(exports, 'walletReducer', {
   enumerable: true,
@@ -488,7 +497,7 @@ Object.defineProperty(exports, 'walletReducer', {
   }
 });
 
-var _blacklist2 = __webpack_require__(40);
+var _blacklist2 = __webpack_require__(42);
 
 Object.defineProperty(exports, 'blacklistReducer', {
   enumerable: true,
@@ -497,7 +506,7 @@ Object.defineProperty(exports, 'blacklistReducer', {
   }
 });
 
-var _blacklist3 = __webpack_require__(41);
+var _blacklist3 = __webpack_require__(43);
 
 Object.defineProperty(exports, 'selectBlackListedOutpoints', {
   enumerable: true,
@@ -506,7 +515,7 @@ Object.defineProperty(exports, 'selectBlackListedOutpoints', {
   }
 });
 
-var _notifications3 = __webpack_require__(42);
+var _notifications3 = __webpack_require__(44);
 
 Object.defineProperty(exports, 'selectNotification', {
   enumerable: true,
@@ -752,7 +761,7 @@ Object.defineProperty(exports, 'selectChannelClaimCounts', {
   }
 });
 
-var _cost_info3 = __webpack_require__(43);
+var _cost_info3 = __webpack_require__(45);
 
 Object.defineProperty(exports, 'makeSelectFetchingCostInfoForUri', {
   enumerable: true,
@@ -859,16 +868,22 @@ Object.defineProperty(exports, 'selectSearchDownloadUris', {
     return _file_info3.selectSearchDownloadUris;
   }
 });
-Object.defineProperty(exports, 'selectPublishListSort', {
+Object.defineProperty(exports, 'selectFileListDownloadedSort', {
   enumerable: true,
   get: function get() {
-    return _file_info3.selectPublishListSort;
+    return _file_info3.selectFileListDownloadedSort;
   }
 });
-Object.defineProperty(exports, 'selectDownloadListSort', {
+Object.defineProperty(exports, 'selectFileListPublishedSort', {
   enumerable: true,
   get: function get() {
-    return _file_info3.selectDownloadListSort;
+    return _file_info3.selectFileListPublishedSort;
+  }
+});
+Object.defineProperty(exports, 'selectFileListSubscriptionSort', {
+  enumerable: true,
+  get: function get() {
+    return _file_info3.selectFileListSubscriptionSort;
   }
 });
 
@@ -1173,11 +1188,11 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _modal_types = __webpack_require__(36);
+var _modal_types = __webpack_require__(38);
 
 var MODALS = _interopRequireWildcard(_modal_types);
 
-var _thumbnail_upload_statuses = __webpack_require__(44);
+var _thumbnail_upload_statuses = __webpack_require__(46);
 
 var THUMBNAIL_STATUSES = _interopRequireWildcard(_thumbnail_upload_statuses);
 
@@ -1185,13 +1200,21 @@ var _search4 = __webpack_require__(19);
 
 var SEARCH_TYPES = _interopRequireWildcard(_search4);
 
-var _settings = __webpack_require__(45);
+var _settings = __webpack_require__(47);
 
 var SETTINGS = _interopRequireWildcard(_settings);
 
 var _transaction_types = __webpack_require__(30);
 
 var TRANSACTIONS = _interopRequireWildcard(_transaction_types);
+
+var _sort_options = __webpack_require__(35);
+
+var SORT_OPTIONS = _interopRequireWildcard(_sort_options);
+
+var _pages = __webpack_require__(36);
+
+var PAGES = _interopRequireWildcard(_pages);
 
 var _lbry = __webpack_require__(6);
 
@@ -1212,6 +1235,8 @@ exports.THUMBNAIL_STATUSES = THUMBNAIL_STATUSES;
 exports.SEARCH_TYPES = SEARCH_TYPES;
 exports.SETTINGS = SETTINGS;
 exports.TRANSACTIONS = TRANSACTIONS;
+exports.SORT_OPTIONS = SORT_OPTIONS;
+exports.PAGES = PAGES;
 
 // common
 
@@ -1658,8 +1683,7 @@ var PLAY_VIDEO_STARTED = exports.PLAY_VIDEO_STARTED = 'PLAY_VIDEO_STARTED';
 var FETCH_AVAILABILITY_STARTED = exports.FETCH_AVAILABILITY_STARTED = 'FETCH_AVAILABILITY_STARTED';
 var FETCH_AVAILABILITY_COMPLETED = exports.FETCH_AVAILABILITY_COMPLETED = 'FETCH_AVAILABILITY_COMPLETED';
 var FILE_DELETE = exports.FILE_DELETE = 'FILE_DELETE';
-var SET_PUBLISH_LIST_SORT = exports.SET_PUBLISH_LIST_SORT = 'SET_PUBLISH_LIST_SORT';
-var SET_DOWNLOAD_LIST_SORT = exports.SET_DOWNLOAD_LIST_SORT = 'SET_DOWNLOAD_LIST_SORT';
+var SET_FILE_LIST_SORT = exports.SET_FILE_LIST_SORT = 'SET_FILE_LIST_SORT';
 
 // Search
 var SEARCH_START = exports.SEARCH_START = 'SEARCH_START';
@@ -3851,8 +3875,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.doFetchFileInfo = doFetchFileInfo;
 exports.doFileList = doFileList;
 exports.doFetchFileInfosAndPublishedClaims = doFetchFileInfosAndPublishedClaims;
-exports.doSetPublishListSort = doSetPublishListSort;
-exports.doSetDownloadListSort = doSetDownloadListSort;
+exports.doSetFileListSort = doSetFileListSort;
 
 var _action_types = __webpack_require__(4);
 
@@ -3933,17 +3956,10 @@ function doFetchFileInfosAndPublishedClaims() {
   };
 }
 
-function doSetPublishListSort(sortOption) {
+function doSetFileListSort(page, value) {
   return {
-    type: ACTIONS.SET_PUBLISH_LIST_SORT,
-    data: sortOption
-  };
-}
-
-function doSetDownloadListSort(sortOption) {
-  return {
-    type: ACTIONS.SET_DOWNLOAD_LIST_SORT,
-    data: sortOption
+    type: ACTIONS.SET_FILE_LIST_SORT,
+    data: { page: page, value: value }
   };
 }
 
@@ -3957,7 +3973,7 @@ function doSetDownloadListSort(sortOption) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectDownloadListSort = exports.selectPublishListSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.makeSelectLoadingForUri = exports.selectUrisLoading = exports.makeSelectDownloadingForUri = exports.selectDownloadingByOutpoint = exports.makeSelectFileInfoForUri = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.selectState = undefined;
+exports.selectFileListSubscriptionSort = exports.selectFileListDownloadedSort = exports.selectFileListPublishedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.makeSelectLoadingForUri = exports.selectUrisLoading = exports.makeSelectDownloadingForUri = exports.selectDownloadingByOutpoint = exports.makeSelectFileInfoForUri = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.selectState = undefined;
 
 var _claims = __webpack_require__(14);
 
@@ -4154,12 +4170,16 @@ var selectSearchDownloadUris = exports.selectSearchDownloadUris = function selec
   });
 };
 
-var selectPublishListSort = exports.selectPublishListSort = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.publishListSort || '';
+var selectFileListPublishedSort = exports.selectFileListPublishedSort = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.fileListPublishedSort;
 });
 
-var selectDownloadListSort = exports.selectDownloadListSort = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.downloadListSort || '';
+var selectFileListDownloadedSort = exports.selectFileListDownloadedSort = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.fileListDownloadedSort;
+});
+
+var selectFileListSubscriptionSort = exports.selectFileListSubscriptionSort = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.fileListSubscriptionSort;
 });
 
 /***/ }),
@@ -5467,12 +5487,23 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
+var _sort_options = __webpack_require__(35);
+
+var SORT_OPTIONS = _interopRequireWildcard(_sort_options);
+
+var _pages = __webpack_require__(36);
+
+var PAGES = _interopRequireWildcard(_pages);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var reducers = {};
 var defaultState = {
-  downloadListSort: '',
-  publishListSort: ''
+  fileListPublishedSort: SORT_OPTIONS.DATE_NEW,
+  fileListDownloadedSort: SORT_OPTIONS.DATE_NEW,
+  fileListSubscriptionSort: SORT_OPTIONS.DATE_NEW
 };
 
 reducers[ACTIONS.FILE_LIST_STARTED] = function (state) {
@@ -5660,16 +5691,15 @@ reducers[ACTIONS.FETCH_DATE] = function (state, action) {
   return null;
 };
 
-reducers[ACTIONS.SET_PUBLISH_LIST_SORT] = function (state, action) {
-  return Object.assign({}, state, {
-    publishListSort: action.data
-  });
-};
+reducers[ACTIONS.SET_FILE_LIST_SORT] = function (state, action) {
+  var _pageSortStates;
 
-reducers[ACTIONS.SET_DOWNLOAD_LIST_SORT] = function (state, action) {
-  return Object.assign({}, state, {
-    downloadListSort: action.data
-  });
+  var pageSortStates = (_pageSortStates = {}, _defineProperty(_pageSortStates, PAGES.PUBLISHED, 'fileListPublishedSort'), _defineProperty(_pageSortStates, PAGES.DOWNLOADED, 'fileListDownloadedSort'), _defineProperty(_pageSortStates, PAGES.SUBSCRIPTIONS, 'fileListSubscriptionSort'), _pageSortStates);
+  var pageSortState = pageSortStates[action.data.page];
+  var value = action.data.value;
+
+
+  return Object.assign({}, state, _defineProperty({}, pageSortState, value));
 };
 
 function fileInfoReducer() {
@@ -5691,13 +5721,60 @@ function fileInfoReducer() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+var DATE_NEW = exports.DATE_NEW = 'dateNew';
+var DATE_OLD = exports.DATE_OLD = 'dateOld';
+var TITLE = exports.TITLE = 'title';
+var FILENAME = exports.FILENAME = 'filename';
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var AUTH = exports.AUTH = 'auth';
+var BACKUP = exports.BACKUP = 'backup';
+var CHANNEL = exports.CHANNEL = 'channel';
+var DISCOVER = exports.DISCOVER = 'discover';
+var FILE = exports.FILE = 'file';
+var DOWNLOADED = exports.DOWNLOADED = 'downloaded';
+var PUBLISHED = exports.PUBLISHED = 'published';
+var GET_CREDITS = exports.GET_CREDITS = 'getcredits';
+var HELP = exports.HELP = 'help';
+var INVITE = exports.INVITE = 'invite';
+var PUBLISH = exports.PUBLISH = 'publish';
+var REPORT = exports.REPORT = 'report';
+var REWARDS = exports.REWARDS = 'rewards';
+var SEARCH = exports.SEARCH = 'search';
+var SEND_CREDITS = exports.SEND_CREDITS = 'send';
+var SETTINGS = exports.SETTINGS = 'settings';
+var SHOW = exports.SHOW = 'show';
+var SUBSCRIPTIONS = exports.SUBSCRIPTIONS = 'subscriptions';
+var TRANSACTION_HISTORY = exports.TRANSACTION_HISTORY = 'history';
+var HISTORY = exports.HISTORY = 'user_history';
+var WALLET = exports.WALLET = 'wallet';
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 exports.notificationsReducer = notificationsReducer;
 
 var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _modal_types = __webpack_require__(36);
+var _modal_types = __webpack_require__(38);
 
 var MODALS = _interopRequireWildcard(_modal_types);
 
@@ -5768,7 +5845,7 @@ function notificationsReducer() {
 }
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5809,7 +5886,7 @@ var WALLET_DECRYPT = exports.WALLET_DECRYPT = 'wallet_decrypt';
 var WALLET_UNLOCK = exports.WALLET_UNLOCK = 'wallet_unlock';
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5829,7 +5906,7 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(38);
+var _reduxUtils = __webpack_require__(40);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -5934,7 +6011,7 @@ var searchReducer = exports.searchReducer = (0, _reduxUtils.handleActions)((_han
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5967,7 +6044,7 @@ var handleActions = exports.handleActions = function handleActions(actionMap, de
 };
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6302,7 +6379,7 @@ function walletReducer() {
 }
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6321,7 +6398,7 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(38);
+var _reduxUtils = __webpack_require__(40);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -6361,7 +6438,7 @@ var blacklistReducer = exports.blacklistReducer = (0, _reduxUtils.handleActions)
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6383,7 +6460,7 @@ var selectBlackListedOutpoints = exports.selectBlackListedOutpoints = (0, _resel
 });
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6423,7 +6500,7 @@ selectNotification, function (notification) {
 });
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6467,7 +6544,7 @@ var makeSelectFetchingCostInfoForUri = exports.makeSelectFetchingCostInfoForUri 
 };
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6483,7 +6560,7 @@ var COMPLETE = exports.COMPLETE = 'complete';
 var MANUAL = exports.MANUAL = 'manual';
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

@@ -196,12 +196,17 @@ export const selectSearchDownloadUris = query =>
       : null;
   });
 
-export const selectPublishListSort = createSelector(
+export const selectFileListPublishedSort = createSelector(
   selectState,
-  state => state.publishListSort || ''
+  state => state.fileListPublishedSort
 );
 
-export const selectDownloadListSort = createSelector(
+export const selectFileListDownloadedSort = createSelector(
   selectState,
-  state => state.downloadListSort || ''
+  state => state.fileListDownloadedSort
+);
+
+export const selectFileListSubscriptionSort = createSelector(
+  selectState,
+  state => state.fileListSubscriptionSort
 );

@@ -65,16 +65,9 @@ export function doFetchFileInfosAndPublishedClaims() {
   };
 }
 
-export function doSetPublishListSort(sortOption) {
+export function doSetFileListSort(page, value) {
   return {
-    type: ACTIONS.SET_PUBLISH_LIST_SORT,
-    data: sortOption,
-  };
-}
-
-export function doSetDownloadListSort(sortOption) {
-  return {
-    type: ACTIONS.SET_DOWNLOAD_LIST_SORT,
-    data: sortOption,
+    type: ACTIONS.SET_FILE_LIST_SORT,
+    data: { page, value },
   };
 }

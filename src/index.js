@@ -4,6 +4,9 @@ import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import * as SEARCH_TYPES from 'constants/search';
 import * as SETTINGS from 'constants/settings';
 import * as TRANSACTIONS from 'constants/transaction_types';
+import * as SORT_OPTIONS from 'constants/sort_options';
+import * as PAGES from 'constants/pages';
+
 import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
 import { selectState as selectSearchState } from 'redux/selectors/search';
@@ -12,7 +15,16 @@ import { selectState as selectSearchState } from 'redux/selectors/search';
 export { Notification } from 'types/Notification';
 
 // constants
-export { ACTIONS, MODALS, THUMBNAIL_STATUSES, SEARCH_TYPES, SETTINGS, TRANSACTIONS };
+export {
+  ACTIONS,
+  MODALS,
+  THUMBNAIL_STATUSES,
+  SEARCH_TYPES,
+  SETTINGS,
+  TRANSACTIONS,
+  SORT_OPTIONS,
+  PAGES,
+};
 
 // common
 export { Lbry, Lbryapi };
@@ -48,8 +60,7 @@ export {
   doFetchFileInfo,
   doFileList,
   doFetchFileInfosAndPublishedClaims,
-  doSetDownloadListSort,
-  doSetPublishListSort,
+  doSetFileListSort,
 } from 'redux/actions/file_info';
 
 export {
@@ -163,8 +174,9 @@ export {
   selectDownloadingFileInfos,
   selectTotalDownloadProgress,
   selectSearchDownloadUris,
-  selectPublishListSort,
-  selectDownloadListSort,
+  selectFileListDownloadedSort,
+  selectFileListPublishedSort,
+  selectFileListSubscriptionSort,
 } from 'redux/selectors/file_info';
 
 export {
