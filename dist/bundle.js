@@ -1393,10 +1393,9 @@ function parseURI(URI) {
     }
   }
 
-  if (claimId && (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/)) && !claimId.match(/^pending/) // ought to be dropped when savePendingPublish drops hack
-  ) {
-      throw new Error(__('Invalid claim ID %s.', claimId));
-    }
+  if (claimId && (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/))) {
+    throw new Error(__('Invalid claim ID %s.', claimId));
+  }
 
   if (claimSequence && !claimSequence.match(/^-?[1-9][0-9]*$/)) {
     throw new Error(__('Claim sequence must be a number.'));
@@ -1471,8 +1470,6 @@ function buildURI(URIObj) {
 
 /* Takes a parseable LBRY URI and converts it to standard, canonical format */
 function normalizeURI(URI) {
-  if (URI.match(/pending_claim/)) return URI;
-
   var _parseURI = parseURI(URI),
       claimName = _parseURI.claimName,
       path = _parseURI.path,
