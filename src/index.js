@@ -82,7 +82,7 @@ export {
   doSendDraftTransaction,
   doSetDraftTransactionAmount,
   doSetDraftTransactionAddress,
-  doSendSupport,
+  doSendTip,
   doWalletEncrypt,
   doWalletDecrypt,
   doWalletUnlock,
@@ -93,7 +93,7 @@ export {
 // utils
 export { batchActions } from 'util/batchActions';
 export { parseQueryParams, toQueryString } from 'util/query_params';
-export { formatCredits, formatFullPrice } from 'util/formatCredits';
+export { formatCredits, formatFullPrice, creditsToString } from 'util/formatCredits';
 
 // reducers
 export { claimsReducer } from 'redux/reducers/claims';
@@ -129,6 +129,9 @@ export {
   makeSelectNsfwCountForChannel,
   makeSelectRecommendedContentForUri,
   makeSelectChannelForClaimUri,
+  makeSelectClaimIsPending,
+  makeSelectPendingByUri,
+  selectPendingById,
   selectClaimsById,
   selectClaimsByUri,
   selectAllClaimsByChannel,

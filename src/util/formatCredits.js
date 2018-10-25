@@ -19,3 +19,12 @@ export function formatFullPrice(amount, precision = 1) {
 
   return parseFloat(quantity[0] + formated);
 }
+
+export function creditsToString(amount) {
+  const creditString = String(amount);
+
+  if (creditString.includes('.')) {
+    return creditString;
+  }
+  return `${creditString}.0`;
+}

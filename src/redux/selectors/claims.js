@@ -1,9 +1,8 @@
-import { normalizeURI } from 'lbryURI';
+import { normalizeURI, buildURI, parseURI } from 'lbryURI';
 import { makeSelectCurrentParam } from 'redux/selectors/navigation';
 import { selectSearchUrisByQuery } from 'redux/selectors/search';
 import { createSelector } from 'reselect';
 import { isClaimNsfw } from 'util/claim';
-import { buildURI } from 'lbryURI';
 
 const selectState = state => state.claims || {};
 
@@ -34,8 +33,36 @@ export const selectAllClaimsByChannel = createSelector(
   state => state.claimsByChannel || {}
 );
 
+export const selectPendingById = createSelector(selectState, state => state.pendingById);
+
+export const selectPendingClaims = createSelector(selectState, state =>
+  Object.values(state.pendingById || {})
+);
+
+export const makeSelectClaimIsPending = uri =>
+  createSelector(selectPendingById, pendingById => {
+    const { claimId } = parseURI(uri);
+    return Boolean(pendingById[claimId]);
+  });
+
+export const makeSelectPendingByUri = uri =>
+  createSelector(selectPendingById, pendingById => {
+    const { claimId } = parseURI(uri);
+    return pendingById[claimId];
+  });
+
 export const makeSelectClaimForUri = uri =>
-  createSelector(selectClaimsByUri, claims => claims && claims[normalizeURI(uri)]);
+  createSelector(selectClaimsByUri, selectPendingById, (byUri, pendingById) => {
+    // Check if a claim is pending first
+    // It won't be in claimsByUri because resolving it will return nothing
+    const { claimId } = parseURI(uri);
+    const pendingClaim = pendingById[claimId];
+    if (pendingClaim) {
+      return pendingClaim;
+    }
+
+    return byUri && byUri[normalizeURI(uri)];
+  });
 
 export const selectMyClaimsRaw = createSelector(selectState, state => state.myClaims);
 
@@ -120,10 +147,6 @@ export const makeSelectContentTypeForUri = uri =>
 export const selectIsFetchingClaimListMine = createSelector(
   selectState,
   state => state.isFetchingClaimListMine
-);
-
-export const selectPendingClaims = createSelector(selectState, state =>
-  Object.values(state.pendingById || {})
 );
 
 export const selectMyClaims = createSelector(

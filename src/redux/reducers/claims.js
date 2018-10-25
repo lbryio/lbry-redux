@@ -54,26 +54,17 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   const byId = Object.assign({}, state.byId);
   const pendingById = Object.assign({}, state.pendingById);
 
-  claims
-    .filter(
-      claim => claim.category && (claim.category.match(/claim/) || claim.category.match(/update/))
-    )
-    .forEach(claim => {
+  claims.filter(claim => claim.type && claim.type.match(/claim|update/)).forEach(claim => {
+    if (claim.confirmations < 1) {
+      pendingById[claim.claim_id] = claim;
+    } else {
       byId[claim.claim_id] = claim;
+    }
+  });
 
-      const pending = Object.values(pendingById).find(
-        pendingClaim =>
-          pendingClaim.name === claim.name && pendingClaim.channel_name === claim.channel_name
-      );
-
-      if (pending) {
-        delete pendingById[pending.claim_id];
-      }
-    });
-
-  // Remove old timed out pending publishes
+  // Remove old pending publishes
   Object.values(pendingById)
-    .filter(pendingClaim => Date.now() - pendingClaim.time >= 20 * 60 * 1000)
+    .filter(pendingClaim => byId[pendingClaim.claim_id])
     .forEach(pendingClaim => {
       delete pendingById[pendingClaim.claim_id];
     });
@@ -96,7 +87,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
 
   claims.forEach(claim => {
     myChannelClaims.add(claim.claim_id);
-    byId[claims.claim_id] = claim;
+    byId[claim.claim_id] = claim;
   });
 
   return Object.assign({}, state, {
