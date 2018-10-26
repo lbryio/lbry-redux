@@ -3086,11 +3086,11 @@ var selectAllClaimsByChannel = exports.selectAllClaimsByChannel = (0, _reselect.
 });
 
 var selectPendingById = exports.selectPendingById = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.pendingById;
+  return state.pendingById || {};
 });
 
 var selectPendingClaims = exports.selectPendingClaims = (0, _reselect.createSelector)(selectState, function (state) {
-  return Object.values(state.pendingById || {});
+  return Object.values(state.pendingById || []);
 });
 
 var makeSelectClaimIsPending = exports.makeSelectClaimIsPending = function makeSelectClaimIsPending(uri) {
@@ -5226,13 +5226,13 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = function (state, action) {
   var byId = Object.assign({}, state.byId);
   var pendingById = Object.assign({}, state.pendingById);
 
-  claims.filter(function (claim) {
-    return claim.type && claim.type.match(/claim|update/);
-  }).forEach(function (claim) {
-    if (claim.confirmations < 1) {
-      pendingById[claim.claim_id] = claim;
-    } else {
-      byId[claim.claim_id] = claim;
+  claims.forEach(function (claim) {
+    if (claim.type && claim.type.match(/claim|update/)) {
+      if (claim.confirmations < 1) {
+        pendingById[claim.claim_id] = claim;
+      } else {
+        byId[claim.claim_id] = claim;
+      }
     }
   });
 
