@@ -33,10 +33,10 @@ export const selectAllClaimsByChannel = createSelector(
   (state) => state.claimsByChannel || {}
 );
 
-export const selectPendingById = createSelector(selectState, (state) => state.pendingById);
+export const selectPendingById = createSelector(selectState, (state) => state.pendingById || {});
 
 export const selectPendingClaims = createSelector(selectState, (state) =>
-  Object.values(state.pendingById || {})
+  Object.values(state.pendingById || [])
 );
 
 export const makeSelectClaimIsPending = (uri) =>
