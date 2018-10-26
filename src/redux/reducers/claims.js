@@ -40,11 +40,11 @@ reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state, action) => {
     byId,
     claimsByUri: byUri,
     channelClaimCounts,
-    resolvingUris: (state.resolvingUris || []).filter(uri => !resolveInfo[uri]),
+    resolvingUris: (state.resolvingUris || []).filter((uri) => !resolveInfo[uri]),
   });
 };
 
-reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = state =>
+reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state) =>
   Object.assign({}, state, {
     isFetchingClaimListMine: true,
   });
@@ -54,18 +54,20 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   const byId = Object.assign({}, state.byId);
   const pendingById = Object.assign({}, state.pendingById);
 
-  claims.filter(claim => claim.type && claim.type.match(/claim|update/)).forEach(claim => {
-    if (claim.confirmations < 1) {
-      pendingById[claim.claim_id] = claim;
-    } else {
-      byId[claim.claim_id] = claim;
+  claims.forEach((claim) => {
+    if (claim.type && claim.type.match(/claim|update/)) {
+      if (claim.confirmations < 1) {
+        pendingById[claim.claim_id] = claim;
+      } else {
+        byId[claim.claim_id] = claim;
+      }
     }
   });
 
   // Remove old pending publishes
   Object.values(pendingById)
-    .filter(pendingClaim => byId[pendingClaim.claim_id])
-    .forEach(pendingClaim => {
+    .filter((pendingClaim) => byId[pendingClaim.claim_id])
+    .forEach((pendingClaim) => {
       delete pendingById[pendingClaim.claim_id];
     });
 
@@ -77,7 +79,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = state =>
+reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = (state) =>
   Object.assign({}, state, { fetchingMyChannels: true });
 
 reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
@@ -85,7 +87,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   const myChannelClaims = new Set(state.myChannelClaims);
   const byId = Object.assign({}, state.byId);
 
-  claims.forEach(claim => {
+  claims.forEach((claim) => {
     myChannelClaims.add(claim.claim_id);
     byId[claim.claim_id] = claim;
   });
@@ -120,7 +122,7 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
   const claimsByUri = Object.assign({}, state.claimsByUri);
 
   if (claims !== undefined) {
-    claims.forEach(claim => {
+    claims.forEach((claim) => {
       allClaimIds.add(claim.claim_id);
       currentPageClaimIds.push(claim.claim_id);
       byId[claim.claim_id] = claim;
@@ -157,7 +159,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   const byId = Object.assign({}, state.byId);
   const claimsByUri = Object.assign({}, state.claimsByUri);
 
-  Object.keys(claimsByUri).forEach(uri => {
+  Object.keys(claimsByUri).forEach((uri) => {
     if (claimsByUri[uri] === claimId) {
       delete claimsByUri[uri];
     }
@@ -185,7 +187,7 @@ reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.FETCH_FEATURED_CONTENT_STARTED] = state =>
+reducers[ACTIONS.FETCH_FEATURED_CONTENT_STARTED] = (state) =>
   Object.assign({}, state, {
     fetchingFeaturedContent: true,
   });
@@ -200,7 +202,7 @@ reducers[ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.FETCH_TRENDING_CONTENT_STARTED] = state =>
+reducers[ACTIONS.FETCH_TRENDING_CONTENT_STARTED] = (state) =>
   Object.assign({}, state, {
     fetchingTrendingContent: true,
   });
@@ -221,7 +223,7 @@ reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state, action) => {
   const oldResolving = state.resolvingUris || [];
   const newResolving = Object.assign([], oldResolving);
 
-  uris.forEach(uri => {
+  uris.forEach((uri) => {
     if (!newResolving.includes(uri)) {
       newResolving.push(uri);
     }
