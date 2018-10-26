@@ -130,7 +130,7 @@ export const selectTransactionItems = createSelector(selectTransactionsById, byI
           txid,
           date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
           amount,
-          fee: amount < 0 ? (-1 * tx.fee) / append.length : 0,
+          fee: amount < 0 ? -1 * tx.fee / append.length : 0,
           claim_id: item.claim_id,
           claim_name: item.claim_name,
           type: item.type || TRANSACTIONS.SPEND,
@@ -139,7 +139,7 @@ export const selectTransactionItems = createSelector(selectTransactionsById, byI
       })
     );
   });
-  return items.reverse();
+  return items;
 });
 
 export const selectRecentTransactions = createSelector(selectTransactionItems, transactions => {
