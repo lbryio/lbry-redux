@@ -176,7 +176,6 @@ export {
   selectSearchDownloadUris,
   selectFileListDownloadedSort,
   selectFileListPublishedSort,
-  selectFileListSubscriptionSort,
 } from 'redux/selectors/file_info';
 
 export {

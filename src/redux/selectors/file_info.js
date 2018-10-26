@@ -205,8 +205,3 @@ export const selectFileListDownloadedSort = createSelector(
   selectState,
   state => state.fileListDownloadedSort
 );
-
-export const selectFileListSubscriptionSort = createSelector(
-  selectState,
-  state => state.fileListSubscriptionSort
-);
