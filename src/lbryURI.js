@@ -95,11 +95,7 @@ export function parseURI(URI, requireProto = false) {
     }
   }
 
-  if (
-    claimId &&
-    (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/)) &&
-    !claimId.match(/^pending/) // ought to be dropped when savePendingPublish drops hack
-  ) {
+  if (claimId && (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/))) {
     throw new Error(__(`Invalid claim ID %s.`, claimId));
   }
 
@@ -190,8 +186,6 @@ export function buildURI(URIObj, includeProto = true, protoDefault = 'lbry://') 
 
 /* Takes a parseable LBRY URI and converts it to standard, canonical format */
 export function normalizeURI(URI) {
-  if (URI.match(/pending_claim/)) return URI;
-
   const { claimName, path, bidPosition, claimSequence, claimId } = parseURI(URI);
   return buildURI({ claimName, path, claimSequence, bidPosition, claimId });
 }
@@ -231,5 +225,9 @@ export function isURIClaimable(URI) {
 
 export function convertToShareLink(URI) {
   const { claimName, path, bidPosition, claimSequence, claimId } = parseURI(URI);
-  return buildURI({ claimName, path, claimSequence, bidPosition, claimId }, true, 'https://open.lbry.io/');
+  return buildURI(
+    { claimName, path, claimSequence, bidPosition, claimId },
+    true,
+    'https://open.lbry.io/'
+  );
 }
