@@ -6,7 +6,6 @@ const reducers = {};
 const defaultState = {
   fileListPublishedSort: SORT_OPTIONS.DATE_NEW,
   fileListDownloadedSort: SORT_OPTIONS.DATE_NEW,
-  fileListSubscriptionSort: SORT_OPTIONS.DATE_NEW,
 };
 
 reducers[ACTIONS.FILE_LIST_STARTED] = state =>
@@ -176,7 +175,6 @@ reducers[ACTIONS.SET_FILE_LIST_SORT] = (state, action) => {
   const pageSortStates = {
     [PAGES.PUBLISHED]: 'fileListPublishedSort',
     [PAGES.DOWNLOADED]: 'fileListDownloadedSort',
-    [PAGES.SUBSCRIPTIONS]: 'fileListSubscriptionSort',
   };
   const pageSortState = pageSortStates[action.data.page];
   const { value } = action.data;
