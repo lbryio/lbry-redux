@@ -1,5 +1,8 @@
 export function formatCredits(amount, precision) {
-  return amount.toFixed(precision || 1).replace(/\.?0+$/, '');
+  if (Number.isNaN(parseFloat(amount))) return '0';
+  return parseFloat(amount)
+    .toFixed(precision || 1)
+    .replace(/\.?0+$/, '');
 }
 
 export function formatFullPrice(amount, precision = 1) {
@@ -10,7 +13,7 @@ export function formatFullPrice(amount, precision = 1) {
 
   if (fraction) {
     const decimals = fraction.split('');
-    const first = decimals.filter(number => number !== '0')[0];
+    const first = decimals.filter((number) => number !== '0')[0];
     const index = decimals.indexOf(first);
 
     // Set format fraction

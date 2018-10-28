@@ -5100,7 +5100,8 @@ exports.formatCredits = formatCredits;
 exports.formatFullPrice = formatFullPrice;
 exports.creditsToString = creditsToString;
 function formatCredits(amount, precision) {
-  return amount.toFixed(precision || 1).replace(/\.?0+$/, '');
+  if (Number.isNaN(parseFloat(amount))) return '0';
+  return parseFloat(amount).toFixed(precision || 1).replace(/\.?0+$/, '');
 }
 
 function formatFullPrice(amount) {
