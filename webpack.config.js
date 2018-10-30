@@ -9,7 +9,6 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'umd',
-    globalObject: "(typeof window !== 'undefined' ? window : this)",
   },
   module: {
     rules: [
