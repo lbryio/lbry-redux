@@ -23,7 +23,7 @@ Run `$ yarn build`. If the symlink does not work, just build the file and move t
 ## Contributing 
 We :heart: contributions from everyone! We welcome [bug reports](https://github.com/lbryio/lbry-redux/issues/), [bug fixes](https://github.com/lbryio/lbry-redux/pulls) and feedback on the module is always appreciated.
 
-## [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/lbryio/lbry-redux/issues) [![GitHub contributors](https://img.shields.io/github/contributors/lbryio/lbry-redux.svg)](https://GitHub.com//lbryio/lbry-redux/graphs/contributors/)
+## [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/lbryio/lbry-redux/issues) [![GitHub contributors](https://img.shields.io/github/contributors/lbryio/lbry-redux.svg)](https://GitHub.com/lbryio/lbry-redux/graphs/contributors/)
 
 ## License
 
