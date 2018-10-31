@@ -1925,28 +1925,33 @@ function doAbandonClaim(txid, nout) {
     var errorCallback = function errorCallback() {
       dispatch((0, _notifications.doNotify)({
         title: 'Transaction failed',
-        message: 'Transaction failed',
+        message: 'Error abandoning claim',
         type: 'error',
-        displayType: ['modal', 'toast']
+        displayType: ['snackbar', 'toast']
       }));
     };
 
     var successCallback = function successCallback(results) {
-      if (results.txid) {
+      if (results.success === true) {
         dispatch({
           type: ACTIONS.ABANDON_CLAIM_SUCCEEDED,
           data: {
             claimId: claimId
           }
         });
+        dispatch((0, _notifications.doNotify)({
+          title: 'Transaction successful',
+          message: 'Successfully abandoned your claim',
+          displayType: ['snackbar', 'toast']
+        }));
         dispatch(doResolveUri((0, _lbryURI.buildURI)({ name: name, claimId: claimId })));
         dispatch(doFetchClaimListMine());
       } else {
         dispatch((0, _notifications.doNotify)({
           title: 'Transaction failed',
-          message: 'Transaction failed',
+          message: 'Error abandoning claim',
           type: 'error',
-          displayType: ['modal', 'toast']
+          displayType: ['snackbar', 'toast']
         }));
       }
     };

@@ -13,7 +13,7 @@ export function doResolveUris(uris) {
 
     // Filter out URIs that are already resolving
     const resolvingUris = selectResolvingUris(state);
-    const urisToResolve = normalizedUris.filter(uri => !resolvingUris.includes(uri));
+    const urisToResolve = normalizedUris.filter((uri) => !resolvingUris.includes(uri));
 
     if (urisToResolve.length === 0) {
       return;
@@ -25,7 +25,7 @@ export function doResolveUris(uris) {
     });
 
     const resolveInfo = {};
-    Lbry.resolve({ uris: urisToResolve }).then(result => {
+    Lbry.resolve({ uris: urisToResolve }).then((result) => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
           claim: null,
@@ -52,12 +52,12 @@ export function doResolveUri(uri) {
 }
 
 export function doFetchClaimListMine() {
-  return dispatch => {
+  return (dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED,
     });
 
-    Lbry.claim_list_mine().then(claims => {
+    Lbry.claim_list_mine().then((claims) => {
       dispatch({
         type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
         data: {
@@ -73,7 +73,7 @@ export function doAbandonClaim(txid, nout) {
     const state = getState();
     const myClaims = selectMyClaimsRaw(state);
     const { claim_id: claimId, name } = myClaims.find(
-      claim => claim.txid === txid && claim.nout === nout
+      (claim) => claim.txid === txid && claim.nout === nout
     );
 
     dispatch({
@@ -87,30 +87,37 @@ export function doAbandonClaim(txid, nout) {
       dispatch(
         doNotify({
           title: 'Transaction failed',
-          message: 'Transaction failed',
+          message: 'Error abandoning claim',
           type: 'error',
-          displayType: ['modal', 'toast'],
+          displayType: ['snackbar', 'toast'],
         })
       );
     };
 
-    const successCallback = results => {
-      if (results.txid) {
+    const successCallback = (results) => {
+      if (results.success === true) {
         dispatch({
           type: ACTIONS.ABANDON_CLAIM_SUCCEEDED,
           data: {
             claimId,
           },
         });
+        dispatch(
+          doNotify({
+            title: 'Transaction successful',
+            message: 'Successfully abandoned your claim',
+            displayType: ['snackbar', 'toast'],
+          })
+        );
         dispatch(doResolveUri(buildURI({ name, claimId })));
         dispatch(doFetchClaimListMine());
       } else {
         dispatch(
           doNotify({
             title: 'Transaction failed',
-            message: 'Transaction failed',
+            message: 'Error abandoning claim',
             type: 'error',
-            displayType: ['modal', 'toast'],
+            displayType: ['snackbar', 'toast'],
           })
         );
       }
@@ -124,14 +131,14 @@ export function doAbandonClaim(txid, nout) {
 }
 
 export function doFetchFeaturedUris() {
-  return dispatch => {
+  return (dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_FEATURED_CONTENT_STARTED,
     });
 
     const success = ({ Uris }) => {
       let urisToResolve = [];
-      Object.keys(Uris).forEach(category => {
+      Object.keys(Uris).forEach((category) => {
         urisToResolve = [...urisToResolve, ...Uris[category]];
       });
 
@@ -162,13 +169,13 @@ export function doFetchFeaturedUris() {
 }
 
 export function doFetchTrendingUris() {
-  return dispatch => {
+  return (dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_TRENDING_CONTENT_STARTED,
     });
 
-    const success = data => {
-      const urisToResolve = data.map(uri => uri.url);
+    const success = (data) => {
+      const urisToResolve = data.map((uri) => uri.url);
       const actions = [
         doResolveUris(urisToResolve),
         {
@@ -196,13 +203,13 @@ export function doFetchTrendingUris() {
 }
 
 export function doFetchClaimsByChannel(uri, page) {
-  return dispatch => {
+  return (dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED,
       data: { uri, page },
     });
 
-    Lbry.claim_list_by_channel({ uri, page: page || 1 }).then(result => {
+    Lbry.claim_list_by_channel({ uri, page: page || 1 }).then((result) => {
       const claimResult = result[uri] || {};
       const { claims_in_channel: claimsInChannel, returned_page: returnedPage } = claimResult;
 
@@ -219,13 +226,13 @@ export function doFetchClaimsByChannel(uri, page) {
 }
 
 export function doFetchClaimCountByChannel(uri) {
-  return dispatch => {
+  return (dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_STARTED,
       data: { uri },
     });
 
-    Lbry.claim_list_by_channel({ uri }).then(result => {
+    Lbry.claim_list_by_channel({ uri }).then((result) => {
       const claimResult = result[uri];
       const totalClaims = claimResult ? claimResult.claims_in_channel : 0;
 
