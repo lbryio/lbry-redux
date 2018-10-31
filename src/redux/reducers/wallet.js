@@ -71,7 +71,7 @@ reducers[ACTIONS.FETCH_TRANSACTIONS_COMPLETED] = (state: WalletState, action) =>
 
   const { transactions } = action.data;
 
-  transactions.forEach(transaction => {
+  transactions.forEach((transaction) => {
     byId[transaction.txid] = transaction;
   });
 

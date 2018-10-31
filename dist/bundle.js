@@ -4999,23 +4999,40 @@ var selectTransactionItems = exports.selectTransactionItems = (0, _reselect.crea
 
       return {
         txid: txid,
+        timestamp: tx.timestamp,
         date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
         amount: amount,
         fee: amount < 0 ? -1 * tx.fee / append.length : 0,
         claim_id: item.claim_id,
         claim_name: item.claim_name,
         type: item.type || TRANSACTIONS.SPEND,
-        nout: item.nout
+        nout: item.nout,
+        confirmations: tx.confirmations
       };
     })));
   });
-  return items;
+
+  return items.sort(function (tx1, tx2) {
+    if (!tx1.timestamp && !tx2.timestamp) {
+      return 0;
+    } else if (!tx1.timestamp && tx2.timestamp) {
+      return -1;
+    } else if (tx1.timestamp && !tx2.timestamp) {
+      return 1;
+    }
+
+    return tx2.timestamp - tx1.timestamp;
+  });
 });
 
 var selectRecentTransactions = exports.selectRecentTransactions = (0, _reselect.createSelector)(selectTransactionItems, function (transactions) {
   var threshold = new Date();
   threshold.setDate(threshold.getDate() - 7);
   return transactions.filter(function (transaction) {
+    if (!transaction.date) {
+      return true; // pending transaction
+    }
+
     return transaction.date > threshold;
   });
 });
