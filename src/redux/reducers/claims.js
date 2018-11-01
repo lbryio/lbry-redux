@@ -58,6 +58,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
     if (claim.type && claim.type.match(/claim|update/)) {
       if (claim.confirmations < 1) {
         pendingById[claim.claim_id] = claim;
+        delete byId[claim.claim_id];
       } else {
         byId[claim.claim_id] = claim;
       }
