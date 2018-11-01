@@ -1,4 +1,7 @@
 # lbry-redux
+
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
 lbry-redux is a module which contains common React and redux code shared between lbry-desktop and lbry-android.
 
 ## Installation
@@ -17,6 +20,11 @@ npm link lbry-redux
 ### Build
 Run `$ yarn build`. If the symlink does not work, just build the file and move the `bundle.js` file in to the `node_modules/` folder.
 
+## Contributing 
+We :heart: contributions from everyone! We welcome [bug reports](https://github.com/lbryio/lbry-redux/issues/), [bug fixes](https://github.com/lbryio/lbry-redux/pulls) and feedback on the module is always appreciated.
+
+## [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/lbryio/lbry-redux/issues) [![GitHub contributors](https://img.shields.io/github/contributors/lbryio/lbry-redux.svg)](https://GitHub.com/lbryio/lbry-redux/graphs/contributors/)
+
 ## License
 
-[MIT © LBRY](LICENSE)
+This module is released under the [MIT License](license)
