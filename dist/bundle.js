@@ -2109,7 +2109,7 @@ var CHECK_DAEMON_STARTED_TRY_NUMBER = 200; // @flow
 
 var Lbry = {
   isConnected: false,
-  daemonConnectionString: 'http://localhost:5279',
+  daemonConnectionString: 'http://localhost:8000/api_proxy/',
   pendingPublishTimeout: 20 * 60 * 1000
 };
 
@@ -2137,7 +2137,10 @@ function apiCall(method /*: string*/, params /*: ?{}*/, resolve /*: Function*/, 
       method: method,
       params: params,
       id: counter
-    })
+    }),
+    headers: {
+      'X-Lbrynet-Account-Id': 'bF3U2QNShJA81ij7GoJGqQqgXgKJFci13v'
+    }
   };
 
   return fetch(Lbry.daemonConnectionString, options).then(checkAndParse).then(function (response) {

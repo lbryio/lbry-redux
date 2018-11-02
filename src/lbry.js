@@ -5,7 +5,7 @@ const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 
 const Lbry = {
   isConnected: false,
-  daemonConnectionString: 'http://localhost:5279',
+  daemonConnectionString: 'http://localhost:8000/api_proxy/',
   pendingPublishTimeout: 20 * 60 * 1000,
 };
 
@@ -13,7 +13,7 @@ function checkAndParse(response) {
   if (response.status >= 200 && response.status < 300) {
     return response.json();
   }
-  return response.json().then(json => {
+  return response.json().then((json) => {
     let error;
     if (json.error) {
       error = new Error(json.error);
@@ -34,11 +34,14 @@ function apiCall(method: string, params: ?{}, resolve: Function, reject: Functio
       params,
       id: counter,
     }),
+    headers: {
+      'X-Lbrynet-Account-Id': 'bF3U2QNShJA81ij7GoJGqQqgXgKJFci13v',
+    },
   };
 
   return fetch(Lbry.daemonConnectionString, options)
     .then(checkAndParse)
-    .then(response => {
+    .then((response) => {
       const error = response.error || (response.result && response.result.error);
 
       if (error) {
@@ -54,7 +57,7 @@ const daemonCallWithResult = (name, params = {}) =>
     apiCall(
       name,
       params,
-      result => {
+      (result) => {
         resolve(result);
       },
       reject
@@ -152,7 +155,7 @@ Lbry.file_list = (params = {}) =>
     apiCall(
       'file_list',
       params,
-      fileInfos => {
+      (fileInfos) => {
         resolve(fileInfos);
       },
       reject
@@ -164,7 +167,7 @@ Lbry.claim_list_mine = (params = {}) =>
     apiCall(
       'claim_list_mine',
       params,
-      claims => {
+      (claims) => {
         resolve(claims);
       },
       reject
@@ -176,7 +179,7 @@ Lbry.get = (params = {}) =>
     apiCall(
       'get',
       params,
-      streamInfo => {
+      (streamInfo) => {
         resolve(streamInfo);
       },
       reject
@@ -188,7 +191,7 @@ Lbry.resolve = (params = {}) =>
     apiCall(
       'resolve',
       params,
-      data => {
+      (data) => {
         if ('uri' in params) {
           // If only a single URI was requested, don't nest the results in an object
           resolve(data && data[params.uri] ? data[params.uri] : {});
