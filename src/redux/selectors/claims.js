@@ -243,10 +243,10 @@ export const selectChannelClaimCounts = createSelector(
 export const makeSelectTotalItemsForChannel = (uri) =>
   createSelector(selectChannelClaimCounts, (byUri) => byUri && byUri[uri]);
 
-export const makeSelectTotalPagesForChannel = (uri) =>
+export const makeSelectTotalPagesForChannel = (uri, pageSize = 10) =>
   createSelector(
     selectChannelClaimCounts,
-    (byUri) => byUri && byUri[uri] && Math.ceil(byUri[uri] / 10)
+    (byUri) => byUri && byUri[uri] && Math.ceil(byUri[uri] / pageSize)
   );
 
 export const makeSelectNsfwCountFromUris = (uris) =>
