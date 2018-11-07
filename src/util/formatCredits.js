@@ -24,10 +24,6 @@ export function formatFullPrice(amount, precision = 1) {
 }
 
 export function creditsToString(amount) {
-  const creditString = String(amount);
-
-  if (creditString.includes('.')) {
-    return creditString;
-  }
-  return `${creditString}.0`;
+  const creditString = parseFloat(amount).toFixed(8);
+  return creditString;
 }

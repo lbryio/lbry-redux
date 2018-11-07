@@ -1921,8 +1921,7 @@ function doAbandonClaim(txid, nout) {
     var _myClaims$find = myClaims.find(function (claim) {
       return claim.txid === txid && claim.nout === nout;
     }),
-        claimId = _myClaims$find.claim_id,
-        name = _myClaims$find.name;
+        claimId = _myClaims$find.claim_id;
 
     dispatch({
       type: ACTIONS.ABANDON_CLAIM_STARTED,
@@ -4557,12 +4556,8 @@ function formatFullPrice(amount) {
 }
 
 function creditsToString(amount) {
-  var creditString = String(amount);
-
-  if (creditString.includes('.')) {
-    return creditString;
-  }
-  return creditString + '.0';
+  var creditString = parseFloat(amount).toFixed(8);
+  return creditString;
 }
 
 /***/ }),
