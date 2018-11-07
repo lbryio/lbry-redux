@@ -211,11 +211,28 @@ export const selectDraftTransactionError = createSelector(
 
 export const selectBlocks = createSelector(selectState, (state) => state.blocks);
 
+export const selectCurrentHeight = createSelector(selectState, (state) => state.latestBlock);
+
 export const makeSelectBlockDate = (block) =>
-  createSelector(
-    selectBlocks,
-    (blocks) => (blocks && blocks[block] ? new Date(blocks[block].time * 1000) : undefined)
-  );
+  createSelector(selectBlocks, selectCurrentHeight, (blocks, latestBlock) => {
+    // If we have the block data, look at the actual date,
+    // If not, try to simulate it based on 2.5 minute blocks
+    // Adding this on 11/7/2018 because caling block_show for every claim is causing
+    // performance issues.
+    if (blocks && blocks[block]) {
+      return new Date(blocks[block].time * 1000);
+    }
+
+    // Pending claim
+    if (block < 1) {
+      return new Date();
+    }
+
+    const difference = latestBlock - block;
+    const msSincePublish = difference * 2.5 * 60 * 1000; // Number of blocks * 2.5 minutes in ms
+    const publishDate = Date.now() - msSincePublish;
+    return new Date(publishDate);
+  });
 
 export const selectTransactionListFilter = createSelector(
   selectState,
