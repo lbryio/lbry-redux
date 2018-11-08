@@ -5115,7 +5115,7 @@ var makeSelectBlockDate = exports.makeSelectBlockDate = function makeSelectBlock
 
     // Pending claim
     if (block < 1) {
-      return new Date();
+      return null;
     }
 
     var difference = latestBlock - block;

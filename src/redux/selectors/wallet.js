@@ -225,7 +225,7 @@ export const makeSelectBlockDate = (block) =>
 
     // Pending claim
     if (block < 1) {
-      return new Date();
+      return null;
     }
 
     const difference = latestBlock - block;
