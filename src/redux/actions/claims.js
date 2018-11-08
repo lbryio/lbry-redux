@@ -1,10 +1,11 @@
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
-import { buildURI, normalizeURI } from 'lbryURI';
+import { normalizeURI } from 'lbryURI';
 import { doNotify } from 'redux/actions/notifications';
 import { selectMyClaimsRaw, selectResolvingUris } from 'redux/selectors/claims';
 import { batchActions } from 'util/batchActions';
+import { doFetchTransactions } from 'redux/actions/wallet';
 
 export function doResolveUris(uris) {
   return (dispatch, getState) => {
@@ -72,7 +73,7 @@ export function doAbandonClaim(txid, nout) {
   return (dispatch, getState) => {
     const state = getState();
     const myClaims = selectMyClaimsRaw(state);
-    const { claim_id: claimId, name } = myClaims.find(
+    const { claim_id: claimId } = myClaims.find(
       (claim) => claim.txid === txid && claim.nout === nout
     );
 
@@ -109,8 +110,11 @@ export function doAbandonClaim(txid, nout) {
             displayType: ['snackbar', 'toast'],
           })
         );
-        dispatch(doResolveUri(buildURI({ name, claimId })));
+
+        // After abandoning, call claim_list_mine to show the claim as abandoned
+        // Also fetch transactions to show the new abandon transaction
         dispatch(doFetchClaimListMine());
+        dispatch(doFetchTransactions());
       } else {
         dispatch(
           doNotify({
