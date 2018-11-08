@@ -17,6 +17,7 @@ type ActionResult = {
 type WalletState = {
   balance: any,
   blocks: any,
+  latestBlock: number,
   transactions: any,
   fetchingTransactions: boolean,
   gettingNewAddress: boolean,
@@ -40,6 +41,7 @@ type WalletState = {
 const defaultState = {
   balance: undefined,
   blocks: {},
+  latestBlock: undefined,
   transactions: {},
   fetchingTransactions: false,
   gettingNewAddress: false,
@@ -279,6 +281,11 @@ reducers[ACTIONS.WALLET_LOCK_FAILED] = (state: WalletState, action: ActionResult
 reducers[ACTIONS.SET_TRANSACTION_LIST_FILTER] = (state: WalletState, action: {}) =>
   Object.assign({}, state, {
     transactionListFilter: action.data,
+  });
+
+reducers[ACTIONS.UPDATE_CURRENT_HEIGHT] = (state: WalletState, action: { data: number }) =>
+  Object.assign({}, state, {
+    latestBlock: action.data,
   });
 
 export function walletReducer(state: WalletState = defaultState, action: ActionResult) {

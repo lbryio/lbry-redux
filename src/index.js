@@ -88,6 +88,7 @@ export {
   doWalletUnlock,
   doWalletStatus,
   doSetTransactionListFilter,
+  doUpdateBlockHeight,
 } from 'redux/actions/wallet';
 
 // utils
