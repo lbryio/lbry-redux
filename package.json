@@ -28,7 +28,8 @@
   },
   "dependencies": {
     "proxy-polyfill": "0.1.6",
-    "reselect": "^3.0.0"
+    "reselect": "^3.0.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

@@ -1,6 +1,6 @@
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
-import { doNotify } from 'redux/actions/notifications';
+import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/formatCredits';
 
@@ -96,11 +96,9 @@ export function doSendDraftTransaction(address, amount) {
 
     if (balance - amount <= 0) {
       dispatch(
-        doNotify({
+        doToast({
           title: 'Insufficient credits',
           message: 'Insufficient credits',
-          type: 'error',
-          displayType: ['modal', 'toast'],
         })
       );
       return;
@@ -116,11 +114,8 @@ export function doSendDraftTransaction(address, amount) {
           type: ACTIONS.SEND_TRANSACTION_COMPLETED,
         });
         dispatch(
-          doNotify({
-            title: 'Credits sent',
+          doToast({
             message: `You sent ${amount} LBC`,
-            type: 'error',
-            displayType: ['snackbar', 'toast'],
             linkText: 'History',
             linkTarget: '/wallet',
           })
@@ -131,11 +126,9 @@ export function doSendDraftTransaction(address, amount) {
           data: { error: response },
         });
         dispatch(
-          doNotify({
-            title: 'Transaction failed',
+          doToast({
             message: 'Transaction failed',
-            type: 'error',
-            displayType: ['snackbar', 'toast'],
+            isError: true,
           })
         );
       }
@@ -147,11 +140,9 @@ export function doSendDraftTransaction(address, amount) {
         data: { error: error.message },
       });
       dispatch(
-        doNotify({
-          title: 'Transaction failed',
+        doToast({
           message: 'Transaction failed',
-          type: 'error',
-          displayType: ['snackbar', 'toast'],
+          isError: true,
         })
       );
     };
@@ -184,11 +175,9 @@ export function doSendTip(amount, claimId, uri, successCallback, errorCallback) 
 
     if (balance - amount <= 0) {
       dispatch(
-        doNotify({
-          title: 'Insufficient credits',
+        doToast({
           message: 'Insufficient credits',
-          type: 'error',
-          displayType: ['modal', 'toast'],
+          isError: true,
         })
       );
       return;
@@ -196,11 +185,10 @@ export function doSendTip(amount, claimId, uri, successCallback, errorCallback) 
 
     const success = () => {
       dispatch(
-        doNotify({
+        doToast({
           message: __(`You sent ${amount} LBC as a tip, Mahalo!`),
           linkText: __('History'),
           linkTarget: __('/wallet'),
-          displayType: ['snackbar'],
         })
       );
 
@@ -215,9 +203,9 @@ export function doSendTip(amount, claimId, uri, successCallback, errorCallback) 
 
     const error = (err) => {
       dispatch(
-        doNotify({
+        doToast({
           message: __(`There was an error sending support funds.`),
-          displayType: ['snackbar'],
+          isError: true,
         })
       );
 
