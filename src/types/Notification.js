@@ -28,29 +28,29 @@ export type DoToast = {
 };
 
 /*
-  Events:
-    - List of notifications based on user interactions/app events
+  Notifications:
+    - List of notifications based on user interactions/app notifications
     - Always saved, but can be manually deleted
     - Can happen in the background, or because of user interaction (ex: publish confirmed)
 */
-export type Event = {
+export type Notification = {
   id: string, // Unique id
   dateCreated: number,
   isRead: boolean, // Used to display "new" notifications that a user hasn't seen yet
-  source?: string, // The type/area an event is from. Used for sorting (ex: publishes, transactions)
+  source?: string, // The type/area an notification is from. Used for sorting (ex: publishes, transactions)
   // We may want to use priority/isDismissed in the future to specify how urgent a notification is
   // and if the user should see it immediately
   // isDissmied: boolean,
   // priority?: number
 };
 
-export type DoEvent = {
-  type: ACTIONS.CREATE_EVENT,
-  data: Event,
+export type DoNotification = {
+  type: ACTIONS.CREATE_NOTIFICATION,
+  data: Notification,
 };
 
-export type DoEditEvent = {
-  type: ACTIONS.EDIT_EVENT,
+export type DoEditNotification = {
+  type: ACTIONS.EDIT_NOTIFICATION,
   data: {
     id: string,
     isRead: boolean,
@@ -60,8 +60,8 @@ export type DoEditEvent = {
   },
 };
 
-export type DoDeleteEvent = {
-  type: ACTIONS.DELETE_EVENT,
+export type DoDeleteNotification = {
+  type: ACTIONS.DELETE_NOTIFICATION,
   data: {
     id: string, // The id to delete
   },
@@ -91,7 +91,7 @@ export type DoDismissError = {
   NotificationState
 */
 export type NotificationState = {
-  events: Array<Event>,
+  notifications: Array<Notification>,
   errors: Array<Error>,
   toasts: Array<Toast>,
 };

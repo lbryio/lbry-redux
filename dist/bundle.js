@@ -92,12 +92,12 @@ Object.defineProperty(exports, "__esModule", {
 exports.selectTransactionListFilter = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectFileListPublishedSort = exports.selectFileListDownloadedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = undefined;
 exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.selectPendingById = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.makeSelectChannelForClaimUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectError = exports.selectToast = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.creditsToString = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doUpdateBlockHeight = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendTip = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetFileListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doDismissError = exports.doError = exports.doDismissToast = exports.doToast = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.PAGES = exports.SORT_OPTIONS = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.ACTIONS = exports.Toast = undefined;
 
-var _notification = __webpack_require__(1);
+var _Notification = __webpack_require__(1);
 
 Object.defineProperty(exports, 'Toast', {
   enumerable: true,
   get: function get() {
-    return _notification.Toast;
+    return _Notification.Toast;
   }
 });
 
@@ -1290,8 +1290,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 
 /*
-  Events:
-    - List of notifications based on user interactions/app events
+  Notifications:
+    - List of notifications based on user interactions/app notifications
     - Always saved, but can be manually deleted
     - Can happen in the background, or because of user interaction (ex: publish confirmed)
 */
@@ -1299,22 +1299,22 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
   type: ACTIONS.CREATE_TOAST,
   data: Toast,
 };*/
-/*:: export type Event = {
+/*:: export type Notification = {
   id: string, // Unique id
   dateCreated: number,
   isRead: boolean, // Used to display "new" notifications that a user hasn't seen yet
-  source?: string, // The type/area an event is from. Used for sorting (ex: publishes, transactions)
+  source?: string, // The type/area an notification is from. Used for sorting (ex: publishes, transactions)
   // We may want to use priority/isDismissed in the future to specify how urgent a notification is
   // and if the user should see it immediately
   // isDissmied: boolean,
   // priority?: number
 };*/
-/*:: export type DoEvent = {
-  type: ACTIONS.CREATE_EVENT,
-  data: Event,
+/*:: export type DoNotification = {
+  type: ACTIONS.CREATE_NOTIFICATION,
+  data: Notification,
 };*/
-/*:: export type DoEditEvent = {
-  type: ACTIONS.EDIT_EVENT,
+/*:: export type DoEditNotification = {
+  type: ACTIONS.EDIT_NOTIFICATION,
   data: {
     id: string,
     isRead: boolean,
@@ -1331,8 +1331,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
     - Errors that should interupt user behavior
     - For errors that can be shown without interrupting a user, use Toast with the isError flag
 */
-/*:: export type DoDeleteEvent = {
-  type: ACTIONS.DELETE_EVENT,
+/*:: export type DoDeleteNotification = {
+  type: ACTIONS.DELETE_NOTIFICATION,
   data: {
     id: string, // The id to delete
   },
@@ -1354,7 +1354,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
   type: ACTIONS.DISMISS_ERROR,
 };*/
 /*:: export type NotificationState = {
-  events: Array<Event>,
+  notifications: Array<Notification>,
   errors: Array<Error>,
   toasts: Array<Toast>,
 };*/
@@ -1581,9 +1581,9 @@ var REMOVE_PENDING_PUBLISH = exports.REMOVE_PENDING_PUBLISH = 'REMOVE_PENDING_PU
 var DO_PREPARE_EDIT = exports.DO_PREPARE_EDIT = 'DO_PREPARE_EDIT';
 
 // Notifications
-var CREATE_EVENT = exports.CREATE_EVENT = 'CREATE_EVENT';
-var EDIT_EVENT = exports.EDIT_EVENT = 'EDIT_EVENT';
-var DELETE_EVENT = exports.DELETE_EVENT = 'DELETE_EVENT';
+var CREATE_NOTIFICATION = exports.CREATE_NOTIFICATION = 'CREATE_NOTIFICATION';
+var EDIT_NOTIFICATION = exports.EDIT_NOTIFICATION = 'EDIT_NOTIFICATION';
+var DELETE_NOTIFICATION = exports.DELETE_NOTIFICATION = 'DELETE_NOTIFICATION';
 var CREATE_TOAST = exports.CREATE_TOAST = 'CREATE_TOAST';
 var DISMISS_TOAST = exports.DISMISS_TOAST = 'DISMISS_TOAST';
 var CREATE_ERROR = exports.CREATE_ERROR = 'CREATE_ERROR';
@@ -1862,8 +1862,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-/*:: import type { ToastParams } from 'types/notification';*/ // @flow
-
+// @flow
+/*:: import type { ToastParams } from 'types/Notification';*/
 function doToast(params /*: ToastParams*/) {
   if (!params) {
     throw Error("'params' object is required to create a toast notification");
@@ -2153,10 +2153,8 @@ function doAbandonClaim(txid, nout) {
             claimId: claimId
           }
         });
-        dispatch(doNotify({
-          title: 'Transaction successful',
-          message: 'Successfully abandoned your claim',
-          displayType: ['snackbar', 'toast']
+        dispatch((0, _notifications.doToast)({
+          message: 'Successfully abandoned your claim'
         }));
 
         // After abandoning, call claim_list_mine to show the claim as abandoned
@@ -6085,14 +6083,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /*:: import type {
   NotificationState,
   DoToast,
-  DoEvent,
-  DoEditEvent,
-  DoDeleteEvent,
-} from 'types/notification';*/
+  DoNotification,
+  DoEditNotification,
+  DoDeleteNotification,
+} from 'types/Notification';*/
 
 
 var defaultState /*: NotificationState*/ = {
-  events: [],
+  notifications: [],
   toasts: [],
   errors: []
 };
@@ -6112,42 +6110,36 @@ var notificationsReducer = (0, _reduxUtils.handleActions)((_handleActions = {}, 
   return _extends({}, state, {
     toasts: newToasts
   });
-}), _defineProperty(_handleActions, ACTIONS.CREATE_EVENT, function (state /*: NotificationState*/, action /*: DoEvent*/) {
-  var event = action.data;
-  var newEvents = state.events.slice();
-  newEvents.push(event);
+}), _defineProperty(_handleActions, ACTIONS.CREATE_NOTIFICATION, function (state /*: NotificationState*/, action /*: DoNotification*/) {
+  var notification = action.data;
+  var newNotifications = state.notifications.slice();
+  newNotifications.push(notification);
 
   return _extends({}, state, {
-    events: newEvents
+    notifications: newNotifications
   });
-}), _defineProperty(_handleActions, ACTIONS.EDIT_EVENT, function (state /*: NotificationState*/, action /*: DoEditEvent*/) {
-  var event = action.data.event;
+}), _defineProperty(_handleActions, ACTIONS.EDIT_NOTIFICATION, function (state /*: NotificationState*/, action /*: DoEditNotification*/) {
+  var notification = action.data.notification;
 
-  var newEvents = state.events.slice();
+  var notifications = state.notifications.slice();
 
-  newEvents = newEvents.map(function (pastEvent) {
-    if (pastEvent.id === event.id) {
-      return _extends({}, pastEvent, {
-        events: newEvents
-      });
-    }
-
-    return pastEvent;
+  notifications = notifications.map(function (pastNotification) {
+    return pastNotification.id === notification.id ? notification : pastNotification;
   });
 
   return _extends({}, state, {
-    events: newEvents
+    notifications: notifications
   });
-}), _defineProperty(_handleActions, ACTIONS.DELETE_EVENT, function (state /*: NotificationState*/, action /*: DoDeleteEvent*/) {
+}), _defineProperty(_handleActions, ACTIONS.DELETE_NOTIFICATION, function (state /*: NotificationState*/, action /*: DoDeleteNotification*/) {
   var id = action.data.id;
 
-  var newEvents = state.events.slice();
-  newEvents = newEvents.filter(function (notification) {
+  var newNotifications = state.notifications.slice();
+  newNotifications = newNotifications.filter(function (notification) {
     return notification.id !== id;
   });
 
   return _extends({}, state, {
-    events: newEvents
+    notifications: newNotifications
   });
 }), _defineProperty(_handleActions, ACTIONS.CREATE_ERROR, function (state /*: NotificationState*/, action /*: DoToast*/) {
   var error = action.data;

@@ -2,15 +2,15 @@
 import type {
   NotificationState,
   DoToast,
-  DoEvent,
-  DoEditEvent,
-  DoDeleteEvent,
+  DoNotification,
+  DoEditNotification,
+  DoDeleteNotification,
 } from 'types/Notification';
 import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
 
 const defaultState: NotificationState = {
-  events: [],
+  notifications: [],
   toasts: [],
   errors: [],
 };
@@ -38,37 +38,40 @@ const notificationsReducer = handleActions(
       };
     },
 
-    // Events
-    [ACTIONS.CREATE_EVENT]: (state: NotificationState, action: DoEvent) => {
-      const event = action.data;
-      const newEvents = state.events.slice();
-      newEvents.push(event);
+    // Notifications
+    [ACTIONS.CREATE_NOTIFICATION]: (state: NotificationState, action: DoNotification) => {
+      const notification = action.data;
+      const newNotifications = state.notifications.slice();
+      newNotifications.push(notification);
 
       return {
         ...state,
-        events: newEvents,
+        notifications: newNotifications,
       };
     },
     // Used to mark notifications as read/dismissed
-    [ACTIONS.EDIT_EVENT]: (state: NotificationState, action: DoEditEvent) => {
-      const { event } = action.data;
-      let events = state.events.slice();
+    [ACTIONS.EDIT_NOTIFICATION]: (state: NotificationState, action: DoEditNotification) => {
+      const { notification } = action.data;
+      let notifications = state.notifications.slice();
 
-      events = events.map((pastEvent) => (pastEvent.id === event.id ? event : pastEvent));
+      notifications = notifications.map(
+        (pastNotification) =>
+          pastNotification.id === notification.id ? notification : pastNotification
+      );
 
       return {
         ...state,
-        events,
+        notifications,
       };
     },
-    [ACTIONS.DELETE_EVENT]: (state: NotificationState, action: DoDeleteEvent) => {
+    [ACTIONS.DELETE_NOTIFICATION]: (state: NotificationState, action: DoDeleteNotification) => {
       const { id } = action.data;
-      let newEvents = state.events.slice();
-      newEvents = newEvents.filter((notification) => notification.id !== id);
+      let newNotifications = state.notifications.slice();
+      newNotifications = newNotifications.filter((notification) => notification.id !== id);
 
       return {
         ...state,
-        events: newEvents,
+        notifications: newNotifications,
       };
     },
 
