@@ -3365,18 +3365,16 @@ var makeSelectRecommendedContentForUri = exports.makeSelectRecommendedContentFor
 
     var recommendedContent = void 0;
     if (claim) {
+      // If we are at a vanity uri, build the full uri so we can properly filter
+      var currentUri = atVanityURI ? (0, _lbryURI.buildURI)({ claimId: claim.claim_id, claimName: claim.name }) : uri;
+
       var title = claim.value.stream.metadata.title;
+
 
       var searchUris = searchUrisByQuery[title.replace(/\//, ' ')];
       if (searchUris) {
-        // If we are at a vanity uri, we can't do a uri match
-        // The first search result _should_ be the same as the claim a user is on
-        if (atVanityURI) {
-          searchUris = searchUris.slice(1);
-        }
-
         searchUris = searchUris.filter(function (searchUri) {
-          return searchUri !== uri;
+          return searchUri !== currentUri;
         });
         recommendedContent = searchUris;
       }
