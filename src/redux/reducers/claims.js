@@ -1,4 +1,5 @@
 import * as ACTIONS from 'constants/action_types';
+import { buildURI } from 'lbryURI';
 
 const reducers = {};
 
@@ -52,15 +53,20 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state) =>
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   const { claims } = action.data;
   const byId = Object.assign({}, state.byId);
+  const byUri = Object.assign({}, state.claimsByUri);
   const pendingById = Object.assign({}, state.pendingById);
 
   claims.forEach((claim) => {
+    const uri = buildURI({ claimName: claim.name, claimId: claim.claim_id });
+
     if (claim.type && claim.type.match(/claim|update/)) {
       if (claim.confirmations < 1) {
         pendingById[claim.claim_id] = claim;
         delete byId[claim.claim_id];
+        delete byUri[claim.claim_id];
       } else {
         byId[claim.claim_id] = claim;
+        byUri[uri] = claim.claim_id;
       }
     }
   });
@@ -76,6 +82,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
     isFetchingClaimListMine: false,
     myClaims: claims,
     byId,
+    claimsByUri: byUri,
     pendingById,
   });
 };

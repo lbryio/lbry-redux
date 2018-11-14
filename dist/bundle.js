@@ -5218,6 +5218,8 @@ var _action_types = __webpack_require__(4);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
+var _lbryURI = __webpack_require__(2);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var reducers = {};
@@ -5289,15 +5291,20 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = function (state, action) {
   var claims = action.data.claims;
 
   var byId = Object.assign({}, state.byId);
+  var byUri = Object.assign({}, state.claimsByUri);
   var pendingById = Object.assign({}, state.pendingById);
 
   claims.forEach(function (claim) {
+    var uri = (0, _lbryURI.buildURI)({ claimName: claim.name, claimId: claim.claim_id });
+
     if (claim.type && claim.type.match(/claim|update/)) {
       if (claim.confirmations < 1) {
         pendingById[claim.claim_id] = claim;
         delete byId[claim.claim_id];
+        delete byUri[claim.claim_id];
       } else {
         byId[claim.claim_id] = claim;
+        byUri[uri] = claim.claim_id;
       }
     }
   });
@@ -5313,6 +5320,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = function (state, action) {
     isFetchingClaimListMine: false,
     myClaims: claims,
     byId: byId,
+    claimsByUri: byUri,
     pendingById: pendingById
   });
 };
