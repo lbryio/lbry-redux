@@ -1,5 +1,4 @@
 import * as ACTIONS from 'constants/action_types';
-import * as MODALS from 'constants/modal_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import * as SEARCH_TYPES from 'constants/search';
 import * as SETTINGS from 'constants/settings';
@@ -12,19 +11,10 @@ import Lbryapi from 'lbryapi';
 import { selectState as selectSearchState } from 'redux/selectors/search';
 
 // types
-export { Notification } from 'types/Notification';
+export { Toast } from 'types/Notification';
 
 // constants
-export {
-  ACTIONS,
-  MODALS,
-  THUMBNAIL_STATUSES,
-  SEARCH_TYPES,
-  SETTINGS,
-  TRANSACTIONS,
-  SORT_OPTIONS,
-  PAGES,
-};
+export { ACTIONS, THUMBNAIL_STATUSES, SEARCH_TYPES, SETTINGS, TRANSACTIONS, SORT_OPTIONS, PAGES };
 
 // common
 export { Lbry, Lbryapi };
@@ -41,7 +31,7 @@ export {
 } from 'lbryURI';
 
 // actions
-export { doNotify, doHideNotification } from 'redux/actions/notifications';
+export { doToast, doDismissToast, doError, doDismissError } from 'redux/actions/notifications';
 
 export {
   doFetchClaimsByChannel,
@@ -108,11 +98,7 @@ export { blacklistReducer } from 'redux/reducers/blacklist';
 // selectors
 export { selectBlackListedOutpoints } from 'redux/selectors/blacklist';
 
-export {
-  selectNotification,
-  selectNotificationProps,
-  selectSnack,
-} from 'redux/selectors/notifications';
+export { selectToast, selectError } from 'redux/selectors/notifications';
 
 export {
   makeSelectClaimForUri,

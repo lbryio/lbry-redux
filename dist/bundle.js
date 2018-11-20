@@ -90,18 +90,18 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.selectTransactionListFilter = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectFileListPublishedSort = exports.selectFileListDownloadedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = undefined;
-exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.selectPendingById = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.makeSelectChannelForClaimUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.creditsToString = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doUpdateBlockHeight = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendTip = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetFileListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doHideNotification = exports.doNotify = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.PAGES = exports.SORT_OPTIONS = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.MODALS = exports.ACTIONS = exports.Notification = undefined;
+exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.selectPendingById = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.makeSelectChannelForClaimUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectError = exports.selectToast = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.creditsToString = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doUpdateBlockHeight = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendTip = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetFileListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doDismissError = exports.doError = exports.doDismissToast = exports.doToast = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.PAGES = exports.SORT_OPTIONS = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.ACTIONS = exports.Toast = undefined;
 
 var _Notification = __webpack_require__(1);
 
-Object.defineProperty(exports, 'Notification', {
+Object.defineProperty(exports, 'Toast', {
   enumerable: true,
   get: function get() {
-    return _Notification.Notification;
+    return _Notification.Toast;
   }
 });
 
-var _lbryURI = __webpack_require__(2);
+var _lbryURI = __webpack_require__(3);
 
 Object.defineProperty(exports, 'regexInvalidURI', {
   enumerable: true,
@@ -158,22 +158,34 @@ Object.defineProperty(exports, 'convertToShareLink', {
   }
 });
 
-var _notifications = __webpack_require__(3);
+var _notifications = __webpack_require__(4);
 
-Object.defineProperty(exports, 'doNotify', {
+Object.defineProperty(exports, 'doToast', {
   enumerable: true,
   get: function get() {
-    return _notifications.doNotify;
+    return _notifications.doToast;
   }
 });
-Object.defineProperty(exports, 'doHideNotification', {
+Object.defineProperty(exports, 'doDismissToast', {
   enumerable: true,
   get: function get() {
-    return _notifications.doHideNotification;
+    return _notifications.doDismissToast;
+  }
+});
+Object.defineProperty(exports, 'doError', {
+  enumerable: true,
+  get: function get() {
+    return _notifications.doError;
+  }
+});
+Object.defineProperty(exports, 'doDismissError', {
+  enumerable: true,
+  get: function get() {
+    return _notifications.doDismissError;
   }
 });
 
-var _claims = __webpack_require__(5);
+var _claims = __webpack_require__(8);
 
 Object.defineProperty(exports, 'doFetchClaimsByChannel', {
   enumerable: true,
@@ -224,7 +236,7 @@ Object.defineProperty(exports, 'doFetchTrendingUris', {
   }
 });
 
-var _cost_info = __webpack_require__(26);
+var _cost_info = __webpack_require__(29);
 
 Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   enumerable: true,
@@ -233,7 +245,7 @@ Object.defineProperty(exports, 'doFetchCostInfoForUri', {
   }
 });
 
-var _file_info = __webpack_require__(27);
+var _file_info = __webpack_require__(30);
 
 Object.defineProperty(exports, 'doFetchFileInfo', {
   enumerable: true,
@@ -260,7 +272,7 @@ Object.defineProperty(exports, 'doSetFileListSort', {
   }
 });
 
-var _search = __webpack_require__(29);
+var _search = __webpack_require__(32);
 
 Object.defineProperty(exports, 'doSearch', {
   enumerable: true,
@@ -287,7 +299,7 @@ Object.defineProperty(exports, 'doBlurSearchInput', {
   }
 });
 
-var _blacklist = __webpack_require__(31);
+var _blacklist = __webpack_require__(34);
 
 Object.defineProperty(exports, 'doBlackListedOutpointsSubscribe', {
   enumerable: true,
@@ -296,7 +308,7 @@ Object.defineProperty(exports, 'doBlackListedOutpointsSubscribe', {
   }
 });
 
-var _wallet = __webpack_require__(22);
+var _wallet = __webpack_require__(25);
 
 Object.defineProperty(exports, 'doUpdateBalance', {
   enumerable: true,
@@ -395,7 +407,7 @@ Object.defineProperty(exports, 'doUpdateBlockHeight', {
   }
 });
 
-var _batchActions = __webpack_require__(21);
+var _batchActions = __webpack_require__(24);
 
 Object.defineProperty(exports, 'batchActions', {
   enumerable: true,
@@ -404,7 +416,7 @@ Object.defineProperty(exports, 'batchActions', {
   }
 });
 
-var _query_params = __webpack_require__(17);
+var _query_params = __webpack_require__(20);
 
 Object.defineProperty(exports, 'parseQueryParams', {
   enumerable: true,
@@ -419,7 +431,7 @@ Object.defineProperty(exports, 'toQueryString', {
   }
 });
 
-var _formatCredits = __webpack_require__(25);
+var _formatCredits = __webpack_require__(28);
 
 Object.defineProperty(exports, 'formatCredits', {
   enumerable: true,
@@ -440,7 +452,7 @@ Object.defineProperty(exports, 'creditsToString', {
   }
 });
 
-var _claims2 = __webpack_require__(32);
+var _claims2 = __webpack_require__(35);
 
 Object.defineProperty(exports, 'claimsReducer', {
   enumerable: true,
@@ -449,7 +461,7 @@ Object.defineProperty(exports, 'claimsReducer', {
   }
 });
 
-var _cost_info2 = __webpack_require__(33);
+var _cost_info2 = __webpack_require__(36);
 
 Object.defineProperty(exports, 'costInfoReducer', {
   enumerable: true,
@@ -458,7 +470,7 @@ Object.defineProperty(exports, 'costInfoReducer', {
   }
 });
 
-var _file_info2 = __webpack_require__(34);
+var _file_info2 = __webpack_require__(37);
 
 Object.defineProperty(exports, 'fileInfoReducer', {
   enumerable: true,
@@ -467,7 +479,7 @@ Object.defineProperty(exports, 'fileInfoReducer', {
   }
 });
 
-var _notifications2 = __webpack_require__(37);
+var _notifications2 = __webpack_require__(40);
 
 Object.defineProperty(exports, 'notificationsReducer', {
   enumerable: true,
@@ -476,7 +488,7 @@ Object.defineProperty(exports, 'notificationsReducer', {
   }
 });
 
-var _search2 = __webpack_require__(39);
+var _search2 = __webpack_require__(42);
 
 Object.defineProperty(exports, 'searchReducer', {
   enumerable: true,
@@ -485,7 +497,7 @@ Object.defineProperty(exports, 'searchReducer', {
   }
 });
 
-var _wallet2 = __webpack_require__(41);
+var _wallet2 = __webpack_require__(43);
 
 Object.defineProperty(exports, 'walletReducer', {
   enumerable: true,
@@ -494,7 +506,7 @@ Object.defineProperty(exports, 'walletReducer', {
   }
 });
 
-var _blacklist2 = __webpack_require__(42);
+var _blacklist2 = __webpack_require__(44);
 
 Object.defineProperty(exports, 'blacklistReducer', {
   enumerable: true,
@@ -503,7 +515,7 @@ Object.defineProperty(exports, 'blacklistReducer', {
   }
 });
 
-var _blacklist3 = __webpack_require__(43);
+var _blacklist3 = __webpack_require__(45);
 
 Object.defineProperty(exports, 'selectBlackListedOutpoints', {
   enumerable: true,
@@ -512,28 +524,22 @@ Object.defineProperty(exports, 'selectBlackListedOutpoints', {
   }
 });
 
-var _notifications3 = __webpack_require__(44);
+var _notifications3 = __webpack_require__(46);
 
-Object.defineProperty(exports, 'selectNotification', {
+Object.defineProperty(exports, 'selectToast', {
   enumerable: true,
   get: function get() {
-    return _notifications3.selectNotification;
+    return _notifications3.selectToast;
   }
 });
-Object.defineProperty(exports, 'selectNotificationProps', {
+Object.defineProperty(exports, 'selectError', {
   enumerable: true,
   get: function get() {
-    return _notifications3.selectNotificationProps;
-  }
-});
-Object.defineProperty(exports, 'selectSnack', {
-  enumerable: true,
-  get: function get() {
-    return _notifications3.selectSnack;
+    return _notifications3.selectError;
   }
 });
 
-var _claims3 = __webpack_require__(14);
+var _claims3 = __webpack_require__(17);
 
 Object.defineProperty(exports, 'makeSelectClaimForUri', {
   enumerable: true,
@@ -776,7 +782,7 @@ Object.defineProperty(exports, 'selectChannelClaimCounts', {
   }
 });
 
-var _cost_info3 = __webpack_require__(45);
+var _cost_info3 = __webpack_require__(47);
 
 Object.defineProperty(exports, 'makeSelectFetchingCostInfoForUri', {
   enumerable: true,
@@ -809,7 +815,7 @@ Object.defineProperty(exports, 'selectFetchingCostInfo', {
   }
 });
 
-var _file_info3 = __webpack_require__(28);
+var _file_info3 = __webpack_require__(31);
 
 Object.defineProperty(exports, 'makeSelectFileInfoForUri', {
   enumerable: true,
@@ -896,7 +902,7 @@ Object.defineProperty(exports, 'selectFileListPublishedSort', {
   }
 });
 
-var _navigation = __webpack_require__(15);
+var _navigation = __webpack_require__(18);
 
 Object.defineProperty(exports, 'computePageFromPath', {
   enumerable: true,
@@ -977,7 +983,7 @@ Object.defineProperty(exports, 'selectActiveHistoryEntry', {
   }
 });
 
-var _search3 = __webpack_require__(18);
+var _search3 = __webpack_require__(21);
 
 Object.defineProperty(exports, 'makeSelectSearchUris', {
   enumerable: true,
@@ -1028,7 +1034,7 @@ Object.defineProperty(exports, 'selectSearchSuggestions', {
   }
 });
 
-var _wallet3 = __webpack_require__(23);
+var _wallet3 = __webpack_require__(26);
 
 Object.defineProperty(exports, 'makeSelectBlockDate', {
   enumerable: true,
@@ -1193,43 +1199,39 @@ Object.defineProperty(exports, 'selectTransactionListFilter', {
   }
 });
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _modal_types = __webpack_require__(38);
-
-var MODALS = _interopRequireWildcard(_modal_types);
-
-var _thumbnail_upload_statuses = __webpack_require__(46);
+var _thumbnail_upload_statuses = __webpack_require__(48);
 
 var THUMBNAIL_STATUSES = _interopRequireWildcard(_thumbnail_upload_statuses);
 
-var _search4 = __webpack_require__(19);
+var _search4 = __webpack_require__(22);
 
 var SEARCH_TYPES = _interopRequireWildcard(_search4);
 
-var _settings = __webpack_require__(47);
+var _settings = __webpack_require__(49);
 
 var SETTINGS = _interopRequireWildcard(_settings);
 
-var _transaction_types = __webpack_require__(24);
+var _transaction_types = __webpack_require__(27);
 
 var TRANSACTIONS = _interopRequireWildcard(_transaction_types);
 
-var _sort_options = __webpack_require__(35);
+var _sort_options = __webpack_require__(38);
 
 var SORT_OPTIONS = _interopRequireWildcard(_sort_options);
 
-var _pages = __webpack_require__(36);
+var _pages = __webpack_require__(39);
 
 var PAGES = _interopRequireWildcard(_pages);
 
-var _lbry = __webpack_require__(6);
+var _lbry = __webpack_require__(9);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryapi = __webpack_require__(9);
+var _lbryapi = __webpack_require__(12);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
@@ -1239,7 +1241,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 // constants
 exports.ACTIONS = ACTIONS;
-exports.MODALS = MODALS;
 exports.THUMBNAIL_STATUSES = THUMBNAIL_STATUSES;
 exports.SEARCH_TYPES = SEARCH_TYPES;
 exports.SETTINGS = SETTINGS;
@@ -1260,29 +1261,336 @@ exports.selectSearchState = _search3.selectState;
 "use strict";
 
 
-// @flow
+var _action_types = __webpack_require__(2);
 
+var ACTIONS = _interopRequireWildcard(_action_types);
 
-// Used for retreiving data from redux store
-/*:: export type Notification = {
-  id: ?string,
-  title: ?string,
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+/*
+  Toasts:
+    - First-in, first-out queue
+    - Simple messages that are shown in response to user interactions
+    - Never saved
+    - If they are the result of errors, use the isError flag when creating
+    - For errors that should interrupt user behavior, use Error
+*/
+/*:: export type ToastParams = {
   message: string,
-  type: string,
-  error: ?string,
-  displayType: mixed,
+  title?: string,
+  linkText?: string,
+  linkTarget?: string,
+  isError?: boolean,
+};*/ // @flow
 
-  // additional properties for SnackBar
-  linkText: ?string,
-  linkTarget: ?string,
+/*:: export type Toast = {
+  id: string,
+  params: ToastParams,
 };*/
-/*:: export type NotificationProps = {
-  uri: ?string,
-  path: ?string,
+
+
+/*
+  Notifications:
+    - List of notifications based on user interactions/app notifications
+    - Always saved, but can be manually deleted
+    - Can happen in the background, or because of user interaction (ex: publish confirmed)
+*/
+/*:: export type DoToast = {
+  type: ACTIONS.CREATE_TOAST,
+  data: Toast,
+};*/
+/*:: export type Notification = {
+  id: string, // Unique id
+  dateCreated: number,
+  isRead: boolean, // Used to display "new" notifications that a user hasn't seen yet
+  source?: string, // The type/area an notification is from. Used for sorting (ex: publishes, transactions)
+  // We may want to use priority/isDismissed in the future to specify how urgent a notification is
+  // and if the user should see it immediately
+  // isDissmied: boolean,
+  // priority?: number
+};*/
+/*:: export type DoNotification = {
+  type: ACTIONS.CREATE_NOTIFICATION,
+  data: Notification,
+};*/
+/*:: export type DoEditNotification = {
+  type: ACTIONS.EDIT_NOTIFICATION,
+  data: {
+    id: string,
+    isRead: boolean,
+    // In the future we can add `isDismissed` if we decide to show notifications as they come in
+    // Similar to Facebook's notifications in the corner of the screen
+    // isDismissed: boolean,
+  },
+};*/
+
+
+/*
+  Errors:
+    - First-in, first-out queue
+    - Errors that should interupt user behavior
+    - For errors that can be shown without interrupting a user, use Toast with the isError flag
+*/
+/*:: export type DoDeleteNotification = {
+  type: ACTIONS.DELETE_NOTIFICATION,
+  data: {
+    id: string, // The id to delete
+  },
+};*/
+/*:: export type Error = {
+  title: string,
+  text: string,
+};*/
+/*:: export type DoError = {
+  type: ACTIONS.CREATE_ERROR,
+  data: Error,
+};*/
+
+
+/*
+  NotificationState
+*/
+/*:: export type DoDismissError = {
+  type: ACTIONS.DISMISS_ERROR,
+};*/
+/*:: export type NotificationState = {
+  notifications: Array<Notification>,
+  errors: Array<Error>,
+  toasts: Array<Toast>,
 };*/
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var WINDOW_FOCUSED = exports.WINDOW_FOCUSED = 'WINDOW_FOCUSED';
+var DAEMON_READY = exports.DAEMON_READY = 'DAEMON_READY';
+var DAEMON_VERSION_MATCH = exports.DAEMON_VERSION_MATCH = 'DAEMON_VERSION_MATCH';
+var DAEMON_VERSION_MISMATCH = exports.DAEMON_VERSION_MISMATCH = 'DAEMON_VERSION_MISMATCH';
+var VOLUME_CHANGED = exports.VOLUME_CHANGED = 'VOLUME_CHANGED';
+
+// Navigation
+var CHANGE_AFTER_AUTH_PATH = exports.CHANGE_AFTER_AUTH_PATH = 'CHANGE_AFTER_AUTH_PATH';
+var WINDOW_SCROLLED = exports.WINDOW_SCROLLED = 'WINDOW_SCROLLED';
+var HISTORY_NAVIGATE = exports.HISTORY_NAVIGATE = 'HISTORY_NAVIGATE';
+
+// Upgrades
+var UPGRADE_CANCELLED = exports.UPGRADE_CANCELLED = 'UPGRADE_CANCELLED';
+var DOWNLOAD_UPGRADE = exports.DOWNLOAD_UPGRADE = 'DOWNLOAD_UPGRADE';
+var UPGRADE_DOWNLOAD_STARTED = exports.UPGRADE_DOWNLOAD_STARTED = 'UPGRADE_DOWNLOAD_STARTED';
+var UPGRADE_DOWNLOAD_COMPLETED = exports.UPGRADE_DOWNLOAD_COMPLETED = 'UPGRADE_DOWNLOAD_COMPLETED';
+var UPGRADE_DOWNLOAD_PROGRESSED = exports.UPGRADE_DOWNLOAD_PROGRESSED = 'UPGRADE_DOWNLOAD_PROGRESSED';
+var CHECK_UPGRADE_AVAILABLE = exports.CHECK_UPGRADE_AVAILABLE = 'CHECK_UPGRADE_AVAILABLE';
+var CHECK_UPGRADE_START = exports.CHECK_UPGRADE_START = 'CHECK_UPGRADE_START';
+var CHECK_UPGRADE_SUCCESS = exports.CHECK_UPGRADE_SUCCESS = 'CHECK_UPGRADE_SUCCESS';
+var CHECK_UPGRADE_FAIL = exports.CHECK_UPGRADE_FAIL = 'CHECK_UPGRADE_FAIL';
+var CHECK_UPGRADE_SUBSCRIBE = exports.CHECK_UPGRADE_SUBSCRIBE = 'CHECK_UPGRADE_SUBSCRIBE';
+var UPDATE_VERSION = exports.UPDATE_VERSION = 'UPDATE_VERSION';
+var UPDATE_REMOTE_VERSION = exports.UPDATE_REMOTE_VERSION = 'UPDATE_REMOTE_VERSION';
+var SKIP_UPGRADE = exports.SKIP_UPGRADE = 'SKIP_UPGRADE';
+var START_UPGRADE = exports.START_UPGRADE = 'START_UPGRADE';
+var AUTO_UPDATE_DECLINED = exports.AUTO_UPDATE_DECLINED = 'AUTO_UPDATE_DECLINED';
+var AUTO_UPDATE_DOWNLOADED = exports.AUTO_UPDATE_DOWNLOADED = 'AUTO_UPDATE_DOWNLOADED';
+var CLEAR_UPGRADE_TIMER = exports.CLEAR_UPGRADE_TIMER = 'CLEAR_UPGRADE_TIMER';
+
+// Wallet
+var GET_NEW_ADDRESS_STARTED = exports.GET_NEW_ADDRESS_STARTED = 'GET_NEW_ADDRESS_STARTED';
+var GET_NEW_ADDRESS_COMPLETED = exports.GET_NEW_ADDRESS_COMPLETED = 'GET_NEW_ADDRESS_COMPLETED';
+var FETCH_TRANSACTIONS_STARTED = exports.FETCH_TRANSACTIONS_STARTED = 'FETCH_TRANSACTIONS_STARTED';
+var FETCH_TRANSACTIONS_COMPLETED = exports.FETCH_TRANSACTIONS_COMPLETED = 'FETCH_TRANSACTIONS_COMPLETED';
+var UPDATE_BALANCE = exports.UPDATE_BALANCE = 'UPDATE_BALANCE';
+var CHECK_ADDRESS_IS_MINE_STARTED = exports.CHECK_ADDRESS_IS_MINE_STARTED = 'CHECK_ADDRESS_IS_MINE_STARTED';
+var CHECK_ADDRESS_IS_MINE_COMPLETED = exports.CHECK_ADDRESS_IS_MINE_COMPLETED = 'CHECK_ADDRESS_IS_MINE_COMPLETED';
+var SEND_TRANSACTION_STARTED = exports.SEND_TRANSACTION_STARTED = 'SEND_TRANSACTION_STARTED';
+var SEND_TRANSACTION_COMPLETED = exports.SEND_TRANSACTION_COMPLETED = 'SEND_TRANSACTION_COMPLETED';
+var SEND_TRANSACTION_FAILED = exports.SEND_TRANSACTION_FAILED = 'SEND_TRANSACTION_FAILED';
+var FETCH_BLOCK_SUCCESS = exports.FETCH_BLOCK_SUCCESS = 'FETCH_BLOCK_SUCCESS';
+var SUPPORT_TRANSACTION_STARTED = exports.SUPPORT_TRANSACTION_STARTED = 'SUPPORT_TRANSACTION_STARTED';
+var SUPPORT_TRANSACTION_COMPLETED = exports.SUPPORT_TRANSACTION_COMPLETED = 'SUPPORT_TRANSACTION_COMPLETED';
+var SUPPORT_TRANSACTION_FAILED = exports.SUPPORT_TRANSACTION_FAILED = 'SUPPORT_TRANSACTION_FAILED';
+var WALLET_ENCRYPT_START = exports.WALLET_ENCRYPT_START = 'WALLET_ENCRYPT_START';
+var WALLET_ENCRYPT_COMPLETED = exports.WALLET_ENCRYPT_COMPLETED = 'WALLET_ENCRYPT_COMPLETED';
+var WALLET_ENCRYPT_FAILED = exports.WALLET_ENCRYPT_FAILED = 'WALLET_ENCRYPT_FAILED';
+var WALLET_UNLOCK_START = exports.WALLET_UNLOCK_START = 'WALLET_UNLOCK_START';
+var WALLET_UNLOCK_COMPLETED = exports.WALLET_UNLOCK_COMPLETED = 'WALLET_UNLOCK_COMPLETED';
+var WALLET_UNLOCK_FAILED = exports.WALLET_UNLOCK_FAILED = 'WALLET_UNLOCK_FAILED';
+var WALLET_DECRYPT_START = exports.WALLET_DECRYPT_START = 'WALLET_DECRYPT_START';
+var WALLET_DECRYPT_COMPLETED = exports.WALLET_DECRYPT_COMPLETED = 'WALLET_DECRYPT_COMPLETED';
+var WALLET_DECRYPT_FAILED = exports.WALLET_DECRYPT_FAILED = 'WALLET_DECRYPT_FAILED';
+var WALLET_LOCK_START = exports.WALLET_LOCK_START = 'WALLET_LOCK_START';
+var WALLET_LOCK_COMPLETED = exports.WALLET_LOCK_COMPLETED = 'WALLET_LOCK_COMPLETED';
+var WALLET_LOCK_FAILED = exports.WALLET_LOCK_FAILED = 'WALLET_LOCK_FAILED';
+var WALLET_STATUS_START = exports.WALLET_STATUS_START = 'WALLET_STATUS_START';
+var WALLET_STATUS_COMPLETED = exports.WALLET_STATUS_COMPLETED = 'WALLET_STATUS_COMPLETED';
+var SET_TRANSACTION_LIST_FILTER = exports.SET_TRANSACTION_LIST_FILTER = 'SET_TRANSACTION_LIST_FILTER';
+var UPDATE_CURRENT_HEIGHT = exports.UPDATE_CURRENT_HEIGHT = 'UPDATE_CURRENT_HEIGHT';
+
+// Claims
+var FETCH_FEATURED_CONTENT_STARTED = exports.FETCH_FEATURED_CONTENT_STARTED = 'FETCH_FEATURED_CONTENT_STARTED';
+var FETCH_FEATURED_CONTENT_COMPLETED = exports.FETCH_FEATURED_CONTENT_COMPLETED = 'FETCH_FEATURED_CONTENT_COMPLETED';
+var FETCH_TRENDING_CONTENT_STARTED = exports.FETCH_TRENDING_CONTENT_STARTED = 'FETCH_TRENDING_CONTENT_STARTED';
+var FETCH_TRENDING_CONTENT_COMPLETED = exports.FETCH_TRENDING_CONTENT_COMPLETED = 'FETCH_TRENDING_CONTENT_COMPLETED';
+var RESOLVE_URIS_STARTED = exports.RESOLVE_URIS_STARTED = 'RESOLVE_URIS_STARTED';
+var RESOLVE_URIS_COMPLETED = exports.RESOLVE_URIS_COMPLETED = 'RESOLVE_URIS_COMPLETED';
+var FETCH_CHANNEL_CLAIMS_STARTED = exports.FETCH_CHANNEL_CLAIMS_STARTED = 'FETCH_CHANNEL_CLAIMS_STARTED';
+var FETCH_CHANNEL_CLAIMS_COMPLETED = exports.FETCH_CHANNEL_CLAIMS_COMPLETED = 'FETCH_CHANNEL_CLAIMS_COMPLETED';
+var FETCH_CHANNEL_CLAIM_COUNT_STARTED = exports.FETCH_CHANNEL_CLAIM_COUNT_STARTED = 'FETCH_CHANNEL_CLAIM_COUNT_STARTED';
+var FETCH_CHANNEL_CLAIM_COUNT_COMPLETED = exports.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED = 'FETCH_CHANNEL_CLAIM_COUNT_COMPLETED';
+var FETCH_CLAIM_LIST_MINE_STARTED = exports.FETCH_CLAIM_LIST_MINE_STARTED = 'FETCH_CLAIM_LIST_MINE_STARTED';
+var FETCH_CLAIM_LIST_MINE_COMPLETED = exports.FETCH_CLAIM_LIST_MINE_COMPLETED = 'FETCH_CLAIM_LIST_MINE_COMPLETED';
+var ABANDON_CLAIM_STARTED = exports.ABANDON_CLAIM_STARTED = 'ABANDON_CLAIM_STARTED';
+var ABANDON_CLAIM_SUCCEEDED = exports.ABANDON_CLAIM_SUCCEEDED = 'ABANDON_CLAIM_SUCCEEDED';
+var FETCH_CHANNEL_LIST_STARTED = exports.FETCH_CHANNEL_LIST_STARTED = 'FETCH_CHANNEL_LIST_STARTED';
+var FETCH_CHANNEL_LIST_COMPLETED = exports.FETCH_CHANNEL_LIST_COMPLETED = 'FETCH_CHANNEL_LIST_COMPLETED';
+var CREATE_CHANNEL_STARTED = exports.CREATE_CHANNEL_STARTED = 'CREATE_CHANNEL_STARTED';
+var CREATE_CHANNEL_COMPLETED = exports.CREATE_CHANNEL_COMPLETED = 'CREATE_CHANNEL_COMPLETED';
+var PUBLISH_STARTED = exports.PUBLISH_STARTED = 'PUBLISH_STARTED';
+var PUBLISH_COMPLETED = exports.PUBLISH_COMPLETED = 'PUBLISH_COMPLETED';
+var PUBLISH_FAILED = exports.PUBLISH_FAILED = 'PUBLISH_FAILED';
+var FETCH_BLACK_LISTED_CONTENT_STARTED = exports.FETCH_BLACK_LISTED_CONTENT_STARTED = 'FETCH_BLACK_LISTED_CONTENT_STARTED';
+var FETCH_BLACK_LISTED_CONTENT_COMPLETED = exports.FETCH_BLACK_LISTED_CONTENT_COMPLETED = 'FETCH_BLACK_LISTED_CONTENT_COMPLETED';
+var FETCH_BLACK_LISTED_CONTENT_FAILED = exports.FETCH_BLACK_LISTED_CONTENT_FAILED = 'FETCH_BLACK_LISTED_CONTENT_FAILED';
+var BLACK_LISTED_CONTENT_SUBSCRIBE = exports.BLACK_LISTED_CONTENT_SUBSCRIBE = 'BLACK_LISTED_CONTENT_SUBSCRIBE';
+var SET_PLAYING_URI = exports.SET_PLAYING_URI = 'SET_PLAYING_URI';
+var SET_CONTENT_POSITION = exports.SET_CONTENT_POSITION = 'SET_CONTENT_POSITION';
+var SET_CONTENT_LAST_VIEWED = exports.SET_CONTENT_LAST_VIEWED = 'SET_CONTENT_LAST_VIEWED';
+var CLEAR_CONTENT_HISTORY_URI = exports.CLEAR_CONTENT_HISTORY_URI = 'CLEAR_CONTENT_HISTORY_URI';
+var CLEAR_CONTENT_HISTORY_ALL = exports.CLEAR_CONTENT_HISTORY_ALL = 'CLEAR_CONTENT_HISTORY_ALL';
+
+// Files
+var FILE_LIST_STARTED = exports.FILE_LIST_STARTED = 'FILE_LIST_STARTED';
+var FILE_LIST_SUCCEEDED = exports.FILE_LIST_SUCCEEDED = 'FILE_LIST_SUCCEEDED';
+var FETCH_FILE_INFO_STARTED = exports.FETCH_FILE_INFO_STARTED = 'FETCH_FILE_INFO_STARTED';
+var FETCH_FILE_INFO_COMPLETED = exports.FETCH_FILE_INFO_COMPLETED = 'FETCH_FILE_INFO_COMPLETED';
+var FETCH_COST_INFO_STARTED = exports.FETCH_COST_INFO_STARTED = 'FETCH_COST_INFO_STARTED';
+var FETCH_COST_INFO_COMPLETED = exports.FETCH_COST_INFO_COMPLETED = 'FETCH_COST_INFO_COMPLETED';
+var LOADING_VIDEO_STARTED = exports.LOADING_VIDEO_STARTED = 'LOADING_VIDEO_STARTED';
+var LOADING_VIDEO_COMPLETED = exports.LOADING_VIDEO_COMPLETED = 'LOADING_VIDEO_COMPLETED';
+var LOADING_VIDEO_FAILED = exports.LOADING_VIDEO_FAILED = 'LOADING_VIDEO_FAILED';
+var DOWNLOADING_STARTED = exports.DOWNLOADING_STARTED = 'DOWNLOADING_STARTED';
+var DOWNLOADING_PROGRESSED = exports.DOWNLOADING_PROGRESSED = 'DOWNLOADING_PROGRESSED';
+var DOWNLOADING_COMPLETED = exports.DOWNLOADING_COMPLETED = 'DOWNLOADING_COMPLETED';
+var DOWNLOADING_CANCELED = exports.DOWNLOADING_CANCELED = 'DOWNLOADING_CANCELED';
+var PLAY_VIDEO_STARTED = exports.PLAY_VIDEO_STARTED = 'PLAY_VIDEO_STARTED';
+var FETCH_AVAILABILITY_STARTED = exports.FETCH_AVAILABILITY_STARTED = 'FETCH_AVAILABILITY_STARTED';
+var FETCH_AVAILABILITY_COMPLETED = exports.FETCH_AVAILABILITY_COMPLETED = 'FETCH_AVAILABILITY_COMPLETED';
+var FILE_DELETE = exports.FILE_DELETE = 'FILE_DELETE';
+var SET_FILE_LIST_SORT = exports.SET_FILE_LIST_SORT = 'SET_FILE_LIST_SORT';
+
+// Search
+var SEARCH_START = exports.SEARCH_START = 'SEARCH_START';
+var SEARCH_SUCCESS = exports.SEARCH_SUCCESS = 'SEARCH_SUCCESS';
+var SEARCH_FAIL = exports.SEARCH_FAIL = 'SEARCH_FAIL';
+var UPDATE_SEARCH_QUERY = exports.UPDATE_SEARCH_QUERY = 'UPDATE_SEARCH_QUERY';
+var UPDATE_SEARCH_SUGGESTIONS = exports.UPDATE_SEARCH_SUGGESTIONS = 'UPDATE_SEARCH_SUGGESTIONS';
+var SEARCH_FOCUS = exports.SEARCH_FOCUS = 'SEARCH_FOCUS';
+var SEARCH_BLUR = exports.SEARCH_BLUR = 'SEARCH_BLUR';
+
+// Settings
+var DAEMON_SETTINGS_RECEIVED = exports.DAEMON_SETTINGS_RECEIVED = 'DAEMON_SETTINGS_RECEIVED';
+var CLIENT_SETTING_CHANGED = exports.CLIENT_SETTING_CHANGED = 'CLIENT_SETTING_CHANGED';
+var UPDATE_IS_NIGHT = exports.UPDATE_IS_NIGHT = 'UPDATE_IS_NIGHT';
+
+// User
+var AUTHENTICATION_STARTED = exports.AUTHENTICATION_STARTED = 'AUTHENTICATION_STARTED';
+var AUTHENTICATION_SUCCESS = exports.AUTHENTICATION_SUCCESS = 'AUTHENTICATION_SUCCESS';
+var AUTHENTICATION_FAILURE = exports.AUTHENTICATION_FAILURE = 'AUTHENTICATION_FAILURE';
+var USER_EMAIL_DECLINE = exports.USER_EMAIL_DECLINE = 'USER_EMAIL_DECLINE';
+var USER_EMAIL_NEW_STARTED = exports.USER_EMAIL_NEW_STARTED = 'USER_EMAIL_NEW_STARTED';
+var USER_EMAIL_NEW_SUCCESS = exports.USER_EMAIL_NEW_SUCCESS = 'USER_EMAIL_NEW_SUCCESS';
+var USER_EMAIL_NEW_EXISTS = exports.USER_EMAIL_NEW_EXISTS = 'USER_EMAIL_NEW_EXISTS';
+var USER_EMAIL_NEW_FAILURE = exports.USER_EMAIL_NEW_FAILURE = 'USER_EMAIL_NEW_FAILURE';
+var USER_EMAIL_VERIFY_SET = exports.USER_EMAIL_VERIFY_SET = 'USER_EMAIL_VERIFY_SET';
+var USER_EMAIL_VERIFY_STARTED = exports.USER_EMAIL_VERIFY_STARTED = 'USER_EMAIL_VERIFY_STARTED';
+var USER_EMAIL_VERIFY_SUCCESS = exports.USER_EMAIL_VERIFY_SUCCESS = 'USER_EMAIL_VERIFY_SUCCESS';
+var USER_EMAIL_VERIFY_FAILURE = exports.USER_EMAIL_VERIFY_FAILURE = 'USER_EMAIL_VERIFY_FAILURE';
+var USER_PHONE_RESET = exports.USER_PHONE_RESET = 'USER_PHONE_RESET';
+var USER_PHONE_NEW_STARTED = exports.USER_PHONE_NEW_STARTED = 'USER_PHONE_NEW_STARTED';
+var USER_PHONE_NEW_SUCCESS = exports.USER_PHONE_NEW_SUCCESS = 'USER_PHONE_NEW_SUCCESS';
+var USER_PHONE_NEW_FAILURE = exports.USER_PHONE_NEW_FAILURE = 'USER_PHONE_NEW_FAILURE';
+var USER_PHONE_VERIFY_STARTED = exports.USER_PHONE_VERIFY_STARTED = 'USER_PHONE_VERIFY_STARTED';
+var USER_PHONE_VERIFY_SUCCESS = exports.USER_PHONE_VERIFY_SUCCESS = 'USER_PHONE_VERIFY_SUCCESS';
+var USER_PHONE_VERIFY_FAILURE = exports.USER_PHONE_VERIFY_FAILURE = 'USER_PHONE_VERIFY_FAILURE';
+var USER_IDENTITY_VERIFY_STARTED = exports.USER_IDENTITY_VERIFY_STARTED = 'USER_IDENTITY_VERIFY_STARTED';
+var USER_IDENTITY_VERIFY_SUCCESS = exports.USER_IDENTITY_VERIFY_SUCCESS = 'USER_IDENTITY_VERIFY_SUCCESS';
+var USER_IDENTITY_VERIFY_FAILURE = exports.USER_IDENTITY_VERIFY_FAILURE = 'USER_IDENTITY_VERIFY_FAILURE';
+var USER_FETCH_STARTED = exports.USER_FETCH_STARTED = 'USER_FETCH_STARTED';
+var USER_FETCH_SUCCESS = exports.USER_FETCH_SUCCESS = 'USER_FETCH_SUCCESS';
+var USER_FETCH_FAILURE = exports.USER_FETCH_FAILURE = 'USER_FETCH_FAILURE';
+var USER_INVITE_STATUS_FETCH_STARTED = exports.USER_INVITE_STATUS_FETCH_STARTED = 'USER_INVITE_STATUS_FETCH_STARTED';
+var USER_INVITE_STATUS_FETCH_SUCCESS = exports.USER_INVITE_STATUS_FETCH_SUCCESS = 'USER_INVITE_STATUS_FETCH_SUCCESS';
+var USER_INVITE_STATUS_FETCH_FAILURE = exports.USER_INVITE_STATUS_FETCH_FAILURE = 'USER_INVITE_STATUS_FETCH_FAILURE';
+var USER_INVITE_NEW_STARTED = exports.USER_INVITE_NEW_STARTED = 'USER_INVITE_NEW_STARTED';
+var USER_INVITE_NEW_SUCCESS = exports.USER_INVITE_NEW_SUCCESS = 'USER_INVITE_NEW_SUCCESS';
+var USER_INVITE_NEW_FAILURE = exports.USER_INVITE_NEW_FAILURE = 'USER_INVITE_NEW_FAILURE';
+var FETCH_ACCESS_TOKEN_SUCCESS = exports.FETCH_ACCESS_TOKEN_SUCCESS = 'FETCH_ACCESS_TOKEN_SUCCESS';
+
+// Rewards
+var FETCH_REWARDS_STARTED = exports.FETCH_REWARDS_STARTED = 'FETCH_REWARDS_STARTED';
+var FETCH_REWARDS_COMPLETED = exports.FETCH_REWARDS_COMPLETED = 'FETCH_REWARDS_COMPLETED';
+var CLAIM_REWARD_STARTED = exports.CLAIM_REWARD_STARTED = 'CLAIM_REWARD_STARTED';
+var CLAIM_REWARD_SUCCESS = exports.CLAIM_REWARD_SUCCESS = 'CLAIM_REWARD_SUCCESS';
+var CLAIM_REWARD_FAILURE = exports.CLAIM_REWARD_FAILURE = 'CLAIM_REWARD_FAILURE';
+var CLAIM_REWARD_CLEAR_ERROR = exports.CLAIM_REWARD_CLEAR_ERROR = 'CLAIM_REWARD_CLEAR_ERROR';
+var FETCH_REWARD_CONTENT_COMPLETED = exports.FETCH_REWARD_CONTENT_COMPLETED = 'FETCH_REWARD_CONTENT_COMPLETED';
+
+// Language
+var DOWNLOAD_LANGUAGE_SUCCEEDED = exports.DOWNLOAD_LANGUAGE_SUCCEEDED = 'DOWNLOAD_LANGUAGE_SUCCEEDED';
+var DOWNLOAD_LANGUAGE_FAILED = exports.DOWNLOAD_LANGUAGE_FAILED = 'DOWNLOAD_LANGUAGE_FAILED';
+
+// ShapeShift
+var GET_SUPPORTED_COINS_START = exports.GET_SUPPORTED_COINS_START = 'GET_SUPPORTED_COINS_START';
+var GET_SUPPORTED_COINS_SUCCESS = exports.GET_SUPPORTED_COINS_SUCCESS = 'GET_SUPPORTED_COINS_SUCCESS';
+var GET_SUPPORTED_COINS_FAIL = exports.GET_SUPPORTED_COINS_FAIL = 'GET_SUPPORTED_COINS_FAIL';
+var GET_COIN_STATS_START = exports.GET_COIN_STATS_START = 'GET_COIN_STATS_START';
+var GET_COIN_STATS_SUCCESS = exports.GET_COIN_STATS_SUCCESS = 'GET_COIN_STATS_SUCCESS';
+var GET_COIN_STATS_FAIL = exports.GET_COIN_STATS_FAIL = 'GET_COIN_STATS_FAIL';
+var PREPARE_SHAPE_SHIFT_START = exports.PREPARE_SHAPE_SHIFT_START = 'PREPARE_SHAPE_SHIFT_START';
+var PREPARE_SHAPE_SHIFT_SUCCESS = exports.PREPARE_SHAPE_SHIFT_SUCCESS = 'PREPARE_SHAPE_SHIFT_SUCCESS';
+var PREPARE_SHAPE_SHIFT_FAIL = exports.PREPARE_SHAPE_SHIFT_FAIL = 'PREPARE_SHAPE_SHIFT_FAIL';
+var GET_ACTIVE_SHIFT_START = exports.GET_ACTIVE_SHIFT_START = 'GET_ACTIVE_SHIFT_START';
+var GET_ACTIVE_SHIFT_SUCCESS = exports.GET_ACTIVE_SHIFT_SUCCESS = 'GET_ACTIVE_SHIFT_SUCCESS';
+var GET_ACTIVE_SHIFT_FAIL = exports.GET_ACTIVE_SHIFT_FAIL = 'GET_ACTIVE_SHIFT_FAIL';
+var CLEAR_SHAPE_SHIFT = exports.CLEAR_SHAPE_SHIFT = 'CLEAR_SHAPE_SHIFT';
+
+// Subscriptions
+var CHANNEL_SUBSCRIBE = exports.CHANNEL_SUBSCRIBE = 'CHANNEL_SUBSCRIBE';
+var CHANNEL_UNSUBSCRIBE = exports.CHANNEL_UNSUBSCRIBE = 'CHANNEL_UNSUBSCRIBE';
+var HAS_FETCHED_SUBSCRIPTIONS = exports.HAS_FETCHED_SUBSCRIPTIONS = 'HAS_FETCHED_SUBSCRIPTIONS';
+var SET_SUBSCRIPTION_LATEST = exports.SET_SUBSCRIPTION_LATEST = 'SET_SUBSCRIPTION_LATEST';
+var SET_SUBSCRIPTION_NOTIFICATION = exports.SET_SUBSCRIPTION_NOTIFICATION = 'SET_SUBSCRIPTION_NOTIFICATION';
+var SET_SUBSCRIPTION_NOTIFICATIONS = exports.SET_SUBSCRIPTION_NOTIFICATIONS = 'SET_SUBSCRIPTION_NOTIFICATIONS';
+var CHECK_SUBSCRIPTION_STARTED = exports.CHECK_SUBSCRIPTION_STARTED = 'CHECK_SUBSCRIPTION_STARTED';
+var CHECK_SUBSCRIPTION_COMPLETED = exports.CHECK_SUBSCRIPTION_COMPLETED = 'CHECK_SUBSCRIPTION_COMPLETED';
+var CHECK_SUBSCRIPTIONS_SUBSCRIBE = exports.CHECK_SUBSCRIPTIONS_SUBSCRIBE = 'CHECK_SUBSCRIPTIONS_SUBSCRIBE';
+
+// Publishing
+var CLEAR_PUBLISH = exports.CLEAR_PUBLISH = 'CLEAR_PUBLISH';
+var UPDATE_PUBLISH_FORM = exports.UPDATE_PUBLISH_FORM = 'UPDATE_PUBLISH_FORM';
+var PUBLISH_START = exports.PUBLISH_START = 'PUBLISH_START';
+var PUBLISH_SUCCESS = exports.PUBLISH_SUCCESS = 'PUBLISH_SUCCESS';
+var PUBLISH_FAIL = exports.PUBLISH_FAIL = 'PUBLISH_FAIL';
+var CLEAR_PUBLISH_ERROR = exports.CLEAR_PUBLISH_ERROR = 'CLEAR_PUBLISH_ERROR';
+var REMOVE_PENDING_PUBLISH = exports.REMOVE_PENDING_PUBLISH = 'REMOVE_PENDING_PUBLISH';
+var DO_PREPARE_EDIT = exports.DO_PREPARE_EDIT = 'DO_PREPARE_EDIT';
+
+// Notifications
+var CREATE_NOTIFICATION = exports.CREATE_NOTIFICATION = 'CREATE_NOTIFICATION';
+var EDIT_NOTIFICATION = exports.EDIT_NOTIFICATION = 'EDIT_NOTIFICATION';
+var DELETE_NOTIFICATION = exports.DELETE_NOTIFICATION = 'DELETE_NOTIFICATION';
+var CREATE_TOAST = exports.CREATE_TOAST = 'CREATE_TOAST';
+var DISMISS_TOAST = exports.DISMISS_TOAST = 'DISMISS_TOAST';
+var CREATE_ERROR = exports.CREATE_ERROR = 'CREATE_ERROR';
+var DISMISS_ERROR = exports.DISMISS_ERROR = 'DISMISS_ERROR';
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1528,47 +1836,6 @@ function convertToShareLink(URI) {
 }
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; // @flow
-
-
-exports.doNotify = doNotify;
-exports.doHideNotification = doHideNotification;
-
-var _action_types = __webpack_require__(4);
-
-var ACTIONS = _interopRequireWildcard(_action_types);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-/*:: import type { Notification, NotificationProps } from 'types/Notification';*/
-function doNotify(notification /*: Notification*/, notificationProps /*: NotificationProps*/) {
-  return {
-    type: ACTIONS.CREATE_NOTIFICATION,
-    data: {
-      notification: notification,
-      // using this syntax to create an object if notificationProps is undefined
-      notificationProps: _extends({}, notificationProps)
-    }
-  };
-}
-
-function doHideNotification() {
-  return {
-    type: ACTIONS.DISMISS_NOTIFICATION
-  };
-}
-
-/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1578,223 +1845,164 @@ function doHideNotification() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var WINDOW_FOCUSED = exports.WINDOW_FOCUSED = 'WINDOW_FOCUSED';
-var DAEMON_READY = exports.DAEMON_READY = 'DAEMON_READY';
-var DAEMON_VERSION_MATCH = exports.DAEMON_VERSION_MATCH = 'DAEMON_VERSION_MATCH';
-var DAEMON_VERSION_MISMATCH = exports.DAEMON_VERSION_MISMATCH = 'DAEMON_VERSION_MISMATCH';
-var VOLUME_CHANGED = exports.VOLUME_CHANGED = 'VOLUME_CHANGED';
+exports.doToast = doToast;
+exports.doDismissToast = doDismissToast;
+exports.doError = doError;
+exports.doDismissError = doDismissError;
 
-// Navigation
-var CHANGE_AFTER_AUTH_PATH = exports.CHANGE_AFTER_AUTH_PATH = 'CHANGE_AFTER_AUTH_PATH';
-var WINDOW_SCROLLED = exports.WINDOW_SCROLLED = 'WINDOW_SCROLLED';
-var HISTORY_NAVIGATE = exports.HISTORY_NAVIGATE = 'HISTORY_NAVIGATE';
+var _action_types = __webpack_require__(2);
 
-// Upgrades
-var UPGRADE_CANCELLED = exports.UPGRADE_CANCELLED = 'UPGRADE_CANCELLED';
-var DOWNLOAD_UPGRADE = exports.DOWNLOAD_UPGRADE = 'DOWNLOAD_UPGRADE';
-var UPGRADE_DOWNLOAD_STARTED = exports.UPGRADE_DOWNLOAD_STARTED = 'UPGRADE_DOWNLOAD_STARTED';
-var UPGRADE_DOWNLOAD_COMPLETED = exports.UPGRADE_DOWNLOAD_COMPLETED = 'UPGRADE_DOWNLOAD_COMPLETED';
-var UPGRADE_DOWNLOAD_PROGRESSED = exports.UPGRADE_DOWNLOAD_PROGRESSED = 'UPGRADE_DOWNLOAD_PROGRESSED';
-var CHECK_UPGRADE_AVAILABLE = exports.CHECK_UPGRADE_AVAILABLE = 'CHECK_UPGRADE_AVAILABLE';
-var CHECK_UPGRADE_START = exports.CHECK_UPGRADE_START = 'CHECK_UPGRADE_START';
-var CHECK_UPGRADE_SUCCESS = exports.CHECK_UPGRADE_SUCCESS = 'CHECK_UPGRADE_SUCCESS';
-var CHECK_UPGRADE_FAIL = exports.CHECK_UPGRADE_FAIL = 'CHECK_UPGRADE_FAIL';
-var CHECK_UPGRADE_SUBSCRIBE = exports.CHECK_UPGRADE_SUBSCRIBE = 'CHECK_UPGRADE_SUBSCRIBE';
-var UPDATE_VERSION = exports.UPDATE_VERSION = 'UPDATE_VERSION';
-var UPDATE_REMOTE_VERSION = exports.UPDATE_REMOTE_VERSION = 'UPDATE_REMOTE_VERSION';
-var SKIP_UPGRADE = exports.SKIP_UPGRADE = 'SKIP_UPGRADE';
-var START_UPGRADE = exports.START_UPGRADE = 'START_UPGRADE';
-var AUTO_UPDATE_DECLINED = exports.AUTO_UPDATE_DECLINED = 'AUTO_UPDATE_DECLINED';
-var AUTO_UPDATE_DOWNLOADED = exports.AUTO_UPDATE_DOWNLOADED = 'AUTO_UPDATE_DOWNLOADED';
-var CLEAR_UPGRADE_TIMER = exports.CLEAR_UPGRADE_TIMER = 'CLEAR_UPGRADE_TIMER';
+var ACTIONS = _interopRequireWildcard(_action_types);
 
-// Wallet
-var GET_NEW_ADDRESS_STARTED = exports.GET_NEW_ADDRESS_STARTED = 'GET_NEW_ADDRESS_STARTED';
-var GET_NEW_ADDRESS_COMPLETED = exports.GET_NEW_ADDRESS_COMPLETED = 'GET_NEW_ADDRESS_COMPLETED';
-var FETCH_TRANSACTIONS_STARTED = exports.FETCH_TRANSACTIONS_STARTED = 'FETCH_TRANSACTIONS_STARTED';
-var FETCH_TRANSACTIONS_COMPLETED = exports.FETCH_TRANSACTIONS_COMPLETED = 'FETCH_TRANSACTIONS_COMPLETED';
-var UPDATE_BALANCE = exports.UPDATE_BALANCE = 'UPDATE_BALANCE';
-var CHECK_ADDRESS_IS_MINE_STARTED = exports.CHECK_ADDRESS_IS_MINE_STARTED = 'CHECK_ADDRESS_IS_MINE_STARTED';
-var CHECK_ADDRESS_IS_MINE_COMPLETED = exports.CHECK_ADDRESS_IS_MINE_COMPLETED = 'CHECK_ADDRESS_IS_MINE_COMPLETED';
-var SEND_TRANSACTION_STARTED = exports.SEND_TRANSACTION_STARTED = 'SEND_TRANSACTION_STARTED';
-var SEND_TRANSACTION_COMPLETED = exports.SEND_TRANSACTION_COMPLETED = 'SEND_TRANSACTION_COMPLETED';
-var SEND_TRANSACTION_FAILED = exports.SEND_TRANSACTION_FAILED = 'SEND_TRANSACTION_FAILED';
-var FETCH_BLOCK_SUCCESS = exports.FETCH_BLOCK_SUCCESS = 'FETCH_BLOCK_SUCCESS';
-var SUPPORT_TRANSACTION_STARTED = exports.SUPPORT_TRANSACTION_STARTED = 'SUPPORT_TRANSACTION_STARTED';
-var SUPPORT_TRANSACTION_COMPLETED = exports.SUPPORT_TRANSACTION_COMPLETED = 'SUPPORT_TRANSACTION_COMPLETED';
-var SUPPORT_TRANSACTION_FAILED = exports.SUPPORT_TRANSACTION_FAILED = 'SUPPORT_TRANSACTION_FAILED';
-var WALLET_ENCRYPT_START = exports.WALLET_ENCRYPT_START = 'WALLET_ENCRYPT_START';
-var WALLET_ENCRYPT_COMPLETED = exports.WALLET_ENCRYPT_COMPLETED = 'WALLET_ENCRYPT_COMPLETED';
-var WALLET_ENCRYPT_FAILED = exports.WALLET_ENCRYPT_FAILED = 'WALLET_ENCRYPT_FAILED';
-var WALLET_UNLOCK_START = exports.WALLET_UNLOCK_START = 'WALLET_UNLOCK_START';
-var WALLET_UNLOCK_COMPLETED = exports.WALLET_UNLOCK_COMPLETED = 'WALLET_UNLOCK_COMPLETED';
-var WALLET_UNLOCK_FAILED = exports.WALLET_UNLOCK_FAILED = 'WALLET_UNLOCK_FAILED';
-var WALLET_DECRYPT_START = exports.WALLET_DECRYPT_START = 'WALLET_DECRYPT_START';
-var WALLET_DECRYPT_COMPLETED = exports.WALLET_DECRYPT_COMPLETED = 'WALLET_DECRYPT_COMPLETED';
-var WALLET_DECRYPT_FAILED = exports.WALLET_DECRYPT_FAILED = 'WALLET_DECRYPT_FAILED';
-var WALLET_LOCK_START = exports.WALLET_LOCK_START = 'WALLET_LOCK_START';
-var WALLET_LOCK_COMPLETED = exports.WALLET_LOCK_COMPLETED = 'WALLET_LOCK_COMPLETED';
-var WALLET_LOCK_FAILED = exports.WALLET_LOCK_FAILED = 'WALLET_LOCK_FAILED';
-var WALLET_STATUS_START = exports.WALLET_STATUS_START = 'WALLET_STATUS_START';
-var WALLET_STATUS_COMPLETED = exports.WALLET_STATUS_COMPLETED = 'WALLET_STATUS_COMPLETED';
-var SET_TRANSACTION_LIST_FILTER = exports.SET_TRANSACTION_LIST_FILTER = 'SET_TRANSACTION_LIST_FILTER';
-var UPDATE_CURRENT_HEIGHT = exports.UPDATE_CURRENT_HEIGHT = 'UPDATE_CURRENT_HEIGHT';
+var _v = __webpack_require__(5);
 
-// Claims
-var FETCH_FEATURED_CONTENT_STARTED = exports.FETCH_FEATURED_CONTENT_STARTED = 'FETCH_FEATURED_CONTENT_STARTED';
-var FETCH_FEATURED_CONTENT_COMPLETED = exports.FETCH_FEATURED_CONTENT_COMPLETED = 'FETCH_FEATURED_CONTENT_COMPLETED';
-var FETCH_TRENDING_CONTENT_STARTED = exports.FETCH_TRENDING_CONTENT_STARTED = 'FETCH_TRENDING_CONTENT_STARTED';
-var FETCH_TRENDING_CONTENT_COMPLETED = exports.FETCH_TRENDING_CONTENT_COMPLETED = 'FETCH_TRENDING_CONTENT_COMPLETED';
-var RESOLVE_URIS_STARTED = exports.RESOLVE_URIS_STARTED = 'RESOLVE_URIS_STARTED';
-var RESOLVE_URIS_COMPLETED = exports.RESOLVE_URIS_COMPLETED = 'RESOLVE_URIS_COMPLETED';
-var FETCH_CHANNEL_CLAIMS_STARTED = exports.FETCH_CHANNEL_CLAIMS_STARTED = 'FETCH_CHANNEL_CLAIMS_STARTED';
-var FETCH_CHANNEL_CLAIMS_COMPLETED = exports.FETCH_CHANNEL_CLAIMS_COMPLETED = 'FETCH_CHANNEL_CLAIMS_COMPLETED';
-var FETCH_CHANNEL_CLAIM_COUNT_STARTED = exports.FETCH_CHANNEL_CLAIM_COUNT_STARTED = 'FETCH_CHANNEL_CLAIM_COUNT_STARTED';
-var FETCH_CHANNEL_CLAIM_COUNT_COMPLETED = exports.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED = 'FETCH_CHANNEL_CLAIM_COUNT_COMPLETED';
-var FETCH_CLAIM_LIST_MINE_STARTED = exports.FETCH_CLAIM_LIST_MINE_STARTED = 'FETCH_CLAIM_LIST_MINE_STARTED';
-var FETCH_CLAIM_LIST_MINE_COMPLETED = exports.FETCH_CLAIM_LIST_MINE_COMPLETED = 'FETCH_CLAIM_LIST_MINE_COMPLETED';
-var ABANDON_CLAIM_STARTED = exports.ABANDON_CLAIM_STARTED = 'ABANDON_CLAIM_STARTED';
-var ABANDON_CLAIM_SUCCEEDED = exports.ABANDON_CLAIM_SUCCEEDED = 'ABANDON_CLAIM_SUCCEEDED';
-var FETCH_CHANNEL_LIST_STARTED = exports.FETCH_CHANNEL_LIST_STARTED = 'FETCH_CHANNEL_LIST_STARTED';
-var FETCH_CHANNEL_LIST_COMPLETED = exports.FETCH_CHANNEL_LIST_COMPLETED = 'FETCH_CHANNEL_LIST_COMPLETED';
-var CREATE_CHANNEL_STARTED = exports.CREATE_CHANNEL_STARTED = 'CREATE_CHANNEL_STARTED';
-var CREATE_CHANNEL_COMPLETED = exports.CREATE_CHANNEL_COMPLETED = 'CREATE_CHANNEL_COMPLETED';
-var PUBLISH_STARTED = exports.PUBLISH_STARTED = 'PUBLISH_STARTED';
-var PUBLISH_COMPLETED = exports.PUBLISH_COMPLETED = 'PUBLISH_COMPLETED';
-var PUBLISH_FAILED = exports.PUBLISH_FAILED = 'PUBLISH_FAILED';
-var FETCH_BLACK_LISTED_CONTENT_STARTED = exports.FETCH_BLACK_LISTED_CONTENT_STARTED = 'FETCH_BLACK_LISTED_CONTENT_STARTED';
-var FETCH_BLACK_LISTED_CONTENT_COMPLETED = exports.FETCH_BLACK_LISTED_CONTENT_COMPLETED = 'FETCH_BLACK_LISTED_CONTENT_COMPLETED';
-var FETCH_BLACK_LISTED_CONTENT_FAILED = exports.FETCH_BLACK_LISTED_CONTENT_FAILED = 'FETCH_BLACK_LISTED_CONTENT_FAILED';
-var BLACK_LISTED_CONTENT_SUBSCRIBE = exports.BLACK_LISTED_CONTENT_SUBSCRIBE = 'BLACK_LISTED_CONTENT_SUBSCRIBE';
-var SET_PLAYING_URI = exports.SET_PLAYING_URI = 'SET_PLAYING_URI';
-var SET_CONTENT_POSITION = exports.SET_CONTENT_POSITION = 'SET_CONTENT_POSITION';
-var SET_CONTENT_LAST_VIEWED = exports.SET_CONTENT_LAST_VIEWED = 'SET_CONTENT_LAST_VIEWED';
-var CLEAR_CONTENT_HISTORY_URI = exports.CLEAR_CONTENT_HISTORY_URI = 'CLEAR_CONTENT_HISTORY_URI';
-var CLEAR_CONTENT_HISTORY_ALL = exports.CLEAR_CONTENT_HISTORY_ALL = 'CLEAR_CONTENT_HISTORY_ALL';
+var _v2 = _interopRequireDefault(_v);
 
-// Files
-var FILE_LIST_STARTED = exports.FILE_LIST_STARTED = 'FILE_LIST_STARTED';
-var FILE_LIST_SUCCEEDED = exports.FILE_LIST_SUCCEEDED = 'FILE_LIST_SUCCEEDED';
-var FETCH_FILE_INFO_STARTED = exports.FETCH_FILE_INFO_STARTED = 'FETCH_FILE_INFO_STARTED';
-var FETCH_FILE_INFO_COMPLETED = exports.FETCH_FILE_INFO_COMPLETED = 'FETCH_FILE_INFO_COMPLETED';
-var FETCH_COST_INFO_STARTED = exports.FETCH_COST_INFO_STARTED = 'FETCH_COST_INFO_STARTED';
-var FETCH_COST_INFO_COMPLETED = exports.FETCH_COST_INFO_COMPLETED = 'FETCH_COST_INFO_COMPLETED';
-var LOADING_VIDEO_STARTED = exports.LOADING_VIDEO_STARTED = 'LOADING_VIDEO_STARTED';
-var LOADING_VIDEO_COMPLETED = exports.LOADING_VIDEO_COMPLETED = 'LOADING_VIDEO_COMPLETED';
-var LOADING_VIDEO_FAILED = exports.LOADING_VIDEO_FAILED = 'LOADING_VIDEO_FAILED';
-var DOWNLOADING_STARTED = exports.DOWNLOADING_STARTED = 'DOWNLOADING_STARTED';
-var DOWNLOADING_PROGRESSED = exports.DOWNLOADING_PROGRESSED = 'DOWNLOADING_PROGRESSED';
-var DOWNLOADING_COMPLETED = exports.DOWNLOADING_COMPLETED = 'DOWNLOADING_COMPLETED';
-var DOWNLOADING_CANCELED = exports.DOWNLOADING_CANCELED = 'DOWNLOADING_CANCELED';
-var PLAY_VIDEO_STARTED = exports.PLAY_VIDEO_STARTED = 'PLAY_VIDEO_STARTED';
-var FETCH_AVAILABILITY_STARTED = exports.FETCH_AVAILABILITY_STARTED = 'FETCH_AVAILABILITY_STARTED';
-var FETCH_AVAILABILITY_COMPLETED = exports.FETCH_AVAILABILITY_COMPLETED = 'FETCH_AVAILABILITY_COMPLETED';
-var FILE_DELETE = exports.FILE_DELETE = 'FILE_DELETE';
-var SET_FILE_LIST_SORT = exports.SET_FILE_LIST_SORT = 'SET_FILE_LIST_SORT';
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// Search
-var SEARCH_START = exports.SEARCH_START = 'SEARCH_START';
-var SEARCH_SUCCESS = exports.SEARCH_SUCCESS = 'SEARCH_SUCCESS';
-var SEARCH_FAIL = exports.SEARCH_FAIL = 'SEARCH_FAIL';
-var UPDATE_SEARCH_QUERY = exports.UPDATE_SEARCH_QUERY = 'UPDATE_SEARCH_QUERY';
-var UPDATE_SEARCH_SUGGESTIONS = exports.UPDATE_SEARCH_SUGGESTIONS = 'UPDATE_SEARCH_SUGGESTIONS';
-var SEARCH_FOCUS = exports.SEARCH_FOCUS = 'SEARCH_FOCUS';
-var SEARCH_BLUR = exports.SEARCH_BLUR = 'SEARCH_BLUR';
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-// Settings
-var DAEMON_SETTINGS_RECEIVED = exports.DAEMON_SETTINGS_RECEIVED = 'DAEMON_SETTINGS_RECEIVED';
-var CLIENT_SETTING_CHANGED = exports.CLIENT_SETTING_CHANGED = 'CLIENT_SETTING_CHANGED';
-var UPDATE_IS_NIGHT = exports.UPDATE_IS_NIGHT = 'UPDATE_IS_NIGHT';
+// @flow
+/*:: import type { ToastParams } from 'types/Notification';*/
+function doToast(params /*: ToastParams*/) {
+  if (!params) {
+    throw Error("'params' object is required to create a toast notification");
+  }
 
-// User
-var AUTHENTICATION_STARTED = exports.AUTHENTICATION_STARTED = 'AUTHENTICATION_STARTED';
-var AUTHENTICATION_SUCCESS = exports.AUTHENTICATION_SUCCESS = 'AUTHENTICATION_SUCCESS';
-var AUTHENTICATION_FAILURE = exports.AUTHENTICATION_FAILURE = 'AUTHENTICATION_FAILURE';
-var USER_EMAIL_DECLINE = exports.USER_EMAIL_DECLINE = 'USER_EMAIL_DECLINE';
-var USER_EMAIL_NEW_STARTED = exports.USER_EMAIL_NEW_STARTED = 'USER_EMAIL_NEW_STARTED';
-var USER_EMAIL_NEW_SUCCESS = exports.USER_EMAIL_NEW_SUCCESS = 'USER_EMAIL_NEW_SUCCESS';
-var USER_EMAIL_NEW_EXISTS = exports.USER_EMAIL_NEW_EXISTS = 'USER_EMAIL_NEW_EXISTS';
-var USER_EMAIL_NEW_FAILURE = exports.USER_EMAIL_NEW_FAILURE = 'USER_EMAIL_NEW_FAILURE';
-var USER_EMAIL_VERIFY_SET = exports.USER_EMAIL_VERIFY_SET = 'USER_EMAIL_VERIFY_SET';
-var USER_EMAIL_VERIFY_STARTED = exports.USER_EMAIL_VERIFY_STARTED = 'USER_EMAIL_VERIFY_STARTED';
-var USER_EMAIL_VERIFY_SUCCESS = exports.USER_EMAIL_VERIFY_SUCCESS = 'USER_EMAIL_VERIFY_SUCCESS';
-var USER_EMAIL_VERIFY_FAILURE = exports.USER_EMAIL_VERIFY_FAILURE = 'USER_EMAIL_VERIFY_FAILURE';
-var USER_PHONE_RESET = exports.USER_PHONE_RESET = 'USER_PHONE_RESET';
-var USER_PHONE_NEW_STARTED = exports.USER_PHONE_NEW_STARTED = 'USER_PHONE_NEW_STARTED';
-var USER_PHONE_NEW_SUCCESS = exports.USER_PHONE_NEW_SUCCESS = 'USER_PHONE_NEW_SUCCESS';
-var USER_PHONE_NEW_FAILURE = exports.USER_PHONE_NEW_FAILURE = 'USER_PHONE_NEW_FAILURE';
-var USER_PHONE_VERIFY_STARTED = exports.USER_PHONE_VERIFY_STARTED = 'USER_PHONE_VERIFY_STARTED';
-var USER_PHONE_VERIFY_SUCCESS = exports.USER_PHONE_VERIFY_SUCCESS = 'USER_PHONE_VERIFY_SUCCESS';
-var USER_PHONE_VERIFY_FAILURE = exports.USER_PHONE_VERIFY_FAILURE = 'USER_PHONE_VERIFY_FAILURE';
-var USER_IDENTITY_VERIFY_STARTED = exports.USER_IDENTITY_VERIFY_STARTED = 'USER_IDENTITY_VERIFY_STARTED';
-var USER_IDENTITY_VERIFY_SUCCESS = exports.USER_IDENTITY_VERIFY_SUCCESS = 'USER_IDENTITY_VERIFY_SUCCESS';
-var USER_IDENTITY_VERIFY_FAILURE = exports.USER_IDENTITY_VERIFY_FAILURE = 'USER_IDENTITY_VERIFY_FAILURE';
-var USER_FETCH_STARTED = exports.USER_FETCH_STARTED = 'USER_FETCH_STARTED';
-var USER_FETCH_SUCCESS = exports.USER_FETCH_SUCCESS = 'USER_FETCH_SUCCESS';
-var USER_FETCH_FAILURE = exports.USER_FETCH_FAILURE = 'USER_FETCH_FAILURE';
-var USER_INVITE_STATUS_FETCH_STARTED = exports.USER_INVITE_STATUS_FETCH_STARTED = 'USER_INVITE_STATUS_FETCH_STARTED';
-var USER_INVITE_STATUS_FETCH_SUCCESS = exports.USER_INVITE_STATUS_FETCH_SUCCESS = 'USER_INVITE_STATUS_FETCH_SUCCESS';
-var USER_INVITE_STATUS_FETCH_FAILURE = exports.USER_INVITE_STATUS_FETCH_FAILURE = 'USER_INVITE_STATUS_FETCH_FAILURE';
-var USER_INVITE_NEW_STARTED = exports.USER_INVITE_NEW_STARTED = 'USER_INVITE_NEW_STARTED';
-var USER_INVITE_NEW_SUCCESS = exports.USER_INVITE_NEW_SUCCESS = 'USER_INVITE_NEW_SUCCESS';
-var USER_INVITE_NEW_FAILURE = exports.USER_INVITE_NEW_FAILURE = 'USER_INVITE_NEW_FAILURE';
-var FETCH_ACCESS_TOKEN_SUCCESS = exports.FETCH_ACCESS_TOKEN_SUCCESS = 'FETCH_ACCESS_TOKEN_SUCCESS';
+  return {
+    type: ACTIONS.CREATE_TOAST,
+    data: {
+      id: (0, _v2.default)(),
+      params: params
+    }
+  };
+}
 
-// Rewards
-var FETCH_REWARDS_STARTED = exports.FETCH_REWARDS_STARTED = 'FETCH_REWARDS_STARTED';
-var FETCH_REWARDS_COMPLETED = exports.FETCH_REWARDS_COMPLETED = 'FETCH_REWARDS_COMPLETED';
-var CLAIM_REWARD_STARTED = exports.CLAIM_REWARD_STARTED = 'CLAIM_REWARD_STARTED';
-var CLAIM_REWARD_SUCCESS = exports.CLAIM_REWARD_SUCCESS = 'CLAIM_REWARD_SUCCESS';
-var CLAIM_REWARD_FAILURE = exports.CLAIM_REWARD_FAILURE = 'CLAIM_REWARD_FAILURE';
-var CLAIM_REWARD_CLEAR_ERROR = exports.CLAIM_REWARD_CLEAR_ERROR = 'CLAIM_REWARD_CLEAR_ERROR';
-var FETCH_REWARD_CONTENT_COMPLETED = exports.FETCH_REWARD_CONTENT_COMPLETED = 'FETCH_REWARD_CONTENT_COMPLETED';
+function doDismissToast() {
+  return {
+    type: ACTIONS.DISMISS_TOAST
+  };
+}
 
-// Language
-var DOWNLOAD_LANGUAGE_SUCCEEDED = exports.DOWNLOAD_LANGUAGE_SUCCEEDED = 'DOWNLOAD_LANGUAGE_SUCCEEDED';
-var DOWNLOAD_LANGUAGE_FAILED = exports.DOWNLOAD_LANGUAGE_FAILED = 'DOWNLOAD_LANGUAGE_FAILED';
+function doError(error /*: string | {}*/) {
+  return {
+    type: ACTIONS.CREATE_ERROR,
+    data: {
+      error: error
+    }
+  };
+}
 
-// ShapeShift
-var GET_SUPPORTED_COINS_START = exports.GET_SUPPORTED_COINS_START = 'GET_SUPPORTED_COINS_START';
-var GET_SUPPORTED_COINS_SUCCESS = exports.GET_SUPPORTED_COINS_SUCCESS = 'GET_SUPPORTED_COINS_SUCCESS';
-var GET_SUPPORTED_COINS_FAIL = exports.GET_SUPPORTED_COINS_FAIL = 'GET_SUPPORTED_COINS_FAIL';
-var GET_COIN_STATS_START = exports.GET_COIN_STATS_START = 'GET_COIN_STATS_START';
-var GET_COIN_STATS_SUCCESS = exports.GET_COIN_STATS_SUCCESS = 'GET_COIN_STATS_SUCCESS';
-var GET_COIN_STATS_FAIL = exports.GET_COIN_STATS_FAIL = 'GET_COIN_STATS_FAIL';
-var PREPARE_SHAPE_SHIFT_START = exports.PREPARE_SHAPE_SHIFT_START = 'PREPARE_SHAPE_SHIFT_START';
-var PREPARE_SHAPE_SHIFT_SUCCESS = exports.PREPARE_SHAPE_SHIFT_SUCCESS = 'PREPARE_SHAPE_SHIFT_SUCCESS';
-var PREPARE_SHAPE_SHIFT_FAIL = exports.PREPARE_SHAPE_SHIFT_FAIL = 'PREPARE_SHAPE_SHIFT_FAIL';
-var GET_ACTIVE_SHIFT_START = exports.GET_ACTIVE_SHIFT_START = 'GET_ACTIVE_SHIFT_START';
-var GET_ACTIVE_SHIFT_SUCCESS = exports.GET_ACTIVE_SHIFT_SUCCESS = 'GET_ACTIVE_SHIFT_SUCCESS';
-var GET_ACTIVE_SHIFT_FAIL = exports.GET_ACTIVE_SHIFT_FAIL = 'GET_ACTIVE_SHIFT_FAIL';
-var CLEAR_SHAPE_SHIFT = exports.CLEAR_SHAPE_SHIFT = 'CLEAR_SHAPE_SHIFT';
-
-// Subscriptions
-var CHANNEL_SUBSCRIBE = exports.CHANNEL_SUBSCRIBE = 'CHANNEL_SUBSCRIBE';
-var CHANNEL_UNSUBSCRIBE = exports.CHANNEL_UNSUBSCRIBE = 'CHANNEL_UNSUBSCRIBE';
-var HAS_FETCHED_SUBSCRIPTIONS = exports.HAS_FETCHED_SUBSCRIPTIONS = 'HAS_FETCHED_SUBSCRIPTIONS';
-var SET_SUBSCRIPTION_LATEST = exports.SET_SUBSCRIPTION_LATEST = 'SET_SUBSCRIPTION_LATEST';
-var SET_SUBSCRIPTION_NOTIFICATION = exports.SET_SUBSCRIPTION_NOTIFICATION = 'SET_SUBSCRIPTION_NOTIFICATION';
-var SET_SUBSCRIPTION_NOTIFICATIONS = exports.SET_SUBSCRIPTION_NOTIFICATIONS = 'SET_SUBSCRIPTION_NOTIFICATIONS';
-var CHECK_SUBSCRIPTION_STARTED = exports.CHECK_SUBSCRIPTION_STARTED = 'CHECK_SUBSCRIPTION_STARTED';
-var CHECK_SUBSCRIPTION_COMPLETED = exports.CHECK_SUBSCRIPTION_COMPLETED = 'CHECK_SUBSCRIPTION_COMPLETED';
-var CHECK_SUBSCRIPTIONS_SUBSCRIBE = exports.CHECK_SUBSCRIPTIONS_SUBSCRIBE = 'CHECK_SUBSCRIPTIONS_SUBSCRIBE';
-
-// Publishing
-var CLEAR_PUBLISH = exports.CLEAR_PUBLISH = 'CLEAR_PUBLISH';
-var UPDATE_PUBLISH_FORM = exports.UPDATE_PUBLISH_FORM = 'UPDATE_PUBLISH_FORM';
-var PUBLISH_START = exports.PUBLISH_START = 'PUBLISH_START';
-var PUBLISH_SUCCESS = exports.PUBLISH_SUCCESS = 'PUBLISH_SUCCESS';
-var PUBLISH_FAIL = exports.PUBLISH_FAIL = 'PUBLISH_FAIL';
-var CLEAR_PUBLISH_ERROR = exports.CLEAR_PUBLISH_ERROR = 'CLEAR_PUBLISH_ERROR';
-var REMOVE_PENDING_PUBLISH = exports.REMOVE_PENDING_PUBLISH = 'REMOVE_PENDING_PUBLISH';
-var DO_PREPARE_EDIT = exports.DO_PREPARE_EDIT = 'DO_PREPARE_EDIT';
-
-// Notifications
-var CREATE_NOTIFICATION = exports.CREATE_NOTIFICATION = 'CREATE_NOTIFICATION';
-var DISMISS_NOTIFICATION = exports.DISMISS_NOTIFICATION = 'DISMISS_NOTIFICATION';
+function doDismissError() {
+  return {
+    type: ACTIONS.DISMISS_ERROR
+  };
+}
 
 /***/ }),
 /* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var rng = __webpack_require__(6);
+var bytesToUuid = __webpack_require__(7);
+
+function v4(options, buf, offset) {
+  var i = buf && offset || 0;
+
+  if (typeof(options) == 'string') {
+    buf = options === 'binary' ? new Array(16) : null;
+    options = null;
+  }
+  options = options || {};
+
+  var rnds = options.random || (options.rng || rng)();
+
+  // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+  rnds[6] = (rnds[6] & 0x0f) | 0x40;
+  rnds[8] = (rnds[8] & 0x3f) | 0x80;
+
+  // Copy bytes to buffer, if provided
+  if (buf) {
+    for (var ii = 0; ii < 16; ++ii) {
+      buf[i + ii] = rnds[ii];
+    }
+  }
+
+  return buf || bytesToUuid(rnds);
+}
+
+module.exports = v4;
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+// Unique ID creation requires a high quality random # generator.  In the
+// browser this is a little complicated due to unknown quality of Math.random()
+// and inconsistent support for the `crypto` API.  We do the best we can via
+// feature-detection
+
+// getRandomValues needs to be invoked in a context where "this" is a Crypto implementation.
+var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues.bind(crypto)) ||
+                      (typeof(msCrypto) != 'undefined' && msCrypto.getRandomValues.bind(msCrypto));
+if (getRandomValues) {
+  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
+  var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+
+  module.exports = function whatwgRNG() {
+    getRandomValues(rnds8);
+    return rnds8;
+  };
+} else {
+  // Math.random()-based (RNG)
+  //
+  // If all else fails, use Math.random().  It's fast, but is of unspecified
+  // quality.
+  var rnds = new Array(16);
+
+  module.exports = function mathRNG() {
+    for (var i = 0, r; i < 16; i++) {
+      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+    }
+
+    return rnds;
+  };
+}
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+var byteToHex = [];
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex;
+  return bth[buf[i++]] + bth[buf[i++]] +
+          bth[buf[i++]] + bth[buf[i++]] + '-' +
+          bth[buf[i++]] + bth[buf[i++]] + '-' +
+          bth[buf[i++]] + bth[buf[i++]] + '-' +
+          bth[buf[i++]] + bth[buf[i++]] + '-' +
+          bth[buf[i++]] + bth[buf[i++]] +
+          bth[buf[i++]] + bth[buf[i++]] +
+          bth[buf[i++]] + bth[buf[i++]];
+}
+
+module.exports = bytesToUuid;
+
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1815,27 +2023,27 @@ exports.doFetchTrendingUris = doFetchTrendingUris;
 exports.doFetchClaimsByChannel = doFetchClaimsByChannel;
 exports.doFetchClaimCountByChannel = doFetchClaimCountByChannel;
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _lbry = __webpack_require__(6);
+var _lbry = __webpack_require__(9);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryapi = __webpack_require__(9);
+var _lbryapi = __webpack_require__(12);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
-var _lbryURI = __webpack_require__(2);
+var _lbryURI = __webpack_require__(3);
 
-var _notifications = __webpack_require__(3);
+var _notifications = __webpack_require__(4);
 
-var _claims = __webpack_require__(14);
+var _claims = __webpack_require__(17);
 
-var _batchActions = __webpack_require__(21);
+var _batchActions = __webpack_require__(24);
 
-var _wallet = __webpack_require__(22);
+var _wallet = __webpack_require__(25);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1931,11 +2139,9 @@ function doAbandonClaim(txid, nout) {
     });
 
     var errorCallback = function errorCallback() {
-      dispatch((0, _notifications.doNotify)({
-        title: 'Transaction failed',
-        message: 'Error abandoning claim',
-        type: 'error',
-        displayType: ['snackbar', 'toast']
+      dispatch((0, _notifications.doToast)({
+        message: 'Transaction failed',
+        isError: true
       }));
     };
 
@@ -1947,10 +2153,8 @@ function doAbandonClaim(txid, nout) {
             claimId: claimId
           }
         });
-        dispatch((0, _notifications.doNotify)({
-          title: 'Transaction successful',
-          message: 'Successfully abandoned your claim',
-          displayType: ['snackbar', 'toast']
+        dispatch((0, _notifications.doToast)({
+          message: 'Successfully abandoned your claim'
         }));
 
         // After abandoning, call claim_list_mine to show the claim as abandoned
@@ -1958,11 +2162,9 @@ function doAbandonClaim(txid, nout) {
         dispatch(doFetchClaimListMine());
         dispatch((0, _wallet.doFetchTransactions)());
       } else {
-        dispatch((0, _notifications.doNotify)({
-          title: 'Transaction failed',
+        dispatch((0, _notifications.doToast)({
           message: 'Error abandoning claim',
-          type: 'error',
-          displayType: ['snackbar', 'toast']
+          isError: true
         }));
       }
     };
@@ -2092,7 +2294,7 @@ function doFetchClaimCountByChannel(uri) {
 }
 
 /***/ }),
-/* 6 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2102,7 +2304,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-__webpack_require__(7);
+__webpack_require__(10);
 
 var CHECK_DAEMON_STARTED_TRY_NUMBER = 200; // @flow
 
@@ -2348,7 +2550,7 @@ var lbryProxy = new Proxy(Lbry, {
 exports.default = lbryProxy;
 
 /***/ }),
-/* 7 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2527,10 +2729,10 @@ exports.default = lbryProxy;
   scope['Proxy'] = scope.Proxy;
 })(typeof module !== 'undefined' && module['exports'] ? global : window);
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(11)))
 
 /***/ }),
-/* 8 */
+/* 11 */
 /***/ (function(module, exports) {
 
 var g;
@@ -2556,7 +2758,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 9 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2568,7 +2770,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _querystring = __webpack_require__(11);
+var _querystring = __webpack_require__(14);
 
 var _querystring2 = _interopRequireDefault(_querystring);
 
@@ -2659,10 +2861,10 @@ Lbryapi.call = function (resource, action) {
 };
 
 exports.default = Lbryapi;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(13)))
 
 /***/ }),
-/* 10 */
+/* 13 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -2852,18 +3054,18 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-exports.decode = exports.parse = __webpack_require__(12);
-exports.encode = exports.stringify = __webpack_require__(13);
+exports.decode = exports.parse = __webpack_require__(15);
+exports.encode = exports.stringify = __webpack_require__(16);
 
 
 /***/ }),
-/* 12 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2954,7 +3156,7 @@ var isArray = Array.isArray || function (xs) {
 
 
 /***/ }),
-/* 13 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3046,7 +3248,7 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
-/* 14 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3057,15 +3259,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.makeSelectChannelForClaimUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.makeSelectIsUriResolving = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectIsFetchingClaimListMine = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectClaimsInChannelForPage = exports.makeSelectFetchingChannelClaims = exports.selectAllFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.makeSelectClaimForUri = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.selectPendingClaims = exports.selectPendingById = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = undefined;
 
-var _lbryURI = __webpack_require__(2);
+var _lbryURI = __webpack_require__(3);
 
-var _navigation = __webpack_require__(15);
+var _navigation = __webpack_require__(18);
 
-var _search = __webpack_require__(18);
+var _search = __webpack_require__(21);
 
-var _reselect = __webpack_require__(16);
+var _reselect = __webpack_require__(19);
 
-var _claim = __webpack_require__(20);
+var _claim = __webpack_require__(23);
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -3402,7 +3604,7 @@ var makeSelectChannelForClaimUri = exports.makeSelectChannelForClaimUri = functi
 };
 
 /***/ }),
-/* 15 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3413,9 +3615,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.selectPageTitle = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsHome = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.makeSelectCurrentParam = exports.selectCurrentParams = exports.selectCurrentPage = exports.computePageFromPath = exports.selectCurrentPath = exports.selectState = undefined;
 
-var _reselect = __webpack_require__(16);
+var _reselect = __webpack_require__(19);
 
-var _query_params = __webpack_require__(17);
+var _query_params = __webpack_require__(20);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.navigation || {};
@@ -3483,7 +3685,7 @@ var selectPageTitle = exports.selectPageTitle = (0, _reselect.createSelector)(se
 });
 
 /***/ }),
-/* 16 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3614,7 +3816,7 @@ function createStructuredSelector(selectors) {
 }
 
 /***/ }),
-/* 17 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3659,7 +3861,7 @@ function toQueryString(params) {
 }
 
 /***/ }),
-/* 18 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3670,15 +3872,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.makeSelectSearchUris = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchQuery = exports.selectSuggestions = exports.selectSearchValue = exports.selectState = undefined;
 
-var _search = __webpack_require__(19);
+var _search = __webpack_require__(22);
 
 var SEARCH_TYPES = _interopRequireWildcard(_search);
 
-var _lbryURI = __webpack_require__(2);
+var _lbryURI = __webpack_require__(3);
 
-var _navigation = __webpack_require__(15);
+var _navigation = __webpack_require__(18);
 
-var _reselect = __webpack_require__(16);
+var _reselect = __webpack_require__(19);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -3803,7 +4005,7 @@ var selectSearchSuggestions = exports.selectSearchSuggestions = (0, _reselect.cr
 });
 
 /***/ }),
-/* 19 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3817,7 +4019,7 @@ var CHANNEL = exports.CHANNEL = 'channel';
 var SEARCH = exports.SEARCH = 'search';
 
 /***/ }),
-/* 20 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3831,7 +4033,7 @@ var isClaimNsfw = exports.isClaimNsfw = function isClaimNsfw(claim) {
 };
 
 /***/ }),
-/* 21 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3854,7 +4056,7 @@ function batchActions() {
 }
 
 /***/ }),
-/* 22 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3881,19 +4083,19 @@ exports.doWalletStatus = doWalletStatus;
 exports.doSetTransactionListFilter = doSetTransactionListFilter;
 exports.doUpdateBlockHeight = doUpdateBlockHeight;
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _lbry = __webpack_require__(6);
+var _lbry = __webpack_require__(9);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _notifications = __webpack_require__(3);
+var _notifications = __webpack_require__(4);
 
-var _wallet = __webpack_require__(23);
+var _wallet = __webpack_require__(26);
 
-var _formatCredits = __webpack_require__(25);
+var _formatCredits = __webpack_require__(28);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3992,11 +4194,9 @@ function doSendDraftTransaction(address, amount) {
     var balance = (0, _wallet.selectBalance)(state);
 
     if (balance - amount <= 0) {
-      dispatch((0, _notifications.doNotify)({
+      dispatch((0, _notifications.doToast)({
         title: 'Insufficient credits',
-        message: 'Insufficient credits',
-        type: 'error',
-        displayType: ['modal', 'toast']
+        message: 'Insufficient credits'
       }));
       return;
     }
@@ -4010,11 +4210,8 @@ function doSendDraftTransaction(address, amount) {
         dispatch({
           type: ACTIONS.SEND_TRANSACTION_COMPLETED
         });
-        dispatch((0, _notifications.doNotify)({
-          title: 'Credits sent',
+        dispatch((0, _notifications.doToast)({
           message: 'You sent ' + amount + ' LBC',
-          type: 'error',
-          displayType: ['snackbar', 'toast'],
           linkText: 'History',
           linkTarget: '/wallet'
         }));
@@ -4023,11 +4220,9 @@ function doSendDraftTransaction(address, amount) {
           type: ACTIONS.SEND_TRANSACTION_FAILED,
           data: { error: response }
         });
-        dispatch((0, _notifications.doNotify)({
-          title: 'Transaction failed',
+        dispatch((0, _notifications.doToast)({
           message: 'Transaction failed',
-          type: 'error',
-          displayType: ['snackbar', 'toast']
+          isError: true
         }));
       }
     };
@@ -4037,11 +4232,9 @@ function doSendDraftTransaction(address, amount) {
         type: ACTIONS.SEND_TRANSACTION_FAILED,
         data: { error: error.message }
       });
-      dispatch((0, _notifications.doNotify)({
-        title: 'Transaction failed',
+      dispatch((0, _notifications.doToast)({
         message: 'Transaction failed',
-        type: 'error',
-        displayType: ['snackbar', 'toast']
+        isError: true
       }));
     };
 
@@ -4072,21 +4265,18 @@ function doSendTip(amount, claimId, uri, successCallback, errorCallback) {
     var balance = (0, _wallet.selectBalance)(state);
 
     if (balance - amount <= 0) {
-      dispatch((0, _notifications.doNotify)({
-        title: 'Insufficient credits',
+      dispatch((0, _notifications.doToast)({
         message: 'Insufficient credits',
-        type: 'error',
-        displayType: ['modal', 'toast']
+        isError: true
       }));
       return;
     }
 
     var success = function success() {
-      dispatch((0, _notifications.doNotify)({
+      dispatch((0, _notifications.doToast)({
         message: __('You sent ' + amount + ' LBC as a tip, Mahalo!'),
         linkText: __('History'),
-        linkTarget: __('/wallet'),
-        displayType: ['snackbar']
+        linkTarget: __('/wallet')
       }));
 
       dispatch({
@@ -4099,9 +4289,9 @@ function doSendTip(amount, claimId, uri, successCallback, errorCallback) {
     };
 
     var error = function error(err) {
-      dispatch((0, _notifications.doNotify)({
+      dispatch((0, _notifications.doToast)({
         message: __('There was an error sending support funds.'),
-        displayType: ['snackbar']
+        isError: true
       }));
 
       dispatch({
@@ -4253,7 +4443,7 @@ function doUpdateBlockHeight() {
 }
 
 /***/ }),
-/* 23 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4264,9 +4454,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.selectTransactionListFilter = exports.makeSelectBlockDate = exports.selectCurrentHeight = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.selectWalletLockResult = exports.selectWalletLockSucceeded = exports.selectWalletLockPending = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletIsEncrypted = exports.selectWalletState = exports.selectState = undefined;
 
-var _reselect = __webpack_require__(16);
+var _reselect = __webpack_require__(19);
 
-var _transaction_types = __webpack_require__(24);
+var _transaction_types = __webpack_require__(27);
 
 var TRANSACTIONS = _interopRequireWildcard(_transaction_types);
 
@@ -4493,7 +4683,7 @@ var selectTransactionListFilter = exports.selectTransactionListFilter = (0, _res
 });
 
 /***/ }),
-/* 24 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4514,7 +4704,7 @@ var UPDATE = exports.UPDATE = 'update';
 var ABANDON = exports.ABANDON = 'abandon';
 
 /***/ }),
-/* 25 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4559,7 +4749,7 @@ function creditsToString(amount) {
 }
 
 /***/ }),
-/* 26 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4570,15 +4760,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.doFetchCostInfoForUri = doFetchCostInfoForUri;
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _lbryapi = __webpack_require__(9);
+var _lbryapi = __webpack_require__(12);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
-var _claims = __webpack_require__(14);
+var _claims = __webpack_require__(17);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4619,7 +4809,7 @@ function doFetchCostInfoForUri(uri) {
 }
 
 /***/ }),
-/* 27 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4633,19 +4823,19 @@ exports.doFileList = doFileList;
 exports.doFetchFileInfosAndPublishedClaims = doFetchFileInfosAndPublishedClaims;
 exports.doSetFileListSort = doSetFileListSort;
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _lbry = __webpack_require__(6);
+var _lbry = __webpack_require__(9);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _claims = __webpack_require__(5);
+var _claims = __webpack_require__(8);
 
-var _claims2 = __webpack_require__(14);
+var _claims2 = __webpack_require__(17);
 
-var _file_info = __webpack_require__(28);
+var _file_info = __webpack_require__(31);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4720,7 +4910,7 @@ function doSetFileListSort(page, value) {
 }
 
 /***/ }),
-/* 28 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4731,11 +4921,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.selectFileListDownloadedSort = exports.selectFileListPublishedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.makeSelectLoadingForUri = exports.selectUrisLoading = exports.makeSelectDownloadingForUri = exports.selectDownloadingByOutpoint = exports.makeSelectFileInfoForUri = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.selectState = undefined;
 
-var _claims = __webpack_require__(14);
+var _claims = __webpack_require__(17);
 
-var _reselect = __webpack_require__(16);
+var _reselect = __webpack_require__(19);
 
-var _lbryURI = __webpack_require__(2);
+var _lbryURI = __webpack_require__(3);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.fileInfo || {};
@@ -4935,7 +5125,7 @@ var selectFileListDownloadedSort = exports.selectFileListDownloadedSort = (0, _r
 });
 
 /***/ }),
-/* 29 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4946,19 +5136,19 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.getSearchSuggestions = exports.doSearch = undefined;
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _lbryURI = __webpack_require__(2);
+var _lbryURI = __webpack_require__(3);
 
-var _claims = __webpack_require__(5);
+var _claims = __webpack_require__(8);
 
-var _search = __webpack_require__(18);
+var _search = __webpack_require__(21);
 
-var _batchActions = __webpack_require__(21);
+var _batchActions = __webpack_require__(24);
 
-var _handleFetch = __webpack_require__(30);
+var _handleFetch = __webpack_require__(33);
 
 var _handleFetch2 = _interopRequireDefault(_handleFetch);
 
@@ -5100,7 +5290,7 @@ var doBlurSearchInput = exports.doBlurSearchInput = function doBlurSearchInput()
 };
 
 /***/ }),
-/* 30 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5115,7 +5305,7 @@ function handleFetchResponse(response) {
 }
 
 /***/ }),
-/* 31 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5130,11 +5320,11 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 exports.doFetchBlackListedOutpoints = doFetchBlackListedOutpoints;
 exports.doBlackListedOutpointsSubscribe = doBlackListedOutpointsSubscribe;
 
-var _lbryapi = __webpack_require__(9);
+var _lbryapi = __webpack_require__(12);
 
 var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
@@ -5198,7 +5388,7 @@ function doBlackListedOutpointsSubscribe() {
 }
 
 /***/ }),
-/* 32 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5212,7 +5402,7 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 exports.claimsReducer = claimsReducer;
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
@@ -5523,7 +5713,7 @@ function claimsReducer() {
 }
 
 /***/ }),
-/* 33 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5534,7 +5724,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.costInfoReducer = costInfoReducer;
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
@@ -5581,7 +5771,7 @@ function costInfoReducer() {
 }
 
 /***/ }),
-/* 34 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5595,15 +5785,15 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 exports.fileInfoReducer = fileInfoReducer;
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _sort_options = __webpack_require__(35);
+var _sort_options = __webpack_require__(38);
 
 var SORT_OPTIONS = _interopRequireWildcard(_sort_options);
 
-var _pages = __webpack_require__(36);
+var _pages = __webpack_require__(39);
 
 var PAGES = _interopRequireWildcard(_pages);
 
@@ -5823,7 +6013,7 @@ function fileInfoReducer() {
 }
 
 /***/ }),
-/* 35 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5838,7 +6028,7 @@ var TITLE = exports.TITLE = 'title';
 var FILENAME = exports.FILENAME = 'filename';
 
 /***/ }),
-/* 36 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5870,7 +6060,7 @@ var HISTORY = exports.HISTORY = 'user_history';
 var WALLET = exports.WALLET = 'wallet';
 
 /***/ }),
-/* 37 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5879,84 +6069,105 @@ var WALLET = exports.WALLET = 'wallet';
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.notificationsReducer = notificationsReducer;
+exports.notificationsReducer = undefined;
 
-var _action_types = __webpack_require__(4);
+var _handleActions;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _modal_types = __webpack_require__(38);
-
-var MODALS = _interopRequireWildcard(_modal_types);
+var _reduxUtils = __webpack_require__(41);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var reducers = {};
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var defaultState = {
-  // First-in, first-out
-  queue: []
+// @flow
+/*:: import type {
+  NotificationState,
+  DoToast,
+  DoNotification,
+  DoEditNotification,
+  DoDeleteNotification,
+} from 'types/Notification';*/
+
+
+var defaultState /*: NotificationState*/ = {
+  notifications: [],
+  toasts: [],
+  errors: []
 };
 
-reducers[ACTIONS.CREATE_NOTIFICATION] = function (state, action) {
-  var _action$data = action.data,
-      notification = _action$data.notification,
-      notificationProps = _action$data.notificationProps;
-  var title = notification.title,
-      message = notification.message,
-      type = notification.type,
-      error = notification.error,
-      displayType = notification.displayType,
-      id = notification.id;
+var notificationsReducer = (0, _reduxUtils.handleActions)((_handleActions = {}, _defineProperty(_handleActions, ACTIONS.CREATE_TOAST, function (state /*: NotificationState*/, action /*: DoToast*/) {
+  var toast = action.data;
+  var newToasts = state.toasts.slice();
+  newToasts.push(toast);
 
+  return _extends({}, state, {
+    toasts: newToasts
+  });
+}), _defineProperty(_handleActions, ACTIONS.DISMISS_TOAST, function (state /*: NotificationState*/) {
+  var newToasts = state.toasts.slice();
+  newToasts.shift();
 
-  var queue = Object.assign([], state.queue);
-  queue.push({
-    notification: {
-      id: id,
-      title: title,
-      message: message,
-      type: type,
-      error: error,
-      displayType: displayType
-    },
-    notificationProps: notificationProps
+  return _extends({}, state, {
+    toasts: newToasts
+  });
+}), _defineProperty(_handleActions, ACTIONS.CREATE_NOTIFICATION, function (state /*: NotificationState*/, action /*: DoNotification*/) {
+  var notification = action.data;
+  var newNotifications = state.notifications.slice();
+  newNotifications.push(notification);
+
+  return _extends({}, state, {
+    notifications: newNotifications
+  });
+}), _defineProperty(_handleActions, ACTIONS.EDIT_NOTIFICATION, function (state /*: NotificationState*/, action /*: DoEditNotification*/) {
+  var notification = action.data.notification;
+
+  var notifications = state.notifications.slice();
+
+  notifications = notifications.map(function (pastNotification) {
+    return pastNotification.id === notification.id ? notification : pastNotification;
   });
 
-  return Object.assign({}, state, {
-    queue: queue
+  return _extends({}, state, {
+    notifications: notifications
   });
-};
+}), _defineProperty(_handleActions, ACTIONS.DELETE_NOTIFICATION, function (state /*: NotificationState*/, action /*: DoDeleteNotification*/) {
+  var id = action.data.id;
 
-reducers[ACTIONS.DISMISS_NOTIFICATION] = function (state) {
-  var queue = Object.assign([], state.queue);
-  queue.shift();
-
-  return Object.assign({}, state, {
-    queue: queue
+  var newNotifications = state.notifications.slice();
+  newNotifications = newNotifications.filter(function (notification) {
+    return notification.id !== id;
   });
-};
 
-reducers[ACTIONS.HISTORY_NAVIGATE] = function (state) {
-  var queue = Object.assign([], state.queue);
-  if (queue[0] && queue[0].notification.id === MODALS.SEARCH) {
-    queue.shift();
-    return Object.assign({}, state, { queue: queue });
-  }
-  return state;
-};
+  return _extends({}, state, {
+    notifications: newNotifications
+  });
+}), _defineProperty(_handleActions, ACTIONS.CREATE_ERROR, function (state /*: NotificationState*/, action /*: DoToast*/) {
+  var error = action.data;
+  var newErrors = state.errors.slice();
+  newErrors.push(error);
 
-function notificationsReducer() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
-  var action = arguments[1];
+  return _extends({}, state, {
+    errors: newErrors
+  });
+}), _defineProperty(_handleActions, ACTIONS.DISMISS_ERROR, function (state /*: NotificationState*/) {
+  var newErrors = state.errors.slice();
+  newErrors.shift();
 
-  var handler = reducers[action.type];
-  if (handler) return handler(state, action);
-  return state;
-}
+  return _extends({}, state, {
+    errors: newErrors
+  });
+}), _handleActions), defaultState);
+
+exports.notificationsReducer = notificationsReducer;
 
 /***/ }),
-/* 38 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5965,39 +6176,31 @@ function notificationsReducer() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var CONFIRM_FILE_REMOVE = exports.CONFIRM_FILE_REMOVE = 'confirm_file_remove';
-var CONFIRM_EXTERNAL_LINK = exports.CONFIRM_EXTERNAL_LINK = 'confirm_external_link';
-var INCOMPATIBLE_DAEMON = exports.INCOMPATIBLE_DAEMON = 'incompatible_daemon';
-var FILE_TIMEOUT = exports.FILE_TIMEOUT = 'file_timeout';
-var DOWNLOADING = exports.DOWNLOADING = 'downloading';
-var AUTO_UPDATE_DOWNLOADED = exports.AUTO_UPDATE_DOWNLOADED = 'auto_update_downloaded';
-var AUTO_UPDATE_CONFIRM = exports.AUTO_UPDATE_CONFIRM = 'auto_update_confirm';
-var ERROR = exports.ERROR = 'error';
-var INSUFFICIENT_CREDITS = exports.INSUFFICIENT_CREDITS = 'insufficient_credits';
-var UPGRADE = exports.UPGRADE = 'upgrade';
-var WELCOME = exports.WELCOME = 'welcome';
-var EMAIL_COLLECTION = exports.EMAIL_COLLECTION = 'email_collection';
-var PHONE_COLLECTION = exports.PHONE_COLLECTION = 'phone_collection';
-var FIRST_REWARD = exports.FIRST_REWARD = 'first_reward';
-var AUTHENTICATION_FAILURE = exports.AUTHENTICATION_FAILURE = 'auth_failure';
-var TRANSACTION_FAILED = exports.TRANSACTION_FAILED = 'transaction_failed';
-var REWARD_APPROVAL_REQUIRED = exports.REWARD_APPROVAL_REQUIRED = 'reward_approval_required';
-var REWARD_GENERATED_CODE = exports.REWARD_GENERATED_CODE = 'reward_generated_code';
-var AFFIRM_PURCHASE = exports.AFFIRM_PURCHASE = 'affirm_purchase';
-var CONFIRM_CLAIM_REVOKE = exports.CONFIRM_CLAIM_REVOKE = 'confirm_claim_revoke';
-var FIRST_SUBSCRIPTION = exports.FIRST_SUBSCRIPTION = 'firstSubscription';
-var SEND_TIP = exports.SEND_TIP = 'send_tip';
-var SOCIAL_SHARE = exports.SOCIAL_SHARE = 'social_share';
-var PUBLISH = exports.PUBLISH = 'publish';
-var SEARCH = exports.SEARCH = 'search';
-var CONFIRM_TRANSACTION = exports.CONFIRM_TRANSACTION = 'confirm_transaction';
-var CONFIRM_THUMBNAIL_UPLOAD = exports.CONFIRM_THUMBNAIL_UPLOAD = 'confirm_thumbnail_upload';
-var WALLET_ENCRYPT = exports.WALLET_ENCRYPT = 'wallet_encrypt';
-var WALLET_DECRYPT = exports.WALLET_DECRYPT = 'wallet_decrypt';
-var WALLET_UNLOCK = exports.WALLET_UNLOCK = 'wallet_unlock';
+// util for creating reducers
+// based off of redux-actions
+// https://redux-actions.js.org/docs/api/handleAction.html#handleactions
+
+// eslint-disable-next-line import/prefer-default-export
+var handleActions = exports.handleActions = function handleActions(actionMap, defaultState) {
+  return function () {
+    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
+    var action = arguments[1];
+
+    var handler = actionMap[action.type];
+
+    if (handler) {
+      var newState = handler(state, action);
+      return Object.assign({}, state, newState);
+    }
+
+    // just return the original state if no handler
+    // returning a copy here breaks redux-persist
+    return state;
+  };
+};
 
 /***/ }),
-/* 39 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6013,11 +6216,11 @@ var _handleActions;
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; // @flow
 
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(40);
+var _reduxUtils = __webpack_require__(41);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -6122,40 +6325,7 @@ var searchReducer = exports.searchReducer = (0, _reduxUtils.handleActions)((_han
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 40 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-// util for creating reducers
-// based off of redux-actions
-// https://redux-actions.js.org/docs/api/handleAction.html#handleactions
-
-// eslint-disable-next-line import/prefer-default-export
-var handleActions = exports.handleActions = function handleActions(actionMap, defaultState) {
-  return function () {
-    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
-    var action = arguments[1];
-
-    var handler = actionMap[action.type];
-
-    if (handler) {
-      var newState = handler(state, action);
-      return Object.assign({}, state, newState);
-    }
-
-    // just return the original state if no handler
-    // returning a copy here breaks redux-persist
-    return state;
-  };
-};
-
-/***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6166,7 +6336,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.walletReducer = walletReducer;
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
@@ -6498,7 +6668,7 @@ function walletReducer() {
 }
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6513,11 +6683,11 @@ var _handleActions;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _action_types = __webpack_require__(4);
+var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(40);
+var _reduxUtils = __webpack_require__(41);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -6557,7 +6727,7 @@ var blacklistReducer = exports.blacklistReducer = (0, _reduxUtils.handleActions)
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6568,7 +6738,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.selectBlackListedOutpoints = exports.selectState = undefined;
 
-var _reselect = __webpack_require__(16);
+var _reselect = __webpack_require__(19);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.blacklist || {};
@@ -6579,7 +6749,7 @@ var selectBlackListedOutpoints = exports.selectBlackListedOutpoints = (0, _resel
 });
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6588,38 +6758,44 @@ var selectBlackListedOutpoints = exports.selectBlackListedOutpoints = (0, _resel
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectSnack = exports.selectNotificationProps = exports.selectNotification = exports.selectNotificationData = exports.selectState = undefined;
+exports.selectError = exports.selectToast = exports.selectState = undefined;
 
-var _reselect = __webpack_require__(16);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _reselect = __webpack_require__(19);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.notifications || {};
 };
 
-var selectNotificationData = exports.selectNotificationData = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.queue.length > 0 ? state.queue[0] : {};
-});
+var selectToast = exports.selectToast = (0, _reselect.createSelector)(selectState, function (state) {
+  if (state.toasts.length) {
+    var _state$toasts$ = state.toasts[0],
+        id = _state$toasts$.id,
+        params = _state$toasts$.params;
 
-var selectNotification = exports.selectNotification = (0, _reselect.createSelector)(selectNotificationData, function (notificationData) {
-  return notificationData.notification;
-});
-
-var selectNotificationProps = exports.selectNotificationProps = (0, _reselect.createSelector)(selectNotificationData, function (notificationData) {
-  return notificationData.notificationProps;
-});
-
-var selectSnack = exports.selectSnack = (0, _reselect.createSelector)(
-// No props for snackbar
-selectNotification, function (notification) {
-  if (notification && notification.displayType) {
-    return notification.displayType.indexOf('snackbar') > -1 ? notification : undefined;
+    return _extends({
+      id: id
+    }, params);
   }
 
-  return undefined;
+  return null;
+});
+
+var selectError = exports.selectError = (0, _reselect.createSelector)(selectState, function (state) {
+  if (state.errors.length) {
+    var error = state.errors[0].error;
+
+    return {
+      error: error
+    };
+  }
+
+  return null;
 });
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6630,9 +6806,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.makeSelectFetchingCostInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.makeSelectCostInfoForUri = exports.selectAllCostInfoByUri = exports.selectState = undefined;
 
-var _reselect = __webpack_require__(16);
+var _reselect = __webpack_require__(19);
 
-var _navigation = __webpack_require__(15);
+var _navigation = __webpack_require__(18);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.costInfo || {};
@@ -6663,7 +6839,7 @@ var makeSelectFetchingCostInfoForUri = exports.makeSelectFetchingCostInfoForUri 
 };
 
 /***/ }),
-/* 46 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6679,7 +6855,7 @@ var COMPLETE = exports.COMPLETE = 'complete';
 var MANUAL = exports.MANUAL = 'manual';
 
 /***/ }),
-/* 47 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
