@@ -293,22 +293,16 @@ export const makeSelectRecommendedContentForUri = (uri) =>
 
       let recommendedContent;
       if (claim) {
-        const {
-          value: {
-            stream: {
-              metadata: { title },
-            },
-          },
-        } = claim;
+        // If we are at a vanity uri, build the full uri so we can properly filter
+        const currentUri = atVanityURI
+          ? buildURI({ claimId: claim.claim_id, claimName: claim.name })
+          : uri;
+
+        const { title } = claim.value.stream.metadata;
+
         let searchUris = searchUrisByQuery[title.replace(/\//, ' ')];
         if (searchUris) {
-          // If we are at a vanity uri, we can't do a uri match
-          // The first search result _should_ be the same as the claim a user is on
-          if (atVanityURI) {
-            searchUris = searchUris.slice(1);
-          }
-
-          searchUris = searchUris.filter((searchUri) => searchUri !== uri);
+          searchUris = searchUris.filter((searchUri) => searchUri !== currentUri);
           recommendedContent = searchUris;
         }
       }
