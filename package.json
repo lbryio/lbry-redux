@@ -27,10 +27,13 @@
     "format": "prettier 'src/**/*.{js,json}' --write"
   },
   "dependencies": {
+    "@babel/preset-flow": "^7.0.0",
+    "babel-preset-react": "^6.24.1",
     "proxy-polyfill": "0.1.6",
     "reselect": "^3.0.0"
   },
   "devDependencies": {
+    "@babel/preset-react": "^7.0.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.3",
     "babel-loader": "^7.1.4",

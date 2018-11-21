@@ -2107,9 +2107,14 @@ __webpack_require__(7);
 var CHECK_DAEMON_STARTED_TRY_NUMBER = 200; // @flow
 
 
+function getCookie(name) {
+  var match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return match ? match.pop() : '';
+}
+
 var Lbry = {
   isConnected: false,
-  daemonConnectionString: 'http://localhost:8000/api_proxy/',
+  daemonConnectionString: '/api_proxy/',
   pendingPublishTimeout: 20 * 60 * 1000
 };
 
@@ -2139,7 +2144,7 @@ function apiCall(method /*: string*/, params /*: ?{}*/, resolve /*: Function*/, 
       id: counter
     }),
     headers: {
-      'X-Lbrynet-Account-Id': 'bF3U2QNShJA81ij7GoJGqQqgXgKJFci13v'
+      'X-Lbrynet-Account-Id': getCookie('lbrynet_account_id')
     }
   };
 
