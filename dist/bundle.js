@@ -4107,7 +4107,9 @@ function doUpdateBalance() {
     var _getState = getState(),
         balanceInStore = _getState.wallet.balance;
 
-    _lbry2.default.account_balance().then(function (balance) {
+    _lbry2.default.account_balance().then(function (balanceAsString) {
+      var balance = parseFloat(balanceAsString);
+
       if (balanceInStore !== balance) {
         dispatch({
           type: ACTIONS.UPDATE_BALANCE,

@@ -9,7 +9,9 @@ export function doUpdateBalance() {
     const {
       wallet: { balance: balanceInStore },
     } = getState();
-    Lbry.account_balance().then((balance) => {
+    Lbry.account_balance().then((balanceAsString) => {
+      const balance = parseFloat(balanceAsString);
+
       if (balanceInStore !== balance) {
         dispatch({
           type: ACTIONS.UPDATE_BALANCE,
