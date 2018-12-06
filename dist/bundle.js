@@ -4573,14 +4573,16 @@ var selectTransactionItems = exports.selectTransactionItems = (0, _reselect.crea
     items.push.apply(items, _toConsumableArray(append.map(function (item) {
       // value on transaction, amount on outpoint
       // amount is always positive, but should match sign of value
-      var amount = parseFloat(item.balance_delta ? item.balance_delta : item.value);
+      var balanceDelta = parseFloat(item.balance_delta);
+      var value = parseFloat(item.value);
+      var amount = balanceDelta ? balanceDelta : value;
 
       return {
         txid: txid,
         timestamp: tx.timestamp,
         date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
         amount: amount,
-        fee: amount < 0 ? -1 * tx.fee / append.length : 0,
+        fee: amount <= 0 ? -1 * tx.fee / append.length : 0,
         claim_id: item.claim_id,
         claim_name: item.claim_name,
         type: item.type || TRANSACTIONS.SPEND,
