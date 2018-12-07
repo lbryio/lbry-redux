@@ -127,14 +127,17 @@ export const selectTransactionItems = createSelector(selectTransactionsById, (by
       ...append.map((item) => {
         // value on transaction, amount on outpoint
         // amount is always positive, but should match sign of value
-        const amount = parseFloat(item.balance_delta ? item.balance_delta : item.value);
+        const balanceDelta = parseFloat(item.balance_delta);
+        const value = parseFloat(item.value);
+        const amount = balanceDelta || value;
+        const fee = parseFloat(tx.fee);
 
         return {
           txid,
           timestamp: tx.timestamp,
           date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
           amount,
-          fee: amount < 0 ? -1 * tx.fee / append.length : 0,
+          fee,
           claim_id: item.claim_id,
           claim_name: item.claim_name,
           type: item.type || TRANSACTIONS.SPEND,
