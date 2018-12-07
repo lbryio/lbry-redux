@@ -130,13 +130,14 @@ export const selectTransactionItems = createSelector(selectTransactionsById, (by
         const balanceDelta = parseFloat(item.balance_delta);
         const value = parseFloat(item.value);
         const amount = balanceDelta || value;
+        const fee = parseFloat(tx.fee);
 
         return {
           txid,
           timestamp: tx.timestamp,
           date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
           amount,
-          fee: amount <= 0 ? -1 * tx.fee / append.length : 0,
+          fee,
           claim_id: item.claim_id,
           claim_name: item.claim_name,
           type: item.type || TRANSACTIONS.SPEND,
