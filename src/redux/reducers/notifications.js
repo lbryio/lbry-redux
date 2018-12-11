@@ -1,55 +1,102 @@
+// @flow
+import type {
+  NotificationState,
+  DoToast,
+  DoNotification,
+  DoEditNotification,
+  DoDeleteNotification,
+} from 'types/Notification';
 import * as ACTIONS from 'constants/action_types';
-import * as MODALS from 'constants/modal_types';
+import { handleActions } from 'util/redux-utils';
 
-const reducers = {};
-
-const defaultState = {
-  // First-in, first-out
-  queue: [],
+const defaultState: NotificationState = {
+  notifications: [],
+  toasts: [],
+  errors: [],
 };
 
-reducers[ACTIONS.CREATE_NOTIFICATION] = (state, action) => {
-  const { notification, notificationProps } = action.data;
-  const { title, message, type, error, displayType, id } = notification;
+const notificationsReducer = handleActions(
+  {
+    // Toasts
+    [ACTIONS.CREATE_TOAST]: (state: NotificationState, action: DoToast) => {
+      const toast = action.data;
+      const newToasts = state.toasts.slice();
+      newToasts.push(toast);
 
-  const queue = Object.assign([], state.queue);
-  queue.push({
-    notification: {
-      id,
-      title,
-      message,
-      type,
-      error,
-      displayType,
+      return {
+        ...state,
+        toasts: newToasts,
+      };
     },
-    notificationProps,
-  });
+    [ACTIONS.DISMISS_TOAST]: (state: NotificationState) => {
+      const newToasts = state.toasts.slice();
+      newToasts.shift();
 
-  return Object.assign({}, state, {
-    queue,
-  });
-};
+      return {
+        ...state,
+        toasts: newToasts,
+      };
+    },
 
-reducers[ACTIONS.DISMISS_NOTIFICATION] = state => {
-  const queue = Object.assign([], state.queue);
-  queue.shift();
+    // Notifications
+    [ACTIONS.CREATE_NOTIFICATION]: (state: NotificationState, action: DoNotification) => {
+      const notification = action.data;
+      const newNotifications = state.notifications.slice();
+      newNotifications.push(notification);
 
-  return Object.assign({}, state, {
-    queue,
-  });
-};
+      return {
+        ...state,
+        notifications: newNotifications,
+      };
+    },
+    // Used to mark notifications as read/dismissed
+    [ACTIONS.EDIT_NOTIFICATION]: (state: NotificationState, action: DoEditNotification) => {
+      const { notification } = action.data;
+      let notifications = state.notifications.slice();
 
-reducers[ACTIONS.HISTORY_NAVIGATE] = state => {
-  const queue = Object.assign([], state.queue);
-  if (queue[0] && queue[0].notification.id === MODALS.SEARCH) {
-    queue.shift();
-    return Object.assign({}, state, { queue });
-  }
-  return state;
-};
+      notifications = notifications.map(
+        (pastNotification) =>
+          pastNotification.id === notification.id ? notification : pastNotification
+      );
 
-export function notificationsReducer(state = defaultState, action) {
-  const handler = reducers[action.type];
-  if (handler) return handler(state, action);
-  return state;
-}
+      return {
+        ...state,
+        notifications,
+      };
+    },
+    [ACTIONS.DELETE_NOTIFICATION]: (state: NotificationState, action: DoDeleteNotification) => {
+      const { id } = action.data;
+      let newNotifications = state.notifications.slice();
+      newNotifications = newNotifications.filter((notification) => notification.id !== id);
+
+      return {
+        ...state,
+        notifications: newNotifications,
+      };
+    },
+
+    // Errors
+    [ACTIONS.CREATE_ERROR]: (state: NotificationState, action: DoToast) => {
+      const error = action.data;
+      const newErrors = state.errors.slice();
+      newErrors.push(error);
+
+      return {
+        ...state,
+        errors: newErrors,
+      };
+    },
+    [ACTIONS.DISMISS_ERROR]: (state: NotificationState) => {
+      const newErrors = state.errors.slice();
+      newErrors.shift();
+
+      return {
+        ...state,
+        errors: newErrors,
+      };
+    },
+  },
+  defaultState
+);
+
+export { notificationsReducer };

@@ -2,7 +2,7 @@ import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
 import { normalizeURI } from 'lbryURI';
-import { doNotify } from 'redux/actions/notifications';
+import { doToast } from 'redux/actions/notifications';
 import { selectMyClaimsRaw, selectResolvingUris } from 'redux/selectors/claims';
 import { batchActions } from 'util/batchActions';
 import { doFetchTransactions } from 'redux/actions/wallet';
@@ -86,11 +86,9 @@ export function doAbandonClaim(txid, nout) {
 
     const errorCallback = () => {
       dispatch(
-        doNotify({
-          title: 'Transaction failed',
-          message: 'Error abandoning claim',
-          type: 'error',
-          displayType: ['snackbar', 'toast'],
+        doToast({
+          message: 'Transaction failed',
+          isError: true,
         })
       );
     };
@@ -104,10 +102,8 @@ export function doAbandonClaim(txid, nout) {
           },
         });
         dispatch(
-          doNotify({
-            title: 'Transaction successful',
+          doToast({
             message: 'Successfully abandoned your claim',
-            displayType: ['snackbar', 'toast'],
           })
         );
 
@@ -117,11 +113,9 @@ export function doAbandonClaim(txid, nout) {
         dispatch(doFetchTransactions());
       } else {
         dispatch(
-          doNotify({
-            title: 'Transaction failed',
+          doToast({
             message: 'Error abandoning claim',
-            type: 'error',
-            displayType: ['snackbar', 'toast'],
+            isError: true,
           })
         );
       }
