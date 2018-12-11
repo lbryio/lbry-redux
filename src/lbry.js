@@ -86,6 +86,7 @@ Lbry.claim_list_by_channel = (params = {}) => daemonCallWithResult('claim_list_b
 Lbry.account_balance = (params = {}) => daemonCallWithResult('account_balance', params);
 Lbry.account_decrypt = () => daemonCallWithResult('account_decrypt', {});
 Lbry.account_encrypt = (params = {}) => daemonCallWithResult('account_encrypt', params);
+Lbry.account_list = (params = {}) => daemonCallWithResult('account_list', params);
 Lbry.address_is_mine = (params = {}) => daemonCallWithResult('address_is_mine', params);
 Lbry.wallet_lock = () => daemonCallWithResult('wallet_lock', {});
 Lbry.address_unused = (params = {}) => daemonCallWithResult('address_unused', params);

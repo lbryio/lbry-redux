@@ -338,11 +338,11 @@ export function doWalletStatus() {
       type: ACTIONS.WALLET_STATUS_START,
     });
 
-    Lbry.status().then((status) => {
-      if (status && status.wallet) {
+    Lbry.account_list().then((result) => {
+      if (result.encrypted) {
         dispatch({
           type: ACTIONS.WALLET_STATUS_COMPLETED,
-          result: status.wallet.is_encrypted,
+          result: result.encrypted,
         });
       }
     });
