@@ -8,6 +8,11 @@ const selectState = (state) => state.claims || {};
 
 export const selectClaimsById = createSelector(selectState, (state) => state.byId || {});
 
+export const selectCurrentChannelPage = createSelector(
+  selectState,
+  (state) => state.currentChannelPage || 1
+);
+
 export const selectClaimsByUri = createSelector(selectState, selectClaimsById, (state, byId) => {
   const byUri = state.claimsByUri || {};
   const claims = {};
@@ -127,6 +132,21 @@ export const makeSelectClaimsInChannelForCurrentPage = (uri) => {
     }
   );
 };
+
+export const makeSelectClaimsInChannelForCurrentPageState = (uri) =>
+  createSelector(
+    selectClaimsById,
+    selectAllClaimsByChannel,
+    selectCurrentChannelPage,
+    (byId, allClaims, page) => {
+      const byChannel = allClaims[uri] || {};
+      const claimIds = byChannel[page || 1];
+
+      if (!claimIds) return claimIds;
+
+      return claimIds.map((claimId) => byId[claimId]);
+    }
+  );
 
 export const makeSelectMetadataForUri = (uri) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {

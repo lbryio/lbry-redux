@@ -118,6 +118,7 @@ export {
   makeSelectChannelForClaimUri,
   makeSelectClaimIsPending,
   makeSelectPendingByUri,
+  makeSelectClaimsInChannelForCurrentPageState,
   selectPendingById,
   selectClaimsById,
   selectClaimsByUri,
@@ -141,6 +142,7 @@ export {
   selectFetchingTrendingUris,
   selectPlayingUri,
   selectChannelClaimCounts,
+  selectCurrentChannelPage,
 } from 'redux/selectors/claims';
 
 export {
