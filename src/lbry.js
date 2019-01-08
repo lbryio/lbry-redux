@@ -209,6 +209,21 @@ Lbry.resolve = (params = {}) =>
     );
   });
 
+Lbry.publish = (params = {}) =>
+  new Promise((resolve, reject) => {
+    if (Lbry.overrides.publish) {
+      Lbry.overrides.publish(params).then(resolve, reject);
+    } else {
+      apiCall('publish', params, resolve, reject);
+    }
+  });
+
+// Allow overriding Lbry methods
+Lbry.overrides = {};
+Lbry.setOverride = (methodName, newMethod) => {
+  Lbry.overrides[methodName] = newMethod;
+};
+
 const lbryProxy = new Proxy(Lbry, {
   get(target, name) {
     if (name in target) {
