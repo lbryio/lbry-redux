@@ -4,18 +4,20 @@ import { buildURI } from 'lbryURI';
 import { doResolveUri } from 'redux/actions/claims';
 import { makeSelectSearchUris, selectSuggestions } from 'redux/selectors/search';
 import { batchActions } from 'util/batchActions';
+import debounce from 'util/debounce';
 import handleFetchResponse from 'util/handle-fetch';
 
 const DEFAULTSEARCHRESULTSIZE = 10;
 const DEFAULTSEARCHRESULTFROM = 0;
+const DEBOUNCED_SEARCH_SUGGESTION_MS = 300;
 type Dispatch = (action: any) => any;
 type GetState = () => {};
 
 export const doSearch = (
-  rawQuery,
-  size = DEFAULTSEARCHRESULTSIZE,
-  from = DEFAULTSEARCHRESULTFROM,
-  isBackgroundSearch
+  rawQuery: string,
+  size: number = DEFAULTSEARCHRESULTSIZE,
+  from: number = DEFAULTSEARCHRESULTFROM,
+  isBackgroundSearch: boolean = false
 ) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
@@ -51,11 +53,11 @@ export const doSearch = (
   const encodedQuery = encodeURIComponent(query);
   fetch(`https://lighthouse.lbry.io/search?s=${encodedQuery}&size=${size}&from=${from}`)
     .then(handleFetchResponse)
-    .then(data => {
+    .then((data) => {
       const uris = [];
       const actions = [];
 
-      data.forEach(result => {
+      data.forEach((result) => {
         const uri = buildURI({
           claimName: result.name,
           claimId: result.claimId,
@@ -98,7 +100,7 @@ export const getSearchSuggestions = (value: string) => (dispatch: Dispatch, getS
 
   fetch(`https://lighthouse.lbry.io/autocomplete?s=${searchValue}`)
     .then(handleFetchResponse)
-    .then(apiSuggestions => {
+    .then((apiSuggestions) => {
       dispatch({
         type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
         data: {
@@ -113,6 +115,10 @@ export const getSearchSuggestions = (value: string) => (dispatch: Dispatch, getS
     });
 };
 
+const throttledSearchSuggestions = debounce((dispatch, query) => {
+  dispatch(getSearchSuggestions(query));
+}, DEBOUNCED_SEARCH_SUGGESTION_MS);
+
 export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boolean) => (
   dispatch: Dispatch
 ) => {
@@ -123,7 +129,7 @@ export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boole
 
   // Don't fetch new suggestions if the user just added a space
   if (!query.endsWith(' ') || !shouldSkipSuggestions) {
-    dispatch(getSearchSuggestions(query));
+    throttledSearchSuggestions(dispatch, query);
   }
 };
 
