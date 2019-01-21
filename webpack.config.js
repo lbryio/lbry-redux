@@ -15,7 +15,20 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
+        use: [
+          {
+            loader: 'babel-loader'
+          },
+          {
+            loader: 'preprocess-loader',
+            options: {
+              LBRYNET_PROXY_URL: '/api_proxy/',
+              ppOptions: {
+                type: 'js'
+              }
+            },
+          },
+        ],
       },
     ],
   },

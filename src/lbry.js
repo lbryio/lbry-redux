@@ -3,14 +3,9 @@ import 'proxy-polyfill';
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 
-function getCookie(name) {
-  const match = document.cookie.match(`(^|;)\\s*${name}\\s*=\\s*([^;]+)`);
-  return match ? match.pop() : '';
-}
-
 const Lbry = {
   isConnected: false,
-  daemonConnectionString: '/api_proxy/',
+  daemonConnectionString: '/* @echo LBRYNET_PROXY_URL */' || 'http://localhost:5279',
   pendingPublishTimeout: 20 * 60 * 1000,
 };
 
@@ -39,9 +34,6 @@ function apiCall(method: string, params: ?{}, resolve: Function, reject: Functio
       params,
       id: counter,
     }),
-    headers: {
-      'X-Lbrynet-Account-Id': getCookie('lbrynet_account_id'),
-    },
   };
 
   return fetch(Lbry.daemonConnectionString, options)

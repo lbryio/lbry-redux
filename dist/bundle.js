@@ -1944,9 +1944,11 @@ module.exports = v4;
 // and inconsistent support for the `crypto` API.  We do the best we can via
 // feature-detection
 
-// getRandomValues needs to be invoked in a context where "this" is a Crypto implementation.
-var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues.bind(crypto)) ||
-                      (typeof(msCrypto) != 'undefined' && msCrypto.getRandomValues.bind(msCrypto));
+// getRandomValues needs to be invoked in a context where "this" is a Crypto
+// implementation. Also, find the complete implementation of crypto on IE11.
+var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)) ||
+                      (typeof(msCrypto) != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto));
+
 if (getRandomValues) {
   // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
   var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
@@ -1989,14 +1991,15 @@ for (var i = 0; i < 256; ++i) {
 function bytesToUuid(buf, offset) {
   var i = offset || 0;
   var bth = byteToHex;
-  return bth[buf[i++]] + bth[buf[i++]] +
-          bth[buf[i++]] + bth[buf[i++]] + '-' +
-          bth[buf[i++]] + bth[buf[i++]] + '-' +
-          bth[buf[i++]] + bth[buf[i++]] + '-' +
-          bth[buf[i++]] + bth[buf[i++]] + '-' +
-          bth[buf[i++]] + bth[buf[i++]] +
-          bth[buf[i++]] + bth[buf[i++]] +
-          bth[buf[i++]] + bth[buf[i++]];
+  // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+  return ([bth[buf[i++]], bth[buf[i++]], 
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]]]).join('');
 }
 
 module.exports = bytesToUuid;
@@ -2310,14 +2313,9 @@ __webpack_require__(10);
 var CHECK_DAEMON_STARTED_TRY_NUMBER = 200; // @flow
 
 
-function getCookie(name) {
-  var match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-  return match ? match.pop() : '';
-}
-
 var Lbry = {
   isConnected: false,
-  daemonConnectionString: '/api_proxy/',
+  daemonConnectionString: '/api_proxy/' || 'http://localhost:5279',
   pendingPublishTimeout: 20 * 60 * 1000
 };
 
@@ -2345,10 +2343,7 @@ function apiCall(method /*: string*/, params /*: ?{}*/, resolve /*: Function*/, 
       method: method,
       params: params,
       id: counter
-    }),
-    headers: {
-      'X-Lbrynet-Account-Id': getCookie('lbrynet_account_id')
-    }
+    })
   };
 
   return fetch(Lbry.daemonConnectionString, options).then(checkAndParse).then(function (response) {
@@ -2414,6 +2409,10 @@ Lbry.account_decrypt = function () {
 Lbry.account_encrypt = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('account_encrypt', params);
+};
+Lbry.account_list = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('account_list', params);
 };
 Lbry.address_is_mine = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -2539,6 +2538,23 @@ Lbry.resolve = function () {
       }
     }, reject);
   });
+};
+
+Lbry.publish = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return new Promise(function (resolve, reject) {
+    if (Lbry.overrides.publish) {
+      Lbry.overrides.publish(params).then(resolve, reject);
+    } else {
+      apiCall('publish', params, resolve, reject);
+    }
+  });
+};
+
+// Allow overriding Lbry methods
+Lbry.overrides = {};
+Lbry.setOverride = function (methodName, newMethod) {
+  Lbry.overrides[methodName] = newMethod;
 };
 
 var lbryProxy = new Proxy(Lbry, {
@@ -4422,11 +4438,11 @@ function doWalletStatus() {
       type: ACTIONS.WALLET_STATUS_START
     });
 
-    _lbry2.default.status().then(function (status) {
-      if (status && status.wallet) {
+    _lbry2.default.account_list().then(function (result) {
+      if (result.encrypted) {
         dispatch({
           type: ACTIONS.WALLET_STATUS_COMPLETED,
-          result: status.wallet.is_encrypted
+          result: result.encrypted
         });
       }
     });
