@@ -4137,7 +4137,9 @@ function doFetchTransactions() {
       type: ACTIONS.FETCH_TRANSACTIONS_STARTED
     });
 
-    _lbry2.default.transaction_list().then(function (results) {
+    _lbry2.default.utxo_release().then(function () {
+      return _lbry2.default.transaction_list();
+    }).then(function (results) {
       dispatch({
         type: ACTIONS.FETCH_TRANSACTIONS_COMPLETED,
         data: {
