@@ -299,7 +299,7 @@ Object.defineProperty(exports, 'doBlurSearchInput', {
   }
 });
 
-var _blacklist = __webpack_require__(34);
+var _blacklist = __webpack_require__(35);
 
 Object.defineProperty(exports, 'doBlackListedOutpointsSubscribe', {
   enumerable: true,
@@ -452,7 +452,7 @@ Object.defineProperty(exports, 'creditsToString', {
   }
 });
 
-var _claims2 = __webpack_require__(35);
+var _claims2 = __webpack_require__(36);
 
 Object.defineProperty(exports, 'claimsReducer', {
   enumerable: true,
@@ -461,7 +461,7 @@ Object.defineProperty(exports, 'claimsReducer', {
   }
 });
 
-var _cost_info2 = __webpack_require__(36);
+var _cost_info2 = __webpack_require__(37);
 
 Object.defineProperty(exports, 'costInfoReducer', {
   enumerable: true,
@@ -470,7 +470,7 @@ Object.defineProperty(exports, 'costInfoReducer', {
   }
 });
 
-var _file_info2 = __webpack_require__(37);
+var _file_info2 = __webpack_require__(38);
 
 Object.defineProperty(exports, 'fileInfoReducer', {
   enumerable: true,
@@ -479,7 +479,7 @@ Object.defineProperty(exports, 'fileInfoReducer', {
   }
 });
 
-var _notifications2 = __webpack_require__(40);
+var _notifications2 = __webpack_require__(41);
 
 Object.defineProperty(exports, 'notificationsReducer', {
   enumerable: true,
@@ -488,7 +488,7 @@ Object.defineProperty(exports, 'notificationsReducer', {
   }
 });
 
-var _search2 = __webpack_require__(42);
+var _search2 = __webpack_require__(43);
 
 Object.defineProperty(exports, 'searchReducer', {
   enumerable: true,
@@ -497,7 +497,7 @@ Object.defineProperty(exports, 'searchReducer', {
   }
 });
 
-var _wallet2 = __webpack_require__(43);
+var _wallet2 = __webpack_require__(44);
 
 Object.defineProperty(exports, 'walletReducer', {
   enumerable: true,
@@ -506,7 +506,7 @@ Object.defineProperty(exports, 'walletReducer', {
   }
 });
 
-var _blacklist2 = __webpack_require__(44);
+var _blacklist2 = __webpack_require__(45);
 
 Object.defineProperty(exports, 'blacklistReducer', {
   enumerable: true,
@@ -515,7 +515,7 @@ Object.defineProperty(exports, 'blacklistReducer', {
   }
 });
 
-var _blacklist3 = __webpack_require__(45);
+var _blacklist3 = __webpack_require__(46);
 
 Object.defineProperty(exports, 'selectBlackListedOutpoints', {
   enumerable: true,
@@ -524,7 +524,7 @@ Object.defineProperty(exports, 'selectBlackListedOutpoints', {
   }
 });
 
-var _notifications3 = __webpack_require__(46);
+var _notifications3 = __webpack_require__(47);
 
 Object.defineProperty(exports, 'selectToast', {
   enumerable: true,
@@ -782,7 +782,7 @@ Object.defineProperty(exports, 'selectChannelClaimCounts', {
   }
 });
 
-var _cost_info3 = __webpack_require__(47);
+var _cost_info3 = __webpack_require__(48);
 
 Object.defineProperty(exports, 'makeSelectFetchingCostInfoForUri', {
   enumerable: true,
@@ -1203,7 +1203,7 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _thumbnail_upload_statuses = __webpack_require__(48);
+var _thumbnail_upload_statuses = __webpack_require__(49);
 
 var THUMBNAIL_STATUSES = _interopRequireWildcard(_thumbnail_upload_statuses);
 
@@ -1211,7 +1211,7 @@ var _search4 = __webpack_require__(22);
 
 var SEARCH_TYPES = _interopRequireWildcard(_search4);
 
-var _settings = __webpack_require__(49);
+var _settings = __webpack_require__(50);
 
 var SETTINGS = _interopRequireWildcard(_settings);
 
@@ -1219,11 +1219,11 @@ var _transaction_types = __webpack_require__(27);
 
 var TRANSACTIONS = _interopRequireWildcard(_transaction_types);
 
-var _sort_options = __webpack_require__(38);
+var _sort_options = __webpack_require__(39);
 
 var SORT_OPTIONS = _interopRequireWildcard(_sort_options);
 
-var _pages = __webpack_require__(39);
+var _pages = __webpack_require__(40);
 
 var PAGES = _interopRequireWildcard(_pages);
 
@@ -5156,7 +5156,11 @@ var _search = __webpack_require__(21);
 
 var _batchActions = __webpack_require__(24);
 
-var _handleFetch = __webpack_require__(33);
+var _debounce = __webpack_require__(33);
+
+var _debounce2 = _interopRequireDefault(_debounce);
+
+var _handleFetch = __webpack_require__(34);
 
 var _handleFetch2 = _interopRequireDefault(_handleFetch);
 
@@ -5164,15 +5168,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-// @flow
-var DEFAULTSEARCHRESULTSIZE = 10;
+var DEFAULTSEARCHRESULTSIZE = 10; // @flow
+
 var DEFAULTSEARCHRESULTFROM = 0;
+var DEBOUNCED_SEARCH_SUGGESTION_MS = 300;
 /*:: type Dispatch = (action: any) => any;*/
 /*:: type GetState = () => {};*/
-var doSearch = exports.doSearch = function doSearch(rawQuery) {
-  var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULTSEARCHRESULTSIZE;
-  var from = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULTSEARCHRESULTFROM;
-  var isBackgroundSearch = arguments[3];
+var doSearch = exports.doSearch = function doSearch(rawQuery /*: string*/) {
+  var size /*: number*/ = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULTSEARCHRESULTSIZE;
+  var from /*: number*/ = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULTSEARCHRESULTFROM;
+  var isBackgroundSearch /*: boolean*/ = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   return function (dispatch /*: Dispatch*/, getState /*: GetState*/) {
     var state = getState();
     var query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
@@ -5267,6 +5272,10 @@ var getSearchSuggestions = exports.getSearchSuggestions = function getSearchSugg
   };
 };
 
+var throttledSearchSuggestions = (0, _debounce2.default)(function (dispatch, query) {
+  dispatch(getSearchSuggestions(query));
+}, DEBOUNCED_SEARCH_SUGGESTION_MS);
+
 var doUpdateSearchQuery = exports.doUpdateSearchQuery = function doUpdateSearchQuery(query /*: string*/, shouldSkipSuggestions /*: ?boolean*/) {
   return function (dispatch /*: Dispatch*/) {
     dispatch({
@@ -5276,7 +5285,7 @@ var doUpdateSearchQuery = exports.doUpdateSearchQuery = function doUpdateSearchQ
 
     // Don't fetch new suggestions if the user just added a space
     if (!query.endsWith(' ') || !shouldSkipSuggestions) {
-      dispatch(getSearchSuggestions(query));
+      throttledSearchSuggestions(dispatch, query);
     }
   };
 };
@@ -5307,13 +5316,46 @@ var doBlurSearchInput = exports.doBlurSearchInput = function doBlurSearchInput()
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = debouce;
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+function debouce(func, wait, immediate) {
+  var timeout = void 0;
+
+  return function () {
+    var context = this;
+    var args = arguments;
+    var later = function later() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
+}
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 exports.default = handleFetchResponse;
 function handleFetchResponse(response) {
   return response.status === 200 ? Promise.resolve(response.json()) : Promise.reject(new Error(response.statusText));
 }
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5396,7 +5438,7 @@ function doBlackListedOutpointsSubscribe() {
 }
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5721,7 +5763,7 @@ function claimsReducer() {
 }
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5779,7 +5821,7 @@ function costInfoReducer() {
 }
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5797,11 +5839,11 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _sort_options = __webpack_require__(38);
+var _sort_options = __webpack_require__(39);
 
 var SORT_OPTIONS = _interopRequireWildcard(_sort_options);
 
-var _pages = __webpack_require__(39);
+var _pages = __webpack_require__(40);
 
 var PAGES = _interopRequireWildcard(_pages);
 
@@ -6021,7 +6063,7 @@ function fileInfoReducer() {
 }
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6036,7 +6078,7 @@ var TITLE = exports.TITLE = 'title';
 var FILENAME = exports.FILENAME = 'filename';
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6068,7 +6110,7 @@ var HISTORY = exports.HISTORY = 'user_history';
 var WALLET = exports.WALLET = 'wallet';
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6087,7 +6129,7 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(41);
+var _reduxUtils = __webpack_require__(42);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -6175,7 +6217,7 @@ var notificationsReducer = (0, _reduxUtils.handleActions)((_handleActions = {}, 
 exports.notificationsReducer = notificationsReducer;
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6208,7 +6250,7 @@ var handleActions = exports.handleActions = function handleActions(actionMap, de
 };
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6228,7 +6270,7 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(41);
+var _reduxUtils = __webpack_require__(42);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -6333,7 +6375,7 @@ var searchReducer = exports.searchReducer = (0, _reduxUtils.handleActions)((_han
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6676,7 +6718,7 @@ function walletReducer() {
 }
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6695,7 +6737,7 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(41);
+var _reduxUtils = __webpack_require__(42);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -6735,7 +6777,7 @@ var blacklistReducer = exports.blacklistReducer = (0, _reduxUtils.handleActions)
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6757,7 +6799,7 @@ var selectBlackListedOutpoints = exports.selectBlackListedOutpoints = (0, _resel
 });
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6803,7 +6845,7 @@ var selectError = exports.selectError = (0, _reselect.createSelector)(selectStat
 });
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6847,7 +6889,7 @@ var makeSelectFetchingCostInfoForUri = exports.makeSelectFetchingCostInfoForUri 
 };
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6863,7 +6905,7 @@ var COMPLETE = exports.COMPLETE = 'complete';
 var MANUAL = exports.MANUAL = 'manual';
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
