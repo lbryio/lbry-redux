@@ -115,6 +115,7 @@ export {
   makeSelectNsfwCountFromUris,
   makeSelectNsfwCountForChannel,
   makeSelectRecommendedContentForUri,
+  makeSelectFirstRecommendedFileForUri,
   makeSelectChannelForClaimUri,
   makeSelectClaimIsPending,
   makeSelectPendingByUri,
