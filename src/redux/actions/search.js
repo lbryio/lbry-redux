@@ -13,6 +13,13 @@ const DEBOUNCED_SEARCH_SUGGESTION_MS = 300;
 type Dispatch = (action: any) => any;
 type GetState = () => {};
 
+// We can't use env's because they aren't passed into node_modules
+let CONNECTION_STRING = 'https://lighthouse.lbry.io/';
+
+export const setSearchApi = endpoint => {
+  CONNECTION_STRING = endpoint.replace(/\/*$/, '/'); // exactly one slash at the end;
+};
+
 export const doSearch = (
   rawQuery: string,
   size: number = DEFAULTSEARCHRESULTSIZE,
@@ -51,13 +58,13 @@ export const doSearch = (
   }
 
   const encodedQuery = encodeURIComponent(query);
-  fetch(`https://lighthouse.lbry.io/search?s=${encodedQuery}&size=${size}&from=${from}`)
+  fetch(`${CONNECTION_STRING}search?s=${encodedQuery}&size=${size}&from=${from}`)
     .then(handleFetchResponse)
-    .then((data) => {
+    .then(data => {
       const uris = [];
       const actions = [];
 
-      data.forEach((result) => {
+      data.forEach(result => {
         const uri = buildURI({
           claimName: result.name,
           claimId: result.claimId,
@@ -98,9 +105,9 @@ export const getSearchSuggestions = (value: string) => (dispatch: Dispatch, getS
     return;
   }
 
-  fetch(`https://lighthouse.lbry.io/autocomplete?s=${searchValue}`)
+  fetch(`${CONNECTION_STRING}autocomplete?s=${searchValue}`)
     .then(handleFetchResponse)
-    .then((apiSuggestions) => {
+    .then(apiSuggestions => {
       dispatch({
         type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
         data: {

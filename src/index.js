@@ -58,6 +58,7 @@ export {
   doUpdateSearchQuery,
   doFocusSearchInput,
   doBlurSearchInput,
+  setSearchApi,
 } from 'redux/actions/search';
 
 export { doBlackListedOutpointsSubscribe } from 'redux/actions/blacklist';
