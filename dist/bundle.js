@@ -2065,14 +2065,20 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function doResolveUris(uris) {
+  var returnCachedClaims = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
   return function (dispatch, getState) {
     var normalizedUris = uris.map(_lbryURI.normalizeURI);
     var state = getState();
 
-    // Filter out URIs that are already resolving
     var resolvingUris = (0, _claims.selectResolvingUris)(state);
+    var claimsByUri = (0, _claims.selectClaimsByUri)(state);
     var urisToResolve = normalizedUris.filter(function (uri) {
-      return !resolvingUris.includes(uri);
+      if (resolvingUris.includes(uri)) {
+        return false;
+      }
+
+      return returnCachedClaims ? !claimsByUri[uri] : true;
     });
 
     if (urisToResolve.length === 0) {
@@ -2190,6 +2196,8 @@ function doAbandonClaim(txid, nout) {
 }
 
 function doFetchFeaturedUris() {
+  var offloadResolve = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
   return function (dispatch) {
     dispatch({
       type: ACTIONS.FETCH_FEATURED_CONTENT_STARTED
@@ -2203,13 +2211,17 @@ function doFetchFeaturedUris() {
         urisToResolve = [].concat(_toConsumableArray(urisToResolve), _toConsumableArray(Uris[category]));
       });
 
-      var actions = [doResolveUris(urisToResolve), {
+      var actions = [{
         type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
         data: {
           uris: Uris,
           success: true
         }
       }];
+      if (urisToResolve.length && !offloadResolve) {
+        actions.push(doResolveUris(urisToResolve));
+      }
+
       dispatch(_batchActions.batchActions.apply(undefined, actions));
     };
 
