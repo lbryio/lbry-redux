@@ -32,7 +32,7 @@ export function doResolveUris(uris, returnCachedClaims = false) {
     });
 
     const resolveInfo = {};
-    Lbry.resolve({ uris: urisToResolve }).then(result => {
+    Lbry.resolve({ urls: urisToResolve }).then(result => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
           claim: null,

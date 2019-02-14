@@ -189,12 +189,7 @@ Lbry.resolve = (params = {}) =>
       'resolve',
       params,
       data => {
-        if ('uri' in params) {
-          // If only a single URI was requested, don't nest the results in an object
-          resolve(data && data[params.uri] ? data[params.uri] : {});
-        } else {
-          resolve(data || {});
-        }
+        resolve(data || {});
       },
       reject
     );
