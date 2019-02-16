@@ -2415,6 +2415,9 @@ Lbry.file_set_status = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('file_set_status', params);
 };
+Lbry.stop = function () {
+  return daemonCallWithResult('stop', {});
+};
 
 // claims
 Lbry.claim_list_by_channel = function () {

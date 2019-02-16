@@ -70,6 +70,7 @@ Lbry.status = (params = {}) => daemonCallWithResult('status', params);
 Lbry.version = () => daemonCallWithResult('version', {});
 Lbry.file_delete = (params = {}) => daemonCallWithResult('file_delete', params);
 Lbry.file_set_status = (params = {}) => daemonCallWithResult('file_set_status', params);
+Lbry.stop = () => daemonCallWithResult('stop', {});
 
 // claims
 Lbry.claim_list_by_channel = (params = {}) => daemonCallWithResult('claim_list_by_channel', params);
