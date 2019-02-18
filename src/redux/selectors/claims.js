@@ -3,6 +3,7 @@ import { makeSelectCurrentParam } from 'redux/selectors/navigation';
 import { selectSearchUrisByQuery } from 'redux/selectors/search';
 import { createSelector } from 'reselect';
 import { isClaimNsfw } from 'util/claim';
+import { getSearchQueryString } from 'util/query_params';
 
 const selectState = state => state.claims || {};
 
@@ -297,7 +298,9 @@ export const makeSelectRecommendedContentForUri = uri =>
 
         const { title } = claim.value.stream.metadata;
 
-        let searchUris = searchUrisByQuery[title.replace(/\//, ' ')];
+        const searchQuery = getSearchQueryString(title.replace(/\//, ' '));
+
+        let searchUris = searchUrisByQuery[searchQuery];
         if (searchUris) {
           searchUris = searchUris.filter(searchUri => searchUri !== currentUri);
           recommendedContent = searchUris;
