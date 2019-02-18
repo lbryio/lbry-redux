@@ -70,6 +70,7 @@ Lbry.status = (params = {}) => daemonCallWithResult('status', params);
 Lbry.version = () => daemonCallWithResult('version', {});
 Lbry.file_delete = (params = {}) => daemonCallWithResult('file_delete', params);
 Lbry.file_set_status = (params = {}) => daemonCallWithResult('file_set_status', params);
+Lbry.stop = () => daemonCallWithResult('stop', {});
 
 // claims
 Lbry.claim_list_by_channel = (params = {}) => daemonCallWithResult('claim_list_by_channel', params);
@@ -189,12 +190,7 @@ Lbry.resolve = (params = {}) =>
       'resolve',
       params,
       data => {
-        if ('uri' in params) {
-          // If only a single URI was requested, don't nest the results in an object
-          resolve(data && data[params.uri] ? data[params.uri] : {});
-        } else {
-          resolve(data || {});
-        }
+        resolve(data || {});
       },
       reject
     );
