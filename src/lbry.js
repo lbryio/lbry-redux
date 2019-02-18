@@ -89,6 +89,7 @@ Lbry.claim_tip = (params = {}) => daemonCallWithResult('claim_tip', params);
 
 // transactions
 Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
+Lbry.utxo_release = (params = {}) => daemonCallWithResult('utxo_release', params);
 
 Lbry.connectPromise = null;
 Lbry.connect = () => {

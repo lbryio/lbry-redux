@@ -5,7 +5,7 @@ export const selectState = state => state.navigation || {};
 
 export const selectCurrentPath = createSelector(selectState, state => state.currentPath);
 
-export const computePageFromPath = path => path.replace(/^\//, '').split('?')[0];
+export const computePageFromPath = path => (path ? path.replace(/^\//, '').split('?')[0] : 1);
 
 export const selectCurrentPage = createSelector(selectCurrentPath, path =>
   computePageFromPath(path)
