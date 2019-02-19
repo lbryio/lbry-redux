@@ -22,7 +22,7 @@ module.exports = {
           {
             loader: 'preprocess-loader',
             options: {
-              LBRYNET_PROXY_URL: '/api_proxy/',
+              LBRYNET_PROXY_URL: '/api/proxy',
               ppOptions: {
                 type: 'js'
               }

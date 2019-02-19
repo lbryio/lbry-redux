@@ -2315,7 +2315,7 @@ var CHECK_DAEMON_STARTED_TRY_NUMBER = 200; // @flow
 
 var Lbry = {
   isConnected: false,
-  daemonConnectionString: '/api_proxy/' || 'http://localhost:5279',
+  daemonConnectionString: '/api/proxy' || 'http://localhost:5279',
   pendingPublishTimeout: 20 * 60 * 1000
 };
 
