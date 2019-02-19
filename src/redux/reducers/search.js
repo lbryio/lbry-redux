@@ -1,56 +1,29 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
-
-type SearchSuccess = {
-  type: ACTIONS.SEARCH_SUCCESS,
-  data: {
-    query: string,
-    uris: Array<string>,
-  },
-};
-
-type UpdateSearchQuery = {
-  type: ACTIONS.UPDATE_SEARCH_QUERY,
-  data: {
-    query: string,
-  },
-};
-
-type SearchSuggestion = {
-  value: string,
-  shorthand: string,
-  type: string,
-};
-
-type UpdateSearchSuggestions = {
-  type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
-  data: {
-    query: string,
-    suggestions: Array<SearchSuggestion>,
-  },
-};
-
-type SearchState = {
-  isActive: boolean,
-  searchQuery: string,
-  suggestions: Array<SearchSuggestion>,
-  urisByQuery: {},
-};
-
-type HistoryNavigate = {
-  type: ACTIONS.HISTORY_NAVIGATE,
-  data: {
-    url: string,
-    index?: number,
-    scrollY?: number,
-  },
-};
+import { SEARCH_OPTIONS } from 'constants/search';
+import type {
+  SearchState,
+  SearchSuccess,
+  UpdateSearchQuery,
+  UpdateSearchSuggestions,
+  HistoryNavigate,
+  UpdateSearchOptions,
+} from 'types/Search';
 
 const defaultState = {
   isActive: false, // does the user have any typed text in the search input
   focused: false, // is the search input focused
   searchQuery: '', // needs to be an empty string for input focusing
+  options: {
+    [SEARCH_OPTIONS.RESULT_COUNT]: 30,
+    [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_FILES_AND_CHANNELS,
+    [SEARCH_OPTIONS.MEDIA_AUDIO]: true,
+    [SEARCH_OPTIONS.MEDIA_VIDEO]: true,
+    [SEARCH_OPTIONS.MEDIA_TEXT]: true,
+    [SEARCH_OPTIONS.MEDIA_IMAGE]: true,
+    [SEARCH_OPTIONS.MEDIA_APPLICATION]: true,
+  },
   suggestions: {},
   urisByQuery: {},
 };
@@ -123,6 +96,18 @@ export const searchReducer = handleActions(
       ...state,
       focused: false,
     }),
+    [ACTIONS.UPDATE_SEARCH_OPTIONS]: (
+      state: SearchState,
+      action: UpdateSearchOptions
+    ): SearchState => {
+      const { options: oldOptions } = state;
+      const newOptions = action.data;
+      const options = { ...oldOptions, ...newOptions };
+      return {
+        ...state,
+        options,
+      };
+    },
   },
   defaultState
 );

@@ -7,7 +7,7 @@
 		var a = factory();
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(window, function() {
+})((typeof self !== 'undefined' ? self : this), function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -89,8 +89,8 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectTransactionListFilter = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectFileListPublishedSort = exports.selectFileListDownloadedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectCurrentChannelPage = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = undefined;
-exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.selectPendingById = exports.makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.makeSelectChannelForClaimUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectError = exports.selectToast = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.creditsToString = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doUpdateBlockHeight = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendTip = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetFileListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doDismissError = exports.doError = exports.doDismissToast = exports.doToast = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.PAGES = exports.SORT_OPTIONS = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.ACTIONS = exports.Toast = undefined;
+exports.selectTransactionListFilter = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.makeSelectQueryWithOptions = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchOptions = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectFileListPublishedSort = exports.selectFileListDownloadedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectCurrentChannelPage = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = undefined;
+exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.selectPendingById = exports.makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.makeSelectChannelForClaimUri = exports.makeSelectFirstRecommendedFileForUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectError = exports.selectToast = exports.selectBlackListedOutpoints = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.creditsToString = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doUpdateBlockHeight = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendTip = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.doBlackListedOutpointsSubscribe = exports.doUpdateSearchOptions = exports.setSearchApi = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetFileListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doDismissError = exports.doError = exports.doDismissToast = exports.doToast = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.PAGES = exports.SORT_OPTIONS = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_OPTIONS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.ACTIONS = exports.Toast = undefined;
 
 var _Notification = __webpack_require__(1);
 
@@ -298,8 +298,20 @@ Object.defineProperty(exports, 'doBlurSearchInput', {
     return _search.doBlurSearchInput;
   }
 });
+Object.defineProperty(exports, 'setSearchApi', {
+  enumerable: true,
+  get: function get() {
+    return _search.setSearchApi;
+  }
+});
+Object.defineProperty(exports, 'doUpdateSearchOptions', {
+  enumerable: true,
+  get: function get() {
+    return _search.doUpdateSearchOptions;
+  }
+});
 
-var _blacklist = __webpack_require__(34);
+var _blacklist = __webpack_require__(35);
 
 Object.defineProperty(exports, 'doBlackListedOutpointsSubscribe', {
   enumerable: true,
@@ -452,7 +464,7 @@ Object.defineProperty(exports, 'creditsToString', {
   }
 });
 
-var _claims2 = __webpack_require__(35);
+var _claims2 = __webpack_require__(36);
 
 Object.defineProperty(exports, 'claimsReducer', {
   enumerable: true,
@@ -461,7 +473,7 @@ Object.defineProperty(exports, 'claimsReducer', {
   }
 });
 
-var _cost_info2 = __webpack_require__(36);
+var _cost_info2 = __webpack_require__(37);
 
 Object.defineProperty(exports, 'costInfoReducer', {
   enumerable: true,
@@ -470,7 +482,7 @@ Object.defineProperty(exports, 'costInfoReducer', {
   }
 });
 
-var _file_info2 = __webpack_require__(37);
+var _file_info2 = __webpack_require__(38);
 
 Object.defineProperty(exports, 'fileInfoReducer', {
   enumerable: true,
@@ -479,7 +491,7 @@ Object.defineProperty(exports, 'fileInfoReducer', {
   }
 });
 
-var _notifications2 = __webpack_require__(40);
+var _notifications2 = __webpack_require__(41);
 
 Object.defineProperty(exports, 'notificationsReducer', {
   enumerable: true,
@@ -488,7 +500,7 @@ Object.defineProperty(exports, 'notificationsReducer', {
   }
 });
 
-var _search2 = __webpack_require__(42);
+var _search2 = __webpack_require__(43);
 
 Object.defineProperty(exports, 'searchReducer', {
   enumerable: true,
@@ -497,7 +509,7 @@ Object.defineProperty(exports, 'searchReducer', {
   }
 });
 
-var _wallet2 = __webpack_require__(43);
+var _wallet2 = __webpack_require__(44);
 
 Object.defineProperty(exports, 'walletReducer', {
   enumerable: true,
@@ -506,7 +518,7 @@ Object.defineProperty(exports, 'walletReducer', {
   }
 });
 
-var _blacklist2 = __webpack_require__(44);
+var _blacklist2 = __webpack_require__(45);
 
 Object.defineProperty(exports, 'blacklistReducer', {
   enumerable: true,
@@ -515,7 +527,7 @@ Object.defineProperty(exports, 'blacklistReducer', {
   }
 });
 
-var _blacklist3 = __webpack_require__(45);
+var _blacklist3 = __webpack_require__(46);
 
 Object.defineProperty(exports, 'selectBlackListedOutpoints', {
   enumerable: true,
@@ -524,7 +536,7 @@ Object.defineProperty(exports, 'selectBlackListedOutpoints', {
   }
 });
 
-var _notifications3 = __webpack_require__(46);
+var _notifications3 = __webpack_require__(47);
 
 Object.defineProperty(exports, 'selectToast', {
   enumerable: true,
@@ -623,6 +635,12 @@ Object.defineProperty(exports, 'makeSelectRecommendedContentForUri', {
   enumerable: true,
   get: function get() {
     return _claims3.makeSelectRecommendedContentForUri;
+  }
+});
+Object.defineProperty(exports, 'makeSelectFirstRecommendedFileForUri', {
+  enumerable: true,
+  get: function get() {
+    return _claims3.makeSelectFirstRecommendedFileForUri;
   }
 });
 Object.defineProperty(exports, 'makeSelectChannelForClaimUri', {
@@ -794,7 +812,7 @@ Object.defineProperty(exports, 'selectCurrentChannelPage', {
   }
 });
 
-var _cost_info3 = __webpack_require__(47);
+var _cost_info3 = __webpack_require__(48);
 
 Object.defineProperty(exports, 'makeSelectFetchingCostInfoForUri', {
   enumerable: true,
@@ -995,7 +1013,7 @@ Object.defineProperty(exports, 'selectActiveHistoryEntry', {
   }
 });
 
-var _search3 = __webpack_require__(21);
+var _search3 = __webpack_require__(22);
 
 Object.defineProperty(exports, 'makeSelectSearchUris', {
   enumerable: true,
@@ -1013,6 +1031,12 @@ Object.defineProperty(exports, 'selectSearchValue', {
   enumerable: true,
   get: function get() {
     return _search3.selectSearchValue;
+  }
+});
+Object.defineProperty(exports, 'selectSearchOptions', {
+  enumerable: true,
+  get: function get() {
+    return _search3.selectSearchOptions;
   }
 });
 Object.defineProperty(exports, 'selectIsSearching', {
@@ -1043,6 +1067,12 @@ Object.defineProperty(exports, 'selectSearchSuggestions', {
   enumerable: true,
   get: function get() {
     return _search3.selectSearchSuggestions;
+  }
+});
+Object.defineProperty(exports, 'makeSelectQueryWithOptions', {
+  enumerable: true,
+  get: function get() {
+    return _search3.makeSelectQueryWithOptions;
   }
 });
 
@@ -1215,15 +1245,11 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _thumbnail_upload_statuses = __webpack_require__(48);
+var _thumbnail_upload_statuses = __webpack_require__(49);
 
 var THUMBNAIL_STATUSES = _interopRequireWildcard(_thumbnail_upload_statuses);
 
-var _search4 = __webpack_require__(22);
-
-var SEARCH_TYPES = _interopRequireWildcard(_search4);
-
-var _settings = __webpack_require__(49);
+var _settings = __webpack_require__(50);
 
 var SETTINGS = _interopRequireWildcard(_settings);
 
@@ -1231,13 +1257,15 @@ var _transaction_types = __webpack_require__(27);
 
 var TRANSACTIONS = _interopRequireWildcard(_transaction_types);
 
-var _sort_options = __webpack_require__(38);
+var _sort_options = __webpack_require__(39);
 
 var SORT_OPTIONS = _interopRequireWildcard(_sort_options);
 
-var _pages = __webpack_require__(39);
+var _pages = __webpack_require__(40);
 
 var PAGES = _interopRequireWildcard(_pages);
+
+var _search4 = __webpack_require__(21);
 
 var _lbry = __webpack_require__(9);
 
@@ -1254,7 +1282,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 // constants
 exports.ACTIONS = ACTIONS;
 exports.THUMBNAIL_STATUSES = THUMBNAIL_STATUSES;
-exports.SEARCH_TYPES = SEARCH_TYPES;
+exports.SEARCH_TYPES = _search4.SEARCH_TYPES;
+exports.SEARCH_OPTIONS = _search4.SEARCH_OPTIONS;
 exports.SETTINGS = SETTINGS;
 exports.TRANSACTIONS = TRANSACTIONS;
 exports.SORT_OPTIONS = SORT_OPTIONS;
@@ -1500,6 +1529,7 @@ var SEARCH_START = exports.SEARCH_START = 'SEARCH_START';
 var SEARCH_SUCCESS = exports.SEARCH_SUCCESS = 'SEARCH_SUCCESS';
 var SEARCH_FAIL = exports.SEARCH_FAIL = 'SEARCH_FAIL';
 var UPDATE_SEARCH_QUERY = exports.UPDATE_SEARCH_QUERY = 'UPDATE_SEARCH_QUERY';
+var UPDATE_SEARCH_OPTIONS = exports.UPDATE_SEARCH_OPTIONS = 'UPDATE_SEARCH_OPTIONS';
 var UPDATE_SEARCH_SUGGESTIONS = exports.UPDATE_SEARCH_SUGGESTIONS = 'UPDATE_SEARCH_SUGGESTIONS';
 var SEARCH_FOCUS = exports.SEARCH_FOCUS = 'SEARCH_FOCUS';
 var SEARCH_BLUR = exports.SEARCH_BLUR = 'SEARCH_BLUR';
@@ -2068,14 +2098,20 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function doResolveUris(uris) {
+  var returnCachedClaims = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
   return function (dispatch, getState) {
     var normalizedUris = uris.map(_lbryURI.normalizeURI);
     var state = getState();
 
-    // Filter out URIs that are already resolving
     var resolvingUris = (0, _claims.selectResolvingUris)(state);
+    var claimsByUri = (0, _claims.selectClaimsByUri)(state);
     var urisToResolve = normalizedUris.filter(function (uri) {
-      return !resolvingUris.includes(uri);
+      if (resolvingUris.includes(uri)) {
+        return false;
+      }
+
+      return returnCachedClaims ? !claimsByUri[uri] : true;
     });
 
     if (urisToResolve.length === 0) {
@@ -2088,7 +2124,7 @@ function doResolveUris(uris) {
     });
 
     var resolveInfo = {};
-    _lbry2.default.resolve({ uris: urisToResolve }).then(function (result) {
+    _lbry2.default.resolve({ urls: urisToResolve }).then(function (result) {
       Object.entries(result).forEach(function (_ref) {
         var _ref2 = _slicedToArray(_ref, 2),
             uri = _ref2[0],
@@ -2193,6 +2229,8 @@ function doAbandonClaim(txid, nout) {
 }
 
 function doFetchFeaturedUris() {
+  var offloadResolve = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
   return function (dispatch) {
     dispatch({
       type: ACTIONS.FETCH_FEATURED_CONTENT_STARTED
@@ -2206,13 +2244,17 @@ function doFetchFeaturedUris() {
         urisToResolve = [].concat(_toConsumableArray(urisToResolve), _toConsumableArray(Uris[category]));
       });
 
-      var actions = [doResolveUris(urisToResolve), {
+      var actions = [{
         type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
         data: {
           uris: Uris,
           success: true
         }
       }];
+      if (urisToResolve.length && !offloadResolve) {
+        actions.push(doResolveUris(urisToResolve));
+      }
+
       dispatch(_batchActions.batchActions.apply(undefined, actions));
     };
 
@@ -2403,6 +2445,9 @@ Lbry.file_set_status = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('file_set_status', params);
 };
+Lbry.stop = function () {
+  return daemonCallWithResult('stop', {});
+};
 
 // claims
 Lbry.claim_list_by_channel = function () {
@@ -2453,6 +2498,10 @@ Lbry.claim_tip = function () {
 Lbry.transaction_list = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('transaction_list', params);
+};
+Lbry.utxo_release = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('utxo_release', params);
 };
 
 Lbry.connectPromise = null;
@@ -2538,12 +2587,7 @@ Lbry.resolve = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return new Promise(function (resolve, reject) {
     apiCall('resolve', params, function (data) {
-      if ('uri' in params) {
-        // If only a single URI was requested, don't nest the results in an object
-        resolve(data && data[params.uri] ? data[params.uri] : {});
-      } else {
-        resolve(data || {});
-      }
+      resolve(data || {});
     }, reject);
   });
 };
@@ -3273,17 +3317,19 @@ var objectKeys = Object.keys || function (obj) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.makeSelectChannelForClaimUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.makeSelectIsUriResolving = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectIsFetchingClaimListMine = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectClaimsInChannelForPage = exports.makeSelectFetchingChannelClaims = exports.selectAllFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.makeSelectClaimForUri = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.selectPendingClaims = exports.selectPendingById = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectCurrentChannelPage = exports.selectClaimsById = undefined;
+exports.makeSelectChannelForClaimUri = exports.makeSelectFirstRecommendedFileForUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.makeSelectIsUriResolving = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectIsFetchingClaimListMine = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectClaimsInChannelForPage = exports.makeSelectFetchingChannelClaims = exports.selectAllFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.makeSelectClaimForUri = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.selectPendingClaims = exports.selectPendingById = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectCurrentChannelPage = exports.selectClaimsById = undefined;
 
 var _lbryURI = __webpack_require__(3);
 
 var _navigation = __webpack_require__(18);
 
-var _search = __webpack_require__(21);
+var _search = __webpack_require__(22);
 
 var _reselect = __webpack_require__(19);
 
 var _claim = __webpack_require__(23);
+
+var _query_params = __webpack_require__(20);
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -3606,7 +3652,9 @@ var makeSelectRecommendedContentForUri = exports.makeSelectRecommendedContentFor
       var title = claim.value.stream.metadata.title;
 
 
-      var searchUris = searchUrisByQuery[title.replace(/\//, ' ')];
+      var searchQuery = (0, _query_params.getSearchQueryString)(title.replace(/\//, ' '));
+
+      var searchUris = searchUrisByQuery[searchQuery];
       if (searchUris) {
         searchUris = searchUris.filter(function (searchUri) {
           return searchUri !== currentUri;
@@ -3616,6 +3664,12 @@ var makeSelectRecommendedContentForUri = exports.makeSelectRecommendedContentFor
     }
 
     return recommendedContent;
+  });
+};
+
+var makeSelectFirstRecommendedFileForUri = exports.makeSelectFirstRecommendedFileForUri = function makeSelectFirstRecommendedFileForUri(uri) {
+  return (0, _reselect.createSelector)(makeSelectRecommendedContentForUri(uri), function (recommendedContent) {
+    return recommendedContent ? recommendedContent[0] : null;
   });
 };
 
@@ -3661,7 +3715,7 @@ var selectCurrentPath = exports.selectCurrentPath = (0, _reselect.createSelector
 });
 
 var computePageFromPath = exports.computePageFromPath = function computePageFromPath(path) {
-  return path.replace(/^\//, '').split('?')[0];
+  return path ? path.replace(/^\//, '').split('?')[0] : '';
 };
 
 var selectCurrentPage = exports.selectCurrentPage = (0, _reselect.createSelector)(selectCurrentPath, function (path) {
@@ -3858,12 +3912,20 @@ function createStructuredSelector(selectors) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.getSearchQueryString = undefined;
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); // @flow
+
 
 exports.parseQueryParams = parseQueryParams;
 exports.toQueryString = toQueryString;
-function parseQueryParams(queryString) {
+
+var _search = __webpack_require__(21);
+
+var DEFAULT_SEARCH_RESULT_FROM = 0;
+var DEFAULT_SEARCH_SIZE = 20;
+
+function parseQueryParams(queryString /*: string*/) {
   if (queryString === '') return {};
   var parts = queryString.split('?').pop().split('&').map(function (p) {
     return p.split('=');
@@ -3880,7 +3942,7 @@ function parseQueryParams(queryString) {
   return params;
 }
 
-function toQueryString(params) {
+function toQueryString(params /*: { [string]: string | number }*/) {
   if (!params) return '';
 
   var parts = [];
@@ -3893,6 +3955,27 @@ function toQueryString(params) {
   return parts.join('&');
 }
 
+var getSearchQueryString = exports.getSearchQueryString = function getSearchQueryString(query /*: string*/) {
+  var options /*: any*/ = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var includeUserOptions /*: boolean*/ = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+  var encodedQuery = encodeURIComponent(query);
+  var queryParams = ['s=' + encodedQuery, 'size=' + (options.size || DEFAULT_SEARCH_SIZE), 'from=' + (options.from || DEFAULT_SEARCH_RESULT_FROM)];
+
+  if (includeUserOptions) {
+    queryParams.push('claimType=' + options[_search.SEARCH_OPTIONS.CLAIM_TYPE]);
+
+    // If they are only searching for channels, strip out the media info
+    if (options[_search.SEARCH_OPTIONS.CLAIM_TYPE] !== _search.SEARCH_OPTIONS.INCLUDE_CHANNELS) {
+      queryParams.push('mediaType=' + [_search.SEARCH_OPTIONS.MEDIA_FILE, _search.SEARCH_OPTIONS.MEDIA_AUDIO, _search.SEARCH_OPTIONS.MEDIA_VIDEO, _search.SEARCH_OPTIONS.MEDIA_TEXT, _search.SEARCH_OPTIONS.MEDIA_IMAGE, _search.SEARCH_OPTIONS.MEDIA_APPLICATION].reduce(function (acc, currentOption) {
+        return options[currentOption] ? '' + acc + currentOption + ',' : acc;
+      }, ''));
+    }
+  }
+
+  return queryParams.join('&');
+};
+
 /***/ }),
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -3903,139 +3986,24 @@ function toQueryString(params) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.makeSelectSearchUris = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchQuery = exports.selectSuggestions = exports.selectSearchValue = exports.selectState = undefined;
-
-var _search = __webpack_require__(22);
-
-var SEARCH_TYPES = _interopRequireWildcard(_search);
-
-var _lbryURI = __webpack_require__(3);
-
-var _navigation = __webpack_require__(18);
-
-var _reselect = __webpack_require__(19);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var selectState = exports.selectState = function selectState(state) {
-  return state.search || {};
+var SEARCH_TYPES = exports.SEARCH_TYPES = {
+  FILE: 'file',
+  CHANNEL: 'channel',
+  SEARCH: 'search'
 };
 
-var selectSearchValue = exports.selectSearchValue = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.searchQuery;
-});
-
-var selectSuggestions = exports.selectSuggestions = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.suggestions;
-});
-
-var selectSearchQuery = exports.selectSearchQuery = (0, _reselect.createSelector)(_navigation.selectCurrentPage, _navigation.selectCurrentParams, function (page, params) {
-  return page === 'search' ? params && params.query : null;
-});
-
-var selectIsSearching = exports.selectIsSearching = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.searching;
-});
-
-var selectSearchUrisByQuery = exports.selectSearchUrisByQuery = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.urisByQuery;
-});
-
-var makeSelectSearchUris = exports.makeSelectSearchUris = function makeSelectSearchUris(query) {
-  return (
-    // replace statement below is kind of ugly, and repeated in doSearch action
-    (0, _reselect.createSelector)(selectSearchUrisByQuery, function (byQuery) {
-      return byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query];
-    })
-  );
+var SEARCH_OPTIONS = exports.SEARCH_OPTIONS = {
+  RESULT_COUNT: 'size',
+  CLAIM_TYPE: 'claimType',
+  INCLUDE_FILES: 'file',
+  INCLUDE_CHANNELS: 'channel',
+  INCLUDE_FILES_AND_CHANNELS: 'file,channel',
+  MEDIA_AUDIO: 'audio',
+  MEDIA_VIDEO: 'video',
+  MEDIA_TEXT: 'text',
+  MEDIA_IMAGE: 'image',
+  MEDIA_APPLICATION: 'application'
 };
-
-var selectWunderBarAddress = exports.selectWunderBarAddress = (0, _reselect.createSelector)(_navigation.selectCurrentPage, selectSearchQuery, _navigation.selectCurrentParams, function (page, query, params) {
-  // only populate the wunderbar address if we are on the file/channel pages
-  // or show the search query
-  if (page === 'show') {
-    return params.uri;
-  }
-  return query;
-});
-
-var selectSearchBarFocused = exports.selectSearchBarFocused = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.focused;
-});
-// export const selectSear
-
-var selectSearchSuggestions = exports.selectSearchSuggestions = (0, _reselect.createSelector)(selectSearchValue, selectSuggestions, function (query, suggestions) {
-  if (!query) {
-    return [];
-  }
-
-  var queryIsPrefix = query === 'lbry:' || query === 'lbry:/' || query === 'lbry://';
-
-  if (query.startsWith('lbry://') && query !== 'lbry://') {
-    // If it starts with a prefix, don't show any autocomplete results
-    // They are probably typing/pasting in a lbry uri
-    return [{
-      value: query,
-      type: SEARCH_TYPES.FILE
-    }];
-  } else if (queryIsPrefix) {
-    // If it is a prefix, wait until something else comes to figure out what to do
-    return [];
-  }
-
-  var searchSuggestions = [];
-  try {
-    var uri = (0, _lbryURI.normalizeURI)(query);
-
-    var _parseURI = (0, _lbryURI.parseURI)(uri),
-        claimName = _parseURI.claimName,
-        isChannel = _parseURI.isChannel;
-
-    searchSuggestions.push({
-      value: claimName,
-      type: SEARCH_TYPES.SEARCH
-    }, {
-      value: uri,
-      shorthand: isChannel ? claimName.slice(1) : claimName,
-      type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE
-    });
-  } catch (e) {
-    searchSuggestions.push({
-      value: query,
-      type: SEARCH_TYPES.SEARCH
-    });
-  }
-
-  var apiSuggestions = suggestions[query] || [];
-  if (apiSuggestions.length) {
-    searchSuggestions = searchSuggestions.concat(apiSuggestions.filter(function (suggestion) {
-      return suggestion !== query;
-    }).map(function (suggestion) {
-      // determine if it's a channel
-      try {
-        var _uri = (0, _lbryURI.normalizeURI)(suggestion);
-
-        var _parseURI2 = (0, _lbryURI.parseURI)(_uri),
-            _claimName = _parseURI2.claimName,
-            _isChannel = _parseURI2.isChannel;
-
-        return {
-          value: _uri,
-          shorthand: _isChannel ? _claimName.slice(1) : _claimName,
-          type: _isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE
-        };
-      } catch (e) {
-        // search result includes some character that isn't valid in claim names
-        return {
-          value: suggestion,
-          type: SEARCH_TYPES.SEARCH
-        };
-      }
-    }));
-  }
-
-  return searchSuggestions;
-});
 
 /***/ }),
 /* 22 */
@@ -4047,9 +4015,162 @@ var selectSearchSuggestions = exports.selectSearchSuggestions = (0, _reselect.cr
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var FILE = exports.FILE = 'file';
-var CHANNEL = exports.CHANNEL = 'channel';
-var SEARCH = exports.SEARCH = 'search';
+exports.makeSelectQueryWithOptions = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.makeSelectSearchUris = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchQuery = exports.selectSuggestions = exports.selectSearchOptions = exports.selectSearchValue = exports.selectState = undefined;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _search = __webpack_require__(21);
+
+var _query_params = __webpack_require__(20);
+
+var _lbryURI = __webpack_require__(3);
+
+var _navigation = __webpack_require__(18);
+
+var _reselect = __webpack_require__(19);
+
+// @flow
+/*:: import type { SearchState, SearchOptions, SearchSuggestion } from 'types/Search';*/
+/*:: type State = { search: SearchState };*/
+var selectState = exports.selectState = function selectState(state /*: State*/) /*: SearchState*/ {
+  return state.search;
+};
+
+var selectSearchValue /*: (state: State) => string*/ = exports.selectSearchValue = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.searchQuery;
+});
+
+var selectSearchOptions /*: (state: State) => SearchOptions*/ = exports.selectSearchOptions = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.options;
+});
+
+var selectSuggestions /*: (
+                        state: State
+                      ) => { [string]: Array<SearchSuggestion> }*/ = exports.selectSuggestions = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.suggestions;
+});
+
+var selectSearchQuery /*: (state: State) => ?string*/ = exports.selectSearchQuery = (0, _reselect.createSelector)(_navigation.selectCurrentPage, _navigation.selectCurrentParams, function (page /*: string*/, params /*: ?{ query: string }*/) {
+  return page === 'search' ? params && params.query : null;
+});
+
+var selectIsSearching /*: (state: State) => boolean*/ = exports.selectIsSearching = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.searching;
+});
+
+var selectSearchUrisByQuery /*: (
+                              state: State
+                            ) => { [string]: Array<string> }*/ = exports.selectSearchUrisByQuery = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.urisByQuery;
+});
+
+var makeSelectSearchUris = exports.makeSelectSearchUris = function makeSelectSearchUris(query
+// replace statement below is kind of ugly, and repeated in doSearch action
+/*: string*/) /*: ((state: State) => Array<string>)*/ {
+  return (0, _reselect.createSelector)(selectSearchUrisByQuery, function (byQuery) {
+    return byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query];
+  });
+};
+
+var selectWunderBarAddress = exports.selectWunderBarAddress = (0, _reselect.createSelector)(_navigation.selectCurrentPage, selectSearchQuery, _navigation.selectCurrentParams, function (page /*: string*/, query /*: string*/, params /*: { uri: string }*/) {
+  // only populate the wunderbar address if we are on the file/channel pages
+  // or show the search query
+  if (page === 'show') {
+    return params.uri;
+  }
+  return query;
+});
+
+var selectSearchBarFocused /*: boolean*/ = exports.selectSearchBarFocused = (0, _reselect.createSelector)(selectState, function (state) {
+  return state.focused;
+});
+
+var selectSearchSuggestions /*: Array<SearchSuggestion>*/ = exports.selectSearchSuggestions = (0, _reselect.createSelector)(selectSearchValue, selectSuggestions, function (query /*: string*/, suggestions /*: { [string]: Array<string> }*/) {
+  if (!query) {
+    return [];
+  }
+
+  var queryIsPrefix = query === 'lbry:' || query === 'lbry:/' || query === 'lbry://';
+
+  if (query.startsWith('lbry://') && query !== 'lbry://') {
+    // If it starts with a prefix, don't show any autocomplete results
+    // They are probably typing/pasting in a lbry uri
+    return [{
+      value: query,
+      type: _search.SEARCH_TYPES.FILE
+    }];
+  } else if (queryIsPrefix) {
+    // If it is a prefix, wait until something else comes to figure out what to do
+    return [];
+  }
+
+  var searchSuggestions = [];
+  try {
+    var _uri = (0, _lbryURI.normalizeURI)(query);
+
+    var _parseURI = (0, _lbryURI.parseURI)(_uri),
+        claimName = _parseURI.claimName,
+        isChannel = _parseURI.isChannel;
+
+    searchSuggestions.push({
+      value: claimName,
+      type: _search.SEARCH_TYPES.SEARCH
+    }, {
+      value: _uri,
+      shorthand: isChannel ? claimName.slice(1) : claimName,
+      type: isChannel ? _search.SEARCH_TYPES.CHANNEL : _search.SEARCH_TYPES.FILE
+    });
+  } catch (e) {
+    searchSuggestions.push({
+      value: query,
+      type: _search.SEARCH_TYPES.SEARCH
+    });
+  }
+
+  var apiSuggestions = suggestions[query] || [];
+  if (apiSuggestions.length) {
+    searchSuggestions = searchSuggestions.concat(apiSuggestions.filter(function (suggestion) {
+      return suggestion !== query;
+    }).map(function (suggestion) {
+      // determine if it's a channel
+      try {
+        var _uri2 = (0, _lbryURI.normalizeURI)(suggestion);
+
+        var _parseURI2 = (0, _lbryURI.parseURI)(_uri2),
+            _claimName = _parseURI2.claimName,
+            _isChannel = _parseURI2.isChannel;
+
+        return {
+          value: _uri2,
+          shorthand: _isChannel ? _claimName.slice(1) : _claimName,
+          type: _isChannel ? _search.SEARCH_TYPES.CHANNEL : _search.SEARCH_TYPES.FILE
+        };
+      } catch (e) {
+        // search result includes some character that isn't valid in claim names
+        return {
+          value: suggestion,
+          type: _search.SEARCH_TYPES.SEARCH
+        };
+      }
+    }));
+  }
+
+  return searchSuggestions;
+});
+
+// Creates a query string based on the state in the search reducer
+// Can be overrided by passing in custom sizes/from values for other areas pagination
+var makeSelectQueryWithOptions = exports.makeSelectQueryWithOptions = function makeSelectQueryWithOptions(customQuery /*: ?string*/, customSize /*: ?number*/, customFrom // If it's a background search, don't use the users settings
+/*: ?number*/) {
+  var isBackgroundSearch /*: boolean*/ = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+  return (0, _reselect.createSelector)(selectSearchQuery, selectSearchOptions, function (query, options) {
+    var size = customSize || options[_search.SEARCH_OPTIONS.RESULT_COUNT];
+
+    var queryString = (0, _query_params.getSearchQueryString)(customQuery || query, _extends({}, options, { size: size, from: customFrom }), !isBackgroundSearch);
+
+    return queryString;
+  });
+};
 
 /***/ }),
 /* 23 */
@@ -4169,7 +4290,9 @@ function doFetchTransactions() {
       type: ACTIONS.FETCH_TRANSACTIONS_STARTED
     });
 
-    _lbry2.default.transaction_list().then(function (results) {
+    _lbry2.default.utxo_release().then(function () {
+      return _lbry2.default.transaction_list();
+    }).then(function (results) {
       dispatch({
         type: ACTIONS.FETCH_TRANSACTIONS_COMPLETED,
         data: {
@@ -5172,7 +5295,7 @@ var selectFileListDownloadedSort = exports.selectFileListDownloadedSort = (0, _r
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.getSearchSuggestions = exports.doSearch = undefined;
+exports.doUpdateSearchOptions = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.getSearchSuggestions = exports.doSearch = exports.setSearchApi = undefined;
 
 var _action_types = __webpack_require__(2);
 
@@ -5182,11 +5305,15 @@ var _lbryURI = __webpack_require__(3);
 
 var _claims = __webpack_require__(8);
 
-var _search = __webpack_require__(21);
+var _search = __webpack_require__(22);
 
 var _batchActions = __webpack_require__(24);
 
-var _handleFetch = __webpack_require__(33);
+var _debounce = __webpack_require__(33);
+
+var _debounce2 = _interopRequireDefault(_debounce);
+
+var _handleFetch = __webpack_require__(34);
 
 var _handleFetch2 = _interopRequireDefault(_handleFetch);
 
@@ -5195,16 +5322,24 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 // @flow
-var DEFAULTSEARCHRESULTSIZE = 10;
-var DEFAULTSEARCHRESULTFROM = 0;
+/*:: import type { SearchState, SearchOptions } from 'types/Search';*/
+
+
+var DEBOUNCED_SEARCH_SUGGESTION_MS = 300;
 /*:: type Dispatch = (action: any) => any;*/
-/*:: type GetState = () => {};*/
-var doSearch = exports.doSearch = function doSearch(rawQuery) {
-  var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULTSEARCHRESULTSIZE;
-  var from = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULTSEARCHRESULTFROM;
-  var isBackgroundSearch = arguments[3];
+
+
+// We can't use env's because they aren't passed into node_modules
+/*:: type GetState = () => { search: SearchState };*/
+var CONNECTION_STRING = 'https://lighthouse.lbry.io/';
+
+var setSearchApi = exports.setSearchApi = function setSearchApi(endpoint /*: string*/) {
+  CONNECTION_STRING = endpoint.replace(/\/*$/, '/'); // exactly one slash at the end;
+};
+
+var doSearch = exports.doSearch = function doSearch(rawQuery /*: string*/, size /*: ?number*/, from /*: ?number*/) {
+  var isBackgroundSearch /*: boolean*/ = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   return function (dispatch /*: Dispatch*/, getState /*: GetState*/) {
-    var state = getState();
     var query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
     if (!query) {
@@ -5214,8 +5349,11 @@ var doSearch = exports.doSearch = function doSearch(rawQuery) {
       return;
     }
 
+    var state = getState();
+    var queryWithOptions = (0, _search.makeSelectQueryWithOptions)(query, size, from, isBackgroundSearch)(state);
+
     // If we have already searched for something, we don't need to do anything
-    var urisForQuery = (0, _search.makeSelectSearchUris)(query)(state);
+    var urisForQuery = (0, _search.makeSelectSearchUris)(queryWithOptions)(state);
     if (urisForQuery && !!urisForQuery.length) {
       return;
     }
@@ -5235,8 +5373,7 @@ var doSearch = exports.doSearch = function doSearch(rawQuery) {
       });
     }
 
-    var encodedQuery = encodeURIComponent(query);
-    fetch('https://lighthouse.lbry.io/search?s=' + encodedQuery + '&size=' + size + '&from=' + from).then(_handleFetch2.default).then(function (data) {
+    fetch(CONNECTION_STRING + 'search?' + queryWithOptions).then(_handleFetch2.default).then(function (data) {
       var uris = [];
       var actions = [];
 
@@ -5252,7 +5389,7 @@ var doSearch = exports.doSearch = function doSearch(rawQuery) {
       actions.push({
         type: ACTIONS.SEARCH_SUCCESS,
         data: {
-          query: query,
+          query: queryWithOptions,
           uris: uris
         }
       });
@@ -5282,7 +5419,7 @@ var getSearchSuggestions = exports.getSearchSuggestions = function getSearchSugg
       return;
     }
 
-    fetch('https://lighthouse.lbry.io/autocomplete?s=' + searchValue).then(_handleFetch2.default).then(function (apiSuggestions) {
+    fetch(CONNECTION_STRING + 'autocomplete?s=' + searchValue).then(_handleFetch2.default).then(function (apiSuggestions) {
       dispatch({
         type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
         data: {
@@ -5297,6 +5434,10 @@ var getSearchSuggestions = exports.getSearchSuggestions = function getSearchSugg
   };
 };
 
+var throttledSearchSuggestions = (0, _debounce2.default)(function (dispatch, query) {
+  dispatch(getSearchSuggestions(query));
+}, DEBOUNCED_SEARCH_SUGGESTION_MS);
+
 var doUpdateSearchQuery = exports.doUpdateSearchQuery = function doUpdateSearchQuery(query /*: string*/, shouldSkipSuggestions /*: ?boolean*/) {
   return function (dispatch /*: Dispatch*/) {
     dispatch({
@@ -5306,7 +5447,7 @@ var doUpdateSearchQuery = exports.doUpdateSearchQuery = function doUpdateSearchQ
 
     // Don't fetch new suggestions if the user just added a space
     if (!query.endsWith(' ') || !shouldSkipSuggestions) {
-      dispatch(getSearchSuggestions(query));
+      throttledSearchSuggestions(dispatch, query);
     }
   };
 };
@@ -5327,8 +5468,58 @@ var doBlurSearchInput = exports.doBlurSearchInput = function doBlurSearchInput()
   };
 };
 
+var doUpdateSearchOptions = exports.doUpdateSearchOptions = function doUpdateSearchOptions(newOptions /*: SearchOptions*/) {
+  return function (dispatch /*: Dispatch*/, getState /*: GetState*/) {
+    var state = getState();
+    var searchQuery = (0, _search.selectSearchQuery)(state);
+
+    dispatch({
+      type: ACTIONS.UPDATE_SEARCH_OPTIONS,
+      data: newOptions
+    });
+
+    if (searchQuery) {
+      // After updating, perform a search with the new options
+      dispatch(doSearch(searchQuery));
+    }
+  };
+};
+
 /***/ }),
 /* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = debouce;
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+function debouce(func, wait, immediate) {
+  var timeout = void 0;
+
+  return function () {
+    var context = this;
+    var args = arguments;
+    var later = function later() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
+}
+
+/***/ }),
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5343,7 +5534,7 @@ function handleFetchResponse(response) {
 }
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5426,7 +5617,7 @@ function doBlackListedOutpointsSubscribe() {
 }
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5753,7 +5944,7 @@ function claimsReducer() {
 }
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5811,7 +6002,7 @@ function costInfoReducer() {
 }
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5829,11 +6020,11 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _sort_options = __webpack_require__(38);
+var _sort_options = __webpack_require__(39);
 
 var SORT_OPTIONS = _interopRequireWildcard(_sort_options);
 
-var _pages = __webpack_require__(39);
+var _pages = __webpack_require__(40);
 
 var PAGES = _interopRequireWildcard(_pages);
 
@@ -6053,7 +6244,7 @@ function fileInfoReducer() {
 }
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6068,7 +6259,7 @@ var TITLE = exports.TITLE = 'title';
 var FILENAME = exports.FILENAME = 'filename';
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6100,7 +6291,7 @@ var HISTORY = exports.HISTORY = 'user_history';
 var WALLET = exports.WALLET = 'wallet';
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6119,7 +6310,7 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(41);
+var _reduxUtils = __webpack_require__(42);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -6129,6 +6320,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /*:: import type {
   NotificationState,
   DoToast,
+  DoError,
   DoNotification,
   DoEditNotification,
   DoDeleteNotification,
@@ -6187,7 +6379,7 @@ var notificationsReducer = (0, _reduxUtils.handleActions)((_handleActions = {}, 
   return _extends({}, state, {
     notifications: newNotifications
   });
-}), _defineProperty(_handleActions, ACTIONS.CREATE_ERROR, function (state /*: NotificationState*/, action /*: DoToast*/) {
+}), _defineProperty(_handleActions, ACTIONS.CREATE_ERROR, function (state /*: NotificationState*/, action /*: DoError*/) {
   var error = action.data;
   var newErrors = state.errors.slice();
   newErrors.push(error);
@@ -6207,7 +6399,7 @@ var notificationsReducer = (0, _reduxUtils.handleActions)((_handleActions = {}, 
 exports.notificationsReducer = notificationsReducer;
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6240,7 +6432,7 @@ var handleActions = exports.handleActions = function handleActions(actionMap, de
 };
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6251,66 +6443,38 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.searchReducer = undefined;
 
-var _handleActions;
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; // @flow
-
+var _options, _handleActions;
 
 var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(41);
+var _reduxUtils = __webpack_require__(42);
+
+var _search = __webpack_require__(21);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; } // @flow
 
-/*:: type SearchSuccess = {
-  type: ACTIONS.SEARCH_SUCCESS,
-  data: {
-    query: string,
-    uris: Array<string>,
-  },
-};*/
-/*:: type UpdateSearchQuery = {
-  type: ACTIONS.UPDATE_SEARCH_QUERY,
-  data: {
-    query: string,
-  },
-};*/
-/*:: type SearchSuggestion = {
-  value: string,
-  shorthand: string,
-  type: string,
-};*/
-/*:: type UpdateSearchSuggestions = {
-  type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
-  data: {
-    query: string,
-    suggestions: Array<SearchSuggestion>,
-  },
-};*/
-/*:: type SearchState = {
-  isActive: boolean,
-  searchQuery: string,
-  suggestions: Array<SearchSuggestion>,
-  urisByQuery: {},
-};*/
-/*:: type HistoryNavigate = {
-  type: ACTIONS.HISTORY_NAVIGATE,
-  data: {
-    url: string,
-    index?: number,
-    scrollY?: number,
-  },
-};*/
+
+/*:: import type {
+  SearchState,
+  SearchSuccess,
+  UpdateSearchQuery,
+  UpdateSearchSuggestions,
+  HistoryNavigate,
+  UpdateSearchOptions,
+} from 'types/Search';*/
 
 
 var defaultState = {
   isActive: false, // does the user have any typed text in the search input
   focused: false, // is the search input focused
   searchQuery: '', // needs to be an empty string for input focusing
+  options: (_options = {}, _defineProperty(_options, _search.SEARCH_OPTIONS.RESULT_COUNT, 30), _defineProperty(_options, _search.SEARCH_OPTIONS.CLAIM_TYPE, _search.SEARCH_OPTIONS.INCLUDE_FILES_AND_CHANNELS), _defineProperty(_options, _search.SEARCH_OPTIONS.MEDIA_AUDIO, true), _defineProperty(_options, _search.SEARCH_OPTIONS.MEDIA_VIDEO, true), _defineProperty(_options, _search.SEARCH_OPTIONS.MEDIA_TEXT, true), _defineProperty(_options, _search.SEARCH_OPTIONS.MEDIA_IMAGE, true), _defineProperty(_options, _search.SEARCH_OPTIONS.MEDIA_APPLICATION, true), _options),
   suggestions: {},
   urisByQuery: {}
 };
@@ -6362,10 +6526,18 @@ var searchReducer = exports.searchReducer = (0, _reduxUtils.handleActions)((_han
   return _extends({}, state, {
     focused: false
   });
+}), _defineProperty(_handleActions, ACTIONS.UPDATE_SEARCH_OPTIONS, function (state /*: SearchState*/, action /*: UpdateSearchOptions*/) /*: SearchState*/ {
+  var oldOptions = state.options;
+
+  var newOptions = action.data;
+  var options = _extends({}, oldOptions, newOptions);
+  return _extends({}, state, {
+    options: options
+  });
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6400,7 +6572,7 @@ var buildDraftTransaction = function buildDraftTransaction() {
 /*:: type WalletState = {
   balance: any,
   blocks: any,
-  latestBlock: number,
+  latestBlock: ?number,
   transactions: any,
   fetchingTransactions: boolean,
   gettingNewAddress: boolean,
@@ -6708,7 +6880,7 @@ function walletReducer() {
 }
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6727,7 +6899,7 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(41);
+var _reduxUtils = __webpack_require__(42);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -6767,7 +6939,7 @@ var blacklistReducer = exports.blacklistReducer = (0, _reduxUtils.handleActions)
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6789,7 +6961,7 @@ var selectBlackListedOutpoints = exports.selectBlackListedOutpoints = (0, _resel
 });
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6835,7 +7007,7 @@ var selectError = exports.selectError = (0, _reselect.createSelector)(selectStat
 });
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6879,7 +7051,7 @@ var makeSelectFetchingCostInfoForUri = exports.makeSelectFetchingCostInfoForUri 
 };
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6895,7 +7067,7 @@ var COMPLETE = exports.COMPLETE = 'complete';
 var MANUAL = exports.MANUAL = 'manual';
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

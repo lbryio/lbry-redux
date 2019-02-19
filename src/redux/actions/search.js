@@ -1,23 +1,35 @@
 // @flow
+import type { SearchState, SearchOptions } from 'types/Search';
 import * as ACTIONS from 'constants/action_types';
 import { buildURI } from 'lbryURI';
 import { doResolveUri } from 'redux/actions/claims';
-import { makeSelectSearchUris, selectSuggestions } from 'redux/selectors/search';
+import {
+  makeSelectSearchUris,
+  selectSuggestions,
+  makeSelectQueryWithOptions,
+  selectSearchQuery,
+} from 'redux/selectors/search';
 import { batchActions } from 'util/batchActions';
+import debounce from 'util/debounce';
 import handleFetchResponse from 'util/handle-fetch';
 
-const DEFAULTSEARCHRESULTSIZE = 10;
-const DEFAULTSEARCHRESULTFROM = 0;
+const DEBOUNCED_SEARCH_SUGGESTION_MS = 300;
 type Dispatch = (action: any) => any;
-type GetState = () => {};
+type GetState = () => { search: SearchState };
+
+// We can't use env's because they aren't passed into node_modules
+let CONNECTION_STRING = 'https://lighthouse.lbry.io/';
+
+export const setSearchApi = (endpoint: string) => {
+  CONNECTION_STRING = endpoint.replace(/\/*$/, '/'); // exactly one slash at the end;
+};
 
 export const doSearch = (
-  rawQuery,
-  size = DEFAULTSEARCHRESULTSIZE,
-  from = DEFAULTSEARCHRESULTFROM,
-  isBackgroundSearch
+  rawQuery: string, // pass in a query if you don't want to search for what's in the search bar
+  size: ?number, // only pass in if you don't want to use the users setting (ex: related content)
+  from: ?number,
+  isBackgroundSearch: boolean = false
 ) => (dispatch: Dispatch, getState: GetState) => {
-  const state = getState();
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
   if (!query) {
@@ -27,8 +39,11 @@ export const doSearch = (
     return;
   }
 
+  const state = getState();
+  const queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch)(state);
+
   // If we have already searched for something, we don't need to do anything
-  const urisForQuery = makeSelectSearchUris(query)(state);
+  const urisForQuery = makeSelectSearchUris(queryWithOptions)(state);
   if (urisForQuery && !!urisForQuery.length) {
     return;
   }
@@ -48,8 +63,7 @@ export const doSearch = (
     });
   }
 
-  const encodedQuery = encodeURIComponent(query);
-  fetch(`https://lighthouse.lbry.io/search?s=${encodedQuery}&size=${size}&from=${from}`)
+  fetch(`${CONNECTION_STRING}search?${queryWithOptions}`)
     .then(handleFetchResponse)
     .then(data => {
       const uris = [];
@@ -67,7 +81,7 @@ export const doSearch = (
       actions.push({
         type: ACTIONS.SEARCH_SUCCESS,
         data: {
-          query,
+          query: queryWithOptions,
           uris,
         },
       });
@@ -96,7 +110,7 @@ export const getSearchSuggestions = (value: string) => (dispatch: Dispatch, getS
     return;
   }
 
-  fetch(`https://lighthouse.lbry.io/autocomplete?s=${searchValue}`)
+  fetch(`${CONNECTION_STRING}autocomplete?s=${searchValue}`)
     .then(handleFetchResponse)
     .then(apiSuggestions => {
       dispatch({
@@ -113,6 +127,10 @@ export const getSearchSuggestions = (value: string) => (dispatch: Dispatch, getS
     });
 };
 
+const throttledSearchSuggestions = debounce((dispatch, query) => {
+  dispatch(getSearchSuggestions(query));
+}, DEBOUNCED_SEARCH_SUGGESTION_MS);
+
 export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boolean) => (
   dispatch: Dispatch
 ) => {
@@ -123,7 +141,7 @@ export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boole
 
   // Don't fetch new suggestions if the user just added a space
   if (!query.endsWith(' ') || !shouldSkipSuggestions) {
-    dispatch(getSearchSuggestions(query));
+    throttledSearchSuggestions(dispatch, query);
   }
 };
 
@@ -136,3 +154,21 @@ export const doBlurSearchInput = () => (dispatch: Dispatch) =>
   dispatch({
     type: ACTIONS.SEARCH_BLUR,
   });
+
+export const doUpdateSearchOptions = (newOptions: SearchOptions) => (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
+  const state = getState();
+  const searchQuery = selectSearchQuery(state);
+
+  dispatch({
+    type: ACTIONS.UPDATE_SEARCH_OPTIONS,
+    data: newOptions,
+  });
+
+  if (searchQuery) {
+    // After updating, perform a search with the new options
+    dispatch(doSearch(searchQuery));
+  }
+};

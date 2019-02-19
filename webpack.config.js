@@ -8,7 +8,8 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    globalObject: `(typeof self !== 'undefined' ? self : this)`
   },
   module: {
     rules: [
