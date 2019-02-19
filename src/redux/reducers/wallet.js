@@ -17,7 +17,7 @@ type ActionResult = {
 type WalletState = {
   balance: any,
   blocks: any,
-  latestBlock: number,
+  latestBlock: ?number,
   transactions: any,
   fetchingTransactions: boolean,
   gettingNewAddress: boolean,
@@ -73,7 +73,7 @@ reducers[ACTIONS.FETCH_TRANSACTIONS_COMPLETED] = (state: WalletState, action) =>
 
   const { transactions } = action.data;
 
-  transactions.forEach((transaction) => {
+  transactions.forEach(transaction => {
     byId[transaction.txid] = transaction;
   });
 

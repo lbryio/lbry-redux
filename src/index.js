@@ -1,10 +1,10 @@
 import * as ACTIONS from 'constants/action_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
-import * as SEARCH_TYPES from 'constants/search';
 import * as SETTINGS from 'constants/settings';
 import * as TRANSACTIONS from 'constants/transaction_types';
 import * as SORT_OPTIONS from 'constants/sort_options';
 import * as PAGES from 'constants/pages';
+import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
 
 import Lbry from 'lbry';
 import Lbryapi from 'lbryapi';
@@ -14,7 +14,16 @@ import { selectState as selectSearchState } from 'redux/selectors/search';
 export { Toast } from 'types/Notification';
 
 // constants
-export { ACTIONS, THUMBNAIL_STATUSES, SEARCH_TYPES, SETTINGS, TRANSACTIONS, SORT_OPTIONS, PAGES };
+export {
+  ACTIONS,
+  THUMBNAIL_STATUSES,
+  SEARCH_TYPES,
+  SEARCH_OPTIONS,
+  SETTINGS,
+  TRANSACTIONS,
+  SORT_OPTIONS,
+  PAGES,
+};
 
 // common
 export { Lbry, Lbryapi };
@@ -58,6 +67,8 @@ export {
   doUpdateSearchQuery,
   doFocusSearchInput,
   doBlurSearchInput,
+  setSearchApi,
+  doUpdateSearchOptions,
 } from 'redux/actions/search';
 
 export { doBlackListedOutpointsSubscribe } from 'redux/actions/blacklist';
@@ -115,9 +126,11 @@ export {
   makeSelectNsfwCountFromUris,
   makeSelectNsfwCountForChannel,
   makeSelectRecommendedContentForUri,
+  makeSelectFirstRecommendedFileForUri,
   makeSelectChannelForClaimUri,
   makeSelectClaimIsPending,
   makeSelectPendingByUri,
+  makeSelectClaimsInChannelForCurrentPageState,
   selectPendingById,
   selectClaimsById,
   selectClaimsByUri,
@@ -141,6 +154,7 @@ export {
   selectFetchingTrendingUris,
   selectPlayingUri,
   selectChannelClaimCounts,
+  selectCurrentChannelPage,
 } from 'redux/selectors/claims';
 
 export {
@@ -189,11 +203,13 @@ export {
   makeSelectSearchUris,
   selectSearchQuery,
   selectSearchValue,
+  selectSearchOptions,
   selectIsSearching,
   selectSearchUrisByQuery,
   selectWunderBarAddress,
   selectSearchBarFocused,
   selectSearchSuggestions,
+  makeSelectQueryWithOptions,
 } from 'redux/selectors/search';
 
 export {

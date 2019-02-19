@@ -13,7 +13,7 @@ function checkAndParse(response) {
   if (response.status >= 200 && response.status < 300) {
     return response.json();
   }
-  return response.json().then((json) => {
+  return response.json().then(json => {
     let error;
     if (json.error) {
       error = new Error(json.error);
@@ -38,7 +38,7 @@ function apiCall(method: string, params: ?{}, resolve: Function, reject: Functio
 
   return fetch(Lbry.daemonConnectionString, options)
     .then(checkAndParse)
-    .then((response) => {
+    .then(response => {
       const error = response.error || (response.result && response.result.error);
 
       if (error) {
@@ -54,7 +54,7 @@ const daemonCallWithResult = (name, params = {}) =>
     apiCall(
       name,
       params,
-      (result) => {
+      result => {
         resolve(result);
       },
       reject
@@ -70,6 +70,7 @@ Lbry.status = (params = {}) => daemonCallWithResult('status', params);
 Lbry.version = () => daemonCallWithResult('version', {});
 Lbry.file_delete = (params = {}) => daemonCallWithResult('file_delete', params);
 Lbry.file_set_status = (params = {}) => daemonCallWithResult('file_set_status', params);
+Lbry.stop = () => daemonCallWithResult('stop', {});
 
 // claims
 Lbry.claim_list_by_channel = (params = {}) => daemonCallWithResult('claim_list_by_channel', params);
@@ -89,6 +90,7 @@ Lbry.claim_tip = (params = {}) => daemonCallWithResult('claim_tip', params);
 
 // transactions
 Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
+Lbry.utxo_release = (params = {}) => daemonCallWithResult('utxo_release', params);
 
 Lbry.connectPromise = null;
 Lbry.connect = () => {
@@ -153,7 +155,7 @@ Lbry.file_list = (params = {}) =>
     apiCall(
       'file_list',
       params,
-      (fileInfos) => {
+      fileInfos => {
         resolve(fileInfos);
       },
       reject
@@ -165,7 +167,7 @@ Lbry.claim_list_mine = (params = {}) =>
     apiCall(
       'claim_list_mine',
       params,
-      (claims) => {
+      claims => {
         resolve(claims);
       },
       reject
@@ -177,7 +179,7 @@ Lbry.get = (params = {}) =>
     apiCall(
       'get',
       params,
-      (streamInfo) => {
+      streamInfo => {
         resolve(streamInfo);
       },
       reject
@@ -189,13 +191,8 @@ Lbry.resolve = (params = {}) =>
     apiCall(
       'resolve',
       params,
-      (data) => {
-        if ('uri' in params) {
-          // If only a single URI was requested, don't nest the results in an object
-          resolve(data && data[params.uri] ? data[params.uri] : {});
-        } else {
-          resolve(data || {});
-        }
+      data => {
+        resolve(data || {});
       },
       reject
     );

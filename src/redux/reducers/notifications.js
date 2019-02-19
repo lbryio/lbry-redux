@@ -2,6 +2,7 @@
 import type {
   NotificationState,
   DoToast,
+  DoError,
   DoNotification,
   DoEditNotification,
   DoDeleteNotification,
@@ -55,7 +56,7 @@ const notificationsReducer = handleActions(
       let notifications = state.notifications.slice();
 
       notifications = notifications.map(
-        (pastNotification) =>
+        pastNotification =>
           pastNotification.id === notification.id ? notification : pastNotification
       );
 
@@ -67,7 +68,7 @@ const notificationsReducer = handleActions(
     [ACTIONS.DELETE_NOTIFICATION]: (state: NotificationState, action: DoDeleteNotification) => {
       const { id } = action.data;
       let newNotifications = state.notifications.slice();
-      newNotifications = newNotifications.filter((notification) => notification.id !== id);
+      newNotifications = newNotifications.filter(notification => notification.id !== id);
 
       return {
         ...state,
@@ -76,7 +77,7 @@ const notificationsReducer = handleActions(
     },
 
     // Errors
-    [ACTIONS.CREATE_ERROR]: (state: NotificationState, action: DoToast) => {
+    [ACTIONS.CREATE_ERROR]: (state: NotificationState, action: DoError) => {
       const error = action.data;
       const newErrors = state.errors.slice();
       newErrors.push(error);
