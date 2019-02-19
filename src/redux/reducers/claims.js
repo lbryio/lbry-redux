@@ -115,6 +115,7 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED] = (state, action) => {
 
   return Object.assign({}, state, {
     fetchingChannelClaims,
+    currentChannelPage: page,
   });
 };
 
@@ -148,6 +149,7 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
     byId,
     fetchingChannelClaims,
     claimsByUri,
+    currentChannelPage: page,
   });
 };
 
