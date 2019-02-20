@@ -2369,7 +2369,7 @@ var CHECK_DAEMON_STARTED_TRY_NUMBER = 200; // @flow
 
 var Lbry = {
   isConnected: false,
-  daemonConnectionString: '/api/proxy' || 'http://localhost:5279',
+  daemonConnectionString: 'http://localhost:5279',
   pendingPublishTimeout: 20 * 60 * 1000
 };
 
@@ -2611,6 +2611,11 @@ Lbry.publish = function () {
 Lbry.overrides = {};
 Lbry.setOverride = function (methodName, newMethod) {
   Lbry.overrides[methodName] = newMethod;
+};
+
+// Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
+Lbry.setDaemonConnectionString = function (value) {
+  Lbry.daemonConnectionString = value;
 };
 
 var lbryProxy = new Proxy(Lbry, {
