@@ -2467,6 +2467,10 @@ Lbry.account_encrypt = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('account_encrypt', params);
 };
+Lbry.account_list = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('account_list', params);
+};
 Lbry.address_is_mine = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('address_is_mine', params);
@@ -2590,6 +2594,28 @@ Lbry.resolve = function () {
       resolve(data || {});
     }, reject);
   });
+};
+
+Lbry.publish = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return new Promise(function (resolve, reject) {
+    if (Lbry.overrides.publish) {
+      Lbry.overrides.publish(params).then(resolve, reject);
+    } else {
+      apiCall('publish', params, resolve, reject);
+    }
+  });
+};
+
+// Allow overriding Lbry methods
+Lbry.overrides = {};
+Lbry.setOverride = function (methodName, newMethod) {
+  Lbry.overrides[methodName] = newMethod;
+};
+
+// Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
+Lbry.setDaemonConnectionString = function (value) {
+  Lbry.daemonConnectionString = value;
 };
 
 var lbryProxy = new Proxy(Lbry, {
