@@ -1,6 +1,6 @@
 /* eslint-disable import/no-commonjs */
 const path = require('path');
-const FlowWebpackPlugin = require('flow-webpack-plugin')
+const FlowWebpackPlugin = require('flow-webpack-plugin');
 
 module.exports = {
   mode: 'none',
@@ -9,7 +9,7 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'umd',
-    globalObject: `(typeof self !== 'undefined' ? self : this)`
+    globalObject: `(typeof self !== 'undefined' ? self : this)`,
   },
   module: {
     rules: [
