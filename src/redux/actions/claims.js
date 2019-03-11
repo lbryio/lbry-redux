@@ -1,10 +1,8 @@
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
-import Lbryapi from 'lbryapi';
 import { normalizeURI } from 'lbryURI';
 import { doToast } from 'redux/actions/notifications';
 import { selectMyClaimsRaw, selectResolvingUris, selectClaimsByUri } from 'redux/selectors/claims';
-import { batchActions } from 'util/batchActions';
 import { doFetchTransactions } from 'redux/actions/wallet';
 
 export function doResolveUris(uris, returnCachedClaims = false) {
@@ -131,81 +129,6 @@ export function doAbandonClaim(txid, nout) {
       txid,
       nout,
     }).then(successCallback, errorCallback);
-  };
-}
-
-export function doFetchFeaturedUris(offloadResolve = false) {
-  return dispatch => {
-    dispatch({
-      type: ACTIONS.FETCH_FEATURED_CONTENT_STARTED,
-    });
-
-    const success = ({ Uris }) => {
-      let urisToResolve = [];
-      Object.keys(Uris).forEach(category => {
-        urisToResolve = [...urisToResolve, ...Uris[category]];
-      });
-
-      const actions = [
-        {
-          type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
-          data: {
-            uris: Uris,
-            success: true,
-          },
-        },
-      ];
-      if (urisToResolve.length && !offloadResolve) {
-        actions.push(doResolveUris(urisToResolve));
-      }
-
-      dispatch(batchActions(...actions));
-    };
-
-    const failure = () => {
-      dispatch({
-        type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
-        data: {
-          uris: {},
-        },
-      });
-    };
-
-    Lbryapi.call('file', 'list_homepage').then(success, failure);
-  };
-}
-
-export function doFetchTrendingUris() {
-  return dispatch => {
-    dispatch({
-      type: ACTIONS.FETCH_TRENDING_CONTENT_STARTED,
-    });
-
-    const success = data => {
-      const urisToResolve = data.map(uri => uri.url);
-      const actions = [
-        doResolveUris(urisToResolve),
-        {
-          type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
-          data: {
-            uris: data,
-            success: true,
-          },
-        },
-      ];
-      dispatch(batchActions(...actions));
-    };
-
-    const failure = () => {
-      dispatch({
-        type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
-        data: {
-          uris: [],
-        },
-      });
-    };
-
-    Lbryapi.call('file', 'list_trending').then(success, failure);
   };
 }
 
