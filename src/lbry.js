@@ -16,7 +16,8 @@ function checkAndParse(response) {
   return response.json().then(json => {
     let error;
     if (json.error) {
-      error = new Error(json.error);
+      const errorMessage = typeof json.error === 'object' ? json.error.message : json.error;
+      error = new Error(errorMessage);
     } else {
       error = new Error('Protocol error with unknown response signature');
     }

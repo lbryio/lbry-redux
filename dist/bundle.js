@@ -2171,10 +2171,12 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; // @flow
+
+
 __webpack_require__(10);
 
-var CHECK_DAEMON_STARTED_TRY_NUMBER = 200; // @flow
-
+var CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 
 var Lbry = {
   isConnected: false,
@@ -2189,7 +2191,8 @@ function checkAndParse(response) {
   return response.json().then(function (json) {
     var error = void 0;
     if (json.error) {
-      error = new Error(json.error);
+      var errorMessage = _typeof(json.error) === 'object' ? json.error.message : json.error;
+      error = new Error(errorMessage);
     } else {
       error = new Error('Protocol error with unknown response signature');
     }
