@@ -73,6 +73,8 @@ export {
 
 export { doBlackListedOutpointsSubscribe } from 'redux/actions/blacklist';
 
+export { savePosition } from 'redux/actions/content';
+
 export {
   doUpdateBalance,
   doBalanceSubscribe,
@@ -105,9 +107,12 @@ export { notificationsReducer } from 'redux/reducers/notifications';
 export { searchReducer } from 'redux/reducers/search';
 export { walletReducer } from 'redux/reducers/wallet';
 export { blacklistReducer } from 'redux/reducers/blacklist';
+export { contentReducer } from 'redux/reducers/content';
 
 // selectors
 export { selectBlackListedOutpoints } from 'redux/selectors/blacklist';
+
+export { makeSelectContentPositionForUri } from 'redux/selectors/content';
 
 export { selectToast, selectError } from 'redux/selectors/notifications';
 
