@@ -2,7 +2,7 @@ const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 export const regexInvalidURI = /[^A-Za-z0-9-]/g;
-export const regexAddress = /^b(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
+export const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 
 /**
  * Parses a LBRY name into its component parts. Throws errors with user-friendly
