@@ -224,7 +224,7 @@ Object.defineProperty(exports, 'doResolveUri', {
   }
 });
 
-var _file_info = __webpack_require__(25);
+var _file_info = __webpack_require__(23);
 
 Object.defineProperty(exports, 'doFetchFileInfo', {
   enumerable: true,
@@ -251,7 +251,7 @@ Object.defineProperty(exports, 'doSetFileListSort', {
   }
 });
 
-var _search = __webpack_require__(27);
+var _search = __webpack_require__(25);
 
 Object.defineProperty(exports, 'doSearch', {
   enumerable: true,
@@ -290,7 +290,7 @@ Object.defineProperty(exports, 'doUpdateSearchOptions', {
   }
 });
 
-var _wallet = __webpack_require__(20);
+var _wallet = __webpack_require__(19);
 
 Object.defineProperty(exports, 'doUpdateBalance', {
   enumerable: true,
@@ -389,7 +389,7 @@ Object.defineProperty(exports, 'doUpdateBlockHeight', {
   }
 });
 
-var _batchActions = __webpack_require__(19);
+var _batchActions = __webpack_require__(26);
 
 Object.defineProperty(exports, 'batchActions', {
   enumerable: true,
@@ -413,7 +413,7 @@ Object.defineProperty(exports, 'toQueryString', {
   }
 });
 
-var _formatCredits = __webpack_require__(23);
+var _formatCredits = __webpack_require__(22);
 
 Object.defineProperty(exports, 'formatCredits', {
   enumerable: true,
@@ -434,7 +434,7 @@ Object.defineProperty(exports, 'creditsToString', {
   }
 });
 
-var _claims2 = __webpack_require__(31);
+var _claims2 = __webpack_require__(29);
 
 Object.defineProperty(exports, 'claimsReducer', {
   enumerable: true,
@@ -443,7 +443,7 @@ Object.defineProperty(exports, 'claimsReducer', {
   }
 });
 
-var _file_info2 = __webpack_require__(33);
+var _file_info2 = __webpack_require__(30);
 
 Object.defineProperty(exports, 'fileInfoReducer', {
   enumerable: true,
@@ -452,7 +452,7 @@ Object.defineProperty(exports, 'fileInfoReducer', {
   }
 });
 
-var _notifications2 = __webpack_require__(36);
+var _notifications2 = __webpack_require__(33);
 
 Object.defineProperty(exports, 'notificationsReducer', {
   enumerable: true,
@@ -461,7 +461,7 @@ Object.defineProperty(exports, 'notificationsReducer', {
   }
 });
 
-var _search2 = __webpack_require__(38);
+var _search2 = __webpack_require__(35);
 
 Object.defineProperty(exports, 'searchReducer', {
   enumerable: true,
@@ -470,7 +470,7 @@ Object.defineProperty(exports, 'searchReducer', {
   }
 });
 
-var _wallet2 = __webpack_require__(39);
+var _wallet2 = __webpack_require__(36);
 
 Object.defineProperty(exports, 'walletReducer', {
   enumerable: true,
@@ -479,7 +479,7 @@ Object.defineProperty(exports, 'walletReducer', {
   }
 });
 
-var _notifications3 = __webpack_require__(42);
+var _notifications3 = __webpack_require__(37);
 
 Object.defineProperty(exports, 'selectToast', {
   enumerable: true,
@@ -755,7 +755,7 @@ Object.defineProperty(exports, 'selectCurrentChannelPage', {
   }
 });
 
-var _file_info3 = __webpack_require__(26);
+var _file_info3 = __webpack_require__(24);
 
 Object.defineProperty(exports, 'makeSelectFileInfoForUri', {
   enumerable: true,
@@ -986,7 +986,7 @@ Object.defineProperty(exports, 'makeSelectQueryWithOptions', {
   }
 });
 
-var _wallet3 = __webpack_require__(21);
+var _wallet3 = __webpack_require__(20);
 
 Object.defineProperty(exports, 'makeSelectBlockDate', {
   enumerable: true,
@@ -1155,23 +1155,23 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _thumbnail_upload_statuses = __webpack_require__(44);
+var _thumbnail_upload_statuses = __webpack_require__(38);
 
 var THUMBNAIL_STATUSES = _interopRequireWildcard(_thumbnail_upload_statuses);
 
-var _settings = __webpack_require__(45);
+var _settings = __webpack_require__(39);
 
 var SETTINGS = _interopRequireWildcard(_settings);
 
-var _transaction_types = __webpack_require__(22);
+var _transaction_types = __webpack_require__(21);
 
 var TRANSACTIONS = _interopRequireWildcard(_transaction_types);
 
-var _sort_options = __webpack_require__(34);
+var _sort_options = __webpack_require__(31);
 
 var SORT_OPTIONS = _interopRequireWildcard(_sort_options);
 
-var _pages = __webpack_require__(35);
+var _pages = __webpack_require__(32);
 
 var PAGES = _interopRequireWildcard(_pages);
 
@@ -1553,7 +1553,7 @@ var channelNameMinLength = 1;
 var claimIdMaxLength = 40;
 
 var regexInvalidURI = exports.regexInvalidURI = /[^A-Za-z0-9-]/g;
-var regexAddress = exports.regexAddress = /^b(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
+var regexAddress = exports.regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 
 /**
  * Parses a LBRY name into its component parts. Throws errors with user-friendly
@@ -1976,7 +1976,7 @@ var _notifications = __webpack_require__(4);
 
 var _claims = __webpack_require__(12);
 
-var _wallet = __webpack_require__(20);
+var _wallet = __webpack_require__(19);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3525,29 +3525,6 @@ var isClaimNsfw = exports.isClaimNsfw = function isClaimNsfw(claim) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.batchActions = batchActions;
-// https://github.com/reactjs/redux/issues/911
-function batchActions() {
-  for (var _len = arguments.length, actions = Array(_len), _key = 0; _key < _len; _key++) {
-    actions[_key] = arguments[_key];
-  }
-
-  return {
-    type: 'BATCH_ACTIONS',
-    actions: actions
-  };
-}
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 exports.doUpdateBalance = doUpdateBalance;
 exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doFetchTransactions = doFetchTransactions;
@@ -3576,9 +3553,9 @@ var _lbry2 = _interopRequireDefault(_lbry);
 
 var _notifications = __webpack_require__(4);
 
-var _wallet = __webpack_require__(21);
+var _wallet = __webpack_require__(20);
 
-var _formatCredits = __webpack_require__(23);
+var _formatCredits = __webpack_require__(22);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3930,7 +3907,7 @@ function doUpdateBlockHeight() {
 }
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3943,7 +3920,7 @@ exports.selectTransactionListFilter = exports.makeSelectBlockDate = exports.sele
 
 var _reselect = __webpack_require__(14);
 
-var _transaction_types = __webpack_require__(22);
+var _transaction_types = __webpack_require__(21);
 
 var TRANSACTIONS = _interopRequireWildcard(_transaction_types);
 
@@ -4173,7 +4150,7 @@ var selectTransactionListFilter = exports.selectTransactionListFilter = (0, _res
 });
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4194,7 +4171,7 @@ var UPDATE = exports.UPDATE = 'update';
 var ABANDON = exports.ABANDON = 'abandon';
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4239,8 +4216,7 @@ function creditsToString(amount) {
 }
 
 /***/ }),
-/* 24 */,
-/* 25 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4266,7 +4242,7 @@ var _claims = __webpack_require__(8);
 
 var _claims2 = __webpack_require__(12);
 
-var _file_info = __webpack_require__(26);
+var _file_info = __webpack_require__(24);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4341,7 +4317,7 @@ function doSetFileListSort(page, value) {
 }
 
 /***/ }),
-/* 26 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4556,7 +4532,7 @@ var selectFileListDownloadedSort = exports.selectFileListDownloadedSort = (0, _r
 });
 
 /***/ }),
-/* 27 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4577,13 +4553,13 @@ var _claims = __webpack_require__(8);
 
 var _search = __webpack_require__(17);
 
-var _batchActions = __webpack_require__(19);
+var _batchActions = __webpack_require__(26);
 
-var _debounce = __webpack_require__(28);
+var _debounce = __webpack_require__(27);
 
 var _debounce2 = _interopRequireDefault(_debounce);
 
-var _handleFetch = __webpack_require__(29);
+var _handleFetch = __webpack_require__(28);
 
 var _handleFetch2 = _interopRequireDefault(_handleFetch);
 
@@ -4756,7 +4732,30 @@ var doUpdateSearchOptions = exports.doUpdateSearchOptions = function doUpdateSea
 };
 
 /***/ }),
-/* 28 */
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.batchActions = batchActions;
+// https://github.com/reactjs/redux/issues/911
+function batchActions() {
+  for (var _len = arguments.length, actions = Array(_len), _key = 0; _key < _len; _key++) {
+    actions[_key] = arguments[_key];
+  }
+
+  return {
+    type: 'BATCH_ACTIONS',
+    actions: actions
+  };
+}
+
+/***/ }),
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4789,7 +4788,7 @@ function debouce(func, wait, immediate) {
 }
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4804,8 +4803,7 @@ function handleFetchResponse(response) {
 }
 
 /***/ }),
-/* 30 */,
-/* 31 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5094,8 +5092,7 @@ function claimsReducer() {
 }
 
 /***/ }),
-/* 32 */,
-/* 33 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5113,11 +5110,11 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _sort_options = __webpack_require__(34);
+var _sort_options = __webpack_require__(31);
 
 var SORT_OPTIONS = _interopRequireWildcard(_sort_options);
 
-var _pages = __webpack_require__(35);
+var _pages = __webpack_require__(32);
 
 var PAGES = _interopRequireWildcard(_pages);
 
@@ -5337,7 +5334,7 @@ function fileInfoReducer() {
 }
 
 /***/ }),
-/* 34 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5352,7 +5349,7 @@ var TITLE = exports.TITLE = 'title';
 var FILENAME = exports.FILENAME = 'filename';
 
 /***/ }),
-/* 35 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5384,7 +5381,7 @@ var HISTORY = exports.HISTORY = 'user_history';
 var WALLET = exports.WALLET = 'wallet';
 
 /***/ }),
-/* 36 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5403,7 +5400,7 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(37);
+var _reduxUtils = __webpack_require__(34);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -5492,7 +5489,7 @@ var notificationsReducer = (0, _reduxUtils.handleActions)((_handleActions = {}, 
 exports.notificationsReducer = notificationsReducer;
 
 /***/ }),
-/* 37 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5525,7 +5522,7 @@ var handleActions = exports.handleActions = function handleActions(actionMap, de
 };
 
 /***/ }),
-/* 38 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5544,7 +5541,7 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(37);
+var _reduxUtils = __webpack_require__(34);
 
 var _search = __webpack_require__(16);
 
@@ -5630,7 +5627,7 @@ var searchReducer = exports.searchReducer = (0, _reduxUtils.handleActions)((_han
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 39 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5973,9 +5970,7 @@ function walletReducer() {
 }
 
 /***/ }),
-/* 40 */,
-/* 41 */,
-/* 42 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6021,8 +6016,7 @@ var selectError = exports.selectError = (0, _reselect.createSelector)(selectStat
 });
 
 /***/ }),
-/* 43 */,
-/* 44 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6038,7 +6032,7 @@ var COMPLETE = exports.COMPLETE = 'complete';
 var MANUAL = exports.MANUAL = 'manual';
 
 /***/ }),
-/* 45 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
