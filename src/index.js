@@ -66,6 +66,8 @@ export {
   doUpdateSearchOptions,
 } from 'redux/actions/search';
 
+export { savePosition } from 'redux/actions/content';
+
 export {
   doUpdateBalance,
   doBalanceSubscribe,
@@ -96,8 +98,11 @@ export { fileInfoReducer } from 'redux/reducers/file_info';
 export { notificationsReducer } from 'redux/reducers/notifications';
 export { searchReducer } from 'redux/reducers/search';
 export { walletReducer } from 'redux/reducers/wallet';
+export { contentReducer } from 'redux/reducers/content';
 
 // selectors
+export { makeSelectContentPositionForUri } from 'redux/selectors/content';
+
 export { selectToast, selectError } from 'redux/selectors/notifications';
 
 export {
