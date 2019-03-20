@@ -16,7 +16,8 @@ function checkAndParse(response) {
   return response.json().then(json => {
     let error;
     if (json.error) {
-      error = new Error(json.error);
+      const errorMessage = typeof json.error === 'object' ? json.error.message : json.error;
+      error = new Error(errorMessage);
     } else {
       error = new Error('Protocol error with unknown response signature');
     }
@@ -79,6 +80,7 @@ Lbry.claim_list_by_channel = (params = {}) => daemonCallWithResult('claim_list_b
 Lbry.account_balance = (params = {}) => daemonCallWithResult('account_balance', params);
 Lbry.account_decrypt = () => daemonCallWithResult('account_decrypt', {});
 Lbry.account_encrypt = (params = {}) => daemonCallWithResult('account_encrypt', params);
+Lbry.account_list = (params = {}) => daemonCallWithResult('account_list', params);
 Lbry.address_is_mine = (params = {}) => daemonCallWithResult('address_is_mine', params);
 Lbry.wallet_lock = () => daemonCallWithResult('wallet_lock', {});
 Lbry.address_unused = (params = {}) => daemonCallWithResult('address_unused', params);
@@ -196,6 +198,26 @@ Lbry.resolve = (params = {}) =>
       reject
     );
   });
+
+Lbry.publish = (params = {}) =>
+  new Promise((resolve, reject) => {
+    if (Lbry.overrides.publish) {
+      Lbry.overrides.publish(params).then(resolve, reject);
+    } else {
+      apiCall('publish', params, resolve, reject);
+    }
+  });
+
+// Allow overriding Lbry methods
+Lbry.overrides = {};
+Lbry.setOverride = (methodName, newMethod) => {
+  Lbry.overrides[methodName] = newMethod;
+};
+
+// Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
+Lbry.setDaemonConnectionString = value => {
+  Lbry.daemonConnectionString = value;
+};
 
 const lbryProxy = new Proxy(Lbry, {
   get(target, name) {

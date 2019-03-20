@@ -89,8 +89,8 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectTransactionListFilter = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.makeSelectQueryWithOptions = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchOptions = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectFileListPublishedSort = exports.selectFileListDownloadedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.selectAllCostInfoByUri = exports.makeSelectCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = exports.selectCurrentChannelPage = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = undefined;
-exports.selectClaimsById = exports.selectPendingById = exports.makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.makeSelectChannelForClaimUri = exports.makeSelectFirstRecommendedFileForUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectError = exports.selectToast = exports.makeSelectContentPositionForUri = exports.selectBlackListedOutpoints = exports.contentReducer = exports.blacklistReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.costInfoReducer = exports.claimsReducer = exports.creditsToString = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doUpdateBlockHeight = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendTip = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.savePosition = exports.doBlackListedOutpointsSubscribe = exports.doUpdateSearchOptions = exports.setSearchApi = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetFileListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doFetchCostInfoForUri = exports.doFetchTrendingUris = exports.doFetchFeaturedUris = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doDismissError = exports.doError = exports.doDismissToast = exports.doToast = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbryapi = exports.Lbry = exports.PAGES = exports.SORT_OPTIONS = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_OPTIONS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.ACTIONS = exports.Toast = undefined;
+exports.selectTransactionListFilter = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.makeSelectQueryWithOptions = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchOptions = exports.selectSearchValue = exports.selectSearchQuery = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.selectPageTitle = exports.selectHeaderLinks = exports.selectCurrentParams = exports.selectCurrentPage = exports.selectCurrentPath = exports.makeSelectCurrentParam = exports.computePageFromPath = exports.selectFileListPublishedSort = exports.selectFileListDownloadedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectCurrentChannelPage = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = undefined;
+exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.selectPendingById = exports.makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.makeSelectChannelForClaimUri = exports.makeSelectFirstRecommendedFileForUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectError = exports.selectToast = exports.makeSelectContentPositionForUri = exports.contentReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.claimsReducer = exports.creditsToString = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doUpdateBlockHeight = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendTip = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.savePosition = exports.doUpdateSearchOptions = exports.setSearchApi = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetFileListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doDismissError = exports.doError = exports.doDismissToast = exports.doToast = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbry = exports.PAGES = exports.SORT_OPTIONS = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_OPTIONS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.ACTIONS = exports.Toast = undefined;
 
 var _Notification = __webpack_require__(1);
 
@@ -223,29 +223,8 @@ Object.defineProperty(exports, 'doResolveUri', {
     return _claims.doResolveUri;
   }
 });
-Object.defineProperty(exports, 'doFetchFeaturedUris', {
-  enumerable: true,
-  get: function get() {
-    return _claims.doFetchFeaturedUris;
-  }
-});
-Object.defineProperty(exports, 'doFetchTrendingUris', {
-  enumerable: true,
-  get: function get() {
-    return _claims.doFetchTrendingUris;
-  }
-});
 
-var _cost_info = __webpack_require__(29);
-
-Object.defineProperty(exports, 'doFetchCostInfoForUri', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info.doFetchCostInfoForUri;
-  }
-});
-
-var _file_info = __webpack_require__(30);
+var _file_info = __webpack_require__(23);
 
 Object.defineProperty(exports, 'doFetchFileInfo', {
   enumerable: true,
@@ -272,7 +251,7 @@ Object.defineProperty(exports, 'doSetFileListSort', {
   }
 });
 
-var _search = __webpack_require__(32);
+var _search = __webpack_require__(25);
 
 Object.defineProperty(exports, 'doSearch', {
   enumerable: true,
@@ -311,16 +290,7 @@ Object.defineProperty(exports, 'doUpdateSearchOptions', {
   }
 });
 
-var _blacklist = __webpack_require__(35);
-
-Object.defineProperty(exports, 'doBlackListedOutpointsSubscribe', {
-  enumerable: true,
-  get: function get() {
-    return _blacklist.doBlackListedOutpointsSubscribe;
-  }
-});
-
-var _content = __webpack_require__(36);
+var _content = __webpack_require__(29);
 
 Object.defineProperty(exports, 'savePosition', {
   enumerable: true,
@@ -329,7 +299,7 @@ Object.defineProperty(exports, 'savePosition', {
   }
 });
 
-var _wallet = __webpack_require__(25);
+var _wallet = __webpack_require__(19);
 
 Object.defineProperty(exports, 'doUpdateBalance', {
   enumerable: true,
@@ -428,7 +398,7 @@ Object.defineProperty(exports, 'doUpdateBlockHeight', {
   }
 });
 
-var _batchActions = __webpack_require__(24);
+var _batchActions = __webpack_require__(26);
 
 Object.defineProperty(exports, 'batchActions', {
   enumerable: true,
@@ -437,7 +407,7 @@ Object.defineProperty(exports, 'batchActions', {
   }
 });
 
-var _query_params = __webpack_require__(20);
+var _query_params = __webpack_require__(15);
 
 Object.defineProperty(exports, 'parseQueryParams', {
   enumerable: true,
@@ -452,7 +422,7 @@ Object.defineProperty(exports, 'toQueryString', {
   }
 });
 
-var _formatCredits = __webpack_require__(28);
+var _formatCredits = __webpack_require__(22);
 
 Object.defineProperty(exports, 'formatCredits', {
   enumerable: true,
@@ -473,7 +443,7 @@ Object.defineProperty(exports, 'creditsToString', {
   }
 });
 
-var _claims2 = __webpack_require__(37);
+var _claims2 = __webpack_require__(30);
 
 Object.defineProperty(exports, 'claimsReducer', {
   enumerable: true,
@@ -482,16 +452,7 @@ Object.defineProperty(exports, 'claimsReducer', {
   }
 });
 
-var _cost_info2 = __webpack_require__(38);
-
-Object.defineProperty(exports, 'costInfoReducer', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info2.costInfoReducer;
-  }
-});
-
-var _file_info2 = __webpack_require__(39);
+var _file_info2 = __webpack_require__(31);
 
 Object.defineProperty(exports, 'fileInfoReducer', {
   enumerable: true,
@@ -500,7 +461,7 @@ Object.defineProperty(exports, 'fileInfoReducer', {
   }
 });
 
-var _notifications2 = __webpack_require__(42);
+var _notifications2 = __webpack_require__(34);
 
 Object.defineProperty(exports, 'notificationsReducer', {
   enumerable: true,
@@ -509,7 +470,7 @@ Object.defineProperty(exports, 'notificationsReducer', {
   }
 });
 
-var _search2 = __webpack_require__(44);
+var _search2 = __webpack_require__(36);
 
 Object.defineProperty(exports, 'searchReducer', {
   enumerable: true,
@@ -518,7 +479,7 @@ Object.defineProperty(exports, 'searchReducer', {
   }
 });
 
-var _wallet2 = __webpack_require__(45);
+var _wallet2 = __webpack_require__(37);
 
 Object.defineProperty(exports, 'walletReducer', {
   enumerable: true,
@@ -527,16 +488,7 @@ Object.defineProperty(exports, 'walletReducer', {
   }
 });
 
-var _blacklist2 = __webpack_require__(46);
-
-Object.defineProperty(exports, 'blacklistReducer', {
-  enumerable: true,
-  get: function get() {
-    return _blacklist2.blacklistReducer;
-  }
-});
-
-var _content2 = __webpack_require__(47);
+var _content2 = __webpack_require__(38);
 
 Object.defineProperty(exports, 'contentReducer', {
   enumerable: true,
@@ -545,16 +497,7 @@ Object.defineProperty(exports, 'contentReducer', {
   }
 });
 
-var _blacklist3 = __webpack_require__(48);
-
-Object.defineProperty(exports, 'selectBlackListedOutpoints', {
-  enumerable: true,
-  get: function get() {
-    return _blacklist3.selectBlackListedOutpoints;
-  }
-});
-
-var _content3 = __webpack_require__(49);
+var _content3 = __webpack_require__(39);
 
 Object.defineProperty(exports, 'makeSelectContentPositionForUri', {
   enumerable: true,
@@ -563,7 +506,7 @@ Object.defineProperty(exports, 'makeSelectContentPositionForUri', {
   }
 });
 
-var _notifications3 = __webpack_require__(50);
+var _notifications3 = __webpack_require__(40);
 
 Object.defineProperty(exports, 'selectToast', {
   enumerable: true,
@@ -578,7 +521,7 @@ Object.defineProperty(exports, 'selectError', {
   }
 });
 
-var _claims3 = __webpack_require__(17);
+var _claims3 = __webpack_require__(12);
 
 Object.defineProperty(exports, 'makeSelectClaimForUri', {
   enumerable: true,
@@ -839,40 +782,7 @@ Object.defineProperty(exports, 'selectCurrentChannelPage', {
   }
 });
 
-var _cost_info3 = __webpack_require__(51);
-
-Object.defineProperty(exports, 'makeSelectFetchingCostInfoForUri', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info3.makeSelectFetchingCostInfoForUri;
-  }
-});
-Object.defineProperty(exports, 'makeSelectCostInfoForUri', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info3.makeSelectCostInfoForUri;
-  }
-});
-Object.defineProperty(exports, 'selectAllCostInfoByUri', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info3.selectAllCostInfoByUri;
-  }
-});
-Object.defineProperty(exports, 'selectCostForCurrentPageUri', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info3.selectCostForCurrentPageUri;
-  }
-});
-Object.defineProperty(exports, 'selectFetchingCostInfo', {
-  enumerable: true,
-  get: function get() {
-    return _cost_info3.selectFetchingCostInfo;
-  }
-});
-
-var _file_info3 = __webpack_require__(31);
+var _file_info3 = __webpack_require__(24);
 
 Object.defineProperty(exports, 'makeSelectFileInfoForUri', {
   enumerable: true,
@@ -959,7 +869,7 @@ Object.defineProperty(exports, 'selectFileListPublishedSort', {
   }
 });
 
-var _navigation = __webpack_require__(18);
+var _navigation = __webpack_require__(13);
 
 Object.defineProperty(exports, 'computePageFromPath', {
   enumerable: true,
@@ -1040,7 +950,7 @@ Object.defineProperty(exports, 'selectActiveHistoryEntry', {
   }
 });
 
-var _search3 = __webpack_require__(22);
+var _search3 = __webpack_require__(17);
 
 Object.defineProperty(exports, 'makeSelectSearchUris', {
   enumerable: true,
@@ -1103,7 +1013,7 @@ Object.defineProperty(exports, 'makeSelectQueryWithOptions', {
   }
 });
 
-var _wallet3 = __webpack_require__(26);
+var _wallet3 = __webpack_require__(20);
 
 Object.defineProperty(exports, 'makeSelectBlockDate', {
   enumerable: true,
@@ -1272,35 +1182,31 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _thumbnail_upload_statuses = __webpack_require__(52);
+var _thumbnail_upload_statuses = __webpack_require__(41);
 
 var THUMBNAIL_STATUSES = _interopRequireWildcard(_thumbnail_upload_statuses);
 
-var _settings = __webpack_require__(53);
+var _settings = __webpack_require__(42);
 
 var SETTINGS = _interopRequireWildcard(_settings);
 
-var _transaction_types = __webpack_require__(27);
+var _transaction_types = __webpack_require__(21);
 
 var TRANSACTIONS = _interopRequireWildcard(_transaction_types);
 
-var _sort_options = __webpack_require__(40);
+var _sort_options = __webpack_require__(32);
 
 var SORT_OPTIONS = _interopRequireWildcard(_sort_options);
 
-var _pages = __webpack_require__(41);
+var _pages = __webpack_require__(33);
 
 var PAGES = _interopRequireWildcard(_pages);
 
-var _search4 = __webpack_require__(21);
+var _search4 = __webpack_require__(16);
 
 var _lbry = __webpack_require__(9);
 
 var _lbry2 = _interopRequireDefault(_lbry);
-
-var _lbryapi = __webpack_require__(12);
-
-var _lbryapi2 = _interopRequireDefault(_lbryapi);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1319,7 +1225,6 @@ exports.PAGES = PAGES;
 // common
 
 exports.Lbry = _lbry2.default;
-exports.Lbryapi = _lbryapi2.default;
 exports.selectSearchState = _search3.selectState;
 
 /***/ }),
@@ -1500,10 +1405,6 @@ var SET_TRANSACTION_LIST_FILTER = exports.SET_TRANSACTION_LIST_FILTER = 'SET_TRA
 var UPDATE_CURRENT_HEIGHT = exports.UPDATE_CURRENT_HEIGHT = 'UPDATE_CURRENT_HEIGHT';
 
 // Claims
-var FETCH_FEATURED_CONTENT_STARTED = exports.FETCH_FEATURED_CONTENT_STARTED = 'FETCH_FEATURED_CONTENT_STARTED';
-var FETCH_FEATURED_CONTENT_COMPLETED = exports.FETCH_FEATURED_CONTENT_COMPLETED = 'FETCH_FEATURED_CONTENT_COMPLETED';
-var FETCH_TRENDING_CONTENT_STARTED = exports.FETCH_TRENDING_CONTENT_STARTED = 'FETCH_TRENDING_CONTENT_STARTED';
-var FETCH_TRENDING_CONTENT_COMPLETED = exports.FETCH_TRENDING_CONTENT_COMPLETED = 'FETCH_TRENDING_CONTENT_COMPLETED';
 var RESOLVE_URIS_STARTED = exports.RESOLVE_URIS_STARTED = 'RESOLVE_URIS_STARTED';
 var RESOLVE_URIS_COMPLETED = exports.RESOLVE_URIS_COMPLETED = 'RESOLVE_URIS_COMPLETED';
 var FETCH_CHANNEL_CLAIMS_STARTED = exports.FETCH_CHANNEL_CLAIMS_STARTED = 'FETCH_CHANNEL_CLAIMS_STARTED';
@@ -1521,10 +1422,6 @@ var CREATE_CHANNEL_COMPLETED = exports.CREATE_CHANNEL_COMPLETED = 'CREATE_CHANNE
 var PUBLISH_STARTED = exports.PUBLISH_STARTED = 'PUBLISH_STARTED';
 var PUBLISH_COMPLETED = exports.PUBLISH_COMPLETED = 'PUBLISH_COMPLETED';
 var PUBLISH_FAILED = exports.PUBLISH_FAILED = 'PUBLISH_FAILED';
-var FETCH_BLACK_LISTED_CONTENT_STARTED = exports.FETCH_BLACK_LISTED_CONTENT_STARTED = 'FETCH_BLACK_LISTED_CONTENT_STARTED';
-var FETCH_BLACK_LISTED_CONTENT_COMPLETED = exports.FETCH_BLACK_LISTED_CONTENT_COMPLETED = 'FETCH_BLACK_LISTED_CONTENT_COMPLETED';
-var FETCH_BLACK_LISTED_CONTENT_FAILED = exports.FETCH_BLACK_LISTED_CONTENT_FAILED = 'FETCH_BLACK_LISTED_CONTENT_FAILED';
-var BLACK_LISTED_CONTENT_SUBSCRIBE = exports.BLACK_LISTED_CONTENT_SUBSCRIBE = 'BLACK_LISTED_CONTENT_SUBSCRIBE';
 var SET_PLAYING_URI = exports.SET_PLAYING_URI = 'SET_PLAYING_URI';
 var SET_CONTENT_POSITION = exports.SET_CONTENT_POSITION = 'SET_CONTENT_POSITION';
 var SET_CONTENT_LAST_VIEWED = exports.SET_CONTENT_LAST_VIEWED = 'SET_CONTENT_LAST_VIEWED';
@@ -1536,8 +1433,6 @@ var FILE_LIST_STARTED = exports.FILE_LIST_STARTED = 'FILE_LIST_STARTED';
 var FILE_LIST_SUCCEEDED = exports.FILE_LIST_SUCCEEDED = 'FILE_LIST_SUCCEEDED';
 var FETCH_FILE_INFO_STARTED = exports.FETCH_FILE_INFO_STARTED = 'FETCH_FILE_INFO_STARTED';
 var FETCH_FILE_INFO_COMPLETED = exports.FETCH_FILE_INFO_COMPLETED = 'FETCH_FILE_INFO_COMPLETED';
-var FETCH_COST_INFO_STARTED = exports.FETCH_COST_INFO_STARTED = 'FETCH_COST_INFO_STARTED';
-var FETCH_COST_INFO_COMPLETED = exports.FETCH_COST_INFO_COMPLETED = 'FETCH_COST_INFO_COMPLETED';
 var LOADING_VIDEO_STARTED = exports.LOADING_VIDEO_STARTED = 'LOADING_VIDEO_STARTED';
 var LOADING_VIDEO_COMPLETED = exports.LOADING_VIDEO_COMPLETED = 'LOADING_VIDEO_COMPLETED';
 var LOADING_VIDEO_FAILED = exports.LOADING_VIDEO_FAILED = 'LOADING_VIDEO_FAILED';
@@ -1685,7 +1580,7 @@ var channelNameMinLength = 1;
 var claimIdMaxLength = 40;
 
 var regexInvalidURI = exports.regexInvalidURI = /[^A-Za-z0-9-]/g;
-var regexAddress = exports.regexAddress = /^b(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
+var regexAddress = exports.regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 
 /**
  * Parses a LBRY name into its component parts. Throws errors with user-friendly
@@ -2091,8 +1986,6 @@ exports.doResolveUris = doResolveUris;
 exports.doResolveUri = doResolveUri;
 exports.doFetchClaimListMine = doFetchClaimListMine;
 exports.doAbandonClaim = doAbandonClaim;
-exports.doFetchFeaturedUris = doFetchFeaturedUris;
-exports.doFetchTrendingUris = doFetchTrendingUris;
 exports.doFetchClaimsByChannel = doFetchClaimsByChannel;
 exports.doFetchClaimCountByChannel = doFetchClaimCountByChannel;
 
@@ -2104,25 +1997,17 @@ var _lbry = __webpack_require__(9);
 
 var _lbry2 = _interopRequireDefault(_lbry);
 
-var _lbryapi = __webpack_require__(12);
-
-var _lbryapi2 = _interopRequireDefault(_lbryapi);
-
 var _lbryURI = __webpack_require__(3);
 
 var _notifications = __webpack_require__(4);
 
-var _claims = __webpack_require__(17);
+var _claims = __webpack_require__(12);
 
-var _batchActions = __webpack_require__(24);
-
-var _wallet = __webpack_require__(25);
+var _wallet = __webpack_require__(19);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function doResolveUris(uris) {
   var returnCachedClaims = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
@@ -2255,82 +2140,6 @@ function doAbandonClaim(txid, nout) {
   };
 }
 
-function doFetchFeaturedUris() {
-  var offloadResolve = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-  return function (dispatch) {
-    dispatch({
-      type: ACTIONS.FETCH_FEATURED_CONTENT_STARTED
-    });
-
-    var success = function success(_ref4) {
-      var Uris = _ref4.Uris;
-
-      var urisToResolve = [];
-      Object.keys(Uris).forEach(function (category) {
-        urisToResolve = [].concat(_toConsumableArray(urisToResolve), _toConsumableArray(Uris[category]));
-      });
-
-      var actions = [{
-        type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
-        data: {
-          uris: Uris,
-          success: true
-        }
-      }];
-      if (urisToResolve.length && !offloadResolve) {
-        actions.push(doResolveUris(urisToResolve));
-      }
-
-      dispatch(_batchActions.batchActions.apply(undefined, actions));
-    };
-
-    var failure = function failure() {
-      dispatch({
-        type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
-        data: {
-          uris: {}
-        }
-      });
-    };
-
-    _lbryapi2.default.call('file', 'list_homepage').then(success, failure);
-  };
-}
-
-function doFetchTrendingUris() {
-  return function (dispatch) {
-    dispatch({
-      type: ACTIONS.FETCH_TRENDING_CONTENT_STARTED
-    });
-
-    var success = function success(data) {
-      var urisToResolve = data.map(function (uri) {
-        return uri.url;
-      });
-      var actions = [doResolveUris(urisToResolve), {
-        type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
-        data: {
-          uris: data,
-          success: true
-        }
-      }];
-      dispatch(_batchActions.batchActions.apply(undefined, actions));
-    };
-
-    var failure = function failure() {
-      dispatch({
-        type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
-        data: {
-          uris: []
-        }
-      });
-    };
-
-    _lbryapi2.default.call('file', 'list_trending').then(success, failure);
-  };
-}
-
 function doFetchClaimsByChannel(uri, page) {
   return function (dispatch) {
     dispatch({
@@ -2389,10 +2198,12 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; // @flow
+
+
 __webpack_require__(10);
 
-var CHECK_DAEMON_STARTED_TRY_NUMBER = 200; // @flow
-
+var CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 
 var Lbry = {
   isConnected: false,
@@ -2407,7 +2218,8 @@ function checkAndParse(response) {
   return response.json().then(function (json) {
     var error = void 0;
     if (json.error) {
-      error = new Error(json.error);
+      var errorMessage = _typeof(json.error) === 'object' ? json.error.message : json.error;
+      error = new Error(errorMessage);
     } else {
       error = new Error('Protocol error with unknown response signature');
     }
@@ -2493,6 +2305,10 @@ Lbry.account_decrypt = function () {
 Lbry.account_encrypt = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('account_encrypt', params);
+};
+Lbry.account_list = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('account_list', params);
 };
 Lbry.address_is_mine = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -2617,6 +2433,28 @@ Lbry.resolve = function () {
       resolve(data || {});
     }, reject);
   });
+};
+
+Lbry.publish = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return new Promise(function (resolve, reject) {
+    if (Lbry.overrides.publish) {
+      Lbry.overrides.publish(params).then(resolve, reject);
+    } else {
+      apiCall('publish', params, resolve, reject);
+    }
+  });
+};
+
+// Allow overriding Lbry methods
+Lbry.overrides = {};
+Lbry.setOverride = function (methodName, newMethod) {
+  Lbry.overrides[methodName] = newMethod;
+};
+
+// Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
+Lbry.setDaemonConnectionString = function (value) {
+  Lbry.daemonConnectionString = value;
 };
 
 var lbryProxy = new Proxy(Lbry, {
@@ -2849,514 +2687,24 @@ module.exports = g;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _querystring = __webpack_require__(14);
-
-var _querystring2 = _interopRequireDefault(_querystring);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Lbryapi = {
-  enabled: true,
-  exchangePromise: null,
-  exchangeLastFetched: null
-};
-
-var CONNECTION_STRING = process.env.LBRY_APP_API_URL ? process.env.LBRY_APP_API_URL.replace(/\/*$/, '/') // exactly one slash at the end
-: 'https://api.lbry.io/';
-
-var EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
-
-Lbryapi.getExchangeRates = function () {
-  if (!Lbryapi.exchangeLastFetched || Date.now() - Lbryapi.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
-    Lbryapi.exchangePromise = new Promise(function (resolve, reject) {
-      Lbryapi.call('lbc', 'exchange_rate', {}, 'get', true).then(function (_ref) {
-        var LBC_USD = _ref.lbc_usd,
-            LBC_BTC = _ref.lbc_btc,
-            BTC_USD = _ref.btc_usd;
-
-        var rates = { LBC_USD: LBC_USD, LBC_BTC: LBC_BTC, BTC_USD: BTC_USD };
-        resolve(rates);
-      }).catch(reject);
-    });
-    Lbryapi.exchangeLastFetched = Date.now();
-  }
-  return Lbryapi.exchangePromise;
-};
-
-Lbryapi.call = function (resource, action) {
-  var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  var method = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'get';
-
-  if (!Lbryapi.enabled) {
-    return Promise.reject(new Error(__('LBRY internal API is disabled')));
-  }
-
-  if (!(method === 'get' || method === 'post')) {
-    return Promise.reject(new Error(__('Invalid method')));
-  }
-
-  function checkAndParse(response) {
-    if (response.status >= 200 && response.status < 300) {
-      return response.json();
-    }
-    return response.json().then(function (json) {
-      var error = void 0;
-      if (json.error) {
-        error = new Error(json.error);
-      } else {
-        error = new Error('Unknown API error signature');
-      }
-      error.response = response; // This is primarily a hack used in actions/user.js
-      return Promise.reject(error);
-    });
-  }
-
-  function makeRequest(url, options) {
-    return fetch(url, options).then(checkAndParse);
-  }
-
-  var fullParams = _extends({}, params);
-  var qs = _querystring2.default.stringify(fullParams);
-  var url = '' + CONNECTION_STRING + resource + '/' + action + '?' + qs;
-
-  var options = {
-    method: 'GET'
-  };
-
-  if (method === 'post') {
-    options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: qs
-    };
-    url = '' + CONNECTION_STRING + resource + '/' + action;
-  }
-
-  return makeRequest(url, options).then(function (response) {
-    return response.data;
-  });
-};
-
-exports.default = Lbryapi;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(13)))
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.decode = exports.parse = __webpack_require__(15);
-exports.encode = exports.stringify = __webpack_require__(16);
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-// If obj.hasOwnProperty has been overridden, then calling
-// obj.hasOwnProperty(prop) will break.
-// See: https://github.com/joyent/node/issues/1707
-function hasOwnProperty(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
-module.exports = function(qs, sep, eq, options) {
-  sep = sep || '&';
-  eq = eq || '=';
-  var obj = {};
-
-  if (typeof qs !== 'string' || qs.length === 0) {
-    return obj;
-  }
-
-  var regexp = /\+/g;
-  qs = qs.split(sep);
-
-  var maxKeys = 1000;
-  if (options && typeof options.maxKeys === 'number') {
-    maxKeys = options.maxKeys;
-  }
-
-  var len = qs.length;
-  // maxKeys <= 0 means that we should not limit keys count
-  if (maxKeys > 0 && len > maxKeys) {
-    len = maxKeys;
-  }
-
-  for (var i = 0; i < len; ++i) {
-    var x = qs[i].replace(regexp, '%20'),
-        idx = x.indexOf(eq),
-        kstr, vstr, k, v;
-
-    if (idx >= 0) {
-      kstr = x.substr(0, idx);
-      vstr = x.substr(idx + 1);
-    } else {
-      kstr = x;
-      vstr = '';
-    }
-
-    k = decodeURIComponent(kstr);
-    v = decodeURIComponent(vstr);
-
-    if (!hasOwnProperty(obj, k)) {
-      obj[k] = v;
-    } else if (isArray(obj[k])) {
-      obj[k].push(v);
-    } else {
-      obj[k] = [obj[k], v];
-    }
-  }
-
-  return obj;
-};
-
-var isArray = Array.isArray || function (xs) {
-  return Object.prototype.toString.call(xs) === '[object Array]';
-};
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-var stringifyPrimitive = function(v) {
-  switch (typeof v) {
-    case 'string':
-      return v;
-
-    case 'boolean':
-      return v ? 'true' : 'false';
-
-    case 'number':
-      return isFinite(v) ? v : '';
-
-    default:
-      return '';
-  }
-};
-
-module.exports = function(obj, sep, eq, name) {
-  sep = sep || '&';
-  eq = eq || '=';
-  if (obj === null) {
-    obj = undefined;
-  }
-
-  if (typeof obj === 'object') {
-    return map(objectKeys(obj), function(k) {
-      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
-      if (isArray(obj[k])) {
-        return map(obj[k], function(v) {
-          return ks + encodeURIComponent(stringifyPrimitive(v));
-        }).join(sep);
-      } else {
-        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
-      }
-    }).join(sep);
-
-  }
-
-  if (!name) return '';
-  return encodeURIComponent(stringifyPrimitive(name)) + eq +
-         encodeURIComponent(stringifyPrimitive(obj));
-};
-
-var isArray = Array.isArray || function (xs) {
-  return Object.prototype.toString.call(xs) === '[object Array]';
-};
-
-function map (xs, f) {
-  if (xs.map) return xs.map(f);
-  var res = [];
-  for (var i = 0; i < xs.length; i++) {
-    res.push(f(xs[i], i));
-  }
-  return res;
-}
-
-var objectKeys = Object.keys || function (obj) {
-  var res = [];
-  for (var key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
-  }
-  return res;
-};
-
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
 
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.makeSelectChannelForClaimUri = exports.makeSelectFirstRecommendedFileForUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.makeSelectIsUriResolving = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectIsFetchingClaimListMine = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectClaimsInChannelForPage = exports.makeSelectFetchingChannelClaims = exports.selectAllFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.makeSelectClaimForUri = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.selectPendingClaims = exports.selectPendingById = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectCurrentChannelPage = exports.selectClaimsById = undefined;
+exports.makeSelectChannelForClaimUri = exports.makeSelectFirstRecommendedFileForUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.makeSelectIsUriResolving = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectIsFetchingClaimListMine = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectClaimsInChannelForCurrentPage = exports.makeSelectClaimsInChannelForPage = exports.makeSelectFetchingChannelClaims = exports.selectAllFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.makeSelectClaimForUri = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.selectPendingClaims = exports.selectPendingById = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectCurrentChannelPage = exports.selectClaimsById = undefined;
 
 var _lbryURI = __webpack_require__(3);
 
-var _navigation = __webpack_require__(18);
+var _navigation = __webpack_require__(13);
 
-var _search = __webpack_require__(22);
+var _search = __webpack_require__(17);
 
-var _reselect = __webpack_require__(19);
+var _reselect = __webpack_require__(14);
 
-var _claim = __webpack_require__(23);
+var _claim = __webpack_require__(18);
 
-var _query_params = __webpack_require__(20);
+var _query_params = __webpack_require__(15);
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -3599,22 +2947,6 @@ var makeSelectIsUriResolving = exports.makeSelectIsUriResolving = function makeS
   });
 };
 
-var selectFeaturedUris = exports.selectFeaturedUris = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.featuredUris;
-});
-
-var selectFetchingFeaturedUris = exports.selectFetchingFeaturedUris = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.fetchingFeaturedContent;
-});
-
-var selectTrendingUris = exports.selectTrendingUris = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.trendingUris;
-});
-
-var selectFetchingTrendingUris = exports.selectFetchingTrendingUris = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.fetchingTrendingContent;
-});
-
 var selectPlayingUri = exports.selectPlayingUri = (0, _reselect.createSelector)(selectState, function (state) {
   return state.playingUri;
 });
@@ -3718,7 +3050,7 @@ var makeSelectChannelForClaimUri = exports.makeSelectChannelForClaimUri = functi
 };
 
 /***/ }),
-/* 18 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3729,9 +3061,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.selectPageTitle = exports.selectActiveHistoryEntry = exports.selectHistoryStack = exports.selectHistoryIndex = exports.selectIsHome = exports.selectIsForwardDisabled = exports.selectIsBackDisabled = exports.selectPathAfterAuth = exports.makeSelectCurrentParam = exports.selectCurrentParams = exports.selectCurrentPage = exports.computePageFromPath = exports.selectCurrentPath = exports.selectState = undefined;
 
-var _reselect = __webpack_require__(19);
+var _reselect = __webpack_require__(14);
 
-var _query_params = __webpack_require__(20);
+var _query_params = __webpack_require__(15);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.navigation || {};
@@ -3799,7 +3131,7 @@ var selectPageTitle = exports.selectPageTitle = (0, _reselect.createSelector)(se
 });
 
 /***/ }),
-/* 19 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3930,7 +3262,7 @@ function createStructuredSelector(selectors) {
 }
 
 /***/ }),
-/* 20 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3947,7 +3279,7 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 exports.parseQueryParams = parseQueryParams;
 exports.toQueryString = toQueryString;
 
-var _search = __webpack_require__(21);
+var _search = __webpack_require__(16);
 
 var DEFAULT_SEARCH_RESULT_FROM = 0;
 var DEFAULT_SEARCH_SIZE = 20;
@@ -4004,7 +3336,7 @@ var getSearchQueryString = exports.getSearchQueryString = function getSearchQuer
 };
 
 /***/ }),
-/* 21 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4033,7 +3365,7 @@ var SEARCH_OPTIONS = exports.SEARCH_OPTIONS = {
 };
 
 /***/ }),
-/* 22 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4046,15 +3378,15 @@ exports.makeSelectQueryWithOptions = exports.selectSearchSuggestions = exports.s
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _search = __webpack_require__(21);
+var _search = __webpack_require__(16);
 
-var _query_params = __webpack_require__(20);
+var _query_params = __webpack_require__(15);
 
 var _lbryURI = __webpack_require__(3);
 
-var _navigation = __webpack_require__(18);
+var _navigation = __webpack_require__(13);
 
-var _reselect = __webpack_require__(19);
+var _reselect = __webpack_require__(14);
 
 // @flow
 /*:: import type { SearchState, SearchOptions, SearchSuggestion } from 'types/Search';*/
@@ -4200,7 +3532,7 @@ var makeSelectQueryWithOptions = exports.makeSelectQueryWithOptions = function m
 };
 
 /***/ }),
-/* 23 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4214,30 +3546,7 @@ var isClaimNsfw = exports.isClaimNsfw = function isClaimNsfw(claim) {
 };
 
 /***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.batchActions = batchActions;
-// https://github.com/reactjs/redux/issues/911
-function batchActions() {
-  for (var _len = arguments.length, actions = Array(_len), _key = 0; _key < _len; _key++) {
-    actions[_key] = arguments[_key];
-  }
-
-  return {
-    type: 'BATCH_ACTIONS',
-    actions: actions
-  };
-}
-
-/***/ }),
-/* 25 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4274,9 +3583,9 @@ var _lbry2 = _interopRequireDefault(_lbry);
 
 var _notifications = __webpack_require__(4);
 
-var _wallet = __webpack_require__(26);
+var _wallet = __webpack_require__(20);
 
-var _formatCredits = __webpack_require__(28);
+var _formatCredits = __webpack_require__(22);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4628,7 +3937,7 @@ function doUpdateBlockHeight() {
 }
 
 /***/ }),
-/* 26 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4639,9 +3948,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.selectTransactionListFilter = exports.makeSelectBlockDate = exports.selectCurrentHeight = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.selectWalletLockResult = exports.selectWalletLockSucceeded = exports.selectWalletLockPending = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletIsEncrypted = exports.selectWalletState = exports.selectState = undefined;
 
-var _reselect = __webpack_require__(19);
+var _reselect = __webpack_require__(14);
 
-var _transaction_types = __webpack_require__(27);
+var _transaction_types = __webpack_require__(21);
 
 var TRANSACTIONS = _interopRequireWildcard(_transaction_types);
 
@@ -4871,7 +4180,7 @@ var selectTransactionListFilter = exports.selectTransactionListFilter = (0, _res
 });
 
 /***/ }),
-/* 27 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4892,7 +4201,7 @@ var UPDATE = exports.UPDATE = 'update';
 var ABANDON = exports.ABANDON = 'abandon';
 
 /***/ }),
-/* 28 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4937,67 +4246,7 @@ function creditsToString(amount) {
 }
 
 /***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.doFetchCostInfoForUri = doFetchCostInfoForUri;
-
-var _action_types = __webpack_require__(2);
-
-var ACTIONS = _interopRequireWildcard(_action_types);
-
-var _lbryapi = __webpack_require__(12);
-
-var _lbryapi2 = _interopRequireDefault(_lbryapi);
-
-var _claims = __webpack_require__(17);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-// eslint-disable-next-line import/prefer-default-export
-function doFetchCostInfoForUri(uri) {
-  return function (dispatch, getState) {
-    var state = getState();
-    var claim = (0, _claims.selectClaimsByUri)(state)[uri];
-
-    if (!claim) return;
-
-    function resolve(costInfo) {
-      dispatch({
-        type: ACTIONS.FETCH_COST_INFO_COMPLETED,
-        data: {
-          uri: uri,
-          costInfo: costInfo
-        }
-      });
-    }
-
-    var fee = claim.value && claim.value.stream && claim.value.stream.metadata ? claim.value.stream.metadata.fee : undefined;
-
-    if (fee === undefined) {
-      resolve({ cost: 0, includesData: true });
-    } else if (fee.currency === 'LBC') {
-      resolve({ cost: fee.amount, includesData: true });
-    } else {
-      _lbryapi2.default.getExchangeRates().then(function (_ref) {
-        var LBC_USD = _ref.LBC_USD;
-
-        resolve({ cost: fee.amount / LBC_USD, includesData: true });
-      });
-    }
-  };
-}
-
-/***/ }),
-/* 30 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5021,9 +4270,9 @@ var _lbry2 = _interopRequireDefault(_lbry);
 
 var _claims = __webpack_require__(8);
 
-var _claims2 = __webpack_require__(17);
+var _claims2 = __webpack_require__(12);
 
-var _file_info = __webpack_require__(31);
+var _file_info = __webpack_require__(24);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -5098,7 +4347,7 @@ function doSetFileListSort(page, value) {
 }
 
 /***/ }),
-/* 31 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5109,9 +4358,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.selectFileListDownloadedSort = exports.selectFileListPublishedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.makeSelectLoadingForUri = exports.selectUrisLoading = exports.makeSelectDownloadingForUri = exports.selectDownloadingByOutpoint = exports.makeSelectFileInfoForUri = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.selectState = undefined;
 
-var _claims = __webpack_require__(17);
+var _claims = __webpack_require__(12);
 
-var _reselect = __webpack_require__(19);
+var _reselect = __webpack_require__(14);
 
 var _lbryURI = __webpack_require__(3);
 
@@ -5313,7 +4562,7 @@ var selectFileListDownloadedSort = exports.selectFileListDownloadedSort = (0, _r
 });
 
 /***/ }),
-/* 32 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5332,15 +4581,15 @@ var _lbryURI = __webpack_require__(3);
 
 var _claims = __webpack_require__(8);
 
-var _search = __webpack_require__(22);
+var _search = __webpack_require__(17);
 
-var _batchActions = __webpack_require__(24);
+var _batchActions = __webpack_require__(26);
 
-var _debounce = __webpack_require__(33);
+var _debounce = __webpack_require__(27);
 
 var _debounce2 = _interopRequireDefault(_debounce);
 
-var _handleFetch = __webpack_require__(34);
+var _handleFetch = __webpack_require__(28);
 
 var _handleFetch2 = _interopRequireDefault(_handleFetch);
 
@@ -5513,7 +4762,30 @@ var doUpdateSearchOptions = exports.doUpdateSearchOptions = function doUpdateSea
 };
 
 /***/ }),
-/* 33 */
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.batchActions = batchActions;
+// https://github.com/reactjs/redux/issues/911
+function batchActions() {
+  for (var _len = arguments.length, actions = Array(_len), _key = 0; _key < _len; _key++) {
+    actions[_key] = arguments[_key];
+  }
+
+  return {
+    type: 'BATCH_ACTIONS',
+    actions: actions
+  };
+}
+
+/***/ }),
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5546,7 +4818,7 @@ function debouce(func, wait, immediate) {
 }
 
 /***/ }),
-/* 34 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5561,90 +4833,7 @@ function handleFetchResponse(response) {
 }
 
 /***/ }),
-/* 35 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-exports.doFetchBlackListedOutpoints = doFetchBlackListedOutpoints;
-exports.doBlackListedOutpointsSubscribe = doBlackListedOutpointsSubscribe;
-
-var _lbryapi = __webpack_require__(12);
-
-var _lbryapi2 = _interopRequireDefault(_lbryapi);
-
-var _action_types = __webpack_require__(2);
-
-var ACTIONS = _interopRequireWildcard(_action_types);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var CHECK_BLACK_LISTED_CONTENT_INTERVAL = 60 * 60 * 1000;
-
-function doFetchBlackListedOutpoints() {
-  return function (dispatch) {
-    dispatch({
-      type: ACTIONS.FETCH_BLACK_LISTED_CONTENT_STARTED
-    });
-
-    var success = function success(_ref) {
-      var outpoints = _ref.outpoints;
-
-      var splitedOutpoints = [];
-
-      outpoints.forEach(function (outpoint, index) {
-        var _outpoint$split = outpoint.split(':'),
-            _outpoint$split2 = _slicedToArray(_outpoint$split, 2),
-            txid = _outpoint$split2[0],
-            nout = _outpoint$split2[1];
-
-        splitedOutpoints[index] = { txid: txid, nout: Number.parseInt(nout, 10) };
-      });
-      dispatch({
-        type: ACTIONS.FETCH_BLACK_LISTED_CONTENT_COMPLETED,
-        data: {
-          outpoints: splitedOutpoints,
-          success: true
-        }
-      });
-    };
-
-    var failure = function failure(_ref2) {
-      var error = _ref2.error;
-
-      dispatch({
-        type: ACTIONS.FETCH_BLACK_LISTED_CONTENT_FAILED,
-        data: {
-          error: error,
-          success: false
-        }
-      });
-    };
-
-    _lbryapi2.default.call('file', 'list_blocked').then(success, failure);
-  };
-}
-
-function doBlackListedOutpointsSubscribe() {
-  return function (dispatch) {
-    dispatch(doFetchBlackListedOutpoints());
-    setInterval(function () {
-      return dispatch(doFetchBlackListedOutpoints());
-    }, CHECK_BLACK_LISTED_CONTENT_INTERVAL);
-  };
-}
-
-/***/ }),
-/* 36 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5671,7 +4860,7 @@ function savePosition(claimId /*: string*/, outpoint /*: string*/, position /*: 
 }
 
 /***/ }),
-/* 37 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5918,44 +5107,6 @@ reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = function (state, action) {
   });
 };
 
-reducers[ACTIONS.FETCH_FEATURED_CONTENT_STARTED] = function (state) {
-  return Object.assign({}, state, {
-    fetchingFeaturedContent: true
-  });
-};
-
-reducers[ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED] = function (state, action) {
-  var _action$data3 = action.data,
-      uris = _action$data3.uris,
-      success = _action$data3.success;
-
-
-  return Object.assign({}, state, {
-    fetchingFeaturedContent: false,
-    fetchingFeaturedContentFailed: !success,
-    featuredUris: uris
-  });
-};
-
-reducers[ACTIONS.FETCH_TRENDING_CONTENT_STARTED] = function (state) {
-  return Object.assign({}, state, {
-    fetchingTrendingContent: true
-  });
-};
-
-reducers[ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED] = function (state, action) {
-  var _action$data4 = action.data,
-      uris = _action$data4.uris,
-      success = _action$data4.success;
-
-
-  return Object.assign({}, state, {
-    fetchingTrendingContent: false,
-    fetchingTrendingContentFailed: !success,
-    trendingUris: uris
-  });
-};
-
 reducers[ACTIONS.RESOLVE_URIS_STARTED] = function (state, action) {
   var uris = action.data.uris;
 
@@ -5976,9 +5127,9 @@ reducers[ACTIONS.RESOLVE_URIS_STARTED] = function (state, action) {
 
 reducers[ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED] = function (state, action) {
   var channelClaimCounts = Object.assign({}, state.channelClaimCounts);
-  var _action$data5 = action.data,
-      uri = _action$data5.uri,
-      totalClaims = _action$data5.totalClaims;
+  var _action$data3 = action.data,
+      uri = _action$data3.uri,
+      totalClaims = _action$data3.totalClaims;
 
 
   channelClaimCounts[uri] = totalClaims;
@@ -5998,65 +5149,7 @@ function claimsReducer() {
 }
 
 /***/ }),
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.costInfoReducer = costInfoReducer;
-
-var _action_types = __webpack_require__(2);
-
-var ACTIONS = _interopRequireWildcard(_action_types);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var reducers = {};
-var defaultState = {};
-
-reducers[ACTIONS.FETCH_COST_INFO_STARTED] = function (state, action) {
-  var uri = action.data.uri;
-
-  var newFetching = Object.assign({}, state.fetching);
-  newFetching[uri] = true;
-
-  return Object.assign({}, state, {
-    fetching: newFetching
-  });
-};
-
-reducers[ACTIONS.FETCH_COST_INFO_COMPLETED] = function (state, action) {
-  var _action$data = action.data,
-      uri = _action$data.uri,
-      costInfo = _action$data.costInfo;
-
-  var newByUri = Object.assign({}, state.byUri);
-  var newFetching = Object.assign({}, state.fetching);
-
-  newByUri[uri] = costInfo;
-  delete newFetching[uri];
-
-  return Object.assign({}, state, {
-    byUri: newByUri,
-    fetching: newFetching
-  });
-};
-
-function costInfoReducer() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
-  var action = arguments[1];
-
-  var handler = reducers[action.type];
-  if (handler) return handler(state, action);
-  return state;
-}
-
-/***/ }),
-/* 39 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6074,11 +5167,11 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _sort_options = __webpack_require__(40);
+var _sort_options = __webpack_require__(32);
 
 var SORT_OPTIONS = _interopRequireWildcard(_sort_options);
 
-var _pages = __webpack_require__(41);
+var _pages = __webpack_require__(33);
 
 var PAGES = _interopRequireWildcard(_pages);
 
@@ -6298,7 +5391,7 @@ function fileInfoReducer() {
 }
 
 /***/ }),
-/* 40 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6313,7 +5406,7 @@ var TITLE = exports.TITLE = 'title';
 var FILENAME = exports.FILENAME = 'filename';
 
 /***/ }),
-/* 41 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6345,7 +5438,7 @@ var HISTORY = exports.HISTORY = 'user_history';
 var WALLET = exports.WALLET = 'wallet';
 
 /***/ }),
-/* 42 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6364,7 +5457,7 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(43);
+var _reduxUtils = __webpack_require__(35);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -6453,7 +5546,7 @@ var notificationsReducer = (0, _reduxUtils.handleActions)((_handleActions = {}, 
 exports.notificationsReducer = notificationsReducer;
 
 /***/ }),
-/* 43 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6486,7 +5579,7 @@ var handleActions = exports.handleActions = function handleActions(actionMap, de
 };
 
 /***/ }),
-/* 44 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6505,9 +5598,9 @@ var _action_types = __webpack_require__(2);
 
 var ACTIONS = _interopRequireWildcard(_action_types);
 
-var _reduxUtils = __webpack_require__(43);
+var _reduxUtils = __webpack_require__(35);
 
-var _search = __webpack_require__(21);
+var _search = __webpack_require__(16);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -6591,7 +5684,7 @@ var searchReducer = exports.searchReducer = (0, _reduxUtils.handleActions)((_han
 }), _handleActions), defaultState);
 
 /***/ }),
-/* 45 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6934,66 +6027,7 @@ function walletReducer() {
 }
 
 /***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.blacklistReducer = undefined;
-
-var _handleActions;
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _action_types = __webpack_require__(2);
-
-var ACTIONS = _interopRequireWildcard(_action_types);
-
-var _reduxUtils = __webpack_require__(43);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var defaultState = {
-  fetchingBlackListedOutpoints: false,
-  fetchingBlackListedOutpointsSucceed: undefined,
-  blackListedOutpoints: undefined
-};
-
-var blacklistReducer = exports.blacklistReducer = (0, _reduxUtils.handleActions)((_handleActions = {}, _defineProperty(_handleActions, ACTIONS.FETCH_BLACK_LISTED_CONTENT_STARTED, function (state) {
-  return _extends({}, state, {
-    fetchingBlackListedOutpoints: true
-  });
-}), _defineProperty(_handleActions, ACTIONS.FETCH_BLACK_LISTED_CONTENT_COMPLETED, function (state, action) {
-  var _action$data = action.data,
-      outpoints = _action$data.outpoints,
-      success = _action$data.success;
-
-  return _extends({}, state, {
-    fetchingBlackListedOutpoints: false,
-    fetchingBlackListedOutpointsSucceed: success,
-    blackListedOutpoints: outpoints
-  });
-}), _defineProperty(_handleActions, ACTIONS.FETCH_BLACK_LISTED_CONTENT_FAILED, function (state, action) {
-  var _action$data2 = action.data,
-      error = _action$data2.error,
-      success = _action$data2.success;
-
-
-  return _extends({}, state, {
-    fetchingBlackListedOutpoints: false,
-    fetchingBlackListedOutpointsSucceed: success,
-    fetchingBlackListedOutpointsError: error
-  });
-}), _handleActions), defaultState);
-
-/***/ }),
-/* 47 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7041,29 +6075,7 @@ function contentReducer() {
 }
 
 /***/ }),
-/* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.selectBlackListedOutpoints = exports.selectState = undefined;
-
-var _reselect = __webpack_require__(19);
-
-var selectState = exports.selectState = function selectState(state) {
-  return state.blacklist || {};
-};
-
-var selectBlackListedOutpoints = exports.selectBlackListedOutpoints = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.blackListedOutpoints;
-});
-
-/***/ }),
-/* 49 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7074,11 +6086,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.makeSelectContentPositionForUri = exports.selectState = undefined;
 
-var _reselect = __webpack_require__(19);
+var _reselect = __webpack_require__(14);
 
-var _claims = __webpack_require__(17);
+var _claims = __webpack_require__(12);
 
-// @flow
 var selectState = exports.selectState = function selectState(state /*: any*/) {
   return state.content || {};
 };
@@ -7095,7 +6106,7 @@ var makeSelectContentPositionForUri = exports.makeSelectContentPositionForUri = 
 };
 
 /***/ }),
-/* 50 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7108,7 +6119,7 @@ exports.selectError = exports.selectToast = exports.selectState = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _reselect = __webpack_require__(19);
+var _reselect = __webpack_require__(14);
 
 var selectState = exports.selectState = function selectState(state) {
   return state.notifications || {};
@@ -7141,51 +6152,7 @@ var selectError = exports.selectError = (0, _reselect.createSelector)(selectStat
 });
 
 /***/ }),
-/* 51 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.makeSelectFetchingCostInfoForUri = exports.selectFetchingCostInfo = exports.selectCostForCurrentPageUri = exports.makeSelectCostInfoForUri = exports.selectAllCostInfoByUri = exports.selectState = undefined;
-
-var _reselect = __webpack_require__(19);
-
-var _navigation = __webpack_require__(18);
-
-var selectState = exports.selectState = function selectState(state) {
-  return state.costInfo || {};
-};
-
-var selectAllCostInfoByUri = exports.selectAllCostInfoByUri = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.byUri || {};
-});
-
-var makeSelectCostInfoForUri = exports.makeSelectCostInfoForUri = function makeSelectCostInfoForUri(uri) {
-  return (0, _reselect.createSelector)(selectAllCostInfoByUri, function (costInfos) {
-    return costInfos && costInfos[uri];
-  });
-};
-
-var selectCostForCurrentPageUri = exports.selectCostForCurrentPageUri = (0, _reselect.createSelector)(selectAllCostInfoByUri, _navigation.selectCurrentParams, function (costInfo, params) {
-  return params.uri && costInfo[params.uri] ? costInfo[params.uri].cost : undefined;
-});
-
-var selectFetchingCostInfo = exports.selectFetchingCostInfo = (0, _reselect.createSelector)(selectState, function (state) {
-  return state.fetching || {};
-});
-
-var makeSelectFetchingCostInfoForUri = exports.makeSelectFetchingCostInfoForUri = function makeSelectFetchingCostInfoForUri(uri) {
-  return (0, _reselect.createSelector)(selectFetchingCostInfo, function (fetchingByUri) {
-    return fetchingByUri && fetchingByUri[uri];
-  });
-};
-
-/***/ }),
-/* 52 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7201,7 +6168,7 @@ var COMPLETE = exports.COMPLETE = 'complete';
 var MANUAL = exports.MANUAL = 'manual';
 
 /***/ }),
-/* 53 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

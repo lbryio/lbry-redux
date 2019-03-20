@@ -7,7 +7,6 @@ import * as PAGES from 'constants/pages';
 import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
 
 import Lbry from 'lbry';
-import Lbryapi from 'lbryapi';
 import { selectState as selectSearchState } from 'redux/selectors/search';
 
 // types
@@ -26,7 +25,7 @@ export {
 };
 
 // common
-export { Lbry, Lbryapi };
+export { Lbry };
 export {
   regexInvalidURI,
   regexAddress,
@@ -49,11 +48,7 @@ export {
   doAbandonClaim,
   doResolveUris,
   doResolveUri,
-  doFetchFeaturedUris,
-  doFetchTrendingUris,
 } from 'redux/actions/claims';
-
-export { doFetchCostInfoForUri } from 'redux/actions/cost_info';
 
 export {
   doFetchFileInfo,
@@ -70,8 +65,6 @@ export {
   setSearchApi,
   doUpdateSearchOptions,
 } from 'redux/actions/search';
-
-export { doBlackListedOutpointsSubscribe } from 'redux/actions/blacklist';
 
 export { savePosition } from 'redux/actions/content';
 
@@ -101,17 +94,13 @@ export { formatCredits, formatFullPrice, creditsToString } from 'util/formatCred
 
 // reducers
 export { claimsReducer } from 'redux/reducers/claims';
-export { costInfoReducer } from 'redux/reducers/cost_info';
 export { fileInfoReducer } from 'redux/reducers/file_info';
 export { notificationsReducer } from 'redux/reducers/notifications';
 export { searchReducer } from 'redux/reducers/search';
 export { walletReducer } from 'redux/reducers/wallet';
-export { blacklistReducer } from 'redux/reducers/blacklist';
 export { contentReducer } from 'redux/reducers/content';
 
 // selectors
-export { selectBlackListedOutpoints } from 'redux/selectors/blacklist';
-
 export { makeSelectContentPositionForUri } from 'redux/selectors/content';
 
 export { selectToast, selectError } from 'redux/selectors/notifications';
@@ -161,14 +150,6 @@ export {
   selectChannelClaimCounts,
   selectCurrentChannelPage,
 } from 'redux/selectors/claims';
-
-export {
-  makeSelectFetchingCostInfoForUri,
-  makeSelectCostInfoForUri,
-  selectAllCostInfoByUri,
-  selectCostForCurrentPageUri,
-  selectFetchingCostInfo,
-} from 'redux/selectors/cost_info';
 
 export {
   makeSelectFileInfoForUri,
