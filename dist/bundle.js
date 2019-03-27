@@ -3409,8 +3409,8 @@ var selectSuggestions /*: (
   return state.suggestions;
 });
 
-var selectSearchQuery /*: (state: State) => ?string*/ = exports.selectSearchQuery = (0, _reselect.createSelector)(_navigation.selectCurrentPage, _navigation.selectCurrentParams, function (page /*: string*/, params /*: ?{ query: string }*/) {
-  return page === 'search' ? params && params.query : null;
+var selectSearchQuery /*: (state: State) => ?string*/ = exports.selectSearchQuery = (0, _reselect.createSelector)(_navigation.selectCurrentPage, _navigation.selectCurrentParams, selectSearchValue, function (page /*: string*/, params /*: ?{ query: string }*/, searchValue /*: string*/) {
+  return page === 'search' ? params && params.query : searchValue;
 });
 
 var selectIsSearching /*: (state: State) => boolean*/ = exports.selectIsSearching = (0, _reselect.createSelector)(selectState, function (state) {

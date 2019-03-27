@@ -30,7 +30,9 @@ export const selectSuggestions: (
 export const selectSearchQuery: (state: State) => ?string = createSelector(
   selectCurrentPage,
   selectCurrentParams,
-  (page: string, params: ?{ query: string }) => (page === 'search' ? params && params.query : null)
+  selectSearchValue,
+  (page: string, params: ?{ query: string }, searchValue: string) =>
+    page === 'search' ? params && params.query : searchValue
 );
 
 export const selectIsSearching: (state: State) => boolean = createSelector(
