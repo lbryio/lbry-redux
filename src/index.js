@@ -109,7 +109,6 @@ export {
   makeSelectClaimForUri,
   makeSelectClaimIsMine,
   makeSelectFetchingChannelClaims,
-  makeSelectClaimsInChannelForCurrentPage,
   makeSelectClaimsInChannelForPage,
   makeSelectMetadataForUri,
   makeSelectTitleForUri,
@@ -168,26 +167,9 @@ export {
   selectFileListPublishedSort,
 } from 'redux/selectors/file_info';
 
-export {
-  computePageFromPath,
-  makeSelectCurrentParam,
-  selectCurrentPath,
-  selectCurrentPage,
-  selectCurrentParams,
-  selectHeaderLinks,
-  selectPageTitle,
-  selectPathAfterAuth,
-  selectIsBackDisabled,
-  selectIsForwardDisabled,
-  selectHistoryIndex,
-  selectHistoryStack,
-  selectActiveHistoryEntry,
-} from 'redux/selectors/navigation';
-
 export { selectSearchState };
 export {
   makeSelectSearchUris,
-  selectSearchQuery,
   selectSearchValue,
   selectSearchOptions,
   selectIsSearching,

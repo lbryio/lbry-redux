@@ -7,7 +7,7 @@ import {
   makeSelectSearchUris,
   selectSuggestions,
   makeSelectQueryWithOptions,
-  selectSearchQuery,
+  selectSearchValue,
 } from 'redux/selectors/search';
 import { batchActions } from 'util/batchActions';
 import debounce from 'util/debounce';
@@ -22,76 +22,6 @@ let CONNECTION_STRING = 'https://lighthouse.lbry.io/';
 
 export const setSearchApi = (endpoint: string) => {
   CONNECTION_STRING = endpoint.replace(/\/*$/, '/'); // exactly one slash at the end;
-};
-
-export const doSearch = (
-  rawQuery: string, // pass in a query if you don't want to search for what's in the search bar
-  size: ?number, // only pass in if you don't want to use the users setting (ex: related content)
-  from: ?number,
-  isBackgroundSearch: boolean = false
-) => (dispatch: Dispatch, getState: GetState) => {
-  const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
-
-  if (!query) {
-    dispatch({
-      type: ACTIONS.SEARCH_FAIL,
-    });
-    return;
-  }
-
-  const state = getState();
-  const queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch)(state);
-
-  // If we have already searched for something, we don't need to do anything
-  const urisForQuery = makeSelectSearchUris(queryWithOptions)(state);
-  if (urisForQuery && !!urisForQuery.length) {
-    return;
-  }
-
-  dispatch({
-    type: ACTIONS.SEARCH_START,
-  });
-
-  // If the user is on the file page with a pre-populated uri and they select
-  // the search option without typing anything, searchQuery will be empty
-  // We need to populate it so the input is filled on the search page
-  // isBackgroundSearch means the search is happening in the background, don't update the search query
-  if (!state.search.searchQuery && !isBackgroundSearch) {
-    dispatch({
-      type: ACTIONS.UPDATE_SEARCH_QUERY,
-      data: { searchQuery: query },
-    });
-  }
-
-  fetch(`${CONNECTION_STRING}search?${queryWithOptions}`)
-    .then(handleFetchResponse)
-    .then(data => {
-      const uris = [];
-      const actions = [];
-
-      data.forEach(result => {
-        const uri = buildURI({
-          claimName: result.name,
-          claimId: result.claimId,
-        });
-        actions.push(doResolveUri(uri));
-        uris.push(uri);
-      });
-
-      actions.push({
-        type: ACTIONS.SEARCH_SUCCESS,
-        data: {
-          query: queryWithOptions,
-          uris,
-        },
-      });
-      dispatch(batchActions(...actions));
-    })
-    .catch(() => {
-      dispatch({
-        type: ACTIONS.SEARCH_FAIL,
-      });
-    });
 };
 
 export const getSearchSuggestions = (value: string) => (dispatch: Dispatch, getState: GetState) => {
@@ -145,6 +75,73 @@ export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boole
   }
 };
 
+export const doSearch = (
+  rawQuery: string, // pass in a query if you don't want to search for what's in the search bar
+  size: ?number, // only pass in if you don't want to use the users setting (ex: related content)
+  from: ?number,
+  isBackgroundSearch: boolean = false
+) => (dispatch: Dispatch, getState: GetState) => {
+  const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
+
+  if (!query) {
+    dispatch({
+      type: ACTIONS.SEARCH_FAIL,
+    });
+    return;
+  }
+
+  const state = getState();
+  const queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch)(state);
+
+  // If we have already searched for something, we don't need to do anything
+  const urisForQuery = makeSelectSearchUris(queryWithOptions)(state);
+  if (urisForQuery && !!urisForQuery.length) {
+    return;
+  }
+
+  dispatch({
+    type: ACTIONS.SEARCH_START,
+  });
+
+  // If the user is on the file page with a pre-populated uri and they select
+  // the search option without typing anything, searchQuery will be empty
+  // We need to populate it so the input is filled on the search page
+  // isBackgroundSearch means the search is happening in the background, don't update the search query
+  if (!state.search.searchQuery && !isBackgroundSearch) {
+    dispatch(doUpdateSearchQuery(query));
+  }
+
+  fetch(`${CONNECTION_STRING}search?${queryWithOptions}`)
+    .then(handleFetchResponse)
+    .then(data => {
+      const uris = [];
+      const actions = [];
+
+      data.forEach(result => {
+        const uri = buildURI({
+          claimName: result.name,
+          claimId: result.claimId,
+        });
+        actions.push(doResolveUri(uri));
+        uris.push(uri);
+      });
+
+      actions.push({
+        type: ACTIONS.SEARCH_SUCCESS,
+        data: {
+          query: queryWithOptions,
+          uris,
+        },
+      });
+      dispatch(batchActions(...actions));
+    })
+    .catch(() => {
+      dispatch({
+        type: ACTIONS.SEARCH_FAIL,
+      });
+    });
+};
+
 export const doFocusSearchInput = () => (dispatch: Dispatch) =>
   dispatch({
     type: ACTIONS.SEARCH_FOCUS,
@@ -160,15 +157,15 @@ export const doUpdateSearchOptions = (newOptions: SearchOptions) => (
   getState: GetState
 ) => {
   const state = getState();
-  const searchQuery = selectSearchQuery(state);
+  const searchValue = selectSearchValue(state);
 
   dispatch({
     type: ACTIONS.UPDATE_SEARCH_OPTIONS,
     data: newOptions,
   });
 
-  if (searchQuery) {
+  if (searchValue) {
     // After updating, perform a search with the new options
-    dispatch(doSearch(searchQuery));
+    dispatch(doSearch(searchValue));
   }
 };
