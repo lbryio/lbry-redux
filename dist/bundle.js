@@ -3409,7 +3409,7 @@ var selectSuggestions /*: (
   return state.suggestions;
 });
 
-var selectSearchQuery /*: (state: State) => ?string*/ = exports.selectSearchQuery = (0, _reselect.createSelector)(_navigation.selectCurrentPage, _navigation.selectCurrentParams, selectSearchValue, function (page /*: string*/, params /*: ?{ query: string }*/, searchValue) {
+var selectSearchQuery /*: (state: State) => ?string*/ = exports.selectSearchQuery = (0, _reselect.createSelector)(_navigation.selectCurrentPage, _navigation.selectCurrentParams, selectSearchValue, function (page /*: string*/, params /*: ?{ query: string }*/, searchValue /*: string*/) {
   return page === 'search' ? params && params.query : searchValue;
 });
 
