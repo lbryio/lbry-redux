@@ -31,7 +31,7 @@ export const selectSearchQuery: (state: State) => ?string = createSelector(
   selectCurrentPage,
   selectCurrentParams,
   selectSearchValue,
-  (page: string, params: ?{ query: string }, searchValue) =>
+  (page: string, params: ?{ query: string }, searchValue: string) =>
     page === 'search' ? params && params.query : searchValue
 );
 
