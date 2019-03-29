@@ -2347,6 +2347,16 @@ Lbry.utxo_release = function () {
   return daemonCallWithResult('utxo_release', params);
 };
 
+// sync
+Lbry.sync_hash = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('sync_hash', params);
+};
+Lbry.sync_apply = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('sync_apply', params);
+};
+
 Lbry.connectPromise = null;
 Lbry.connect = function () {
   if (Lbry.connectPromise === null) {
