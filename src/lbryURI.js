@@ -1,7 +1,8 @@
 const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
-export const regexInvalidURI = /[^A-Za-z0-9-]/g;
+// see https://spec.lbry.com/#urls
+const regexInvalidURI = (exports.regexInvalidURI = /[=&#:$@%?\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u);
 export const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 
 /**
