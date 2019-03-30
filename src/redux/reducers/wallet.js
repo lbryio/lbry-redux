@@ -40,6 +40,7 @@ type WalletState = {
 
 const defaultState = {
   balance: undefined,
+  totalBalance: undefined,
   blocks: {},
   latestBlock: undefined,
   transactions: {},
@@ -101,6 +102,11 @@ reducers[ACTIONS.GET_NEW_ADDRESS_COMPLETED] = (state: WalletState, action) => {
 reducers[ACTIONS.UPDATE_BALANCE] = (state: WalletState, action) =>
   Object.assign({}, state, {
     balance: action.data.balance,
+  });
+
+reducers[ACTIONS.UPDATE_TOTAL_BALANCE] = (state: WalletState, action) =>
+  Object.assign({}, state, {
+    totalBalance: action.data.totalBalance,
   });
 
 reducers[ACTIONS.CHECK_ADDRESS_IS_MINE_STARTED] = (state: WalletState) =>

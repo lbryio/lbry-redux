@@ -71,6 +71,8 @@ export { savePosition } from 'redux/actions/content';
 export {
   doUpdateBalance,
   doBalanceSubscribe,
+  doUpdateTotalBalance,
+  doTotalBalanceSubscribe,
   doFetchTransactions,
   doFetchBlock,
   doGetNewAddress,
@@ -201,6 +203,7 @@ export {
 export {
   makeSelectBlockDate,
   selectBalance,
+  selectTotalBalance,
   selectTransactionsById,
   selectTransactionItems,
   selectRecentTransactions,

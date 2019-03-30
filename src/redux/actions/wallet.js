@@ -24,10 +24,41 @@ export function doUpdateBalance() {
   };
 }
 
+export function doUpdateTotalBalance() {
+  return (dispatch, getState) => {
+    const {
+      wallet: { totalBalance: totalBalanceInStore },
+    } = getState();
+    Lbry.account_list().then(accounts => {
+      const totalSatoshis = accounts.lbc_mainnet.reduce((a, b) => {
+        if (!a.satoshis) return b.satoshis;
+        if (!b.satoshis) return a.satoshis;
+        return a.satoshis + b.satoshis;
+      });
+      const totalBalance = totalSatoshis / 10 ** 8;
+      if (totalBalanceInStore !== totalBalance) {
+        dispatch({
+          type: ACTIONS.UPDATE_TOTAL_BALANCE,
+          data: {
+            totalBalance,
+          },
+        });
+      }
+    });
+  };
+}
+
 export function doBalanceSubscribe() {
   return dispatch => {
     dispatch(doUpdateBalance());
     setInterval(() => dispatch(doUpdateBalance()), 5000);
+  };
+}
+
+export function doTotalBalanceSubscribe() {
+  return dispatch => {
+    dispatch(doUpdateTotalBalance());
+    setInterval(() => dispatch(doUpdateTotalBalance()), 5000);
   };
 }
 
