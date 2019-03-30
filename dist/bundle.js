@@ -3647,13 +3647,13 @@ function doUpdateTotalBalance() {
     var _getState2 = getState(),
         totalBalanceInStore = _getState2.wallet.totalBalance;
 
-    _lbry2.default.account_list().then(function (accounts) {
-      var totalSatoshis = accounts.lbc_mainnet.reduce(function (a, b) {
-        if (!a.satoshis) return b.satoshis;
-        if (!b.satoshis) return a.satoshis;
+    _lbry2.default.account_list().then(function (accountList) {
+      var accounts = accountList.lbc_mainnet;
+
+      var totalSatoshis = accounts.length === 1 ? accounts[0].satoshis : accounts.reduce(function (a, b) {
         return a.satoshis + b.satoshis;
       });
-      var totalBalance = totalSatoshis / Math.pow(10, 8);
+      var totalBalance = (Number.isNaN(totalSatoshis) ? 0 : totalSatoshis) / Math.pow(10, 8);
       if (totalBalanceInStore !== totalBalance) {
         dispatch({
           type: ACTIONS.UPDATE_TOTAL_BALANCE,

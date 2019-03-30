@@ -29,13 +29,13 @@ export function doUpdateTotalBalance() {
     const {
       wallet: { totalBalance: totalBalanceInStore },
     } = getState();
-    Lbry.account_list().then(accounts => {
-      const totalSatoshis = accounts.lbc_mainnet.reduce((a, b) => {
-        if (!a.satoshis) return b.satoshis;
-        if (!b.satoshis) return a.satoshis;
-        return a.satoshis + b.satoshis;
-      });
-      const totalBalance = totalSatoshis / 10 ** 8;
+    Lbry.account_list().then(accountList => {
+      const { lbc_mainnet: accounts } = accountList;
+      const totalSatoshis =
+        accounts.length === 1
+          ? accounts[0].satoshis
+          : accounts.reduce((a, b) => a.satoshis + b.satoshis);
+      const totalBalance = (Number.isNaN(totalSatoshis) ? 0 : totalSatoshis) / 10 ** 8;
       if (totalBalanceInStore !== totalBalance) {
         dispatch({
           type: ACTIONS.UPDATE_TOTAL_BALANCE,
