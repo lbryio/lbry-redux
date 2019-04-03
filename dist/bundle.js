@@ -89,8 +89,8 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectTransactionListFilter = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.makeSelectQueryWithOptions = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchOptions = exports.selectSearchValue = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectFileListPublishedSort = exports.selectFileListDownloadedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectCurrentChannelPage = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = undefined;
-exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.selectPendingById = exports.makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.makeSelectChannelForClaimUri = exports.makeSelectFirstRecommendedFileForUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectError = exports.selectToast = exports.makeSelectContentPositionForUri = exports.contentReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.claimsReducer = exports.creditsToString = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doUpdateBlockHeight = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendTip = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.savePosition = exports.doUpdateSearchOptions = exports.setSearchApi = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetFileListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doDismissError = exports.doError = exports.doDismissToast = exports.doToast = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbry = exports.PAGES = exports.SORT_OPTIONS = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_OPTIONS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.ACTIONS = exports.Toast = undefined;
+exports.selectTransactionListFilter = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.makeSelectQueryWithOptions = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectWunderBarAddress = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchOptions = exports.selectSearchValue = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectFileListPublishedSort = exports.selectFileListDownloadedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectCurrentChannelPage = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectFetchingTrendingUris = exports.selectTrendingUris = exports.selectFetchingFeaturedUris = exports.selectFeaturedUris = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = undefined;
+exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.selectPendingById = exports.makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.makeSelectChannelForClaimUri = exports.makeSelectFirstRecommendedFileForUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectError = exports.selectToast = exports.makeSelectContentPositionForUri = exports.contentReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.claimsReducer = exports.creditsToString = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doUpdateBlockHeight = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendTip = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.savePosition = exports.doUpdateSearchOptions = exports.setSearchApi = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetFileListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doCreateChannel = exports.doFetchChannelListMine = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doDismissError = exports.doError = exports.doDismissToast = exports.doToast = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbry = exports.PAGES = exports.SORT_OPTIONS = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_OPTIONS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.ACTIONS = exports.Toast = undefined;
 
 var _Notification = __webpack_require__(1);
 
@@ -221,6 +221,18 @@ Object.defineProperty(exports, 'doResolveUri', {
   enumerable: true,
   get: function get() {
     return _claims.doResolveUri;
+  }
+});
+Object.defineProperty(exports, 'doFetchChannelListMine', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doFetchChannelListMine;
+  }
+});
+Object.defineProperty(exports, 'doCreateChannel', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doCreateChannel;
   }
 });
 
@@ -1887,6 +1899,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 exports.doResolveUris = doResolveUris;
@@ -1921,6 +1935,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 // @flow
+/*:: import type { ChannelClaim, StreamClaim } from 'types/Claim';*/
 /*:: import type { Dispatch, GetState } from 'types/Redux';*/
 function doResolveUris(uris /*: Array<string>*/) {
   var returnCachedClaims /*: boolean*/ = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
@@ -1948,8 +1963,17 @@ function doResolveUris(uris /*: Array<string>*/) {
       data: { uris: normalizedUris }
     });
 
-    var resolveInfo = {};
-    _lbry2.default.resolve({ urls: urisToResolve }).then(function (result) {
+    var resolveInfo /*: {
+                          claim: StreamClaim,
+                          certificate: ?ChannelClaim,
+                          claimsInChannel: ?number,
+                        }*/ = {};
+
+    _lbry2.default.resolve({ urls: urisToResolve }).then(function (result /*: {
+                                                                                  [string]:
+                                                                                    | { certificate: ChannelClaim, claims_in_channel: number }
+                                                                                    | { claim: StreamClaim, certificate?: ChannelClaim },
+                                                                                }*/) {
       Object.entries(result).forEach(function (_ref) {
         var _ref2 = _slicedToArray(_ref, 2),
             uri = _ref2[0],
@@ -1961,12 +1985,15 @@ function doResolveUris(uris /*: Array<string>*/) {
           certificate: null
         };
 
-        var _ref3 = uriResolveInfo && !uriResolveInfo.error ? uriResolveInfo : fallbackResolveInfo,
-            claim = _ref3.claim,
-            certificate = _ref3.certificate,
-            claimsInChannel = _ref3.claims_in_channel;
+        if (uriResolveInfo.error) {
+          resolveInfo[uri] = _extends({}, fallbackResolveInfo);
+        } else {
+          var _claim = uriResolveInfo.claim,
+              _certificate = uriResolveInfo.certificate,
+              _claimsInChannel = uriResolveInfo.claims_in_channel;
 
-        resolveInfo[uri] = { claim: claim, certificate: certificate, claimsInChannel: claimsInChannel };
+          resolveInfo[uri] = { claim: _claim, certificate: _certificate, claimsInChannel: _claimsInChannel };
+        }
       });
 
       dispatch({
@@ -1977,17 +2004,17 @@ function doResolveUris(uris /*: Array<string>*/) {
   };
 }
 
-function doResolveUri(uri) {
+function doResolveUri(uri /*: string*/) {
   return doResolveUris([uri]);
 }
 
 function doFetchClaimListMine() {
-  return function (dispatch) {
+  return function (dispatch /*: Dispatch*/) {
     dispatch({
       type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED
     });
 
-    _lbry2.default.claim_list_mine().then(function (claims) {
+    _lbry2.default.claim_list().then(function (claims /*: Array<ChannelClaim | StreamClaim>*/) {
       dispatch({
         type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
         data: {
@@ -1998,16 +2025,22 @@ function doFetchClaimListMine() {
   };
 }
 
-function doAbandonClaim(txid, nout) {
-  return function (dispatch, getState) {
+function doAbandonClaim(txid /*: string*/, nout /*: number*/) {
+  return function (dispatch /*: Dispatch*/, getState /*: GetState*/) {
     var state = getState();
-    var myClaims = (0, _claims.selectMyClaimsRaw)(state);
-
-    var _myClaims$find = myClaims.find(function (claim) {
+    var myClaims /*: Array<ChannelClaim | StreamClaim>*/ = (0, _claims.selectMyClaimsRaw)(state);
+    var claimToAbandon = myClaims.find(function (claim) {
       return claim.txid === txid && claim.nout === nout;
-    }),
-        claimId = _myClaims$find.claim_id,
-        claimName = _myClaims$find.name;
+    });
+
+    if (!claimToAbandon) {
+      console.error('No associated claim with txid: ', txid);
+      return;
+    }
+
+    var claimId = claimToAbandon.claim_id,
+        claimName = claimToAbandon.name;
+
 
     dispatch({
       type: ACTIONS.ABANDON_CLAIM_STARTED,
@@ -2018,130 +2051,124 @@ function doAbandonClaim(txid, nout) {
 
     var errorCallback = function errorCallback() {
       dispatch((0, _notifications.doToast)({
-        message: 'Transaction failed',
+        message: 'Error abandoning claim',
         isError: true
       }));
     };
 
-    var successCallback = function successCallback(results) {
-      if (results.success === true) {
-        dispatch({
-          type: ACTIONS.ABANDON_CLAIM_SUCCEEDED,
-          data: {
-            claimId: claimId
-          }
-        });
-        dispatch((0, _notifications.doToast)({
-          message: 'Successfully abandoned your claim'
-        }));
+    var successCallback = function successCallback() {
+      dispatch({
+        type: ACTIONS.ABANDON_CLAIM_SUCCEEDED,
+        data: {
+          claimId: claimId
+        }
+      });
 
-        // After abandoning, call claim_list_mine to show the claim as abandoned
-        // Also fetch transactions to show the new abandon transaction
-        dispatch(doFetchClaimListMine());
-        dispatch((0, _wallet.doFetchTransactions)());
-      } else {
-        dispatch((0, _notifications.doToast)({
-          message: 'Error abandoning claim',
-          isError: true
-        }));
-      }
+      dispatch((0, _notifications.doToast)({
+        message: 'Successfully abandoned your claim'
+      }));
+
+      // After abandoning, call claim_list_mine to show the claim as abandoned
+      // Also fetch transactions to show the new abandon transaction
+      dispatch(doFetchClaimListMine());
+      dispatch((0, _wallet.doFetchTransactions)());
     };
 
-    if (claimName.startsWith('@')) {
-      _lbry2.default.channel_abandon({
-        txid: txid,
-        nout: nout,
-        blocking: true
-      }).then(successCallback, errorCallback);
-    } else {
-      _lbry2.default.stream_abandon({
-        txid: txid,
-        nout: nout,
-        blocking: true
-      }).then(successCallback, errorCallback);
-    }
+    var abandonParams = {
+      txid: txid,
+      nout: nout,
+      blocking: true
+    };
+
+    var method = claimName.startsWith('@') ? 'channel_abandon' : 'stream_abandon';
+    _lbry2.default[method](abandonParams).then(successCallback, errorCallback);
   };
 }
 
-function doFetchClaimsByChannel(uri, page) {
-  return function (dispatch) {
+function doFetchClaimsByChannel(uri /*: string*/) {
+  var page /*: number*/ = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+
+  return function (dispatch /*: Dispatch*/) {
     dispatch({
       type: ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED,
       data: { uri: uri, page: page }
     });
 
-    _lbry2.default.claim_list_by_channel({ uri: uri, page: page || 1 }).then(function (result) {
-      var claimResult = result[uri] || {};
-      var claimsInChannel = claimResult.claims_in_channel,
-          returnedPage = claimResult.returned_page;
+    // TODO: come back to me
+    // Lbry.claim_search({ uri, page: page || 1 }).then(result => {
+    //   const claimResult = result[uri] || {};
+    //   const { claims_in_channel: claimsInChannel, returned_page: returnedPage } = claimResult;
 
-
-      dispatch({
-        type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
-        data: {
-          uri: uri,
-          claims: claimsInChannel || [],
-          page: returnedPage || undefined
-        }
-      });
-    });
+    //   dispatch({
+    //     type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
+    //     data: {
+    //       uri,
+    //       claims: claimsInChannel || [],
+    //       page: returnedPage || undefined,
+    //     },
+    //   });
+    // });
   };
 }
 
-function doFetchClaimCountByChannel(uri) {
-  return function (dispatch) {
+function doFetchClaimCountByChannel(uri /*: string*/) {
+  return function (dispatch /*: Dispatch*/) {
     dispatch({
       type: ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_STARTED,
       data: { uri: uri }
     });
 
-    _lbry2.default.claim_list_by_channel({ uri: uri }).then(function (result) {
-      var claimResult = result[uri];
-      var totalClaims = claimResult ? claimResult.claims_in_channel : 0;
+    // TODO: come back to this
+    // Lbry.claim_list_by_channel({ uri }).then(result => {
+    //   const claimResult = result[uri];
+    //   const totalClaims = claimResult ? claimResult.claims_in_channel : 0;
 
-      dispatch({
-        type: ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED,
-        data: {
-          uri: uri,
-          totalClaims: totalClaims
-        }
-      });
-    });
+    //   dispatch({
+    //     type: ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED,
+    //     data: {
+    //       uri,
+    //       totalClaims,
+    //     },
+    //   });
+    // });
   };
 }
 
 function doCreateChannel(name /*: string*/, amount /*: number*/) {
-  return function (dispatch) {
+  return function (dispatch /*: Dispatch*/) {
     dispatch({
       type: ACTIONS.CREATE_CHANNEL_STARTED
     });
 
-    return new Promise(function (resolve, reject) {
-      _lbry2.default.channel_create({
-        channel_name: name,
-        amount: (0, _formatCredits.creditsToString)(amount)
-      }).then(function (newChannelClaim) {
-        var channelClaim = newChannelClaim;
-        channelClaim.name = name;
-        dispatch({
-          type: ACTIONS.CREATE_CHANNEL_COMPLETED,
-          data: { channelClaim: channelClaim }
-        });
-        resolve(channelClaim);
-      }, function (error) {
-        reject(error);
+    return _lbry2.default.channel_create({
+      name: name,
+      bid: (0, _formatCredits.creditsToString)(amount)
+    })
+    // outputs[0] is the certificate
+    // outputs[1] is the change from the tx, not in the app currently
+    .then(function (result /*: { outputs: Array<ChannelClaim> }*/) {
+      var channelClaim = result.outputs[0];
+      dispatch({
+        type: ACTIONS.CREATE_CHANNEL_COMPLETED,
+        data: { channelClaim: channelClaim }
       });
+    }).catch(function (error) {
+      // TODO: add this
+      // dispatch({
+      //   type: ACTIONS.CREATE_CHANNEL_FAILED,
+      //   data: error
+      // })
     });
   };
 }
 
 function doFetchChannelListMine() {
-  return function (dispatch) {
+  return function (dispatch /*: Dispatch*/) {
     dispatch({
       type: ACTIONS.FETCH_CHANNEL_LIST_STARTED
     });
 
-    var callback = function callback(channels) {
+    var callback = function callback(channels /*: Array<ChannelClaim>*/) {
       dispatch({
         type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED,
         data: { claims: channels }
@@ -2254,9 +2281,29 @@ Lbry.stop = function () {
 };
 
 // claims
-Lbry.claim_list_by_channel = function () {
+Lbry.claim_search = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return daemonCallWithResult('claim_search', params);
+};
+Lbry.channel_create = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('channel_create', params);
+};
+Lbry.channel_list = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('channel_list', params);
+};
+Lbry.claim_list = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('claim_list', params);
+};
+Lbry.stream_abandon = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('stream_abandon', params);
+};
+Lbry.channel_abandon = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('channel_abandon', params);
 };
 
 // wallet
@@ -2369,15 +2416,6 @@ Lbry.file_list = function () {
   return new Promise(function (resolve, reject) {
     apiCall('file_list', params, function (fileInfos) {
       resolve(fileInfos);
-    }, reject);
-  });
-};
-
-Lbry.claim_list_mine = function () {
-  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return new Promise(function (resolve, reject) {
-    apiCall('stream_list', params, function (claims) {
-      resolve(claims);
     }, reject);
   });
 };
@@ -4732,6 +4770,10 @@ var ACTIONS = _interopRequireWildcard(_action_types);
 var _lbryURI = __webpack_require__(3);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+// @flow
+/*:: import type { ChannelClaim } from 'types/Claim';*/
+
 
 var reducers = {};
 

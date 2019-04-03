@@ -74,7 +74,12 @@ Lbry.file_set_status = (params = {}) => daemonCallWithResult('file_set_status', 
 Lbry.stop = () => daemonCallWithResult('stop', {});
 
 // claims
-Lbry.claim_list_by_channel = (params = {}) => daemonCallWithResult('claim_search', params);
+Lbry.claim_search = (params = {}) => daemonCallWithResult('claim_search', params);
+Lbry.channel_create = (params = {}) => daemonCallWithResult('channel_create', params);
+Lbry.channel_list = (params = {}) => daemonCallWithResult('channel_list', params);
+Lbry.claim_list = (params = {}) => daemonCallWithResult('claim_list', params);
+Lbry.stream_abandon = (params = {}) => daemonCallWithResult('stream_abandon', params);
+Lbry.channel_abandon = (params = {}) => daemonCallWithResult('channel_abandon', params);
 
 // wallet
 Lbry.account_balance = (params = {}) => daemonCallWithResult('account_balance', params);
@@ -158,18 +163,6 @@ Lbry.file_list = (params = {}) =>
       params,
       fileInfos => {
         resolve(fileInfos);
-      },
-      reject
-    );
-  });
-
-Lbry.claim_list_mine = (params = {}) =>
-  new Promise((resolve, reject) => {
-    apiCall(
-      'stream_list',
-      params,
-      claims => {
-        resolve(claims);
       },
       reject
     );

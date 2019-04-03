@@ -1,3 +1,5 @@
+// @flow
+import type { ChannelClaim } from 'types/Claim';
 import * as ACTIONS from 'constants/action_types';
 import { buildURI } from 'lbryURI';
 
@@ -91,7 +93,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = state =>
   Object.assign({}, state, { fetchingMyChannels: true });
 
 reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
-  const { claims } = action.data;
+  const { claims }: { claims: Array<ChannelClaim> } = action.data;
   const myChannelClaims = new Set(state.myChannelClaims);
   const byId = Object.assign({}, state.byId);
 
@@ -184,7 +186,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
 };
 
 reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state, action) => {
-  const { channelClaim } = action.data;
+  const { channelClaim }: { channelClaim: ChannelClaim } = action.data;
   const byId = Object.assign({}, state.byId);
   const myChannelClaims = new Set(state.myChannelClaims);
 

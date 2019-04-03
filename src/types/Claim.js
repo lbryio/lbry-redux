@@ -1,12 +1,17 @@
 // @flow
 
-export type Certificate = GenericClaim & {
+export type ClaimWithCertificate = {
+  certificate?: ChannelClaim,
+  claim: StreamClaim,
+};
+
+export type ChannelClaim = GenericClaim & {
   value: {
     channel: ChannelMetadata,
   },
 };
 
-export type Claim = GenericClaim & {
+export type StreamClaim = GenericClaim & {
   signature_is_valid?: boolean, // Is claim associated with valid channel private key
   value: {
     stream?: StreamMetadata,
