@@ -1,3 +1,5 @@
+// @flow
+import type { Dispatch, GetState } from 'types/Redux';
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import { normalizeURI } from 'lbryURI';
@@ -6,12 +8,12 @@ import { selectMyClaimsRaw, selectResolvingUris, selectClaimsByUri } from 'redux
 import { doFetchTransactions } from 'redux/actions/wallet';
 import { creditsToString } from 'util/formatCredits';
 
-export function doResolveUris(uris, returnCachedClaims = false) {
-  return (dispatch, getState) => {
+export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean = false) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const normalizedUris = uris.map(normalizeURI);
     const state = getState();
 
-    const resolvingUris = selectResolvingUris(state);
+    const resolvingUris = selectResolvingUris(state) + 5;
     const claimsByUri = selectClaimsByUri(state);
     const urisToResolve = normalizedUris.filter(uri => {
       if (resolvingUris.includes(uri)) {
@@ -139,7 +141,6 @@ export function doAbandonClaim(txid, nout) {
         blocking: true,
       }).then(successCallback, errorCallback);
     }
-
   };
 }
 
@@ -193,8 +194,8 @@ export function doCreateChannel(name: string, amount: number) {
     dispatch({
       type: ACTIONS.CREATE_CHANNEL_STARTED,
     });
-    //this is broken, not sure why..I copied from lbry-desktop
-    return new Promise<void>((resolve, reject) => {
+
+    return new Promise((resolve, reject) => {
       Lbry.channel_create({
         channel_name: name,
         amount: creditsToString(amount),
@@ -217,7 +218,7 @@ export function doCreateChannel(name: string, amount: number) {
 }
 
 export function doFetchChannelListMine() {
-  return dispatch) => {
+  return dispatch => {
     dispatch({
       type: ACTIONS.FETCH_CHANNEL_LIST_STARTED,
     });

@@ -1895,6 +1895,8 @@ exports.doFetchClaimListMine = doFetchClaimListMine;
 exports.doAbandonClaim = doAbandonClaim;
 exports.doFetchClaimsByChannel = doFetchClaimsByChannel;
 exports.doFetchClaimCountByChannel = doFetchClaimCountByChannel;
+exports.doCreateChannel = doCreateChannel;
+exports.doFetchChannelListMine = doFetchChannelListMine;
 
 var _action_types = __webpack_require__(2);
 
@@ -1912,18 +1914,22 @@ var _claims = __webpack_require__(12);
 
 var _wallet = __webpack_require__(18);
 
+var _formatCredits = __webpack_require__(21);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function doResolveUris(uris) {
-  var returnCachedClaims = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+// @flow
+/*:: import type { Dispatch, GetState } from 'types/Redux';*/
+function doResolveUris(uris /*: Array<string>*/) {
+  var returnCachedClaims /*: boolean*/ = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-  return function (dispatch, getState) {
+  return function (dispatch /*: Dispatch*/, getState /*: GetState*/) {
     var normalizedUris = uris.map(_lbryURI.normalizeURI);
     var state = getState();
 
-    var resolvingUris = (0, _claims.selectResolvingUris)(state);
+    var resolvingUris = (0, _claims.selectResolvingUris)(state) + 5;
     var claimsByUri = (0, _claims.selectClaimsByUri)(state);
     var urisToResolve = normalizedUris.filter(function (uri) {
       if (resolvingUris.includes(uri)) {
@@ -2000,7 +2006,8 @@ function doAbandonClaim(txid, nout) {
     var _myClaims$find = myClaims.find(function (claim) {
       return claim.txid === txid && claim.nout === nout;
     }),
-        claimId = _myClaims$find.claim_id;
+        claimId = _myClaims$find.claim_id,
+        claimName = _myClaims$find.name;
 
     dispatch({
       type: ACTIONS.ABANDON_CLAIM_STARTED,
@@ -2040,10 +2047,19 @@ function doAbandonClaim(txid, nout) {
       }
     };
 
-    _lbry2.default.claim_abandon({
-      txid: txid,
-      nout: nout
-    }).then(successCallback, errorCallback);
+    if (claimName.startsWith('@')) {
+      _lbry2.default.channel_abandon({
+        txid: txid,
+        nout: nout,
+        blocking: true
+      }).then(successCallback, errorCallback);
+    } else {
+      _lbry2.default.stream_abandon({
+        txid: txid,
+        nout: nout,
+        blocking: true
+      }).then(successCallback, errorCallback);
+    }
   };
 }
 
@@ -2091,6 +2107,48 @@ function doFetchClaimCountByChannel(uri) {
         }
       });
     });
+  };
+}
+
+function doCreateChannel(name /*: string*/, amount /*: number*/) {
+  return function (dispatch) {
+    dispatch({
+      type: ACTIONS.CREATE_CHANNEL_STARTED
+    });
+
+    return new Promise(function (resolve, reject) {
+      _lbry2.default.channel_create({
+        channel_name: name,
+        amount: (0, _formatCredits.creditsToString)(amount)
+      }).then(function (newChannelClaim) {
+        var channelClaim = newChannelClaim;
+        channelClaim.name = name;
+        dispatch({
+          type: ACTIONS.CREATE_CHANNEL_COMPLETED,
+          data: { channelClaim: channelClaim }
+        });
+        resolve(channelClaim);
+      }, function (error) {
+        reject(error);
+      });
+    });
+  };
+}
+
+function doFetchChannelListMine() {
+  return function (dispatch) {
+    dispatch({
+      type: ACTIONS.FETCH_CHANNEL_LIST_STARTED
+    });
+
+    var callback = function callback(channels) {
+      dispatch({
+        type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED,
+        data: { claims: channels }
+      });
+    };
+
+    _lbry2.default.channel_list().then(callback);
   };
 }
 
@@ -2198,7 +2256,7 @@ Lbry.stop = function () {
 // claims
 Lbry.claim_list_by_channel = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return daemonCallWithResult('claim_list_by_channel', params);
+  return daemonCallWithResult('claim_search', params);
 };
 
 // wallet
@@ -2241,7 +2299,7 @@ Lbry.address_unused = function () {
 };
 Lbry.claim_tip = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return daemonCallWithResult('claim_tip', params);
+  return daemonCallWithResult('support_create', params);
 };
 
 // transactions
@@ -2277,7 +2335,7 @@ Lbry.connect = function () {
 
   return Lbry.connectPromise;
 };
-
+// this may actually be given to us by the SDK, will need to check.
 Lbry.getMediaType = function (contentType, extname) {
   if (extname) {
     var formats = [[/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^(stl|obj|fbx|gcode)$/i, '3D-file']];
@@ -2318,7 +2376,7 @@ Lbry.file_list = function () {
 Lbry.claim_list_mine = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   return new Promise(function (resolve, reject) {
-    apiCall('claim_list_mine', params, function (claims) {
+    apiCall('stream_list', params, function (claims) {
       resolve(claims);
     }, reject);
   });
@@ -2752,7 +2810,7 @@ var makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectClaimsInCha
 
 var makeSelectMetadataForUri = exports.makeSelectMetadataForUri = function makeSelectMetadataForUri(uri) {
   return (0, _reselect.createSelector)(makeSelectClaimForUri(uri), function (claim) {
-    var metadata = claim && claim.value && claim.value.stream && claim.value.stream.metadata;
+    var metadata = claim && claim.value && claim.value.stream;
 
     return metadata || (claim === undefined ? undefined : null);
   });
@@ -2766,8 +2824,8 @@ var makeSelectTitleForUri = exports.makeSelectTitleForUri = function makeSelectT
 
 var makeSelectContentTypeForUri = exports.makeSelectContentTypeForUri = function makeSelectContentTypeForUri(uri) {
   return (0, _reselect.createSelector)(makeSelectClaimForUri(uri), function (claim) {
-    var source = claim && claim.value && claim.value.stream && claim.value.stream.source;
-    return source ? source.contentType : undefined;
+    var source = claim && claim.value && claim.value.stream;
+    return source ? source.media_type : undefined;
   });
 };
 
@@ -3334,7 +3392,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var isClaimNsfw = exports.isClaimNsfw = function isClaimNsfw(claim) {
-  return claim && claim.value && claim.value.stream && claim.value.stream.metadata.nsfw;
+  return (
+    // needs to be udpated to use tags
+    claim && claim.value && claim.value.stream && claim.value.stream.metadata.nsfw
+  );
 };
 
 /***/ }),
@@ -3598,7 +3659,8 @@ function doSendTip(amount, claimId, uri, successCallback, errorCallback) {
 
     _lbry2.default.claim_tip({
       claim_id: claimId,
-      amount: (0, _formatCredits.creditsToString)(amount)
+      amount: (0, _formatCredits.creditsToString)(amount),
+      tip: true
     }).then(success, error);
   };
 }
