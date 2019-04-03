@@ -4,6 +4,7 @@ import { normalizeURI } from 'lbryURI';
 import { doToast } from 'redux/actions/notifications';
 import { selectMyClaimsRaw, selectResolvingUris, selectClaimsByUri } from 'redux/selectors/claims';
 import { doFetchTransactions } from 'redux/actions/wallet';
+import { creditsToString } from 'util/formatCredits';
 
 export function doResolveUris(uris, returnCachedClaims = false) {
   return (dispatch, getState) => {
@@ -77,7 +78,7 @@ export function doAbandonClaim(txid, nout) {
   return (dispatch, getState) => {
     const state = getState();
     const myClaims = selectMyClaimsRaw(state);
-    const { claim_id: claimId } = myClaims.find(
+    const { claim_id: claimId, name: claimName } = myClaims.find(
       claim => claim.txid === txid && claim.nout === nout
     );
 
@@ -125,10 +126,20 @@ export function doAbandonClaim(txid, nout) {
       }
     };
 
-    Lbry.claim_abandon({
-      txid,
-      nout,
-    }).then(successCallback, errorCallback);
+    if (claimName.startsWith('@')) {
+      Lbry.channel_abandon({
+        txid,
+        nout,
+        blocking: true,
+      }).then(successCallback, errorCallback);
+    } else {
+      Lbry.stream_abandon({
+        txid,
+        nout,
+        blocking: true,
+      }).then(successCallback, errorCallback);
+    }
+
   };
 }
 
@@ -174,5 +185,50 @@ export function doFetchClaimCountByChannel(uri) {
         },
       });
     });
+  };
+}
+
+export function doCreateChannel(name: string, amount: number) {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.CREATE_CHANNEL_STARTED,
+    });
+    //this is broken, not sure why..I copied from lbry-desktop
+    return new Promise<void>((resolve, reject) => {
+      Lbry.channel_create({
+        channel_name: name,
+        amount: creditsToString(amount),
+      }).then(
+        newChannelClaim => {
+          const channelClaim = newChannelClaim;
+          channelClaim.name = name;
+          dispatch({
+            type: ACTIONS.CREATE_CHANNEL_COMPLETED,
+            data: { channelClaim },
+          });
+          resolve(channelClaim);
+        },
+        error => {
+          reject(error);
+        }
+      );
+    });
+  };
+}
+
+export function doFetchChannelListMine() {
+  return dispatch) => {
+    dispatch({
+      type: ACTIONS.FETCH_CHANNEL_LIST_STARTED,
+    });
+
+    const callback = channels => {
+      dispatch({
+        type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED,
+        data: { claims: channels },
+      });
+    };
+
+    Lbry.channel_list().then(callback);
   };
 }

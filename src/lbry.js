@@ -74,7 +74,7 @@ Lbry.file_set_status = (params = {}) => daemonCallWithResult('file_set_status', 
 Lbry.stop = () => daemonCallWithResult('stop', {});
 
 // claims
-Lbry.claim_list_by_channel = (params = {}) => daemonCallWithResult('claim_list_by_channel', params);
+Lbry.claim_list_by_channel = (params = {}) => daemonCallWithResult('claim_search', params);
 
 // wallet
 Lbry.account_balance = (params = {}) => daemonCallWithResult('account_balance', params);
@@ -87,7 +87,7 @@ Lbry.address_unused = (params = {}) => daemonCallWithResult('address_unused', pa
 Lbry.wallet_send = (params = {}) => daemonCallWithResult('wallet_send', params);
 Lbry.account_unlock = (params = {}) => daemonCallWithResult('account_unlock', params);
 Lbry.address_unused = () => daemonCallWithResult('address_unused', {});
-Lbry.claim_tip = (params = {}) => daemonCallWithResult('claim_tip', params);
+Lbry.claim_tip = (params = {}) => daemonCallWithResult('support_create', params);
 
 // transactions
 Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
@@ -118,7 +118,7 @@ Lbry.connect = () => {
 
   return Lbry.connectPromise;
 };
-
+// this may actually be given to us by the SDK, will need to check.
 Lbry.getMediaType = (contentType, extname) => {
   if (extname) {
     const formats = [
@@ -166,7 +166,7 @@ Lbry.file_list = (params = {}) =>
 Lbry.claim_list_mine = (params = {}) =>
   new Promise((resolve, reject) => {
     apiCall(
-      'claim_list_mine',
+      'stream_list',
       params,
       claims => {
         resolve(claims);

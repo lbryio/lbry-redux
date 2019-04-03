@@ -2,7 +2,9 @@
   "name": "lbry-redux",
   "version": "0.0.1",
   "description": "Common shared components for desktop and mobile.",
-  "keywords": ["lbry"],
+  "keywords": [
+    "lbry"
+  ],
   "license": "MIT",
   "homepage": "https://lbry.io/",
   "bugs": {

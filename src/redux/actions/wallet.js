@@ -232,6 +232,7 @@ export function doSendTip(amount, claimId, uri, successCallback, errorCallback) 
     Lbry.claim_tip({
       claim_id: claimId,
       amount: creditsToString(amount),
+      tip: true,
     }).then(success, error);
   };
 }

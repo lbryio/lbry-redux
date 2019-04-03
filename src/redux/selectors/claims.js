@@ -132,7 +132,7 @@ export const makeSelectClaimsInChannelForCurrentPageState = uri =>
 
 export const makeSelectMetadataForUri = uri =>
   createSelector(makeSelectClaimForUri(uri), claim => {
-    const metadata = claim && claim.value && claim.value.stream && claim.value.stream.metadata;
+    const metadata = claim && claim.value && claim.value.stream;
 
     return metadata || (claim === undefined ? undefined : null);
   });
@@ -142,8 +142,8 @@ export const makeSelectTitleForUri = uri =>
 
 export const makeSelectContentTypeForUri = uri =>
   createSelector(makeSelectClaimForUri(uri), claim => {
-    const source = claim && claim.value && claim.value.stream && claim.value.stream.source;
-    return source ? source.contentType : undefined;
+    const source = claim && claim.value && claim.value.stream;
+    return source ? source.media_type : undefined;
   });
 
 export const selectIsFetchingClaimListMine = createSelector(
