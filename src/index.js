@@ -10,7 +10,7 @@ import Lbry from 'lbry';
 import { selectState as selectSearchState } from 'redux/selectors/search';
 
 // types
-export { Toast } from 'types/Notification';
+// export { Toast } from 'types/Notification';
 
 // constants
 export {
@@ -141,10 +141,6 @@ export {
   selectFetchingMyChannels,
   selectMyChannelClaims,
   selectResolvingUris,
-  selectFeaturedUris,
-  selectFetchingFeaturedUris,
-  selectTrendingUris,
-  selectFetchingTrendingUris,
   selectPlayingUri,
   selectChannelClaimCounts,
   selectCurrentChannelPage,
@@ -174,7 +170,6 @@ export {
   selectSearchOptions,
   selectIsSearching,
   selectSearchUrisByQuery,
-  selectWunderBarAddress,
   selectSearchBarFocused,
   selectSearchSuggestions,
   makeSelectQueryWithOptions,
