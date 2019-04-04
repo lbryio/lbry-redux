@@ -2,7 +2,9 @@
   "name": "lbry-redux",
   "version": "0.0.1",
   "description": "Common shared components for desktop and mobile.",
-  "keywords": ["lbry"],
+  "keywords": [
+    "lbry"
+  ],
   "license": "MIT",
   "homepage": "https://lbry.io/",
   "bugs": {
@@ -17,8 +19,9 @@
     "email": "hello@lbry.io"
   },
   "main": "dist/bundle.js",
+  "module": "dist/bundle.es.js",
   "scripts": {
-    "build": "webpack",
+    "build": "rollup --config && webpack",
     "dev": "webpack --watch",
     "precommit": "lint-staged",
     "lint": "eslint 'src/**/*.js' --fix",
@@ -50,6 +53,10 @@
     "husky": "^0.14.3",
     "lint-staged": "^7.0.4",
     "prettier": "^1.4.2",
+    "rollup": "^1.8.0",
+    "rollup-plugin-babel": "3",
+    "rollup-plugin-flow": "^1.1.1",
+    "rollup-plugin-includepaths": "^0.2.3",
     "webpack": "^4.5.0",
     "webpack-cli": "^2.0.14"
   },
