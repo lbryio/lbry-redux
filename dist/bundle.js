@@ -1971,8 +1971,8 @@ function doResolveUris(uris /*: Array<string>*/) {
 
     _lbry2.default.resolve({ urls: urisToResolve }).then(function (result /*: {
                                                                                   [string]:
-                                                                                    | { certificate: ChannelClaim, claims_in_channel: number }
-                                                                                    | { claim: StreamClaim, certificate?: ChannelClaim },
+                                                                                    | { error?: {}, certificate: ChannelClaim, claims_in_channel: number }
+                                                                                    | { error?: {}, claim: StreamClaim, certificate?: ChannelClaim },
                                                                                 }*/) {
       Object.entries(result).forEach(function (_ref) {
         var _ref2 = _slicedToArray(_ref, 2),
@@ -2197,10 +2197,61 @@ __webpack_require__(10);
 
 var CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 
-var Lbry = {
+// This doesn't do much because we have a bunch of different types of methods on the Lbry object
+// Types should be added to the return value where they are being used
+
+
+//
+// Basic LBRY sdk connection config
+// Offers a proxy to call LBRY sdk methods
+//
+/*:: type LbryMethod = any => Promise<any>;*/
+var Lbry /*: {
+           isConnected: boolean,
+           connectPromise: ?Promise<any>,
+           daemonConnectionString: string,
+           setDaemonConnectionString: string => void,
+           overrides: { [string]: ?Function },
+           setOverride: (string, Function) => void,
+           getMediaType: (string, ?string) => string,
+           [string]: LbryMethod,
+         }*/ = {
   isConnected: false,
+  connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
-  pendingPublishTimeout: 20 * 60 * 1000
+
+  // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
+  // Not required
+  setDaemonConnectionString: function setDaemonConnectionString(value /*: string*/) {
+    Lbry.daemonConnectionString = value;
+  },
+
+  // Allow overriding Lbry methods
+  overrides: {},
+  setOverride: function setOverride(methodName, newMethod) {
+    Lbry.overrides[methodName] = newMethod;
+  },
+
+  // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
+  getMediaType: function getMediaType(contentType /*: string*/, extname /*: ?string*/) {
+    if (extname) {
+      var formats = [[/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^(stl|obj|fbx|gcode)$/i, '3D-file']];
+      var res = formats.reduce(function (ret, testpair) {
+        switch (testpair[0].test(ret)) {
+          case true:
+            return testpair[1];
+          default:
+            return ret;
+        }
+      }, extname);
+      return res === extname ? 'unknown' : res;
+    } else if (contentType) {
+      // $FlowFixMe
+      return (/^[^/]+/.exec(contentType)[0]
+      );
+    }
+    return 'unknown';
+  }
 };
 
 function checkAndParse(response) {
@@ -2241,8 +2292,8 @@ function apiCall(method /*: string*/, params /*: ?{}*/, resolve /*: Function*/, 
   }).catch(reject);
 }
 
-var daemonCallWithResult = function daemonCallWithResult(name) {
-  var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+var daemonCallWithResult = function daemonCallWithResult(name /*: string*/) {
+  var params /*: ?{}*/ = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   return new Promise(function (resolve, reject) {
     apiCall(name, params, function (result) {
       resolve(result);
@@ -2359,7 +2410,6 @@ Lbry.utxo_release = function () {
   return daemonCallWithResult('utxo_release', params);
 };
 
-Lbry.connectPromise = null;
 Lbry.connect = function () {
   if (Lbry.connectPromise === null) {
     Lbry.connectPromise = new Promise(function (resolve, reject) {
@@ -2380,26 +2430,8 @@ Lbry.connect = function () {
     });
   }
 
+  // $FlowFixMe
   return Lbry.connectPromise;
-};
-// this may actually be given to us by the SDK, will need to check.
-Lbry.getMediaType = function (contentType, extname) {
-  if (extname) {
-    var formats = [[/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^(stl|obj|fbx|gcode)$/i, '3D-file']];
-    var res = formats.reduce(function (ret, testpair) {
-      switch (testpair[0].test(ret)) {
-        case true:
-          return testpair[1];
-        default:
-          return ret;
-      }
-    }, extname);
-    return res === extname ? 'unknown' : res;
-  } else if (contentType) {
-    return (/^[^/]+/.exec(contentType)[0]
-    );
-  }
-  return 'unknown';
 };
 
 /**
@@ -2447,17 +2479,6 @@ Lbry.publish = function () {
       apiCall('publish', params, resolve, reject);
     }
   });
-};
-
-// Allow overriding Lbry methods
-Lbry.overrides = {};
-Lbry.setOverride = function (methodName, newMethod) {
-  Lbry.overrides[methodName] = newMethod;
-};
-
-// Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
-Lbry.setDaemonConnectionString = function (value) {
-  Lbry.daemonConnectionString = value;
 };
 
 var lbryProxy = new Proxy(Lbry, {

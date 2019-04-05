@@ -3,10 +3,64 @@ import 'proxy-polyfill';
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 
-const Lbry = {
+// This doesn't do much because we have a bunch of different types of methods on the Lbry object
+// Types should be added to the return value where they are being used
+type LbryMethod = any => Promise<any>;
+
+//
+// Basic LBRY sdk connection config
+// Offers a proxy to call LBRY sdk methods
+//
+const Lbry: {
+  isConnected: boolean,
+  connectPromise: ?Promise<any>,
+  daemonConnectionString: string,
+  setDaemonConnectionString: string => void,
+  overrides: { [string]: ?Function },
+  setOverride: (string, Function) => void,
+  getMediaType: (string, ?string) => string,
+  [string]: LbryMethod,
+} = {
   isConnected: false,
+  connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
-  pendingPublishTimeout: 20 * 60 * 1000,
+
+  // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
+  // Not required
+  setDaemonConnectionString: (value: string) => {
+    Lbry.daemonConnectionString = value;
+  },
+
+  // Allow overriding Lbry methods
+  overrides: {},
+  setOverride: (methodName, newMethod) => {
+    Lbry.overrides[methodName] = newMethod;
+  },
+
+  // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
+  getMediaType: (contentType: string, extname: ?string) => {
+    if (extname) {
+      const formats = [
+        [/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
+        [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
+        [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'],
+        [/^(stl|obj|fbx|gcode)$/i, '3D-file'],
+      ];
+      const res = formats.reduce((ret, testpair) => {
+        switch (testpair[0].test(ret)) {
+          case true:
+            return testpair[1];
+          default:
+            return ret;
+        }
+      }, extname);
+      return res === extname ? 'unknown' : res;
+    } else if (contentType) {
+      // $FlowFixMe
+      return /^[^/]+/.exec(contentType)[0];
+    }
+    return 'unknown';
+  },
 };
 
 function checkAndParse(response) {
@@ -50,7 +104,7 @@ function apiCall(method: string, params: ?{}, resolve: Function, reject: Functio
     .catch(reject);
 }
 
-const daemonCallWithResult = (name, params = {}) =>
+const daemonCallWithResult = (name: string, params: ?{} = {}) =>
   new Promise((resolve, reject) => {
     apiCall(
       name,
@@ -98,7 +152,6 @@ Lbry.claim_tip = (params = {}) => daemonCallWithResult('support_create', params)
 Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
 Lbry.utxo_release = (params = {}) => daemonCallWithResult('utxo_release', params);
 
-Lbry.connectPromise = null;
 Lbry.connect = () => {
   if (Lbry.connectPromise === null) {
     Lbry.connectPromise = new Promise((resolve, reject) => {
@@ -121,30 +174,8 @@ Lbry.connect = () => {
     });
   }
 
+  // $FlowFixMe
   return Lbry.connectPromise;
-};
-// this may actually be given to us by the SDK, will need to check.
-Lbry.getMediaType = (contentType, extname) => {
-  if (extname) {
-    const formats = [
-      [/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
-      [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
-      [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'],
-      [/^(stl|obj|fbx|gcode)$/i, '3D-file'],
-    ];
-    const res = formats.reduce((ret, testpair) => {
-      switch (testpair[0].test(ret)) {
-        case true:
-          return testpair[1];
-        default:
-          return ret;
-      }
-    }, extname);
-    return res === extname ? 'unknown' : res;
-  } else if (contentType) {
-    return /^[^/]+/.exec(contentType)[0];
-  }
-  return 'unknown';
 };
 
 /**
@@ -200,17 +231,6 @@ Lbry.publish = (params = {}) =>
       apiCall('publish', params, resolve, reject);
     }
   });
-
-// Allow overriding Lbry methods
-Lbry.overrides = {};
-Lbry.setOverride = (methodName, newMethod) => {
-  Lbry.overrides[methodName] = newMethod;
-};
-
-// Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
-Lbry.setDaemonConnectionString = value => {
-  Lbry.daemonConnectionString = value;
-};
 
 const lbryProxy = new Proxy(Lbry, {
   get(target, name) {

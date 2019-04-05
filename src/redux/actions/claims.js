@@ -42,8 +42,8 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
     Lbry.resolve({ urls: urisToResolve }).then(
       (result: {
         [string]:
-          | { certificate: ChannelClaim, claims_in_channel: number }
-          | { claim: StreamClaim, certificate?: ChannelClaim },
+          | { error?: {}, certificate: ChannelClaim, claims_in_channel: number }
+          | { error?: {}, claim: StreamClaim, certificate?: ChannelClaim },
       }) => {
         Object.entries(result).forEach(([uri, uriResolveInfo]) => {
           const fallbackResolveInfo = {
