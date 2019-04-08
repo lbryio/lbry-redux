@@ -3013,7 +3013,7 @@ var makeSelectRecommendedContentForUri = exports.makeSelectRecommendedContentFor
       // If we are at a vanity uri, build the full uri so we can properly filter
       var currentUri = atVanityURI ? (0, _lbryURI.buildURI)({ claimId: claim.claim_id, claimName: claim.name }) : uri;
 
-      var title = claim.value.stream.metadata.title;
+      var title = claim.value.stream.title;
 
 
       var searchQuery = (0, _query_params.getSearchQueryString)(title.replace(/\//, ' '));
