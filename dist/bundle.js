@@ -89,8 +89,8 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.selectTransactionListFilter = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.makeSelectQueryWithOptions = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchOptions = exports.selectSearchValue = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectFileListPublishedSort = exports.selectFileListDownloadedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectCurrentChannelPage = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = undefined;
-exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.selectPendingById = exports.makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.makeSelectChannelForClaimUri = exports.makeSelectFirstRecommendedFileForUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectError = exports.selectToast = exports.makeSelectContentPositionForUri = exports.contentReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.claimsReducer = exports.creditsToString = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doUpdateBlockHeight = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendTip = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.savePosition = exports.doUpdateSearchOptions = exports.setSearchApi = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetFileListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doDismissError = exports.doError = exports.doDismissToast = exports.doToast = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbry = exports.PAGES = exports.SORT_OPTIONS = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_OPTIONS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.ACTIONS = undefined;
+exports.selectTransactionListFilter = exports.selectWalletUnlockResult = exports.selectWalletUnlockSucceeded = exports.selectWalletUnlockPending = exports.selectWalletDecryptResult = exports.selectWalletDecryptSucceeded = exports.selectWalletDecryptPending = exports.selectWalletEncryptResult = exports.selectWalletEncryptSucceeded = exports.selectWalletEncryptPending = exports.selectWalletState = exports.selectWalletIsEncrypted = exports.selectBlocks = exports.selectDraftTransactionError = exports.selectDraftTransactionAddress = exports.selectDraftTransactionAmount = exports.selectDraftTransaction = exports.selectGettingNewAddress = exports.selectReceiveAddress = exports.selectIsSendingSupport = exports.selectIsFetchingTransactions = exports.selectHasTransactions = exports.selectRecentTransactions = exports.selectTransactionItems = exports.selectTransactionsById = exports.selectBalance = exports.makeSelectBlockDate = exports.makeSelectQueryWithOptions = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSearchOptions = exports.selectSearchValue = exports.makeSelectSearchUris = exports.selectSearchState = exports.selectFileListPublishedSort = exports.selectFileListDownloadedSort = exports.selectSearchDownloadUris = exports.selectTotalDownloadProgress = exports.selectDownloadingFileInfos = exports.selectFileInfosDownloaded = exports.selectUrisLoading = exports.selectDownloadingByOutpoint = exports.selectIsFetchingFileListDownloadedOrPublished = exports.selectIsFetchingFileList = exports.selectFileInfosByOutpoint = exports.makeSelectLoadingForUri = exports.makeSelectDownloadingForUri = exports.makeSelectFileInfoForUri = exports.selectCurrentChannelPage = exports.selectChannelClaimCounts = exports.selectPlayingUri = exports.selectResolvingUris = exports.selectMyChannelClaims = exports.selectFetchingMyChannels = exports.selectMyClaimsOutpoints = exports.selectAllMyClaimsByOutpoint = exports.selectMyClaimsWithoutChannels = exports.selectMyClaims = undefined;
+exports.selectPendingClaims = exports.selectIsFetchingClaimListMine = exports.selectAllFetchingChannelClaims = exports.selectMyActiveClaims = exports.selectAbandoningIds = exports.selectMyClaimsRaw = exports.selectAllClaimsByChannel = exports.selectClaimsByUri = exports.selectClaimsById = exports.selectPendingById = exports.makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectPendingByUri = exports.makeSelectClaimIsPending = exports.makeSelectChannelForClaimUri = exports.makeSelectFirstRecommendedFileForUri = exports.makeSelectRecommendedContentForUri = exports.makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountFromUris = exports.makeSelectTotalPagesForChannel = exports.makeSelectTotalItemsForChannel = exports.makeSelectIsUriResolving = exports.makeSelectContentTypeForUri = exports.makeSelectTitleForUri = exports.makeSelectMetadataForUri = exports.makeSelectClaimsInChannelForPage = exports.makeSelectFetchingChannelClaims = exports.makeSelectClaimIsMine = exports.makeSelectClaimForUri = exports.selectError = exports.selectToast = exports.makeSelectContentPositionForUri = exports.contentReducer = exports.walletReducer = exports.searchReducer = exports.notificationsReducer = exports.fileInfoReducer = exports.claimsReducer = exports.creditsToString = exports.formatFullPrice = exports.formatCredits = exports.toQueryString = exports.parseQueryParams = exports.batchActions = exports.doUpdateBlockHeight = exports.doSetTransactionListFilter = exports.doWalletStatus = exports.doWalletUnlock = exports.doWalletDecrypt = exports.doWalletEncrypt = exports.doSendTip = exports.doSetDraftTransactionAddress = exports.doSetDraftTransactionAmount = exports.doSendDraftTransaction = exports.doCheckAddressIsMine = exports.doGetNewAddress = exports.doFetchBlock = exports.doFetchTransactions = exports.doBalanceSubscribe = exports.doUpdateBalance = exports.savePosition = exports.doUpdateSearchOptions = exports.setSearchApi = exports.doBlurSearchInput = exports.doFocusSearchInput = exports.doUpdateSearchQuery = exports.doSearch = exports.doSetFileListSort = exports.doFetchFileInfosAndPublishedClaims = exports.doFileList = exports.doFetchFileInfo = exports.doCreateChannel = exports.doFetchChannelListMine = exports.doResolveUri = exports.doResolveUris = exports.doAbandonClaim = exports.doFetchClaimListMine = exports.doFetchClaimCountByChannel = exports.doFetchClaimsByChannel = exports.doDismissError = exports.doError = exports.doDismissToast = exports.doToast = exports.convertToShareLink = exports.isNameValid = exports.isURIClaimable = exports.isURIValid = exports.normalizeURI = exports.buildURI = exports.parseURI = exports.regexAddress = exports.regexInvalidURI = exports.Lbry = exports.PAGES = exports.SORT_OPTIONS = exports.TRANSACTIONS = exports.SETTINGS = exports.SEARCH_OPTIONS = exports.SEARCH_TYPES = exports.THUMBNAIL_STATUSES = exports.ACTIONS = undefined;
 
 var _lbryURI = __webpack_require__(1);
 
@@ -212,6 +212,18 @@ Object.defineProperty(exports, 'doResolveUri', {
   enumerable: true,
   get: function get() {
     return _claims.doResolveUri;
+  }
+});
+Object.defineProperty(exports, 'doFetchChannelListMine', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doFetchChannelListMine;
+  }
+});
+Object.defineProperty(exports, 'doCreateChannel', {
+  enumerable: true,
+  get: function get() {
+    return _claims.doCreateChannel;
   }
 });
 
@@ -1081,7 +1093,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 // types
-//export { Toast } from 'types/Notification';
+// export { Toast } from 'types/Notification';
 
 // constants
 exports.ACTIONS = ACTIONS;
@@ -1372,7 +1384,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 // @flow
-/*:: import type { ToastParams } from 'types/Notification';*/
 function doToast(params /*: ToastParams*/) {
   if (!params) {
     throw Error("'params' object is required to create a toast notification");
@@ -1479,6 +1490,8 @@ var WALLET_STATUS_START = exports.WALLET_STATUS_START = 'WALLET_STATUS_START';
 var WALLET_STATUS_COMPLETED = exports.WALLET_STATUS_COMPLETED = 'WALLET_STATUS_COMPLETED';
 var SET_TRANSACTION_LIST_FILTER = exports.SET_TRANSACTION_LIST_FILTER = 'SET_TRANSACTION_LIST_FILTER';
 var UPDATE_CURRENT_HEIGHT = exports.UPDATE_CURRENT_HEIGHT = 'UPDATE_CURRENT_HEIGHT';
+var SET_DRAFT_TRANSACTION_AMOUNT = exports.SET_DRAFT_TRANSACTION_AMOUNT = 'SET_DRAFT_TRANSACTION_AMOUNT';
+var SET_DRAFT_TRANSACTION_ADDRESS = exports.SET_DRAFT_TRANSACTION_ADDRESS = 'SET_DRAFT_TRANSACTION_ADDRESS';
 
 // Claims
 var RESOLVE_URIS_STARTED = exports.RESOLVE_URIS_STARTED = 'RESOLVE_URIS_STARTED';
@@ -1625,15 +1638,13 @@ var DO_PREPARE_EDIT = exports.DO_PREPARE_EDIT = 'DO_PREPARE_EDIT';
 var CREATE_NOTIFICATION = exports.CREATE_NOTIFICATION = 'CREATE_NOTIFICATION';
 var EDIT_NOTIFICATION = exports.EDIT_NOTIFICATION = 'EDIT_NOTIFICATION';
 var DELETE_NOTIFICATION = exports.DELETE_NOTIFICATION = 'DELETE_NOTIFICATION';
+var DISMISS_NOTIFICATION = exports.DISMISS_NOTIFICATION = 'DISMISS_NOTIFICATION';
 var CREATE_TOAST = exports.CREATE_TOAST = 'CREATE_TOAST';
 var DISMISS_TOAST = exports.DISMISS_TOAST = 'DISMISS_TOAST';
 var CREATE_ERROR = exports.CREATE_ERROR = 'CREATE_ERROR';
 var DISMISS_ERROR = exports.DISMISS_ERROR = 'DISMISS_ERROR';
 
-var SET_DRAFT_TRANSACTION_AMOUNT = exports.SET_DRAFT_TRANSACTION_AMOUNT = 'SET_DRAFT_TRANSACTION_AMOUNT';
-var SET_DRAFT_TRANSACTION_ADDRESS = exports.SET_DRAFT_TRANSACTION_ADDRESS = 'SET_DRAFT_TRANSACTION_ADDRESS';
 var FETCH_DATE = exports.FETCH_DATE = 'FETCH_DATE';
-var DISMISS_NOTIFICATION = exports.DISMISS_NOTIFICATION = 'DISMISS_NOTIFICATION';
 
 /***/ }),
 /* 4 */
@@ -1751,7 +1762,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); // @flow
+
 
 exports.doResolveUris = doResolveUris;
 exports.doResolveUri = doResolveUri;
@@ -1759,6 +1773,8 @@ exports.doFetchClaimListMine = doFetchClaimListMine;
 exports.doAbandonClaim = doAbandonClaim;
 exports.doFetchClaimsByChannel = doFetchClaimsByChannel;
 exports.doFetchClaimCountByChannel = doFetchClaimCountByChannel;
+exports.doCreateChannel = doCreateChannel;
+exports.doFetchChannelListMine = doFetchChannelListMine;
 
 var _action_types = __webpack_require__(3);
 
@@ -1776,18 +1792,24 @@ var _claims = __webpack_require__(11);
 
 var _wallet = __webpack_require__(17);
 
+var _formatCredits = __webpack_require__(20);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function doResolveUris(uris) {
-  var returnCachedClaims = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+/*:: type ResolveResponse = {
+  [string]: | { error: {}, certificate: ChannelClaim, claims_in_channel: number }
+    | { error?: {}, claim: StreamClaim, certificate?: ChannelClaim },
+};*/
+function doResolveUris(uris /*: Array<string>*/) {
+  var returnCachedClaims /*: boolean*/ = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-  return function (dispatch, getState) {
+  return function (dispatch /*: Dispatch*/, getState /*: GetState*/) {
     var normalizedUris = uris.map(_lbryURI.normalizeURI);
     var state = getState();
 
-    var resolvingUris = (0, _claims.selectResolvingUris)(state);
+    var resolvingUris = (0, _claims.selectResolvingUris)(state) + 5;
     var claimsByUri = (0, _claims.selectClaimsByUri)(state);
     var urisToResolve = normalizedUris.filter(function (uri) {
       if (resolvingUris.includes(uri)) {
@@ -1806,8 +1828,13 @@ function doResolveUris(uris) {
       data: { uris: normalizedUris }
     });
 
-    var resolveInfo = {};
-    _lbry2.default.resolve({ urls: urisToResolve }).then(function (result) {
+    var resolveInfo /*: {
+                          claim: StreamClaim,
+                          certificate: ?ChannelClaim,
+                          claimsInChannel: ?number,
+                        }*/ = {};
+
+    _lbry2.default.resolve({ urls: urisToResolve }).then(function (result /*: ResolveResponse*/) {
       Object.entries(result).forEach(function (_ref) {
         var _ref2 = _slicedToArray(_ref, 2),
             uri = _ref2[0],
@@ -1819,12 +1846,19 @@ function doResolveUris(uris) {
           certificate: null
         };
 
-        var _ref3 = uriResolveInfo && !uriResolveInfo.error ? uriResolveInfo : fallbackResolveInfo,
-            claim = _ref3.claim,
-            certificate = _ref3.certificate,
-            claimsInChannel = _ref3.claims_in_channel;
+        // Flow has terrible Object.entries support
+        // https://github.com/facebook/flow/issues/2221
+        // $FlowFixMe
+        if (uriResolveInfo.error) {
+          resolveInfo[uri] = _extends({}, fallbackResolveInfo);
+        } else {
+          // $FlowFixMe
+          var _claim = uriResolveInfo.claim,
+              _certificate = uriResolveInfo.certificate,
+              _claimsInChannel = uriResolveInfo.claims_in_channel;
 
-        resolveInfo[uri] = { claim: claim, certificate: certificate, claimsInChannel: claimsInChannel };
+          resolveInfo[uri] = { claim: _claim, certificate: _certificate, claimsInChannel: _claimsInChannel };
+        }
       });
 
       dispatch({
@@ -1835,17 +1869,17 @@ function doResolveUris(uris) {
   };
 }
 
-function doResolveUri(uri) {
+function doResolveUri(uri /*: string*/) {
   return doResolveUris([uri]);
 }
 
 function doFetchClaimListMine() {
-  return function (dispatch) {
+  return function (dispatch /*: Dispatch*/) {
     dispatch({
       type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED
     });
 
-    _lbry2.default.claim_list_mine().then(function (claims) {
+    _lbry2.default.claim_list().then(function (claims /*: Array<ChannelClaim | StreamClaim>*/) {
       dispatch({
         type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
         data: {
@@ -1856,15 +1890,22 @@ function doFetchClaimListMine() {
   };
 }
 
-function doAbandonClaim(txid, nout) {
-  return function (dispatch, getState) {
+function doAbandonClaim(txid /*: string*/, nout /*: number*/) {
+  return function (dispatch /*: Dispatch*/, getState /*: GetState*/) {
     var state = getState();
-    var myClaims = (0, _claims.selectMyClaimsRaw)(state);
-
-    var _myClaims$find = myClaims.find(function (claim) {
+    var myClaims /*: Array<ChannelClaim | StreamClaim>*/ = (0, _claims.selectMyClaimsRaw)(state);
+    var claimToAbandon = myClaims.find(function (claim) {
       return claim.txid === txid && claim.nout === nout;
-    }),
-        claimId = _myClaims$find.claim_id;
+    });
+
+    if (!claimToAbandon) {
+      console.error('No associated claim with txid: ', txid);
+      return;
+    }
+
+    var claimId = claimToAbandon.claim_id,
+        claimName = claimToAbandon.name;
+
 
     dispatch({
       type: ACTIONS.ABANDON_CLAIM_STARTED,
@@ -1875,86 +1916,131 @@ function doAbandonClaim(txid, nout) {
 
     var errorCallback = function errorCallback() {
       dispatch((0, _notifications.doToast)({
-        message: 'Transaction failed',
+        message: 'Error abandoning claim',
         isError: true
       }));
     };
 
-    var successCallback = function successCallback(results) {
-      if (results.success === true) {
-        dispatch({
-          type: ACTIONS.ABANDON_CLAIM_SUCCEEDED,
-          data: {
-            claimId: claimId
-          }
-        });
-        dispatch((0, _notifications.doToast)({
-          message: 'Successfully abandoned your claim'
-        }));
+    var successCallback = function successCallback() {
+      dispatch({
+        type: ACTIONS.ABANDON_CLAIM_SUCCEEDED,
+        data: {
+          claimId: claimId
+        }
+      });
 
-        // After abandoning, call claim_list_mine to show the claim as abandoned
-        // Also fetch transactions to show the new abandon transaction
-        dispatch(doFetchClaimListMine());
-        dispatch((0, _wallet.doFetchTransactions)());
-      } else {
-        dispatch((0, _notifications.doToast)({
-          message: 'Error abandoning claim',
-          isError: true
-        }));
-      }
+      dispatch((0, _notifications.doToast)({
+        message: 'Successfully abandoned your claim'
+      }));
+
+      // After abandoning, call claim_list_mine to show the claim as abandoned
+      // Also fetch transactions to show the new abandon transaction
+      dispatch(doFetchClaimListMine());
+      dispatch((0, _wallet.doFetchTransactions)());
     };
 
-    _lbry2.default.claim_abandon({
+    var abandonParams = {
       txid: txid,
-      nout: nout
-    }).then(successCallback, errorCallback);
+      nout: nout,
+      blocking: true
+    };
+
+    var method = claimName.startsWith('@') ? 'channel_abandon' : 'stream_abandon';
+    _lbry2.default[method](abandonParams).then(successCallback, errorCallback);
   };
 }
 
-function doFetchClaimsByChannel(uri, page) {
-  return function (dispatch) {
+function doFetchClaimsByChannel(uri /*: string*/) {
+  var page /*: number*/ = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+
+  return function (dispatch /*: Dispatch*/) {
     dispatch({
       type: ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED,
       data: { uri: uri, page: page }
     });
 
-    _lbry2.default.claim_list_by_channel({ uri: uri, page: page || 1 }).then(function (result) {
-      var claimResult = result[uri] || {};
-      var claimsInChannel = claimResult.claims_in_channel,
-          returnedPage = claimResult.returned_page;
+    // TODO: come back to me
+    // Lbry.claim_search({ uri, page: page || 1 }).then(result => {
+    //   const claimResult = result[uri] || {};
+    //   const { claims_in_channel: claimsInChannel, returned_page: returnedPage } = claimResult;
 
-
-      dispatch({
-        type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
-        data: {
-          uri: uri,
-          claims: claimsInChannel || [],
-          page: returnedPage || undefined
-        }
-      });
-    });
+    //   dispatch({
+    //     type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
+    //     data: {
+    //       uri,
+    //       claims: claimsInChannel || [],
+    //       page: returnedPage || undefined,
+    //     },
+    //   });
+    // });
   };
 }
 
-function doFetchClaimCountByChannel(uri) {
-  return function (dispatch) {
+function doFetchClaimCountByChannel(uri /*: string*/) {
+  return function (dispatch /*: Dispatch*/) {
     dispatch({
       type: ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_STARTED,
       data: { uri: uri }
     });
 
-    _lbry2.default.claim_list_by_channel({ uri: uri }).then(function (result) {
-      var claimResult = result[uri];
-      var totalClaims = claimResult ? claimResult.claims_in_channel : 0;
+    // TODO: come back to this
+    // Lbry.claim_list_by_channel({ uri }).then(result => {
+    //   const claimResult = result[uri];
+    //   const totalClaims = claimResult ? claimResult.claims_in_channel : 0;
 
-      dispatch({
-        type: ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED,
-        data: {
-          uri: uri,
-          totalClaims: totalClaims
-        }
-      });
+    //   dispatch({
+    //     type: ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED,
+    //     data: {
+    //       uri,
+    //       totalClaims,
+    //     },
+    //   });
+    // });
+  };
+}
+
+function doCreateChannel(name /*: string*/, amount /*: number*/) {
+  return function (dispatch /*: Dispatch*/) {
+    dispatch({
+      type: ACTIONS.CREATE_CHANNEL_STARTED
     });
+
+    return _lbry2.default.channel_create({
+      name: name,
+      bid: (0, _formatCredits.creditsToString)(amount)
+    })
+    // outputs[0] is the certificate
+    // outputs[1] is the change from the tx, not in the app currently
+    .then(function (result /*: { outputs: Array<ChannelClaim> }*/) {
+      var channelClaim = result.outputs[0];
+      dispatch({
+        type: ACTIONS.CREATE_CHANNEL_COMPLETED,
+        data: { channelClaim: channelClaim }
+      });
+    }).catch(function (error) {
+      // TODO: add this
+      // dispatch({
+      //   type: ACTIONS.CREATE_CHANNEL_FAILED,
+      //   data: error
+      // })
+    });
+  };
+}
+
+function doFetchChannelListMine() {
+  return function (dispatch /*: Dispatch*/) {
+    dispatch({
+      type: ACTIONS.FETCH_CHANNEL_LIST_STARTED
+    });
+
+    var callback = function callback(channels /*: Array<ChannelClaim>*/) {
+      dispatch({
+        type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED,
+        data: { claims: channels }
+      });
+    };
+
+    _lbry2.default.channel_list().then(callback);
   };
 }
 
@@ -1976,10 +2062,61 @@ __webpack_require__(9);
 
 var CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 
-var Lbry = {
+// This doesn't do much because we have a bunch of different types of methods on the Lbry object
+// Types should be added to the return value where they are being used
+
+
+//
+// Basic LBRY sdk connection config
+// Offers a proxy to call LBRY sdk methods
+//
+/*:: type LbryMethod = any => Promise<any>;*/
+var Lbry /*: {
+           isConnected: boolean,
+           connectPromise: ?Promise<any>,
+           daemonConnectionString: string,
+           setDaemonConnectionString: string => void,
+           overrides: { [string]: ?Function },
+           setOverride: (string, Function) => void,
+           getMediaType: (string, ?string) => string,
+           [string]: LbryMethod,
+         }*/ = {
   isConnected: false,
+  connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
-  pendingPublishTimeout: 20 * 60 * 1000
+
+  // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
+  // Not required
+  setDaemonConnectionString: function setDaemonConnectionString(value /*: string*/) {
+    Lbry.daemonConnectionString = value;
+  },
+
+  // Allow overriding Lbry methods
+  overrides: {},
+  setOverride: function setOverride(methodName, newMethod) {
+    Lbry.overrides[methodName] = newMethod;
+  },
+
+  // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
+  getMediaType: function getMediaType(contentType /*: string*/, extname /*: ?string*/) {
+    if (extname) {
+      var formats = [[/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^(stl|obj|fbx|gcode)$/i, '3D-file']];
+      var res = formats.reduce(function (ret, testpair) {
+        switch (testpair[0].test(ret)) {
+          case true:
+            return testpair[1];
+          default:
+            return ret;
+        }
+      }, extname);
+      return res === extname ? 'unknown' : res;
+    } else if (contentType) {
+      // $FlowFixMe
+      return (/^[^/]+/.exec(contentType)[0]
+      );
+    }
+    return 'unknown';
+  }
 };
 
 function checkAndParse(response) {
@@ -2020,8 +2157,8 @@ function apiCall(method /*: string*/, params /*: ?{}*/, resolve /*: Function*/, 
   }).catch(reject);
 }
 
-var daemonCallWithResult = function daemonCallWithResult(name) {
-  var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+var daemonCallWithResult = function daemonCallWithResult(name /*: string*/) {
+  var params /*: ?{}*/ = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   return new Promise(function (resolve, reject) {
     apiCall(name, params, function (result) {
       resolve(result);
@@ -2060,9 +2197,29 @@ Lbry.stop = function () {
 };
 
 // claims
-Lbry.claim_list_by_channel = function () {
+Lbry.claim_search = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return daemonCallWithResult('claim_list_by_channel', params);
+  return daemonCallWithResult('claim_search', params);
+};
+Lbry.channel_create = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('channel_create', params);
+};
+Lbry.channel_list = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('channel_list', params);
+};
+Lbry.claim_list = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('claim_list', params);
+};
+Lbry.stream_abandon = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('stream_abandon', params);
+};
+Lbry.channel_abandon = function () {
+  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  return daemonCallWithResult('channel_abandon', params);
 };
 
 // wallet
@@ -2105,7 +2262,7 @@ Lbry.address_unused = function () {
 };
 Lbry.claim_tip = function () {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return daemonCallWithResult('claim_tip', params);
+  return daemonCallWithResult('support_create', params);
 };
 
 // transactions
@@ -2118,7 +2275,6 @@ Lbry.utxo_release = function () {
   return daemonCallWithResult('utxo_release', params);
 };
 
-Lbry.connectPromise = null;
 Lbry.connect = function () {
   if (Lbry.connectPromise === null) {
     Lbry.connectPromise = new Promise(function (resolve, reject) {
@@ -2139,26 +2295,8 @@ Lbry.connect = function () {
     });
   }
 
+  // $FlowFixMe
   return Lbry.connectPromise;
-};
-
-Lbry.getMediaType = function (contentType, extname) {
-  if (extname) {
-    var formats = [[/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^(stl|obj|fbx|gcode)$/i, '3D-file']];
-    var res = formats.reduce(function (ret, testpair) {
-      switch (testpair[0].test(ret)) {
-        case true:
-          return testpair[1];
-        default:
-          return ret;
-      }
-    }, extname);
-    return res === extname ? 'unknown' : res;
-  } else if (contentType) {
-    return (/^[^/]+/.exec(contentType)[0]
-    );
-  }
-  return 'unknown';
 };
 
 /**
@@ -2175,15 +2313,6 @@ Lbry.file_list = function () {
   return new Promise(function (resolve, reject) {
     apiCall('file_list', params, function (fileInfos) {
       resolve(fileInfos);
-    }, reject);
-  });
-};
-
-Lbry.claim_list_mine = function () {
-  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return new Promise(function (resolve, reject) {
-    apiCall('claim_list_mine', params, function (claims) {
-      resolve(claims);
     }, reject);
   });
 };
@@ -2215,17 +2344,6 @@ Lbry.publish = function () {
       apiCall('publish', params, resolve, reject);
     }
   });
-};
-
-// Allow overriding Lbry methods
-Lbry.overrides = {};
-Lbry.setOverride = function (methodName, newMethod) {
-  Lbry.overrides[methodName] = newMethod;
-};
-
-// Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
-Lbry.setDaemonConnectionString = function (value) {
-  Lbry.daemonConnectionString = value;
 };
 
 var lbryProxy = new Proxy(Lbry, {
@@ -2475,7 +2593,8 @@ var _claim = __webpack_require__(16);
 
 var _query_params = __webpack_require__(14);
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } // @flow
+
 
 var selectState = function selectState(state) {
   return state.claims || {};
@@ -2521,7 +2640,7 @@ var selectPendingClaims = exports.selectPendingClaims = (0, _reselect.createSele
   return Object.values(state.pendingById || []);
 });
 
-var makeSelectClaimIsPending = exports.makeSelectClaimIsPending = function makeSelectClaimIsPending(uri) {
+var makeSelectClaimIsPending = exports.makeSelectClaimIsPending = function makeSelectClaimIsPending(uri /*: string*/) {
   return (0, _reselect.createSelector)(selectPendingById, function (pendingById) {
     var _parseURI = (0, _lbryURI.parseURI)(uri),
         claimId = _parseURI.claimId;
@@ -2530,7 +2649,7 @@ var makeSelectClaimIsPending = exports.makeSelectClaimIsPending = function makeS
   });
 };
 
-var makeSelectPendingByUri = exports.makeSelectPendingByUri = function makeSelectPendingByUri(uri) {
+var makeSelectPendingByUri = exports.makeSelectPendingByUri = function makeSelectPendingByUri(uri /*: string*/) {
   return (0, _reselect.createSelector)(selectPendingById, function (pendingById) {
     var _parseURI2 = (0, _lbryURI.parseURI)(uri),
         claimId = _parseURI2.claimId;
@@ -2539,7 +2658,7 @@ var makeSelectPendingByUri = exports.makeSelectPendingByUri = function makeSelec
   });
 };
 
-var makeSelectClaimForUri = exports.makeSelectClaimForUri = function makeSelectClaimForUri(uri) {
+var makeSelectClaimForUri = exports.makeSelectClaimForUri = function makeSelectClaimForUri(uri /*: string*/) {
   return (0, _reselect.createSelector)(selectClaimsByUri, selectPendingById, function (byUri, pendingById) {
     // Check if a claim is pending first
     // It won't be in claimsByUri because resolving it will return nothing
@@ -2571,7 +2690,7 @@ var selectMyActiveClaims = exports.selectMyActiveClaims = (0, _reselect.createSe
   }));
 });
 
-var makeSelectClaimIsMine = exports.makeSelectClaimIsMine = function makeSelectClaimIsMine(rawUri) {
+var makeSelectClaimIsMine = exports.makeSelectClaimIsMine = function makeSelectClaimIsMine(rawUri /*: string*/) {
   var uri = (0, _lbryURI.normalizeURI)(rawUri);
   return (0, _reselect.createSelector)(selectClaimsByUri, selectMyActiveClaims, function (claims, myClaims) {
     return claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id);
@@ -2582,13 +2701,13 @@ var selectAllFetchingChannelClaims = exports.selectAllFetchingChannelClaims = (0
   return state.fetchingChannelClaims || {};
 });
 
-var makeSelectFetchingChannelClaims = exports.makeSelectFetchingChannelClaims = function makeSelectFetchingChannelClaims(uri) {
+var makeSelectFetchingChannelClaims = exports.makeSelectFetchingChannelClaims = function makeSelectFetchingChannelClaims(uri /*: string*/) {
   return (0, _reselect.createSelector)(selectAllFetchingChannelClaims, function (fetching) {
     return fetching && fetching[uri];
   });
 };
 
-var makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForPage = function makeSelectClaimsInChannelForPage(uri, page) {
+var makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForPage = function makeSelectClaimsInChannelForPage(uri /*: string*/, page /*:: ?: number*/) {
   return (0, _reselect.createSelector)(selectClaimsById, selectAllClaimsByChannel, function (byId, allClaims) {
     var byChannel = allClaims[uri] || {};
     var claimIds = byChannel[page || 1];
@@ -2601,7 +2720,7 @@ var makeSelectClaimsInChannelForPage = exports.makeSelectClaimsInChannelForPage 
   });
 };
 
-var makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectClaimsInChannelForCurrentPageState = function makeSelectClaimsInChannelForCurrentPageState(uri) {
+var makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectClaimsInChannelForCurrentPageState = function makeSelectClaimsInChannelForCurrentPageState(uri /*: string*/) {
   return (0, _reselect.createSelector)(selectClaimsById, selectAllClaimsByChannel, selectCurrentChannelPage, function (byId, allClaims, page) {
     var byChannel = allClaims[uri] || {};
     var claimIds = byChannel[page || 1];
@@ -2614,24 +2733,24 @@ var makeSelectClaimsInChannelForCurrentPageState = exports.makeSelectClaimsInCha
   });
 };
 
-var makeSelectMetadataForUri = exports.makeSelectMetadataForUri = function makeSelectMetadataForUri(uri) {
+var makeSelectMetadataForUri = exports.makeSelectMetadataForUri = function makeSelectMetadataForUri(uri /*: string*/) {
   return (0, _reselect.createSelector)(makeSelectClaimForUri(uri), function (claim) {
-    var metadata = claim && claim.value && claim.value.stream && claim.value.stream.metadata;
+    var metadata = claim && claim.value && claim.value.stream;
 
     return metadata || (claim === undefined ? undefined : null);
   });
 };
 
-var makeSelectTitleForUri = exports.makeSelectTitleForUri = function makeSelectTitleForUri(uri) {
+var makeSelectTitleForUri = exports.makeSelectTitleForUri = function makeSelectTitleForUri(uri /*: string*/) {
   return (0, _reselect.createSelector)(makeSelectMetadataForUri(uri), function (metadata) {
     return metadata && metadata.title;
   });
 };
 
-var makeSelectContentTypeForUri = exports.makeSelectContentTypeForUri = function makeSelectContentTypeForUri(uri) {
+var makeSelectContentTypeForUri = exports.makeSelectContentTypeForUri = function makeSelectContentTypeForUri(uri /*: string*/) {
   return (0, _reselect.createSelector)(makeSelectClaimForUri(uri), function (claim) {
-    var source = claim && claim.value && claim.value.stream && claim.value.stream.source;
-    return source ? source.contentType : undefined;
+    var source = claim && claim.value && claim.value.stream;
+    return source ? source.media_type : undefined;
   });
 };
 
@@ -2695,7 +2814,7 @@ var selectResolvingUris = exports.selectResolvingUris = (0, _reselect.createSele
   return state.resolvingUris || [];
 });
 
-var makeSelectIsUriResolving = exports.makeSelectIsUriResolving = function makeSelectIsUriResolving(uri) {
+var makeSelectIsUriResolving = exports.makeSelectIsUriResolving = function makeSelectIsUriResolving(uri /*: string*/) {
   return (0, _reselect.createSelector)(selectResolvingUris, function (resolvingUris) {
     return resolvingUris && resolvingUris.indexOf(uri) !== -1;
   });
@@ -2709,20 +2828,20 @@ var selectChannelClaimCounts = exports.selectChannelClaimCounts = (0, _reselect.
   return state.channelClaimCounts || {};
 });
 
-var makeSelectTotalItemsForChannel = exports.makeSelectTotalItemsForChannel = function makeSelectTotalItemsForChannel(uri) {
+var makeSelectTotalItemsForChannel = exports.makeSelectTotalItemsForChannel = function makeSelectTotalItemsForChannel(uri /*: string*/) {
   return (0, _reselect.createSelector)(selectChannelClaimCounts, function (byUri) {
     return byUri && byUri[uri];
   });
 };
 
-var makeSelectTotalPagesForChannel = exports.makeSelectTotalPagesForChannel = function makeSelectTotalPagesForChannel(uri) {
-  var pageSize = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
+var makeSelectTotalPagesForChannel = exports.makeSelectTotalPagesForChannel = function makeSelectTotalPagesForChannel(uri /*: string*/) {
+  var pageSize /*: number*/ = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
   return (0, _reselect.createSelector)(selectChannelClaimCounts, function (byUri) {
     return byUri && byUri[uri] && Math.ceil(byUri[uri] / pageSize);
   });
 };
 
-var makeSelectNsfwCountFromUris = exports.makeSelectNsfwCountFromUris = function makeSelectNsfwCountFromUris(uris) {
+var makeSelectNsfwCountFromUris = exports.makeSelectNsfwCountFromUris = function makeSelectNsfwCountFromUris(uris /*: Array<string>*/) {
   return (0, _reselect.createSelector)(selectClaimsByUri, function (claims) {
     return uris.reduce(function (acc, uri) {
       var claim = claims[uri];
@@ -2734,7 +2853,7 @@ var makeSelectNsfwCountFromUris = exports.makeSelectNsfwCountFromUris = function
   });
 };
 
-var makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountForChannel = function makeSelectNsfwCountForChannel(uri) {
+var makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountForChannel = function makeSelectNsfwCountForChannel(uri /*: string*/) {
   return (0, _reselect.createSelector)(selectClaimsById, selectAllClaimsByChannel, selectCurrentChannelPage, function (byId, allClaims, page) {
     var byChannel = allClaims[uri] || {};
     var claimIds = byChannel[page || 1];
@@ -2751,7 +2870,7 @@ var makeSelectNsfwCountForChannel = exports.makeSelectNsfwCountForChannel = func
   });
 };
 
-var makeSelectRecommendedContentForUri = exports.makeSelectRecommendedContentForUri = function makeSelectRecommendedContentForUri(uri) {
+var makeSelectRecommendedContentForUri = exports.makeSelectRecommendedContentForUri = function makeSelectRecommendedContentForUri(uri /*: string*/) {
   return (0, _reselect.createSelector)(makeSelectClaimForUri(uri), _search.selectSearchUrisByQuery, function (claim, searchUrisByQuery) {
     var atVanityURI = !uri.includes('#');
 
@@ -2760,7 +2879,7 @@ var makeSelectRecommendedContentForUri = exports.makeSelectRecommendedContentFor
       // If we are at a vanity uri, build the full uri so we can properly filter
       var currentUri = atVanityURI ? (0, _lbryURI.buildURI)({ claimId: claim.claim_id, claimName: claim.name }) : uri;
 
-      var title = claim.value.stream.metadata.title;
+      var title = claim.value.stream.title;
 
 
       var searchQuery = (0, _query_params.getSearchQueryString)(title.replace(/\//, ' '));
@@ -2778,26 +2897,27 @@ var makeSelectRecommendedContentForUri = exports.makeSelectRecommendedContentFor
   });
 };
 
-var makeSelectFirstRecommendedFileForUri = exports.makeSelectFirstRecommendedFileForUri = function makeSelectFirstRecommendedFileForUri(uri) {
+var makeSelectFirstRecommendedFileForUri = exports.makeSelectFirstRecommendedFileForUri = function makeSelectFirstRecommendedFileForUri(uri /*: string*/) {
   return (0, _reselect.createSelector)(makeSelectRecommendedContentForUri(uri), function (recommendedContent) {
     return recommendedContent ? recommendedContent[0] : null;
   });
 };
 
 // Returns the associated channel uri for a given claim uri
-var makeSelectChannelForClaimUri = exports.makeSelectChannelForClaimUri = function makeSelectChannelForClaimUri(uri) {
-  var includePrefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  return (0, _reselect.createSelector)(makeSelectClaimForUri(uri), function (claim) {
+// accepts a regular claim uri lbry://something
+// returns the channel uri that created this claim lbry://@channel
+var makeSelectChannelForClaimUri = exports.makeSelectChannelForClaimUri = function makeSelectChannelForClaimUri(uri
+//  includePrefix: boolean = false
+/*: string*/) {
+  return (0, _reselect.createSelector)(makeSelectClaimForUri(uri), function (claim /*: ?ChannelClaim*/) {
     if (!claim) {
       return null;
     }
 
-    var channelName = claim.channel_name,
-        value = claim.value;
+    // TODO: this isn't right
+    var permanentUrl = claim.permanent_url;
 
-    var channelClaimId = value && value.publisherSignature && value.publisherSignature.certificateId;
-
-    return channelName && channelClaimId ? (0, _lbryURI.buildURI)({ channelName: channelName, claimId: channelClaimId }, includePrefix) : null;
+    return permanentUrl;
   });
 };
 
@@ -2813,7 +2933,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.makeSelectQueryWithOptions = exports.selectSearchSuggestions = exports.selectSearchBarFocused = exports.makeSelectSearchUris = exports.selectSearchUrisByQuery = exports.selectIsSearching = exports.selectSuggestions = exports.selectSearchOptions = exports.selectSearchValue = exports.selectState = undefined;
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; // @flow
+
 
 var _search = __webpack_require__(13);
 
@@ -2823,8 +2944,6 @@ var _lbryURI = __webpack_require__(1);
 
 var _reselect = __webpack_require__(15);
 
-// @flow
-/*:: import type { SearchState, SearchOptions, SearchSuggestion } from 'types/Search';*/
 /*:: type State = { search: SearchState };*/
 var selectState = exports.selectState = function selectState(state /*: State*/) /*: SearchState*/ {
   return state.search;
@@ -3197,8 +3316,34 @@ function createStructuredSelector(selectors) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var isClaimNsfw = exports.isClaimNsfw = function isClaimNsfw(claim) {
-  return claim && claim.value && claim.value.stream && claim.value.stream.metadata.nsfw;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// @flow
+
+var naughtyTags = ['porn', 'nsfw', 'mature', 'xxx'].reduce(function (acc, tag) {
+  return _extends({}, acc, _defineProperty({}, tag, true));
+}, {});
+
+var isClaimNsfw = exports.isClaimNsfw = function isClaimNsfw(claim /*: StreamClaim*/) /*: boolean*/ {
+  if (!claim) {
+    throw new Error('No claim passed to isClaimNsfw()');
+  }
+
+  if (!claim.value.stream) {
+    return false;
+  }
+
+  var tags = claim.value.stream.tags || [];
+  for (var i = 0; i < tags.length; i += 1) {
+    if (naughtyTags[tags[i]]) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
 /***/ }),
@@ -3462,7 +3607,8 @@ function doSendTip(amount, claimId, uri, successCallback, errorCallback) {
 
     _lbry2.default.claim_tip({
       claim_id: claimId,
-      amount: (0, _formatCredits.creditsToString)(amount)
+      amount: (0, _formatCredits.creditsToString)(amount),
+      tip: true
     }).then(success, error);
   };
 }
@@ -4253,11 +4399,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-// @flow
-/*:: import type { SearchState, SearchOptions } from 'types/Search';*/
-
-
-var DEBOUNCED_SEARCH_SUGGESTION_MS = 300;
+var DEBOUNCED_SEARCH_SUGGESTION_MS = 300; // @flow
 /*:: type Dispatch = (action: any) => any;*/
 
 
@@ -4352,7 +4494,7 @@ var doSearch = exports.doSearch = function doSearch(rawQuery /*: string*/, size 
       dispatch(doUpdateSearchQuery(query));
     }
 
-    fetch(CONNECTION_STRING + 'search?' + queryWithOptions).then(_handleFetch2.default).then(function (data) {
+    fetch(CONNECTION_STRING + 'search?' + queryWithOptions).then(_handleFetch2.default).then(function (data /*: Array<{ name: String, claimId: string }>*/) {
       var uris = [];
       var actions = [];
 
@@ -4481,7 +4623,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = handleFetchResponse;
-function handleFetchResponse(response) {
+// @flow
+function handleFetchResponse(response /*: Response*/) /*: Promise<any>*/ {
   return response.status === 200 ? Promise.resolve(response.json()) : Promise.reject(new Error(response.statusText));
 }
 
@@ -4534,6 +4677,10 @@ var ACTIONS = _interopRequireWildcard(_action_types);
 var _lbryURI = __webpack_require__(1);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+// @flow
+/*:: import type { ChannelClaim } from 'types/Claim';*/
+
 
 var reducers = {};
 

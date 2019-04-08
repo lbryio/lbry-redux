@@ -69,6 +69,8 @@ const WALLET_STATUS_START = 'WALLET_STATUS_START';
 const WALLET_STATUS_COMPLETED = 'WALLET_STATUS_COMPLETED';
 const SET_TRANSACTION_LIST_FILTER = 'SET_TRANSACTION_LIST_FILTER';
 const UPDATE_CURRENT_HEIGHT = 'UPDATE_CURRENT_HEIGHT';
+const SET_DRAFT_TRANSACTION_AMOUNT = 'SET_DRAFT_TRANSACTION_AMOUNT';
+const SET_DRAFT_TRANSACTION_ADDRESS = 'SET_DRAFT_TRANSACTION_ADDRESS';
 
 // Claims
 const RESOLVE_URIS_STARTED = 'RESOLVE_URIS_STARTED';
@@ -215,15 +217,13 @@ const DO_PREPARE_EDIT = 'DO_PREPARE_EDIT';
 const CREATE_NOTIFICATION = 'CREATE_NOTIFICATION';
 const EDIT_NOTIFICATION = 'EDIT_NOTIFICATION';
 const DELETE_NOTIFICATION = 'DELETE_NOTIFICATION';
+const DISMISS_NOTIFICATION = 'DISMISS_NOTIFICATION';
 const CREATE_TOAST = 'CREATE_TOAST';
 const DISMISS_TOAST = 'DISMISS_TOAST';
 const CREATE_ERROR = 'CREATE_ERROR';
 const DISMISS_ERROR = 'DISMISS_ERROR';
 
-const SET_DRAFT_TRANSACTION_AMOUNT = 'SET_DRAFT_TRANSACTION_AMOUNT';
-const SET_DRAFT_TRANSACTION_ADDRESS = 'SET_DRAFT_TRANSACTION_ADDRESS';
 const FETCH_DATE = 'FETCH_DATE';
-const DISMISS_NOTIFICATION = 'DISMISS_NOTIFICATION';
 
 var action_types = /*#__PURE__*/Object.freeze({
     WINDOW_FOCUSED: WINDOW_FOCUSED,
@@ -281,6 +281,8 @@ var action_types = /*#__PURE__*/Object.freeze({
     WALLET_STATUS_COMPLETED: WALLET_STATUS_COMPLETED,
     SET_TRANSACTION_LIST_FILTER: SET_TRANSACTION_LIST_FILTER,
     UPDATE_CURRENT_HEIGHT: UPDATE_CURRENT_HEIGHT,
+    SET_DRAFT_TRANSACTION_AMOUNT: SET_DRAFT_TRANSACTION_AMOUNT,
+    SET_DRAFT_TRANSACTION_ADDRESS: SET_DRAFT_TRANSACTION_ADDRESS,
     RESOLVE_URIS_STARTED: RESOLVE_URIS_STARTED,
     RESOLVE_URIS_COMPLETED: RESOLVE_URIS_COMPLETED,
     FETCH_CHANNEL_CLAIMS_STARTED: FETCH_CHANNEL_CLAIMS_STARTED,
@@ -405,14 +407,12 @@ var action_types = /*#__PURE__*/Object.freeze({
     CREATE_NOTIFICATION: CREATE_NOTIFICATION,
     EDIT_NOTIFICATION: EDIT_NOTIFICATION,
     DELETE_NOTIFICATION: DELETE_NOTIFICATION,
+    DISMISS_NOTIFICATION: DISMISS_NOTIFICATION,
     CREATE_TOAST: CREATE_TOAST,
     DISMISS_TOAST: DISMISS_TOAST,
     CREATE_ERROR: CREATE_ERROR,
     DISMISS_ERROR: DISMISS_ERROR,
-    SET_DRAFT_TRANSACTION_AMOUNT: SET_DRAFT_TRANSACTION_AMOUNT,
-    SET_DRAFT_TRANSACTION_ADDRESS: SET_DRAFT_TRANSACTION_ADDRESS,
-    FETCH_DATE: FETCH_DATE,
-    DISMISS_NOTIFICATION: DISMISS_NOTIFICATION
+    FETCH_DATE: FETCH_DATE
 });
 
 const API_DOWN = 'apiDown';
@@ -570,10 +570,51 @@ const SEARCH_OPTIONS = {
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 
+// This doesn't do much because we have a bunch of different types of methods on the Lbry object
+// Types should be added to the return value where they are being used
+
+
+//
+// Basic LBRY sdk connection config
+// Offers a proxy to call LBRY sdk methods
+//
 const Lbry = {
   isConnected: false,
+  connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
-  pendingPublishTimeout: 20 * 60 * 1000
+
+  // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
+  // Not required
+  setDaemonConnectionString: value => {
+    Lbry.daemonConnectionString = value;
+  },
+
+  // Allow overriding Lbry methods
+  overrides: {},
+  setOverride: (methodName, newMethod) => {
+    Lbry.overrides[methodName] = newMethod;
+  },
+
+  // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
+  getMediaType: (contentType, extname) => {
+    if (extname) {
+      const formats = [[/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^(stl|obj|fbx|gcode)$/i, '3D-file']];
+      const res = formats.reduce((ret, testpair) => {
+        switch (testpair[0].test(ret)) {
+          case true:
+            return testpair[1];
+          default:
+            return ret;
+        }
+      }, extname);
+      return res === extname ? 'unknown' : res;
+    } else if (contentType) {
+      // $FlowFixMe
+      return (/^[^/]+/.exec(contentType)[0]
+      );
+    }
+    return 'unknown';
+  }
 };
 
 function checkAndParse(response) {
@@ -632,7 +673,12 @@ Lbry.file_set_status = (params = {}) => daemonCallWithResult('file_set_status', 
 Lbry.stop = () => daemonCallWithResult('stop', {});
 
 // claims
-Lbry.claim_list_by_channel = (params = {}) => daemonCallWithResult('claim_list_by_channel', params);
+Lbry.claim_search = (params = {}) => daemonCallWithResult('claim_search', params);
+Lbry.channel_create = (params = {}) => daemonCallWithResult('channel_create', params);
+Lbry.channel_list = (params = {}) => daemonCallWithResult('channel_list', params);
+Lbry.claim_list = (params = {}) => daemonCallWithResult('claim_list', params);
+Lbry.stream_abandon = (params = {}) => daemonCallWithResult('stream_abandon', params);
+Lbry.channel_abandon = (params = {}) => daemonCallWithResult('channel_abandon', params);
 
 // wallet
 Lbry.account_balance = (params = {}) => daemonCallWithResult('account_balance', params);
@@ -645,13 +691,12 @@ Lbry.address_unused = (params = {}) => daemonCallWithResult('address_unused', pa
 Lbry.wallet_send = (params = {}) => daemonCallWithResult('wallet_send', params);
 Lbry.account_unlock = (params = {}) => daemonCallWithResult('account_unlock', params);
 Lbry.address_unused = () => daemonCallWithResult('address_unused', {});
-Lbry.claim_tip = (params = {}) => daemonCallWithResult('claim_tip', params);
+Lbry.claim_tip = (params = {}) => daemonCallWithResult('support_create', params);
 
 // transactions
 Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
 Lbry.utxo_release = (params = {}) => daemonCallWithResult('utxo_release', params);
 
-Lbry.connectPromise = null;
 Lbry.connect = () => {
   if (Lbry.connectPromise === null) {
     Lbry.connectPromise = new Promise((resolve, reject) => {
@@ -672,26 +717,8 @@ Lbry.connect = () => {
     });
   }
 
+  // $FlowFixMe
   return Lbry.connectPromise;
-};
-
-Lbry.getMediaType = (contentType, extname) => {
-  if (extname) {
-    const formats = [[/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^(stl|obj|fbx|gcode)$/i, '3D-file']];
-    const res = formats.reduce((ret, testpair) => {
-      switch (testpair[0].test(ret)) {
-        case true:
-          return testpair[1];
-        default:
-          return ret;
-      }
-    }, extname);
-    return res === extname ? 'unknown' : res;
-  } else if (contentType) {
-    return (/^[^/]+/.exec(contentType)[0]
-    );
-  }
-  return 'unknown';
 };
 
 /**
@@ -706,12 +733,6 @@ Lbry.getMediaType = (contentType, extname) => {
 Lbry.file_list = (params = {}) => new Promise((resolve, reject) => {
   apiCall('file_list', params, fileInfos => {
     resolve(fileInfos);
-  }, reject);
-});
-
-Lbry.claim_list_mine = (params = {}) => new Promise((resolve, reject) => {
-  apiCall('claim_list_mine', params, claims => {
-    resolve(claims);
   }, reject);
 });
 
@@ -734,17 +755,6 @@ Lbry.publish = (params = {}) => new Promise((resolve, reject) => {
     apiCall('publish', params, resolve, reject);
   }
 });
-
-// Allow overriding Lbry methods
-Lbry.overrides = {};
-Lbry.setOverride = (methodName, newMethod) => {
-  Lbry.overrides[methodName] = newMethod;
-};
-
-// Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
-Lbry.setDaemonConnectionString = value => {
-  Lbry.daemonConnectionString = value;
-};
 
 const lbryProxy = new Proxy(Lbry, {
   get(target, name) {
@@ -1129,7 +1139,32 @@ function doDismissError() {
   };
 }
 
-const isClaimNsfw = claim => claim && claim.value && claim.value.stream && claim.value.stream.metadata.nsfw;
+var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//      
+
+const naughtyTags = ['porn', 'nsfw', 'mature', 'xxx'].reduce((acc, tag) => _extends$2({}, acc, { [tag]: true }), {});
+
+const isClaimNsfw = claim => {
+  if (!claim) {
+    throw new Error('No claim passed to isClaimNsfw()');
+  }
+
+  if (!claim.value.stream) {
+    return false;
+  }
+
+  const tags = claim.value.stream.tags || [];
+  for (let i = 0; i < tags.length; i += 1) {
+    if (naughtyTags[tags[i]]) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+//      
 
 const selectState$1 = state => state.claims || {};
 
@@ -1219,7 +1254,7 @@ const makeSelectClaimsInChannelForCurrentPageState = uri => reselect.createSelec
 });
 
 const makeSelectMetadataForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
-  const metadata = claim && claim.value && claim.value.stream && claim.value.stream.metadata;
+  const metadata = claim && claim.value && claim.value.stream;
 
   return metadata || (claim === undefined ? undefined : null);
 });
@@ -1227,8 +1262,8 @@ const makeSelectMetadataForUri = uri => reselect.createSelector(makeSelectClaimF
 const makeSelectTitleForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => metadata && metadata.title);
 
 const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
-  const source = claim && claim.value && claim.value.stream && claim.value.stream.source;
-  return source ? source.contentType : undefined;
+  const source = claim && claim.value && claim.value.stream;
+  return source ? source.media_type : undefined;
 });
 
 const selectIsFetchingClaimListMine = reselect.createSelector(selectState$1, state => state.isFetchingClaimListMine);
@@ -1316,7 +1351,7 @@ const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSe
     // If we are at a vanity uri, build the full uri so we can properly filter
     const currentUri = atVanityURI ? buildURI({ claimId: claim.claim_id, claimName: claim.name }) : uri;
 
-    const { title } = claim.value.stream.metadata;
+    const { title } = claim.value.stream;
 
     const searchQuery = getSearchQueryString(title.replace(/\//, ' '));
 
@@ -1333,15 +1368,21 @@ const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSe
 const makeSelectFirstRecommendedFileForUri = uri => reselect.createSelector(makeSelectRecommendedContentForUri(uri), recommendedContent => recommendedContent ? recommendedContent[0] : null);
 
 // Returns the associated channel uri for a given claim uri
-const makeSelectChannelForClaimUri = (uri, includePrefix = false) => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+// accepts a regular claim uri lbry://something
+// returns the channel uri that created this claim lbry://@channel
+const makeSelectChannelForClaimUri = (uri
+//  includePrefix: boolean = false
+) => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   if (!claim) {
     return null;
   }
 
-  const { channel_name: channelName, value } = claim;
-  const channelClaimId = value && value.publisherSignature && value.publisherSignature.certificateId;
-
-  return channelName && channelClaimId ? buildURI({ channelName, claimId: channelClaimId }, includePrefix) : null;
+  // TODO: this isn't right
+  const {
+    // name, value,
+    permanent_url: permanentUrl
+  } = claim;
+  return permanentUrl;
 });
 
 const selectState$2 = state => state.wallet || {};
@@ -1738,7 +1779,8 @@ function doSendTip(amount, claimId, uri, successCallback, errorCallback) {
 
     lbryProxy.claim_tip({
       claim_id: claimId,
-      amount: creditsToString(amount)
+      amount: creditsToString(amount),
+      tip: true
     }).then(success, error);
   };
 }
@@ -1844,12 +1886,14 @@ function doUpdateBlockHeight() {
   });
 }
 
+var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function doResolveUris(uris, returnCachedClaims = false) {
   return (dispatch, getState) => {
     const normalizedUris = uris.map(normalizeURI);
     const state = getState();
 
-    const resolvingUris = selectResolvingUris(state);
+    const resolvingUris = selectResolvingUris(state) + 5;
     const claimsByUri = selectClaimsByUri(state);
     const urisToResolve = normalizedUris.filter(uri => {
       if (resolvingUris.includes(uri)) {
@@ -1869,6 +1913,7 @@ function doResolveUris(uris, returnCachedClaims = false) {
     });
 
     const resolveInfo = {};
+
     lbryProxy.resolve({ urls: urisToResolve }).then(result => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
@@ -1877,9 +1922,16 @@ function doResolveUris(uris, returnCachedClaims = false) {
           certificate: null
         };
 
-        const { claim, certificate, claims_in_channel: claimsInChannel } = uriResolveInfo && !uriResolveInfo.error ? uriResolveInfo : fallbackResolveInfo;
-
-        resolveInfo[uri] = { claim, certificate, claimsInChannel };
+        // Flow has terrible Object.entries support
+        // https://github.com/facebook/flow/issues/2221
+        // $FlowFixMe
+        if (uriResolveInfo.error) {
+          resolveInfo[uri] = _extends$3({}, fallbackResolveInfo);
+        } else {
+          // $FlowFixMe
+          const { claim, certificate, claims_in_channel: claimsInChannel } = uriResolveInfo;
+          resolveInfo[uri] = { claim, certificate, claimsInChannel };
+        }
       });
 
       dispatch({
@@ -1900,7 +1952,7 @@ function doFetchClaimListMine() {
       type: FETCH_CLAIM_LIST_MINE_STARTED
     });
 
-    lbryProxy.claim_list_mine().then(claims => {
+    lbryProxy.claim_list().then(claims => {
       dispatch({
         type: FETCH_CLAIM_LIST_MINE_COMPLETED,
         data: {
@@ -1915,7 +1967,14 @@ function doAbandonClaim(txid, nout) {
   return (dispatch, getState) => {
     const state = getState();
     const myClaims = selectMyClaimsRaw(state);
-    const { claim_id: claimId } = myClaims.find(claim => claim.txid === txid && claim.nout === nout);
+    const claimToAbandon = myClaims.find(claim => claim.txid === txid && claim.nout === nout);
+
+    if (!claimToAbandon) {
+      console.error('No associated claim with txid: ', txid);
+      return;
+    }
+
+    const { claim_id: claimId, name: claimName } = claimToAbandon;
 
     dispatch({
       type: ABANDON_CLAIM_STARTED,
@@ -1926,62 +1985,61 @@ function doAbandonClaim(txid, nout) {
 
     const errorCallback = () => {
       dispatch(doToast({
-        message: 'Transaction failed',
+        message: 'Error abandoning claim',
         isError: true
       }));
     };
 
-    const successCallback = results => {
-      if (results.success === true) {
-        dispatch({
-          type: ABANDON_CLAIM_SUCCEEDED,
-          data: {
-            claimId
-          }
-        });
-        dispatch(doToast({
-          message: 'Successfully abandoned your claim'
-        }));
+    const successCallback = () => {
+      dispatch({
+        type: ABANDON_CLAIM_SUCCEEDED,
+        data: {
+          claimId
+        }
+      });
 
-        // After abandoning, call claim_list_mine to show the claim as abandoned
-        // Also fetch transactions to show the new abandon transaction
-        dispatch(doFetchClaimListMine());
-        dispatch(doFetchTransactions());
-      } else {
-        dispatch(doToast({
-          message: 'Error abandoning claim',
-          isError: true
-        }));
-      }
+      dispatch(doToast({
+        message: 'Successfully abandoned your claim'
+      }));
+
+      // After abandoning, call claim_list_mine to show the claim as abandoned
+      // Also fetch transactions to show the new abandon transaction
+      dispatch(doFetchClaimListMine());
+      dispatch(doFetchTransactions());
     };
 
-    lbryProxy.claim_abandon({
+    const abandonParams = {
       txid,
-      nout
-    }).then(successCallback, errorCallback);
+      nout,
+      blocking: true
+    };
+
+    const method = claimName.startsWith('@') ? 'channel_abandon' : 'stream_abandon';
+    lbryProxy[method](abandonParams).then(successCallback, errorCallback);
   };
 }
 
-function doFetchClaimsByChannel(uri, page) {
+function doFetchClaimsByChannel(uri, page = 1) {
   return dispatch => {
     dispatch({
       type: FETCH_CHANNEL_CLAIMS_STARTED,
       data: { uri, page }
     });
 
-    lbryProxy.claim_list_by_channel({ uri, page: page || 1 }).then(result => {
-      const claimResult = result[uri] || {};
-      const { claims_in_channel: claimsInChannel, returned_page: returnedPage } = claimResult;
+    // TODO: come back to me
+    // Lbry.claim_search({ uri, page: page || 1 }).then(result => {
+    //   const claimResult = result[uri] || {};
+    //   const { claims_in_channel: claimsInChannel, returned_page: returnedPage } = claimResult;
 
-      dispatch({
-        type: FETCH_CHANNEL_CLAIMS_COMPLETED,
-        data: {
-          uri,
-          claims: claimsInChannel || [],
-          page: returnedPage || undefined
-        }
-      });
-    });
+    //   dispatch({
+    //     type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
+    //     data: {
+    //       uri,
+    //       claims: claimsInChannel || [],
+    //       page: returnedPage || undefined,
+    //     },
+    //   });
+    // });
   };
 }
 
@@ -1992,18 +2050,64 @@ function doFetchClaimCountByChannel(uri) {
       data: { uri }
     });
 
-    lbryProxy.claim_list_by_channel({ uri }).then(result => {
-      const claimResult = result[uri];
-      const totalClaims = claimResult ? claimResult.claims_in_channel : 0;
+    // TODO: come back to this
+    // Lbry.claim_list_by_channel({ uri }).then(result => {
+    //   const claimResult = result[uri];
+    //   const totalClaims = claimResult ? claimResult.claims_in_channel : 0;
 
-      dispatch({
-        type: FETCH_CHANNEL_CLAIM_COUNT_COMPLETED,
-        data: {
-          uri,
-          totalClaims
-        }
-      });
+    //   dispatch({
+    //     type: ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED,
+    //     data: {
+    //       uri,
+    //       totalClaims,
+    //     },
+    //   });
+    // });
+  };
+}
+
+function doCreateChannel(name, amount) {
+  return dispatch => {
+    dispatch({
+      type: CREATE_CHANNEL_STARTED
     });
+
+    return lbryProxy.channel_create({
+      name,
+      bid: creditsToString(amount)
+    })
+    // outputs[0] is the certificate
+    // outputs[1] is the change from the tx, not in the app currently
+    .then(result => {
+      const channelClaim = result.outputs[0];
+      dispatch({
+        type: CREATE_CHANNEL_COMPLETED,
+        data: { channelClaim }
+      });
+    }).catch(error => {
+      // TODO: add this
+      // dispatch({
+      //   type: ACTIONS.CREATE_CHANNEL_FAILED,
+      //   data: error
+      // })
+    });
+  };
+}
+
+function doFetchChannelListMine() {
+  return dispatch => {
+    dispatch({
+      type: FETCH_CHANNEL_LIST_STARTED
+    });
+
+    const callback = channels => {
+      dispatch({
+        type: FETCH_CHANNEL_LIST_COMPLETED,
+        data: { claims: channels }
+      });
+    };
+
+    lbryProxy.channel_list().then(callback);
   };
 }
 
@@ -2262,6 +2366,7 @@ function debouce(func, wait, immediate) {
   };
 }
 
+//      
 function handleFetchResponse(response) {
   return response.status === 200 ? Promise.resolve(response.json()) : Promise.reject(new Error(response.statusText));
 }
@@ -2415,6 +2520,8 @@ function savePosition(claimId, outpoint, position) {
     });
   };
 }
+
+//      
 
 const reducers = {};
 
@@ -2642,7 +2749,7 @@ function claimsReducer(state = defaultState, action) {
   return state;
 }
 
-var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$1 = {};
 const defaultState$1 = {
@@ -2778,12 +2885,12 @@ reducers$1[LOADING_VIDEO_STARTED] = (state, action) => {
   const newLoading = Object.assign({}, state.urisLoading);
   newLoading[uri] = true;
 
-  const newErrors = _extends$2({}, state.errors);
+  const newErrors = _extends$4({}, state.errors);
   if (uri in newErrors) delete newErrors[uri];
 
   return Object.assign({}, state, {
     urisLoading: newLoading,
-    errors: _extends$2({}, newErrors)
+    errors: _extends$4({}, newErrors)
   });
 };
 
@@ -2793,12 +2900,12 @@ reducers$1[LOADING_VIDEO_FAILED] = (state, action) => {
   const newLoading = Object.assign({}, state.urisLoading);
   delete newLoading[uri];
 
-  const newErrors = _extends$2({}, state.errors);
+  const newErrors = _extends$4({}, state.errors);
   newErrors[uri] = true;
 
   return Object.assign({}, state, {
     urisLoading: newLoading,
-    errors: _extends$2({}, newErrors)
+    errors: _extends$4({}, newErrors)
   });
 };
 
@@ -2849,7 +2956,7 @@ const handleActions = (actionMap, defaultState) => (state = defaultState, action
   return state;
 };
 
-var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$2 = {
   notifications: [],
@@ -2864,7 +2971,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.push(toast);
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       toasts: newToasts
     });
   },
@@ -2872,7 +2979,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.shift();
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       toasts: newToasts
     });
   },
@@ -2883,7 +2990,7 @@ const notificationsReducer = handleActions({
     const newNotifications = state.notifications.slice();
     newNotifications.push(notification);
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       notifications: newNotifications
     });
   },
@@ -2894,7 +3001,7 @@ const notificationsReducer = handleActions({
 
     notifications = notifications.map(pastNotification => pastNotification.id === notification.id ? notification : pastNotification);
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       notifications
     });
   },
@@ -2903,7 +3010,7 @@ const notificationsReducer = handleActions({
     let newNotifications = state.notifications.slice();
     newNotifications = newNotifications.filter(notification => notification.id !== id);
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       notifications: newNotifications
     });
   },
@@ -2914,7 +3021,7 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.push(error);
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       errors: newErrors
     });
   },
@@ -2922,13 +3029,13 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.shift();
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       errors: newErrors
     });
   }
 }, defaultState$2);
 
-var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$3 = {
   isActive: false, // does the user have any typed text in the search input
@@ -2948,29 +3055,29 @@ const defaultState$3 = {
 };
 
 const searchReducer = handleActions({
-  [SEARCH_START]: state => _extends$4({}, state, {
+  [SEARCH_START]: state => _extends$6({}, state, {
     searching: true
   }),
   [SEARCH_SUCCESS]: (state, action) => {
     const { query, uris } = action.data;
 
-    return _extends$4({}, state, {
+    return _extends$6({}, state, {
       searching: false,
       urisByQuery: Object.assign({}, state.urisByQuery, { [query]: uris })
     });
   },
 
-  [SEARCH_FAIL]: state => _extends$4({}, state, {
+  [SEARCH_FAIL]: state => _extends$6({}, state, {
     searching: false
   }),
 
-  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$4({}, state, {
+  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$6({}, state, {
     searchQuery: action.data.query,
     isActive: true
   }),
 
-  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$4({}, state, {
-    suggestions: _extends$4({}, state.suggestions, {
+  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$6({}, state, {
+    suggestions: _extends$6({}, state.suggestions, {
       [action.data.query]: action.data.suggestions
     })
   }),
@@ -2978,7 +3085,7 @@ const searchReducer = handleActions({
   // clear the searchQuery on back/forward unless to search page
   [HISTORY_NAVIGATE]: (state, action) => {
     const { url } = action.data;
-    return _extends$4({}, state, {
+    return _extends$6({}, state, {
       searchQuery: url.indexOf('/search') === 0 ? url.slice(14) : '',
       isActive: url.indexOf('/search') === 0,
       suggestions: {}
@@ -2988,21 +3095,21 @@ const searchReducer = handleActions({
   // sets isActive to false so the uri will be populated correctly if the
   // user is on a file page. The search query will still be present on any
   // other page
-  [DISMISS_NOTIFICATION]: state => _extends$4({}, state, {
+  [DISMISS_NOTIFICATION]: state => _extends$6({}, state, {
     isActive: false
   }),
 
-  [SEARCH_FOCUS]: state => _extends$4({}, state, {
+  [SEARCH_FOCUS]: state => _extends$6({}, state, {
     focused: true
   }),
-  [SEARCH_BLUR]: state => _extends$4({}, state, {
+  [SEARCH_BLUR]: state => _extends$6({}, state, {
     focused: false
   }),
   [UPDATE_SEARCH_OPTIONS]: (state, action) => {
     const { options: oldOptions } = state;
     const newOptions = action.data;
-    const options = _extends$4({}, oldOptions, newOptions);
-    return _extends$4({}, state, {
+    const options = _extends$6({}, oldOptions, newOptions);
+    return _extends$6({}, state, {
       options
     });
   }
@@ -3252,7 +3359,7 @@ function walletReducer(state = defaultState$4, action) {
   return state;
 }
 
-var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$3 = {};
 const defaultState$5 = {
@@ -3261,9 +3368,9 @@ const defaultState$5 = {
 
 reducers$3[SET_CONTENT_POSITION] = (state, action) => {
   const { claimId, outpoint, position } = action.data;
-  return _extends$5({}, state, {
-    positions: _extends$5({}, state.positions, {
-      [claimId]: _extends$5({}, state.positions[claimId], {
+  return _extends$7({}, state, {
+    positions: _extends$7({}, state.positions, {
+      [claimId]: _extends$7({}, state.positions[claimId], {
         [outpoint]: position
       })
     })
@@ -3287,14 +3394,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$5 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$5, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$6({
+    return _extends$8({
       id
     }, params);
   }
@@ -3332,10 +3439,12 @@ exports.doAbandonClaim = doAbandonClaim;
 exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
+exports.doCreateChannel = doCreateChannel;
 exports.doDismissError = doDismissError;
 exports.doDismissToast = doDismissToast;
 exports.doError = doError;
 exports.doFetchBlock = doFetchBlock;
+exports.doFetchChannelListMine = doFetchChannelListMine;
 exports.doFetchClaimCountByChannel = doFetchClaimCountByChannel;
 exports.doFetchClaimListMine = doFetchClaimListMine;
 exports.doFetchClaimsByChannel = doFetchClaimsByChannel;

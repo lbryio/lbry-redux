@@ -48,6 +48,8 @@ export {
   doAbandonClaim,
   doResolveUris,
   doResolveUri,
+  doFetchChannelListMine,
+  doCreateChannel,
 } from 'redux/actions/claims';
 
 export {

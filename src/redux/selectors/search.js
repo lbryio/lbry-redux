@@ -1,5 +1,4 @@
 // @flow
-import type { SearchState, SearchOptions, SearchSuggestion } from 'types/Search';
 import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
 import { getSearchQueryString } from 'util/query_params';
 import { normalizeURI, parseURI } from 'lbryURI';
@@ -33,7 +32,10 @@ export const selectIsSearching: (state: State) => boolean = createSelector(
 
 export const selectSearchUrisByQuery: (
   state: State
-) => { [string]: Array<string> } = createSelector(selectState, state => state.urisByQuery);
+) => { [string]: Array<string> } = createSelector(
+  selectState,
+  state => state.urisByQuery
+);
 
 export const makeSelectSearchUris = (query: string): ((state: State) => Array<string>) =>
   // replace statement below is kind of ugly, and repeated in doSearch action
@@ -42,7 +44,10 @@ export const makeSelectSearchUris = (query: string): ((state: State) => Array<st
     byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query]
   );
 
-export const selectSearchBarFocused: boolean = createSelector(selectState, state => state.focused);
+export const selectSearchBarFocused: boolean = createSelector(
+  selectState,
+  state => state.focused
+);
 
 export const selectSearchSuggestions: Array<SearchSuggestion> = createSelector(
   selectSearchValue,
@@ -93,25 +98,27 @@ export const selectSearchSuggestions: Array<SearchSuggestion> = createSelector(
     const apiSuggestions = suggestions[query] || [];
     if (apiSuggestions.length) {
       searchSuggestions = searchSuggestions.concat(
-        apiSuggestions.filter(suggestion => suggestion !== query).map(suggestion => {
-          // determine if it's a channel
-          try {
-            const uri = normalizeURI(suggestion);
-            const { claimName, isChannel } = parseURI(uri);
+        apiSuggestions
+          .filter(suggestion => suggestion !== query)
+          .map(suggestion => {
+            // determine if it's a channel
+            try {
+              const uri = normalizeURI(suggestion);
+              const { claimName, isChannel } = parseURI(uri);
 
-            return {
-              value: uri,
-              shorthand: isChannel ? claimName.slice(1) : claimName,
-              type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE,
-            };
-          } catch (e) {
-            // search result includes some character that isn't valid in claim names
-            return {
-              value: suggestion,
-              type: SEARCH_TYPES.SEARCH,
-            };
-          }
-        })
+              return {
+                value: uri,
+                shorthand: isChannel ? claimName.slice(1) : claimName,
+                type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE,
+              };
+            } catch (e) {
+              // search result includes some character that isn't valid in claim names
+              return {
+                value: suggestion,
+                type: SEARCH_TYPES.SEARCH,
+              };
+            }
+          })
       );
     }
 
@@ -127,14 +134,18 @@ export const makeSelectQueryWithOptions = (
   customFrom: ?number,
   isBackgroundSearch: boolean = false // If it's a background search, don't use the users settings
 ) =>
-  createSelector(selectSearchValue, selectSearchOptions, (query, options) => {
-    const size = customSize || options[SEARCH_OPTIONS.RESULT_COUNT];
+  createSelector(
+    selectSearchValue,
+    selectSearchOptions,
+    (query, options) => {
+      const size = customSize || options[SEARCH_OPTIONS.RESULT_COUNT];
 
-    const queryString = getSearchQueryString(
-      customQuery || query,
-      { ...options, size, from: customFrom },
-      !isBackgroundSearch
-    );
+      const queryString = getSearchQueryString(
+        customQuery || query,
+        { ...options, size, from: customFrom },
+        !isBackgroundSearch
+      );
 
-    return queryString;
-  });
+      return queryString;
+    }
+  );

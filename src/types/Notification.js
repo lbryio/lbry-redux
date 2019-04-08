@@ -73,14 +73,14 @@ export type DoDeleteNotification = {
     - Errors that should interupt user behavior
     - For errors that can be shown without interrupting a user, use Toast with the isError flag
 */
-export type Error = {
+export type ErrorNotification = {
   title: string,
   text: string,
 };
 
 export type DoError = {
   type: ACTIONS.CREATE_ERROR,
-  data: Error,
+  data: ErrorNotification,
 };
 
 export type DoDismissError = {
