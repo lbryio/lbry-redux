@@ -1,6 +1,6 @@
 // @flow
 
-export type ClaimWithCertificate = {
+export type ClaimAndCertificate = {
   certificate?: ChannelClaim,
   claim: StreamClaim,
 };

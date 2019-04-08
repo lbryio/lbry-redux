@@ -1799,7 +1799,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /*:: type ResolveResponse = {
-  [string]: | { error: {}, certificate: ChannelClaim, claims_in_channel: number }
+  [string]:
+    | { error: {}, certificate: ChannelClaim, claims_in_channel: number }
     | { error?: {}, claim: StreamClaim, certificate?: ChannelClaim },
 };*/
 function doResolveUris(uris /*: Array<string>*/) {
@@ -4666,7 +4667,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); // @flow
+
 
 exports.claimsReducer = claimsReducer;
 
@@ -4677,10 +4681,6 @@ var ACTIONS = _interopRequireWildcard(_action_types);
 var _lbryURI = __webpack_require__(1);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-// @flow
-/*:: import type { ChannelClaim } from 'types/Claim';*/
-
 
 var reducers = {};
 
@@ -4715,7 +4715,7 @@ reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = function (state, action) {
         claim = _ref4$.claim;
 
     if (claim) {
-      byId[claim.claim_id] = claim;
+      byId[claim.claim_id] = certificate ? _extends({}, claim, { channel_id: certificate.claim_id }) : claim;
       byUri[uri] = claim.claim_id;
     } else if (claim === undefined && certificate !== undefined) {
       byId[certificate.claim_id] = certificate;

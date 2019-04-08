@@ -1,5 +1,4 @@
 // @flow
-import type { ChannelClaim } from 'types/Claim';
 import * as ACTIONS from 'constants/action_types';
 import { buildURI } from 'lbryURI';
 
@@ -10,7 +9,7 @@ const defaultState = {
 };
 
 reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state, action) => {
-  const { resolveInfo } = action.data;
+  const { resolveInfo }: { [string]: ClaimAndCertificate } = action.data;
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
@@ -23,7 +22,7 @@ reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state, action) => {
 
   Object.entries(resolveInfo).forEach(([uri, { certificate, claim }]) => {
     if (claim) {
-      byId[claim.claim_id] = claim;
+      byId[claim.claim_id] = certificate ? { ...claim, channel_id: certificate.claim_id } : claim;
       byUri[uri] = claim.claim_id;
     } else if (claim === undefined && certificate !== undefined) {
       byId[certificate.claim_id] = certificate;
