@@ -18,7 +18,7 @@ export type StreamClaim = GenericClaim & {
   },
 };
 
-type GenericClaim = {
+export type GenericClaim = {
   address: string, // address associated with tx
   amount: number, // bid amount at time of tx
   claim_id: string, // unique claim identifier
@@ -38,7 +38,7 @@ type GenericClaim = {
   valid_at_height?: number, // BUG: this should always exist https://github.com/lbryio/lbry/issues/1728
 };
 
-type GenericMetadata = {
+export type GenericMetadata = {
   title?: string,
   description?: string,
   thumbnail_url?: string,
@@ -88,7 +88,7 @@ export type StreamMetadata = GenericMetadata & {
   },
 };
 
-type Locations =
+export type Locations =
   | { latitude: number, longitude: number }
   | {
       country?: string,

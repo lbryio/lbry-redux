@@ -295,7 +295,7 @@ export const makeSelectNsfwCountFromUris = (uris: Array<string>) =>
     claims =>
       uris.reduce((acc, uri) => {
         const claim = claims[uri];
-        if (isClaimNsfw(claim)) {
+        if (claim && isClaimNsfw(claim)) {
           return acc + 1;
         }
         return acc;

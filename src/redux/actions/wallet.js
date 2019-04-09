@@ -94,6 +94,7 @@ export function doCheckAddressIsMine(address) {
 }
 
 export function doSendDraftTransaction(address, amount) {
+  console.log('send');
   return (dispatch, getState) => {
     const state = getState();
     const balance = selectBalance(state);
@@ -151,8 +152,8 @@ export function doSendDraftTransaction(address, amount) {
       );
     };
 
-    Lbry.wallet_send({
-      address,
+    Lbry.account_send({
+      addresses: [address],
       amount: creditsToString(amount),
     }).then(successCallback, errorCallback);
   };

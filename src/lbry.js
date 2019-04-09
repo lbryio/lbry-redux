@@ -134,19 +134,18 @@ Lbry.channel_list = (params = {}) => daemonCallWithResult('channel_list', params
 Lbry.claim_list = (params = {}) => daemonCallWithResult('claim_list', params);
 Lbry.stream_abandon = (params = {}) => daemonCallWithResult('stream_abandon', params);
 Lbry.channel_abandon = (params = {}) => daemonCallWithResult('channel_abandon', params);
+// Possibly change the variable name claim_tip in the future
+Lbry.claim_tip = (params = {}) => daemonCallWithResult('support_create', params);
 
 // wallet
 Lbry.account_balance = (params = {}) => daemonCallWithResult('account_balance', params);
 Lbry.account_decrypt = () => daemonCallWithResult('account_decrypt', {});
 Lbry.account_encrypt = (params = {}) => daemonCallWithResult('account_encrypt', params);
-Lbry.account_list = (params = {}) => daemonCallWithResult('account_list', params);
-Lbry.address_is_mine = (params = {}) => daemonCallWithResult('address_is_mine', params);
-Lbry.wallet_lock = () => daemonCallWithResult('wallet_lock', {});
-Lbry.address_unused = (params = {}) => daemonCallWithResult('address_unused', params);
-Lbry.wallet_send = (params = {}) => daemonCallWithResult('wallet_send', params);
 Lbry.account_unlock = (params = {}) => daemonCallWithResult('account_unlock', params);
-Lbry.address_unused = () => daemonCallWithResult('address_unused', {});
-Lbry.claim_tip = (params = {}) => daemonCallWithResult('support_create', params);
+Lbry.account_list = (params = {}) => daemonCallWithResult('account_list', params);
+Lbry.account_send = (params = {}) => daemonCallWithResult('account_send', params);
+Lbry.address_is_mine = (params = {}) => daemonCallWithResult('address_is_mine', params);
+Lbry.address_unused = (params = {}) => daemonCallWithResult('address_unused', params);
 
 // transactions
 Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);

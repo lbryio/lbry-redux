@@ -679,19 +679,18 @@ Lbry.channel_list = (params = {}) => daemonCallWithResult('channel_list', params
 Lbry.claim_list = (params = {}) => daemonCallWithResult('claim_list', params);
 Lbry.stream_abandon = (params = {}) => daemonCallWithResult('stream_abandon', params);
 Lbry.channel_abandon = (params = {}) => daemonCallWithResult('channel_abandon', params);
+// Possibly change the variable name claim_tip in the future
+Lbry.claim_tip = (params = {}) => daemonCallWithResult('support_create', params);
 
 // wallet
 Lbry.account_balance = (params = {}) => daemonCallWithResult('account_balance', params);
 Lbry.account_decrypt = () => daemonCallWithResult('account_decrypt', {});
 Lbry.account_encrypt = (params = {}) => daemonCallWithResult('account_encrypt', params);
-Lbry.account_list = (params = {}) => daemonCallWithResult('account_list', params);
-Lbry.address_is_mine = (params = {}) => daemonCallWithResult('address_is_mine', params);
-Lbry.wallet_lock = () => daemonCallWithResult('wallet_lock', {});
-Lbry.address_unused = (params = {}) => daemonCallWithResult('address_unused', params);
-Lbry.wallet_send = (params = {}) => daemonCallWithResult('wallet_send', params);
 Lbry.account_unlock = (params = {}) => daemonCallWithResult('account_unlock', params);
-Lbry.address_unused = () => daemonCallWithResult('address_unused', {});
-Lbry.claim_tip = (params = {}) => daemonCallWithResult('support_create', params);
+Lbry.account_list = (params = {}) => daemonCallWithResult('account_list', params);
+Lbry.account_send = (params = {}) => daemonCallWithResult('account_send', params);
+Lbry.address_is_mine = (params = {}) => daemonCallWithResult('address_is_mine', params);
+Lbry.address_unused = (params = {}) => daemonCallWithResult('address_unused', params);
 
 // transactions
 Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
@@ -1322,7 +1321,7 @@ const makeSelectTotalPagesForChannel = (uri, pageSize = 10) => reselect.createSe
 
 const makeSelectNsfwCountFromUris = uris => reselect.createSelector(selectClaimsByUri, claims => uris.reduce((acc, uri) => {
   const claim = claims[uri];
-  if (isClaimNsfw(claim)) {
+  if (claim && isClaimNsfw(claim)) {
     return acc + 1;
   }
   return acc;
@@ -1656,6 +1655,7 @@ function doCheckAddressIsMine(address) {
 }
 
 function doSendDraftTransaction(address, amount) {
+  console.log('send');
   return (dispatch, getState) => {
     const state = getState();
     const balance = selectBalance(state);
@@ -1705,8 +1705,8 @@ function doSendDraftTransaction(address, amount) {
       }));
     };
 
-    lbryProxy.wallet_send({
-      address,
+    lbryProxy.account_send({
+      addresses: [address],
       amount: creditsToString(amount)
     }).then(successCallback, errorCallback);
   };
@@ -2521,7 +2521,7 @@ function savePosition(claimId, outpoint, position) {
   };
 }
 
-//      
+var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers = {};
 
@@ -2543,7 +2543,7 @@ reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
 
   Object.entries(resolveInfo).forEach(([uri, { certificate, claim }]) => {
     if (claim) {
-      byId[claim.claim_id] = claim;
+      byId[claim.claim_id] = certificate ? _extends$4({}, claim, { channel_id: certificate.claim_id }) : claim;
       byUri[uri] = claim.claim_id;
     } else if (claim === undefined && certificate !== undefined) {
       byId[certificate.claim_id] = certificate;
@@ -2749,7 +2749,7 @@ function claimsReducer(state = defaultState, action) {
   return state;
 }
 
-var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$1 = {};
 const defaultState$1 = {
@@ -2885,12 +2885,12 @@ reducers$1[LOADING_VIDEO_STARTED] = (state, action) => {
   const newLoading = Object.assign({}, state.urisLoading);
   newLoading[uri] = true;
 
-  const newErrors = _extends$4({}, state.errors);
+  const newErrors = _extends$5({}, state.errors);
   if (uri in newErrors) delete newErrors[uri];
 
   return Object.assign({}, state, {
     urisLoading: newLoading,
-    errors: _extends$4({}, newErrors)
+    errors: _extends$5({}, newErrors)
   });
 };
 
@@ -2900,12 +2900,12 @@ reducers$1[LOADING_VIDEO_FAILED] = (state, action) => {
   const newLoading = Object.assign({}, state.urisLoading);
   delete newLoading[uri];
 
-  const newErrors = _extends$4({}, state.errors);
+  const newErrors = _extends$5({}, state.errors);
   newErrors[uri] = true;
 
   return Object.assign({}, state, {
     urisLoading: newLoading,
-    errors: _extends$4({}, newErrors)
+    errors: _extends$5({}, newErrors)
   });
 };
 
@@ -2956,7 +2956,7 @@ const handleActions = (actionMap, defaultState) => (state = defaultState, action
   return state;
 };
 
-var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$2 = {
   notifications: [],
@@ -2971,7 +2971,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.push(toast);
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       toasts: newToasts
     });
   },
@@ -2979,7 +2979,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.shift();
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       toasts: newToasts
     });
   },
@@ -2990,7 +2990,7 @@ const notificationsReducer = handleActions({
     const newNotifications = state.notifications.slice();
     newNotifications.push(notification);
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       notifications: newNotifications
     });
   },
@@ -3001,7 +3001,7 @@ const notificationsReducer = handleActions({
 
     notifications = notifications.map(pastNotification => pastNotification.id === notification.id ? notification : pastNotification);
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       notifications
     });
   },
@@ -3010,7 +3010,7 @@ const notificationsReducer = handleActions({
     let newNotifications = state.notifications.slice();
     newNotifications = newNotifications.filter(notification => notification.id !== id);
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       notifications: newNotifications
     });
   },
@@ -3021,7 +3021,7 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.push(error);
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       errors: newErrors
     });
   },
@@ -3029,13 +3029,13 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.shift();
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       errors: newErrors
     });
   }
 }, defaultState$2);
 
-var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$3 = {
   isActive: false, // does the user have any typed text in the search input
@@ -3055,29 +3055,29 @@ const defaultState$3 = {
 };
 
 const searchReducer = handleActions({
-  [SEARCH_START]: state => _extends$6({}, state, {
+  [SEARCH_START]: state => _extends$7({}, state, {
     searching: true
   }),
   [SEARCH_SUCCESS]: (state, action) => {
     const { query, uris } = action.data;
 
-    return _extends$6({}, state, {
+    return _extends$7({}, state, {
       searching: false,
       urisByQuery: Object.assign({}, state.urisByQuery, { [query]: uris })
     });
   },
 
-  [SEARCH_FAIL]: state => _extends$6({}, state, {
+  [SEARCH_FAIL]: state => _extends$7({}, state, {
     searching: false
   }),
 
-  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$6({}, state, {
+  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$7({}, state, {
     searchQuery: action.data.query,
     isActive: true
   }),
 
-  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$6({}, state, {
-    suggestions: _extends$6({}, state.suggestions, {
+  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$7({}, state, {
+    suggestions: _extends$7({}, state.suggestions, {
       [action.data.query]: action.data.suggestions
     })
   }),
@@ -3085,7 +3085,7 @@ const searchReducer = handleActions({
   // clear the searchQuery on back/forward unless to search page
   [HISTORY_NAVIGATE]: (state, action) => {
     const { url } = action.data;
-    return _extends$6({}, state, {
+    return _extends$7({}, state, {
       searchQuery: url.indexOf('/search') === 0 ? url.slice(14) : '',
       isActive: url.indexOf('/search') === 0,
       suggestions: {}
@@ -3095,21 +3095,21 @@ const searchReducer = handleActions({
   // sets isActive to false so the uri will be populated correctly if the
   // user is on a file page. The search query will still be present on any
   // other page
-  [DISMISS_NOTIFICATION]: state => _extends$6({}, state, {
+  [DISMISS_NOTIFICATION]: state => _extends$7({}, state, {
     isActive: false
   }),
 
-  [SEARCH_FOCUS]: state => _extends$6({}, state, {
+  [SEARCH_FOCUS]: state => _extends$7({}, state, {
     focused: true
   }),
-  [SEARCH_BLUR]: state => _extends$6({}, state, {
+  [SEARCH_BLUR]: state => _extends$7({}, state, {
     focused: false
   }),
   [UPDATE_SEARCH_OPTIONS]: (state, action) => {
     const { options: oldOptions } = state;
     const newOptions = action.data;
-    const options = _extends$6({}, oldOptions, newOptions);
-    return _extends$6({}, state, {
+    const options = _extends$7({}, oldOptions, newOptions);
+    return _extends$7({}, state, {
       options
     });
   }
@@ -3359,7 +3359,7 @@ function walletReducer(state = defaultState$4, action) {
   return state;
 }
 
-var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$3 = {};
 const defaultState$5 = {
@@ -3368,9 +3368,9 @@ const defaultState$5 = {
 
 reducers$3[SET_CONTENT_POSITION] = (state, action) => {
   const { claimId, outpoint, position } = action.data;
-  return _extends$7({}, state, {
-    positions: _extends$7({}, state.positions, {
-      [claimId]: _extends$7({}, state.positions[claimId], {
+  return _extends$8({}, state, {
+    positions: _extends$8({}, state.positions, {
+      [claimId]: _extends$8({}, state.positions[claimId], {
         [outpoint]: position
       })
     })
@@ -3394,14 +3394,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$5 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$5, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$8({
+    return _extends$9({
       id
     }, params);
   }

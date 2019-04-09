@@ -10,7 +10,18 @@ import Lbry from 'lbry';
 import { selectState as selectSearchState } from 'redux/selectors/search';
 
 // types
-// export { Toast } from 'types/Notification';
+// @flow
+export type { Toast } from 'types/Notification';
+
+export type {
+  ClaimAndCertificate,
+  ChannelClaim,
+  StreamClaim,
+  GenericClaim,
+  GenericMetadata,
+  ChannelMetadata,
+  Locations,
+} from 'types/Claim';
 
 // constants
 export {
