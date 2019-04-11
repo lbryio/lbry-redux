@@ -2247,8 +2247,8 @@ const selectSearchDownloadUris = query => reselect.createSelector(selectFileInfo
 
     if (channelName) {
       const claim = claimsById[claimId];
-      if (claim && claim.value) {
-        uriParams.claimId = claim.value.publisherSignature.certificateId;
+      if (claim) {
+        uriParams.claimId = claim.channel_id;
       } else {
         uriParams.claimId = claimId;
       }
