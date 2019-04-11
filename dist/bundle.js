@@ -3629,6 +3629,7 @@ function doUpdateBalance() {
 
     _lbry2.default.account_balance().then(function (balanceAsString) {
       var balance = parseFloat(balanceAsString);
+      console.log('balance=' + balance);
 
       if (balanceInStore !== balance) {
         dispatch({
@@ -3650,10 +3651,12 @@ function doUpdateTotalBalance() {
     _lbry2.default.account_list().then(function (accountList) {
       var accounts = accountList.lbc_mainnet;
 
+      console.log(accountList);
       var totalSatoshis = accounts.length === 1 ? accounts[0].satoshis : accounts.reduce(function (a, b) {
         return a.satoshis + b.satoshis;
       });
       var totalBalance = (Number.isNaN(totalSatoshis) ? 0 : totalSatoshis) / Math.pow(10, 8);
+      console.log(totalBalance);
       if (totalBalanceInStore !== totalBalance) {
         dispatch({
           type: ACTIONS.UPDATE_TOTAL_BALANCE,
