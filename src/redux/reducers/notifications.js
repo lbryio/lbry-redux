@@ -55,9 +55,8 @@ const notificationsReducer = handleActions(
       const { notification } = action.data;
       let notifications = state.notifications.slice();
 
-      notifications = notifications.map(
-        pastNotification =>
-          pastNotification.id === notification.id ? notification : pastNotification
+      notifications = notifications.map(pastNotification =>
+        pastNotification.id === notification.id ? notification : pastNotification
       );
 
       return {

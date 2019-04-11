@@ -151,6 +151,10 @@ Lbry.address_unused = (params = {}) => daemonCallWithResult('address_unused', pa
 Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
 Lbry.utxo_release = (params = {}) => daemonCallWithResult('utxo_release', params);
 
+// comments
+Lbry.comment_list = (params = {}) => daemonCallWithResult('comment_list', params);
+Lbry.comment_create = (params = {}) => daemonCallWithResult('comment_create', params);
+
 Lbry.connect = () => {
   if (Lbry.connectPromise === null) {
     Lbry.connectPromise = new Promise((resolve, reject) => {

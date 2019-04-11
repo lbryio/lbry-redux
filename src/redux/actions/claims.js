@@ -8,8 +8,7 @@ import { doFetchTransactions } from 'redux/actions/wallet';
 import { creditsToString } from 'util/formatCredits';
 
 type ResolveResponse = {
-  [string]:
-    | { error: {}, certificate: ChannelClaim, claims_in_channel: number }
+  [string]: | { error: {}, certificate: ChannelClaim, claims_in_channel: number }
     | { error?: {}, claim: StreamClaim, certificate?: ChannelClaim },
 };
 

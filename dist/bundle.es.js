@@ -696,6 +696,10 @@ Lbry.address_unused = (params = {}) => daemonCallWithResult('address_unused', pa
 Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
 Lbry.utxo_release = (params = {}) => daemonCallWithResult('utxo_release', params);
 
+// comments
+Lbry.comment_list = (params = {}) => daemonCallWithResult('comment_list', params);
+Lbry.comment_create = (params = {}) => daemonCallWithResult('comment_list', params);
+
 Lbry.connect = () => {
   if (Lbry.connectPromise === null) {
     Lbry.connectPromise = new Promise((resolve, reject) => {
@@ -2241,7 +2245,11 @@ const selectSearchDownloadUris = query => reselect.createSelector(selectFileInfo
   });
 
   return downloadResultsFromQuery.length ? downloadResultsFromQuery.map(fileInfo => {
-    const { channel_name: channelName, claim_id: claimId, claim_name: claimName } = fileInfo;
+    const {
+      channel_name: channelName,
+      claim_id: claimId,
+      claim_name: claimName
+    } = fileInfo;
 
     const uriParams = {};
 
