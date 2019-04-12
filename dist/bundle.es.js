@@ -698,7 +698,7 @@ Lbry.utxo_release = (params = {}) => daemonCallWithResult('utxo_release', params
 
 // comments
 Lbry.comment_list = (params = {}) => daemonCallWithResult('comment_list', params);
-Lbry.comment_create = (params = {}) => daemonCallWithResult('comment_list', params);
+Lbry.comment_create = (params = {}) => daemonCallWithResult('comment_create', params);
 
 Lbry.connect = () => {
   if (Lbry.connectPromise === null) {
