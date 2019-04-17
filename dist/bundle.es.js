@@ -1542,8 +1542,6 @@ function doUpdateBalance() {
     } = getState();
     lbryProxy.account_balance().then(balanceAsString => {
       const balance = parseFloat(balanceAsString);
-      console.log(`balance=${balance}`);
-
       if (balanceInStore !== balance) {
         dispatch({
           type: UPDATE_BALANCE,
@@ -1563,10 +1561,8 @@ function doUpdateTotalBalance() {
     } = getState();
     lbryProxy.account_list().then(accountList => {
       const { lbc_mainnet: accounts } = accountList;
-      console.log(accountList);
       const totalSatoshis = accounts.length === 1 ? accounts[0].satoshis : accounts.reduce((a, b) => a.satoshis + b.satoshis);
       const totalBalance = (Number.isNaN(totalSatoshis) ? 0 : totalSatoshis) / Math.pow(10, 8);
-      console.log(totalBalance);
       if (totalBalanceInStore !== totalBalance) {
         dispatch({
           type: UPDATE_TOTAL_BALANCE,
