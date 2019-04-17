@@ -1,5 +1,4 @@
 import { normalizeURI, buildURI, parseURI } from 'lbryURI';
-import { makeSelectCurrentParam } from 'redux/selectors/navigation';
 import { selectSearchUrisByQuery } from 'redux/selectors/search';
 import { createSelector } from 'reselect';
 import { isClaimNsfw } from 'util/claim';
@@ -115,24 +114,6 @@ export const makeSelectClaimsInChannelForPage = (uri, page) =>
 
     return claimIds.map(claimId => byId[claimId]);
   });
-
-export const makeSelectClaimsInChannelForCurrentPage = uri => {
-  const pageSelector = makeSelectCurrentParam('page');
-
-  return createSelector(
-    selectClaimsById,
-    selectAllClaimsByChannel,
-    pageSelector,
-    (byId, allClaims, page) => {
-      const byChannel = allClaims[uri] || {};
-      const claimIds = byChannel[page || 1];
-
-      if (!claimIds) return claimIds;
-
-      return claimIds.map(claimId => byId[claimId]);
-    }
-  );
-};
 
 export const makeSelectClaimsInChannelForCurrentPageState = uri =>
   createSelector(
@@ -264,13 +245,11 @@ export const makeSelectNsfwCountFromUris = uris =>
     }, 0)
   );
 
-export const makeSelectNsfwCountForChannel = uri => {
-  const pageSelector = makeSelectCurrentParam('page');
-
-  return createSelector(
+export const makeSelectNsfwCountForChannel = uri =>
+  createSelector(
     selectClaimsById,
     selectAllClaimsByChannel,
-    pageSelector,
+    selectCurrentChannelPage,
     (byId, allClaims, page) => {
       const byChannel = allClaims[uri] || {};
       const claimIds = byChannel[page || 1];
@@ -286,7 +265,6 @@ export const makeSelectNsfwCountForChannel = uri => {
       }, 0);
     }
   );
-};
 
 export const makeSelectRecommendedContentForUri = uri =>
   createSelector(

@@ -3,7 +3,6 @@ import type { SearchState, SearchOptions, SearchSuggestion } from 'types/Search'
 import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
 import { getSearchQueryString } from 'util/query_params';
 import { normalizeURI, parseURI } from 'lbryURI';
-import { selectCurrentPage, selectCurrentParams } from 'redux/selectors/navigation';
 import { createSelector } from 'reselect';
 
 type State = { search: SearchState };
@@ -27,14 +26,6 @@ export const selectSuggestions: (
   state => state.suggestions
 );
 
-export const selectSearchQuery: (state: State) => ?string = createSelector(
-  selectCurrentPage,
-  selectCurrentParams,
-  selectSearchValue,
-  (page: string, params: ?{ query: string }, searchValue: string) =>
-    page === 'search' ? params && params.query : searchValue
-);
-
 export const selectIsSearching: (state: State) => boolean = createSelector(
   selectState,
   state => state.searching
@@ -50,20 +41,6 @@ export const makeSelectSearchUris = (query: string): ((state: State) => Array<st
     selectSearchUrisByQuery,
     byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query]
   );
-
-export const selectWunderBarAddress = createSelector(
-  selectCurrentPage,
-  selectSearchQuery,
-  selectCurrentParams,
-  (page: string, query: string, params: { uri: string }) => {
-    // only populate the wunderbar address if we are on the file/channel pages
-    // or show the search query
-    if (page === 'show') {
-      return params.uri;
-    }
-    return query;
-  }
-);
 
 export const selectSearchBarFocused: boolean = createSelector(selectState, state => state.focused);
 
@@ -150,7 +127,7 @@ export const makeSelectQueryWithOptions = (
   customFrom: ?number,
   isBackgroundSearch: boolean = false // If it's a background search, don't use the users settings
 ) =>
-  createSelector(selectSearchQuery, selectSearchOptions, (query, options) => {
+  createSelector(selectSearchValue, selectSearchOptions, (query, options) => {
     const size = customSize || options[SEARCH_OPTIONS.RESULT_COUNT];
 
     const queryString = getSearchQueryString(
