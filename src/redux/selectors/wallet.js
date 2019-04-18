@@ -1,83 +1,82 @@
 import { createSelector } from 'reselect';
 import * as TRANSACTIONS from 'constants/transaction_types';
 
-export const selectState = (state) => state.wallet || {};
+export const selectState = state => state.wallet || {};
 
 export const selectWalletState = selectState;
 
 export const selectWalletIsEncrypted = createSelector(
   selectState,
-  (state) => state.walletIsEncrypted
+  state => state.walletIsEncrypted
 );
 
 export const selectWalletEncryptPending = createSelector(
   selectState,
-  (state) => state.walletEncryptPending
+  state => state.walletEncryptPending
 );
 
 export const selectWalletEncryptSucceeded = createSelector(
   selectState,
-  (state) => state.walletEncryptSucceded
+  state => state.walletEncryptSucceded
 );
 
 export const selectWalletEncryptResult = createSelector(
   selectState,
-  (state) => state.walletEncryptResult
+  state => state.walletEncryptResult
 );
 
 export const selectWalletDecryptPending = createSelector(
   selectState,
-  (state) => state.walletDecryptPending
+  state => state.walletDecryptPending
 );
 
 export const selectWalletDecryptSucceeded = createSelector(
   selectState,
-  (state) => state.walletDecryptSucceded
+  state => state.walletDecryptSucceded
 );
 
 export const selectWalletDecryptResult = createSelector(
   selectState,
-  (state) => state.walletDecryptResult
+  state => state.walletDecryptResult
 );
 
 export const selectWalletUnlockPending = createSelector(
   selectState,
-  (state) => state.walletUnlockPending
+  state => state.walletUnlockPending
 );
 
 export const selectWalletUnlockSucceeded = createSelector(
   selectState,
-  (state) => state.walletUnlockSucceded
+  state => state.walletUnlockSucceded
 );
 
 export const selectWalletUnlockResult = createSelector(
   selectState,
-  (state) => state.walletUnlockResult
+  state => state.walletUnlockResult
 );
 
 export const selectWalletLockPending = createSelector(
   selectState,
-  (state) => state.walletLockPending
+  state => state.walletLockPending
 );
 
 export const selectWalletLockSucceeded = createSelector(
   selectState,
-  (state) => state.walletLockSucceded
+  state => state.walletLockSucceded
 );
 
-export const selectWalletLockResult = createSelector(
-  selectState,
-  (state) => state.walletLockResult
-);
+export const selectWalletLockResult = createSelector(selectState, state => state.walletLockResult);
 
-export const selectBalance = createSelector(selectState, (state) => state.balance);
+export const selectBalance = createSelector(selectState, state => state.balance);
 
-export const selectTransactionsById = createSelector(selectState, (state) => state.transactions);
+export const selectTotalBalance = createSelector(selectState, state => state.totalBalance);
 
-export const selectTransactionItems = createSelector(selectTransactionsById, (byId) => {
+export const selectTransactionsById = createSelector(selectState, state => state.transactions);
+
+export const selectTransactionItems = createSelector(selectTransactionsById, byId => {
   const items = [];
 
-  Object.keys(byId).forEach((txid) => {
+  Object.keys(byId).forEach(txid => {
     const tx = byId[txid];
 
     // ignore dust/fees
@@ -95,24 +94,24 @@ export const selectTransactionItems = createSelector(selectTransactionsById, (by
     const append = [];
 
     append.push(
-      ...tx.claim_info.map((item) =>
+      ...tx.claim_info.map(item =>
         Object.assign({}, tx, item, {
           type: item.claim_name[0] === '@' ? TRANSACTIONS.CHANNEL : TRANSACTIONS.PUBLISH,
         })
       )
     );
     append.push(
-      ...tx.support_info.map((item) =>
+      ...tx.support_info.map(item =>
         Object.assign({}, tx, item, {
           type: !item.is_tip ? TRANSACTIONS.SUPPORT : TRANSACTIONS.TIP,
         })
       )
     );
     append.push(
-      ...tx.update_info.map((item) => Object.assign({}, tx, item, { type: TRANSACTIONS.UPDATE }))
+      ...tx.update_info.map(item => Object.assign({}, tx, item, { type: TRANSACTIONS.UPDATE }))
     );
     append.push(
-      ...tx.abandon_info.map((item) => Object.assign({}, tx, item, { type: TRANSACTIONS.ABANDON }))
+      ...tx.abandon_info.map(item => Object.assign({}, tx, item, { type: TRANSACTIONS.ABANDON }))
     );
 
     if (!append.length) {
@@ -124,7 +123,7 @@ export const selectTransactionItems = createSelector(selectTransactionsById, (by
     }
 
     items.push(
-      ...append.map((item) => {
+      ...append.map(item => {
         // value on transaction, amount on outpoint
         // amount is always positive, but should match sign of value
         const balanceDelta = parseFloat(item.balance_delta);
@@ -161,10 +160,10 @@ export const selectTransactionItems = createSelector(selectTransactionsById, (by
   });
 });
 
-export const selectRecentTransactions = createSelector(selectTransactionItems, (transactions) => {
+export const selectRecentTransactions = createSelector(selectTransactionItems, transactions => {
   const threshold = new Date();
   threshold.setDate(threshold.getDate() - 7);
-  return transactions.filter((transaction) => {
+  return transactions.filter(transaction => {
     if (!transaction.date) {
       return true; // pending transaction
     }
@@ -175,48 +174,48 @@ export const selectRecentTransactions = createSelector(selectTransactionItems, (
 
 export const selectHasTransactions = createSelector(
   selectTransactionItems,
-  (transactions) => transactions && transactions.length > 0
+  transactions => transactions && transactions.length > 0
 );
 
 export const selectIsFetchingTransactions = createSelector(
   selectState,
-  (state) => state.fetchingTransactions
+  state => state.fetchingTransactions
 );
 
-export const selectIsSendingSupport = createSelector(selectState, (state) => state.sendingSupport);
+export const selectIsSendingSupport = createSelector(selectState, state => state.sendingSupport);
 
-export const selectReceiveAddress = createSelector(selectState, (state) => state.receiveAddress);
+export const selectReceiveAddress = createSelector(selectState, state => state.receiveAddress);
 
 export const selectGettingNewAddress = createSelector(
   selectState,
-  (state) => state.gettingNewAddress
+  state => state.gettingNewAddress
 );
 
 export const selectDraftTransaction = createSelector(
   selectState,
-  (state) => state.draftTransaction || {}
+  state => state.draftTransaction || {}
 );
 
 export const selectDraftTransactionAmount = createSelector(
   selectDraftTransaction,
-  (draft) => draft.amount
+  draft => draft.amount
 );
 
 export const selectDraftTransactionAddress = createSelector(
   selectDraftTransaction,
-  (draft) => draft.address
+  draft => draft.address
 );
 
 export const selectDraftTransactionError = createSelector(
   selectDraftTransaction,
-  (draft) => draft.error
+  draft => draft.error
 );
 
-export const selectBlocks = createSelector(selectState, (state) => state.blocks);
+export const selectBlocks = createSelector(selectState, state => state.blocks);
 
-export const selectCurrentHeight = createSelector(selectState, (state) => state.latestBlock);
+export const selectCurrentHeight = createSelector(selectState, state => state.latestBlock);
 
-export const makeSelectBlockDate = (block) =>
+export const makeSelectBlockDate = block =>
   createSelector(selectBlocks, selectCurrentHeight, (blocks, latestBlock) => {
     // If we have the block data, look at the actual date,
     // If not, try to simulate it based on 2.5 minute blocks
@@ -239,5 +238,5 @@ export const makeSelectBlockDate = (block) =>
 
 export const selectTransactionListFilter = createSelector(
   selectState,
-  (state) => state.transactionListFilter || ''
+  state => state.transactionListFilter || ''
 );

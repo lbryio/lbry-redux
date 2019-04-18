@@ -44,6 +44,7 @@ const GET_NEW_ADDRESS_COMPLETED = 'GET_NEW_ADDRESS_COMPLETED';
 const FETCH_TRANSACTIONS_STARTED = 'FETCH_TRANSACTIONS_STARTED';
 const FETCH_TRANSACTIONS_COMPLETED = 'FETCH_TRANSACTIONS_COMPLETED';
 const UPDATE_BALANCE = 'UPDATE_BALANCE';
+const UPDATE_TOTAL_BALANCE = 'UPDATE_TOTAL_BALANCE';
 const CHECK_ADDRESS_IS_MINE_STARTED = 'CHECK_ADDRESS_IS_MINE_STARTED';
 const CHECK_ADDRESS_IS_MINE_COMPLETED = 'CHECK_ADDRESS_IS_MINE_COMPLETED';
 const SEND_TRANSACTION_STARTED = 'SEND_TRANSACTION_STARTED';
@@ -69,6 +70,8 @@ const WALLET_STATUS_START = 'WALLET_STATUS_START';
 const WALLET_STATUS_COMPLETED = 'WALLET_STATUS_COMPLETED';
 const SET_TRANSACTION_LIST_FILTER = 'SET_TRANSACTION_LIST_FILTER';
 const UPDATE_CURRENT_HEIGHT = 'UPDATE_CURRENT_HEIGHT';
+const SET_DRAFT_TRANSACTION_AMOUNT = 'SET_DRAFT_TRANSACTION_AMOUNT';
+const SET_DRAFT_TRANSACTION_ADDRESS = 'SET_DRAFT_TRANSACTION_ADDRESS';
 
 // Claims
 const RESOLVE_URIS_STARTED = 'RESOLVE_URIS_STARTED';
@@ -215,15 +218,13 @@ const DO_PREPARE_EDIT = 'DO_PREPARE_EDIT';
 const CREATE_NOTIFICATION = 'CREATE_NOTIFICATION';
 const EDIT_NOTIFICATION = 'EDIT_NOTIFICATION';
 const DELETE_NOTIFICATION = 'DELETE_NOTIFICATION';
+const DISMISS_NOTIFICATION = 'DISMISS_NOTIFICATION';
 const CREATE_TOAST = 'CREATE_TOAST';
 const DISMISS_TOAST = 'DISMISS_TOAST';
 const CREATE_ERROR = 'CREATE_ERROR';
 const DISMISS_ERROR = 'DISMISS_ERROR';
 
-const SET_DRAFT_TRANSACTION_AMOUNT = 'SET_DRAFT_TRANSACTION_AMOUNT';
-const SET_DRAFT_TRANSACTION_ADDRESS = 'SET_DRAFT_TRANSACTION_ADDRESS';
 const FETCH_DATE = 'FETCH_DATE';
-const DISMISS_NOTIFICATION = 'DISMISS_NOTIFICATION';
 
 var action_types = /*#__PURE__*/Object.freeze({
     WINDOW_FOCUSED: WINDOW_FOCUSED,
@@ -256,6 +257,7 @@ var action_types = /*#__PURE__*/Object.freeze({
     FETCH_TRANSACTIONS_STARTED: FETCH_TRANSACTIONS_STARTED,
     FETCH_TRANSACTIONS_COMPLETED: FETCH_TRANSACTIONS_COMPLETED,
     UPDATE_BALANCE: UPDATE_BALANCE,
+    UPDATE_TOTAL_BALANCE: UPDATE_TOTAL_BALANCE,
     CHECK_ADDRESS_IS_MINE_STARTED: CHECK_ADDRESS_IS_MINE_STARTED,
     CHECK_ADDRESS_IS_MINE_COMPLETED: CHECK_ADDRESS_IS_MINE_COMPLETED,
     SEND_TRANSACTION_STARTED: SEND_TRANSACTION_STARTED,
@@ -281,6 +283,8 @@ var action_types = /*#__PURE__*/Object.freeze({
     WALLET_STATUS_COMPLETED: WALLET_STATUS_COMPLETED,
     SET_TRANSACTION_LIST_FILTER: SET_TRANSACTION_LIST_FILTER,
     UPDATE_CURRENT_HEIGHT: UPDATE_CURRENT_HEIGHT,
+    SET_DRAFT_TRANSACTION_AMOUNT: SET_DRAFT_TRANSACTION_AMOUNT,
+    SET_DRAFT_TRANSACTION_ADDRESS: SET_DRAFT_TRANSACTION_ADDRESS,
     RESOLVE_URIS_STARTED: RESOLVE_URIS_STARTED,
     RESOLVE_URIS_COMPLETED: RESOLVE_URIS_COMPLETED,
     FETCH_CHANNEL_CLAIMS_STARTED: FETCH_CHANNEL_CLAIMS_STARTED,
@@ -405,14 +409,12 @@ var action_types = /*#__PURE__*/Object.freeze({
     CREATE_NOTIFICATION: CREATE_NOTIFICATION,
     EDIT_NOTIFICATION: EDIT_NOTIFICATION,
     DELETE_NOTIFICATION: DELETE_NOTIFICATION,
+    DISMISS_NOTIFICATION: DISMISS_NOTIFICATION,
     CREATE_TOAST: CREATE_TOAST,
     DISMISS_TOAST: DISMISS_TOAST,
     CREATE_ERROR: CREATE_ERROR,
     DISMISS_ERROR: DISMISS_ERROR,
-    SET_DRAFT_TRANSACTION_AMOUNT: SET_DRAFT_TRANSACTION_AMOUNT,
-    SET_DRAFT_TRANSACTION_ADDRESS: SET_DRAFT_TRANSACTION_ADDRESS,
-    FETCH_DATE: FETCH_DATE,
-    DISMISS_NOTIFICATION: DISMISS_NOTIFICATION
+    FETCH_DATE: FETCH_DATE
 });
 
 const API_DOWN = 'apiDown';
@@ -650,6 +652,10 @@ Lbry.claim_tip = (params = {}) => daemonCallWithResult('claim_tip', params);
 // transactions
 Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
 Lbry.utxo_release = (params = {}) => daemonCallWithResult('utxo_release', params);
+
+// sync
+Lbry.sync_hash = (params = {}) => daemonCallWithResult('sync_hash', params);
+Lbry.sync_apply = (params = {}) => daemonCallWithResult('sync_apply', params);
 
 Lbry.connectPromise = null;
 Lbry.connect = () => {
@@ -1376,6 +1382,8 @@ const selectWalletLockResult = reselect.createSelector(selectState$2, state => s
 
 const selectBalance = reselect.createSelector(selectState$2, state => state.balance);
 
+const selectTotalBalance = reselect.createSelector(selectState$2, state => state.totalBalance);
+
 const selectTransactionsById = reselect.createSelector(selectState$2, state => state.transactions);
 
 const selectTransactionItems = reselect.createSelector(selectTransactionsById, byId => {
@@ -1534,7 +1542,6 @@ function doUpdateBalance() {
     } = getState();
     lbryProxy.account_balance().then(balanceAsString => {
       const balance = parseFloat(balanceAsString);
-
       if (balanceInStore !== balance) {
         dispatch({
           type: UPDATE_BALANCE,
@@ -1547,10 +1554,38 @@ function doUpdateBalance() {
   };
 }
 
+function doUpdateTotalBalance() {
+  return (dispatch, getState) => {
+    const {
+      wallet: { totalBalance: totalBalanceInStore }
+    } = getState();
+    lbryProxy.account_list().then(accountList => {
+      const { lbc_mainnet: accounts } = accountList;
+      const totalSatoshis = accounts.length === 1 ? accounts[0].satoshis : accounts.reduce((a, b) => a.satoshis + b.satoshis);
+      const totalBalance = (Number.isNaN(totalSatoshis) ? 0 : totalSatoshis) / Math.pow(10, 8);
+      if (totalBalanceInStore !== totalBalance) {
+        dispatch({
+          type: UPDATE_TOTAL_BALANCE,
+          data: {
+            totalBalance
+          }
+        });
+      }
+    });
+  };
+}
+
 function doBalanceSubscribe() {
   return dispatch => {
     dispatch(doUpdateBalance());
     setInterval(() => dispatch(doUpdateBalance()), 5000);
+  };
+}
+
+function doTotalBalanceSubscribe() {
+  return dispatch => {
+    dispatch(doUpdateTotalBalance());
+    setInterval(() => dispatch(doUpdateTotalBalance()), 5000);
   };
 }
 
@@ -3022,6 +3057,7 @@ const buildDraftTransaction = () => ({
 
 const defaultState$4 = {
   balance: undefined,
+  totalBalance: undefined,
   blocks: {},
   latestBlock: undefined,
   transactions: {},
@@ -3080,6 +3116,10 @@ reducers$2[GET_NEW_ADDRESS_COMPLETED] = (state, action) => {
 
 reducers$2[UPDATE_BALANCE] = (state, action) => Object.assign({}, state, {
   balance: action.data.balance
+});
+
+reducers$2[UPDATE_TOTAL_BALANCE] = (state, action) => Object.assign({}, state, {
+  totalBalance: action.data.totalBalance
 });
 
 reducers$2[CHECK_ADDRESS_IS_MINE_STARTED] = state => Object.assign({}, state, {
@@ -3355,10 +3395,12 @@ exports.doSetDraftTransactionAmount = doSetDraftTransactionAmount;
 exports.doSetFileListSort = doSetFileListSort;
 exports.doSetTransactionListFilter = doSetTransactionListFilter;
 exports.doToast = doToast;
+exports.doTotalBalanceSubscribe = doTotalBalanceSubscribe;
 exports.doUpdateBalance = doUpdateBalance;
 exports.doUpdateBlockHeight = doUpdateBlockHeight;
 exports.doUpdateSearchOptions = doUpdateSearchOptions;
 exports.doUpdateSearchQuery = doUpdateSearchQuery;
+exports.doUpdateTotalBalance = doUpdateTotalBalance;
 exports.doWalletDecrypt = doWalletDecrypt;
 exports.doWalletEncrypt = doWalletEncrypt;
 exports.doWalletStatus = doWalletStatus;
@@ -3452,6 +3494,7 @@ exports.selectSearchSuggestions = selectSearchSuggestions;
 exports.selectSearchUrisByQuery = selectSearchUrisByQuery;
 exports.selectSearchValue = selectSearchValue;
 exports.selectToast = selectToast;
+exports.selectTotalBalance = selectTotalBalance;
 exports.selectTotalDownloadProgress = selectTotalDownloadProgress;
 exports.selectTransactionItems = selectTransactionItems;
 exports.selectTransactionListFilter = selectTransactionListFilter;
