@@ -79,11 +79,7 @@ declare type StreamMetadata = GenericMetadata & {
   },
 
   // Only exists if a stream has a fee
-  fee?: {
-    amount: number, // should be a string https://github.com/lbryio/lbry/issues/1576
-    currency: string,
-    address: string,
-  },
+  fee?: Fee,
 
   stream_type: 'video' | 'audio' | 'image' | 'software',
   // Below correspond to `stream_type`
@@ -110,4 +106,10 @@ declare type Location = {
   country?: string,
   state?: string,
   code?: string,
+};
+
+declare type Fee = {
+  amount: number, // should be a string https://github.com/lbryio/lbry/issues/1576
+  currency: string,
+  address: string,
 };
