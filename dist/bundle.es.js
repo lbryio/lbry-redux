@@ -78,8 +78,6 @@ const RESOLVE_URIS_STARTED = 'RESOLVE_URIS_STARTED';
 const RESOLVE_URIS_COMPLETED = 'RESOLVE_URIS_COMPLETED';
 const FETCH_CHANNEL_CLAIMS_STARTED = 'FETCH_CHANNEL_CLAIMS_STARTED';
 const FETCH_CHANNEL_CLAIMS_COMPLETED = 'FETCH_CHANNEL_CLAIMS_COMPLETED';
-const FETCH_CHANNEL_CLAIM_COUNT_STARTED = 'FETCH_CHANNEL_CLAIM_COUNT_STARTED';
-const FETCH_CHANNEL_CLAIM_COUNT_COMPLETED = 'FETCH_CHANNEL_CLAIM_COUNT_COMPLETED';
 const FETCH_CLAIM_LIST_MINE_STARTED = 'FETCH_CLAIM_LIST_MINE_STARTED';
 const FETCH_CLAIM_LIST_MINE_COMPLETED = 'FETCH_CLAIM_LIST_MINE_COMPLETED';
 const ABANDON_CLAIM_STARTED = 'ABANDON_CLAIM_STARTED';
@@ -88,6 +86,7 @@ const FETCH_CHANNEL_LIST_STARTED = 'FETCH_CHANNEL_LIST_STARTED';
 const FETCH_CHANNEL_LIST_COMPLETED = 'FETCH_CHANNEL_LIST_COMPLETED';
 const CREATE_CHANNEL_STARTED = 'CREATE_CHANNEL_STARTED';
 const CREATE_CHANNEL_COMPLETED = 'CREATE_CHANNEL_COMPLETED';
+const CREATE_CHANNEL_FAILED = 'CREATE_CHANNEL_FAILED';
 const PUBLISH_STARTED = 'PUBLISH_STARTED';
 const PUBLISH_COMPLETED = 'PUBLISH_COMPLETED';
 const PUBLISH_FAILED = 'PUBLISH_FAILED';
@@ -289,8 +288,6 @@ var action_types = /*#__PURE__*/Object.freeze({
     RESOLVE_URIS_COMPLETED: RESOLVE_URIS_COMPLETED,
     FETCH_CHANNEL_CLAIMS_STARTED: FETCH_CHANNEL_CLAIMS_STARTED,
     FETCH_CHANNEL_CLAIMS_COMPLETED: FETCH_CHANNEL_CLAIMS_COMPLETED,
-    FETCH_CHANNEL_CLAIM_COUNT_STARTED: FETCH_CHANNEL_CLAIM_COUNT_STARTED,
-    FETCH_CHANNEL_CLAIM_COUNT_COMPLETED: FETCH_CHANNEL_CLAIM_COUNT_COMPLETED,
     FETCH_CLAIM_LIST_MINE_STARTED: FETCH_CLAIM_LIST_MINE_STARTED,
     FETCH_CLAIM_LIST_MINE_COMPLETED: FETCH_CLAIM_LIST_MINE_COMPLETED,
     ABANDON_CLAIM_STARTED: ABANDON_CLAIM_STARTED,
@@ -299,6 +296,7 @@ var action_types = /*#__PURE__*/Object.freeze({
     FETCH_CHANNEL_LIST_COMPLETED: FETCH_CHANNEL_LIST_COMPLETED,
     CREATE_CHANNEL_STARTED: CREATE_CHANNEL_STARTED,
     CREATE_CHANNEL_COMPLETED: CREATE_CHANNEL_COMPLETED,
+    CREATE_CHANNEL_FAILED: CREATE_CHANNEL_FAILED,
     PUBLISH_STARTED: PUBLISH_STARTED,
     PUBLISH_COMPLETED: PUBLISH_COMPLETED,
     PUBLISH_FAILED: PUBLISH_FAILED,
@@ -571,11 +569,115 @@ const SEARCH_OPTIONS = {
 //      
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
+//
+// Basic LBRY sdk connection config
+// Offers a proxy to call LBRY sdk methods
 
+//
 const Lbry = {
   isConnected: false,
+  connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
-  pendingPublishTimeout: 20 * 60 * 1000
+
+  // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
+  setDaemonConnectionString: value => {
+    Lbry.daemonConnectionString = value;
+  },
+
+  // Allow overriding Lbry methods
+  overrides: {},
+  setOverride: (methodName, newMethod) => {
+    Lbry.overrides[methodName] = newMethod;
+  },
+
+  // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
+  getMediaType: (contentType, extname) => {
+    if (extname) {
+      const formats = [[/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^(stl|obj|fbx|gcode)$/i, '3D-file']];
+      const res = formats.reduce((ret, testpair) => {
+        switch (testpair[0].test(ret)) {
+          case true:
+            return testpair[1];
+          default:
+            return ret;
+        }
+      }, extname);
+      return res === extname ? 'unknown' : res;
+    } else if (contentType) {
+      // $FlowFixMe
+      return (/^[^/]+/.exec(contentType)[0]
+      );
+    }
+    return 'unknown';
+  },
+
+  //
+  // Lbry SDK Methods
+  // https://lbry.tech/api/sdk
+  //
+  status: (params = {}) => daemonCallWithResult('status', params),
+  stop: () => daemonCallWithResult('stop', {}),
+  version: () => daemonCallWithResult('version', {}),
+
+  // Claim fetching and manipulation
+  resolve: params => daemonCallWithResult('resolve', params),
+  get: params => daemonCallWithResult('get', params),
+  publish: params => daemonCallWithResult('publish', params),
+  claim_search: params => daemonCallWithResult('claim_search', params),
+  claim_list: params => daemonCallWithResult('claim_list', params),
+  channel_create: params => daemonCallWithResult('channel_create', params),
+  channel_list: params => daemonCallWithResult('channel_list', params),
+  stream_abandon: params => daemonCallWithResult('stream_abandon', params),
+  channel_abandon: params => daemonCallWithResult('channel_abandon', params),
+  support_create: params => daemonCallWithResult('support_create', params),
+
+  // File fetching and manipulation
+  file_list: (params = {}) => daemonCallWithResult('file_list', params),
+  file_delete: (params = {}) => daemonCallWithResult('file_delete', params),
+  file_set_status: (params = {}) => daemonCallWithResult('file_set_status', params),
+  blob_delete: (params = {}) => daemonCallWithResult('blob_delete', params),
+  blob_list: (params = {}) => daemonCallWithResult('blob_list', params),
+
+  // Wallet utilities
+  account_balance: (params = {}) => daemonCallWithResult('account_balance', params),
+  account_decrypt: () => daemonCallWithResult('account_decrypt', {}),
+  account_encrypt: (params = {}) => daemonCallWithResult('account_encrypt', params),
+  account_unlock: (params = {}) => daemonCallWithResult('account_unlock', params),
+  account_list: (params = {}) => daemonCallWithResult('account_list', params),
+  account_send: (params = {}) => daemonCallWithResult('account_send', params),
+  address_is_mine: (params = {}) => daemonCallWithResult('address_is_mine', params),
+  address_unused: (params = {}) => daemonCallWithResult('address_unused', params),
+  transaction_list: (params = {}) => daemonCallWithResult('transaction_list', params),
+  utxo_release: (params = {}) => daemonCallWithResult('utxo_release', params),
+
+  sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
+  sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
+
+  // Connect to the sdk
+  connect: () => {
+    if (Lbry.connectPromise === null) {
+      Lbry.connectPromise = new Promise((resolve, reject) => {
+        let tryNum = 0;
+        // Check every half second to see if the daemon is accepting connections
+        function checkDaemonStarted() {
+          tryNum += 1;
+          Lbry.status().then(resolve).catch(() => {
+            if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
+              setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
+            } else {
+              reject(new Error('Unable to connect to LBRY'));
+            }
+          });
+        }
+
+        checkDaemonStarted();
+      });
+    }
+
+    // Flow thinks this could be empty, but it will always reuturn a promise
+    // $FlowFixMe
+    return Lbry.connectPromise;
+  }
 };
 
 function checkAndParse(response) {
@@ -616,142 +718,16 @@ function apiCall(method, params, resolve, reject) {
   }).catch(reject);
 }
 
-const daemonCallWithResult = (name, params = {}) => new Promise((resolve, reject) => {
-  apiCall(name, params, result => {
-    resolve(result);
-  }, reject);
-});
+function daemonCallWithResult(name, params = {}) {
+  return new Promise((resolve, reject) => {
+    apiCall(name, params, result => {
+      resolve(result);
+    }, reject);
+  });
+}
 
-// blobs
-Lbry.blob_delete = (params = {}) => daemonCallWithResult('blob_delete', params);
-Lbry.blob_list = (params = {}) => daemonCallWithResult('blob_list', params);
-
-// core
-Lbry.status = (params = {}) => daemonCallWithResult('status', params);
-Lbry.version = () => daemonCallWithResult('version', {});
-Lbry.file_delete = (params = {}) => daemonCallWithResult('file_delete', params);
-Lbry.file_set_status = (params = {}) => daemonCallWithResult('file_set_status', params);
-Lbry.stop = () => daemonCallWithResult('stop', {});
-
-// claims
-Lbry.claim_list_by_channel = (params = {}) => daemonCallWithResult('claim_list_by_channel', params);
-
-// wallet
-Lbry.account_balance = (params = {}) => daemonCallWithResult('account_balance', params);
-Lbry.account_decrypt = () => daemonCallWithResult('account_decrypt', {});
-Lbry.account_encrypt = (params = {}) => daemonCallWithResult('account_encrypt', params);
-Lbry.account_list = (params = {}) => daemonCallWithResult('account_list', params);
-Lbry.address_is_mine = (params = {}) => daemonCallWithResult('address_is_mine', params);
-Lbry.wallet_lock = () => daemonCallWithResult('wallet_lock', {});
-Lbry.address_unused = (params = {}) => daemonCallWithResult('address_unused', params);
-Lbry.wallet_send = (params = {}) => daemonCallWithResult('wallet_send', params);
-Lbry.account_unlock = (params = {}) => daemonCallWithResult('account_unlock', params);
-Lbry.address_unused = () => daemonCallWithResult('address_unused', {});
-Lbry.claim_tip = (params = {}) => daemonCallWithResult('claim_tip', params);
-
-// transactions
-Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
-Lbry.utxo_release = (params = {}) => daemonCallWithResult('utxo_release', params);
-
-// sync
-Lbry.sync_hash = (params = {}) => daemonCallWithResult('sync_hash', params);
-Lbry.sync_apply = (params = {}) => daemonCallWithResult('sync_apply', params);
-
-Lbry.connectPromise = null;
-Lbry.connect = () => {
-  if (Lbry.connectPromise === null) {
-    Lbry.connectPromise = new Promise((resolve, reject) => {
-      let tryNum = 0;
-      // Check every half second to see if the daemon is accepting connections
-      function checkDaemonStarted() {
-        tryNum += 1;
-        Lbry.status().then(resolve).catch(() => {
-          if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
-            setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
-          } else {
-            reject(new Error('Unable to connect to LBRY'));
-          }
-        });
-      }
-
-      checkDaemonStarted();
-    });
-  }
-
-  return Lbry.connectPromise;
-};
-
-Lbry.getMediaType = (contentType, extname) => {
-  if (extname) {
-    const formats = [[/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^(stl|obj|fbx|gcode)$/i, '3D-file']];
-    const res = formats.reduce((ret, testpair) => {
-      switch (testpair[0].test(ret)) {
-        case true:
-          return testpair[1];
-        default:
-          return ret;
-      }
-    }, extname);
-    return res === extname ? 'unknown' : res;
-  } else if (contentType) {
-    return (/^[^/]+/.exec(contentType)[0]
-    );
-  }
-  return 'unknown';
-};
-
-/**
- * Wrappers for API methods to simulate missing or future behavior. Unlike the old-style stubs,
- * these are designed to be transparent wrappers around the corresponding API methods.
- */
-
-/**
- * Returns results from the file_list API method, plus dummy entries for pending publishes.
- * (If a real publish with the same name is found, the pending publish will be ignored and removed.)
- */
-Lbry.file_list = (params = {}) => new Promise((resolve, reject) => {
-  apiCall('file_list', params, fileInfos => {
-    resolve(fileInfos);
-  }, reject);
-});
-
-Lbry.claim_list_mine = (params = {}) => new Promise((resolve, reject) => {
-  apiCall('claim_list_mine', params, claims => {
-    resolve(claims);
-  }, reject);
-});
-
-Lbry.get = (params = {}) => new Promise((resolve, reject) => {
-  apiCall('get', params, streamInfo => {
-    resolve(streamInfo);
-  }, reject);
-});
-
-Lbry.resolve = (params = {}) => new Promise((resolve, reject) => {
-  apiCall('resolve', params, data => {
-    resolve(data || {});
-  }, reject);
-});
-
-Lbry.publish = (params = {}) => new Promise((resolve, reject) => {
-  if (Lbry.overrides.publish) {
-    Lbry.overrides.publish(params).then(resolve, reject);
-  } else {
-    apiCall('publish', params, resolve, reject);
-  }
-});
-
-// Allow overriding Lbry methods
-Lbry.overrides = {};
-Lbry.setOverride = (methodName, newMethod) => {
-  Lbry.overrides[methodName] = newMethod;
-};
-
-// Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
-Lbry.setDaemonConnectionString = value => {
-  Lbry.daemonConnectionString = value;
-};
-
+// This is only for a fallback
+// If there is a Lbry method that is being called by an app, it should be added to /flow-typed/Lbry.js
 const lbryProxy = new Proxy(Lbry, {
   get(target, name) {
     if (name in target) {
@@ -1135,7 +1111,32 @@ function doDismissError() {
   };
 }
 
-const isClaimNsfw = claim => claim && claim.value && claim.value.stream && claim.value.stream.metadata.nsfw;
+var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//      
+
+const naughtyTags = ['porn', 'nsfw', 'mature', 'xxx'].reduce((acc, tag) => _extends$2({}, acc, { [tag]: true }), {});
+
+const isClaimNsfw = claim => {
+  if (!claim) {
+    throw new Error('No claim passed to isClaimNsfw()');
+  }
+
+  if (!claim.value) {
+    return false;
+  }
+
+  const tags = claim.value.tags || [];
+  for (let i = 0; i < tags.length; i += 1) {
+    if (naughtyTags[tags[i]]) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+//      
 
 const selectState$1 = state => state.claims || {};
 
@@ -1225,16 +1226,20 @@ const makeSelectClaimsInChannelForCurrentPageState = uri => reselect.createSelec
 });
 
 const makeSelectMetadataForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
-  const metadata = claim && claim.value && claim.value.stream && claim.value.stream.metadata;
-
+  const metadata = claim && claim.value;
   return metadata || (claim === undefined ? undefined : null);
 });
 
 const makeSelectTitleForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => metadata && metadata.title);
 
 const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
-  const source = claim && claim.value && claim.value.stream && claim.value.stream.source;
-  return source ? source.contentType : undefined;
+  const source = claim && claim.value && claim.value.source;
+  return source ? source.media_type : undefined;
+});
+
+const makeSelectThumbnailForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+  const thumbnail = claim && claim.value && claim.value.thumbnail;
+  return thumbnail ? thumbnail.url : undefined;
 });
 
 const selectIsFetchingClaimListMine = reselect.createSelector(selectState$1, state => state.isFetchingClaimListMine);
@@ -1293,7 +1298,7 @@ const makeSelectTotalPagesForChannel = (uri, pageSize = 10) => reselect.createSe
 
 const makeSelectNsfwCountFromUris = uris => reselect.createSelector(selectClaimsByUri, claims => uris.reduce((acc, uri) => {
   const claim = claims[uri];
-  if (isClaimNsfw(claim)) {
+  if (claim && isClaimNsfw(claim)) {
     return acc + 1;
   }
   return acc;
@@ -1322,7 +1327,7 @@ const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSe
     // If we are at a vanity uri, build the full uri so we can properly filter
     const currentUri = atVanityURI ? buildURI({ claimId: claim.claim_id, claimName: claim.name }) : uri;
 
-    const { title } = claim.value.stream.metadata;
+    const { title } = claim.value;
 
     const searchQuery = getSearchQueryString(title.replace(/\//, ' '));
 
@@ -1339,15 +1344,16 @@ const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSe
 const makeSelectFirstRecommendedFileForUri = uri => reselect.createSelector(makeSelectRecommendedContentForUri(uri), recommendedContent => recommendedContent ? recommendedContent[0] : null);
 
 // Returns the associated channel uri for a given claim uri
+// accepts a regular claim uri lbry://something
+// returns the channel uri that created this claim lbry://@channel
 const makeSelectChannelForClaimUri = (uri, includePrefix = false) => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
-  if (!claim) {
+  if (!claim || !claim.signing_channel) {
     return null;
   }
 
-  const { channel_name: channelName, value } = claim;
-  const channelClaimId = value && value.publisherSignature && value.publisherSignature.certificateId;
-
-  return channelName && channelClaimId ? buildURI({ channelName, claimId: channelClaimId }, includePrefix) : null;
+  const { claim_id: claimId, name } = claim.signing_channel;
+  let channel = `${name}#${claimId}`;
+  return includePrefix ? `lbry://${channel}` : channel;
 });
 
 const selectState$2 = state => state.wallet || {};
@@ -1623,7 +1629,6 @@ function doGetNewAddress() {
       type: GET_NEW_ADDRESS_STARTED
     });
 
-    // Removed localStorage use, since address is expected to be stored in redux store
     lbryProxy.address_unused().then(address => {
       dispatch({
         type: GET_NEW_ADDRESS_COMPLETED,
@@ -1699,8 +1704,8 @@ function doSendDraftTransaction(address, amount) {
       }));
     };
 
-    lbryProxy.wallet_send({
-      address,
+    lbryProxy.account_send({
+      addresses: [address],
       amount: creditsToString(amount)
     }).then(successCallback, errorCallback);
   };
@@ -1771,9 +1776,10 @@ function doSendTip(amount, claimId, uri, successCallback, errorCallback) {
       type: SUPPORT_TRANSACTION_STARTED
     });
 
-    lbryProxy.claim_tip({
+    lbryProxy.support_create({
       claim_id: claimId,
-      amount: creditsToString(amount)
+      amount: creditsToString(amount),
+      tip: true
     }).then(success, error);
   };
 }
@@ -1879,6 +1885,8 @@ function doUpdateBlockHeight() {
   });
 }
 
+var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function doResolveUris(uris, returnCachedClaims = false) {
   return (dispatch, getState) => {
     const normalizedUris = uris.map(normalizeURI);
@@ -1904,6 +1912,7 @@ function doResolveUris(uris, returnCachedClaims = false) {
     });
 
     const resolveInfo = {};
+
     lbryProxy.resolve({ urls: urisToResolve }).then(result => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
@@ -1912,9 +1921,16 @@ function doResolveUris(uris, returnCachedClaims = false) {
           certificate: null
         };
 
-        const { claim, certificate, claims_in_channel: claimsInChannel } = uriResolveInfo && !uriResolveInfo.error ? uriResolveInfo : fallbackResolveInfo;
-
-        resolveInfo[uri] = { claim, certificate, claimsInChannel };
+        // Flow has terrible Object.entries support
+        // https://github.com/facebook/flow/issues/2221
+        // $FlowFixMe
+        if (uriResolveInfo.error) {
+          resolveInfo[uri] = _extends$3({}, fallbackResolveInfo);
+        } else {
+          // $FlowFixMe
+          const { claim, certificate, claims_in_channel: claimsInChannel } = uriResolveInfo;
+          resolveInfo[uri] = { claim, certificate, claimsInChannel };
+        }
       });
 
       dispatch({
@@ -1935,7 +1951,7 @@ function doFetchClaimListMine() {
       type: FETCH_CLAIM_LIST_MINE_STARTED
     });
 
-    lbryProxy.claim_list_mine().then(claims => {
+    lbryProxy.claim_list().then(claims => {
       dispatch({
         type: FETCH_CLAIM_LIST_MINE_COMPLETED,
         data: {
@@ -1950,7 +1966,14 @@ function doAbandonClaim(txid, nout) {
   return (dispatch, getState) => {
     const state = getState();
     const myClaims = selectMyClaimsRaw(state);
-    const { claim_id: claimId } = myClaims.find(claim => claim.txid === txid && claim.nout === nout);
+    const claimToAbandon = myClaims.find(claim => claim.txid === txid && claim.nout === nout);
+
+    if (!claimToAbandon) {
+      console.error('No associated claim with txid: ', txid);
+      return;
+    }
+
+    const { claim_id: claimId, name: claimName } = claimToAbandon;
 
     dispatch({
       type: ABANDON_CLAIM_STARTED,
@@ -1961,50 +1984,48 @@ function doAbandonClaim(txid, nout) {
 
     const errorCallback = () => {
       dispatch(doToast({
-        message: 'Transaction failed',
+        message: 'Error abandoning claim',
         isError: true
       }));
     };
 
-    const successCallback = results => {
-      if (results.success === true) {
-        dispatch({
-          type: ABANDON_CLAIM_SUCCEEDED,
-          data: {
-            claimId
-          }
-        });
-        dispatch(doToast({
-          message: 'Successfully abandoned your claim'
-        }));
+    const successCallback = () => {
+      dispatch({
+        type: ABANDON_CLAIM_SUCCEEDED,
+        data: {
+          claimId
+        }
+      });
 
-        // After abandoning, call claim_list_mine to show the claim as abandoned
-        // Also fetch transactions to show the new abandon transaction
-        dispatch(doFetchClaimListMine());
-        dispatch(doFetchTransactions());
-      } else {
-        dispatch(doToast({
-          message: 'Error abandoning claim',
-          isError: true
-        }));
-      }
+      dispatch(doToast({
+        message: 'Successfully abandoned your claim'
+      }));
+
+      // After abandoning, call claim_list to show the claim as abandoned
+      // Also fetch transactions to show the new abandon transaction
+      dispatch(doFetchClaimListMine());
+      dispatch(doFetchTransactions());
     };
 
-    lbryProxy.claim_abandon({
+    const abandonParams = {
       txid,
-      nout
-    }).then(successCallback, errorCallback);
+      nout,
+      blocking: true
+    };
+
+    const method = claimName.startsWith('@') ? 'channel_abandon' : 'stream_abandon';
+    lbryProxy[method](abandonParams).then(successCallback, errorCallback);
   };
 }
 
-function doFetchClaimsByChannel(uri, page) {
+function doFetchClaimsByChannel(uri, page = 1) {
   return dispatch => {
     dispatch({
       type: FETCH_CHANNEL_CLAIMS_STARTED,
       data: { uri, page }
     });
 
-    lbryProxy.claim_list_by_channel({ uri, page: page || 1 }).then(result => {
+    lbryProxy.claim_search({ uri, page: page || 1 }).then(result => {
       const claimResult = result[uri] || {};
       const { claims_in_channel: claimsInChannel, returned_page: returnedPage } = claimResult;
 
@@ -2020,25 +2041,47 @@ function doFetchClaimsByChannel(uri, page) {
   };
 }
 
-function doFetchClaimCountByChannel(uri) {
+function doCreateChannel(name, amount) {
   return dispatch => {
     dispatch({
-      type: FETCH_CHANNEL_CLAIM_COUNT_STARTED,
-      data: { uri }
+      type: CREATE_CHANNEL_STARTED
     });
 
-    lbryProxy.claim_list_by_channel({ uri }).then(result => {
-      const claimResult = result[uri];
-      const totalClaims = claimResult ? claimResult.claims_in_channel : 0;
-
+    return lbryProxy.channel_create({
+      name,
+      bid: creditsToString(amount)
+    })
+    // outputs[0] is the certificate
+    // outputs[1] is the change from the tx, not in the app currently
+    .then(result => {
+      const channelClaim = result.outputs[0];
       dispatch({
-        type: FETCH_CHANNEL_CLAIM_COUNT_COMPLETED,
-        data: {
-          uri,
-          totalClaims
-        }
+        type: CREATE_CHANNEL_COMPLETED,
+        data: { channelClaim }
+      });
+    }).catch(error => {
+      dispatch({
+        type: CREATE_CHANNEL_FAILED,
+        data: error
       });
     });
+  };
+}
+
+function doFetchChannelListMine() {
+  return dispatch => {
+    dispatch({
+      type: FETCH_CHANNEL_LIST_STARTED
+    });
+
+    const callback = channels => {
+      dispatch({
+        type: FETCH_CHANNEL_LIST_COMPLETED,
+        data: { claims: channels }
+      });
+    };
+
+    lbryProxy.channel_list().then(callback);
   };
 }
 
@@ -2297,6 +2340,7 @@ function debouce(func, wait, immediate) {
   };
 }
 
+//      
 function handleFetchResponse(response) {
   return response.status === 200 ? Promise.resolve(response.json()) : Promise.reject(new Error(response.statusText));
 }
@@ -2451,10 +2495,22 @@ function savePosition(claimId, outpoint, position) {
   };
 }
 
-const reducers = {};
+//      
 
+const reducers = {};
 const defaultState = {
-  channelClaimCounts: {}
+  byId: {},
+  claimsByUri: {},
+  claimsByChannel: {},
+  channelClaimCounts: {},
+  fetchingChannelClaims: {},
+  resolvingUris: [],
+  // This should not be a Set
+  // Storing sets in reducers can cause issues
+  myChannelClaims: new Set(),
+  fetchingMyChannels: false,
+  abandoningById: {},
+  pendingById: {}
 };
 
 reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
@@ -2463,25 +2519,29 @@ reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
-  Object.entries(resolveInfo).forEach(([uri, { certificate, claimsInChannel }]) => {
-    if (certificate && !Number.isNaN(claimsInChannel)) {
-      channelClaimCounts[uri] = claimsInChannel;
+  Object.entries(resolveInfo).forEach(([uri, resolveResponse]) => {
+    // $FlowFixMe
+    if (resolveResponse.certificate && !Number.isNaN(resolveResponse.claimsInChannel)) {
+      // $FlowFixMe
+      channelClaimCounts[uri] = resolveResponse.claimsInChannel;
     }
   });
 
+  // $FlowFixMe
   Object.entries(resolveInfo).forEach(([uri, { certificate, claim }]) => {
-    if (claim) {
+    if (claim && !certificate) {
       byId[claim.claim_id] = claim;
       byUri[uri] = claim.claim_id;
-    } else if (claim === undefined && certificate !== undefined) {
+    } else if (claim && certificate) {
+      byId[claim.claim_id] = claim;
+      byUri[uri] = claim.claim_id;
+
       byId[certificate.claim_id] = certificate;
-      // Don't point URI at the channel certificate unless it actually is
-      // a channel URI. This is brittle.
-      if (!uri.split(certificate.name)[1].match(/\//)) {
-        byUri[uri] = certificate.claim_id;
-      } else {
-        byUri[uri] = null;
-      }
+      const channelUri = `lbry://${certificate.name}#${certificate.claim_id}`;
+      byUri[channelUri] = certificate.claim_id;
+    } else if (!claim && certificate) {
+      byId[certificate.claim_id] = certificate;
+      byUri[uri] = certificate.claim_id;
     } else {
       byUri[uri] = null;
     }
@@ -2521,7 +2581,10 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   });
 
   // Remove old pending publishes
-  Object.values(pendingById).filter(pendingClaim => byId[pendingClaim.claim_id]).forEach(pendingClaim => {
+  Object.values(pendingById)
+  // $FlowFixMe
+  .filter(pendingClaim => byId[pendingClaim.claim_id]).forEach(pendingClaim => {
+    // $FlowFixMe
     delete pendingById[pendingClaim.claim_id];
   });
 
@@ -2566,7 +2629,11 @@ reducers[FETCH_CHANNEL_CLAIMS_STARTED] = (state, action) => {
 };
 
 reducers[FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
-  const { uri, claims, page } = action.data;
+  const {
+    uri,
+    claims,
+    page
+  } = action.data;
 
   const claimsByChannel = Object.assign({}, state.claimsByChannel);
   const byChannel = Object.assign({}, claimsByChannel[uri]);
@@ -2630,7 +2697,7 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
 };
 
 reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
-  const { channelClaim } = action.data;
+  const channelClaim = action.data.channelClaim;
   const byId = Object.assign({}, state.byId);
   const myChannelClaims = new Set(state.myChannelClaims);
 
@@ -2647,7 +2714,7 @@ reducers[RESOLVE_URIS_STARTED] = (state, action) => {
   const { uris } = action.data;
 
   const oldResolving = state.resolvingUris || [];
-  const newResolving = Object.assign([], oldResolving);
+  const newResolving = oldResolving.slice();
 
   uris.forEach(uri => {
     if (!newResolving.includes(uri)) {
@@ -2660,24 +2727,13 @@ reducers[RESOLVE_URIS_STARTED] = (state, action) => {
   });
 };
 
-reducers[FETCH_CHANNEL_CLAIM_COUNT_COMPLETED] = (state, action) => {
-  const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
-  const { uri, totalClaims } = action.data;
-
-  channelClaimCounts[uri] = totalClaims;
-
-  return Object.assign({}, state, {
-    channelClaimCounts
-  });
-};
-
 function claimsReducer(state = defaultState, action) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
   return state;
 }
 
-var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$1 = {};
 const defaultState$1 = {
@@ -2813,12 +2869,12 @@ reducers$1[LOADING_VIDEO_STARTED] = (state, action) => {
   const newLoading = Object.assign({}, state.urisLoading);
   newLoading[uri] = true;
 
-  const newErrors = _extends$2({}, state.errors);
+  const newErrors = _extends$4({}, state.errors);
   if (uri in newErrors) delete newErrors[uri];
 
   return Object.assign({}, state, {
     urisLoading: newLoading,
-    errors: _extends$2({}, newErrors)
+    errors: _extends$4({}, newErrors)
   });
 };
 
@@ -2828,12 +2884,12 @@ reducers$1[LOADING_VIDEO_FAILED] = (state, action) => {
   const newLoading = Object.assign({}, state.urisLoading);
   delete newLoading[uri];
 
-  const newErrors = _extends$2({}, state.errors);
+  const newErrors = _extends$4({}, state.errors);
   newErrors[uri] = true;
 
   return Object.assign({}, state, {
     urisLoading: newLoading,
-    errors: _extends$2({}, newErrors)
+    errors: _extends$4({}, newErrors)
   });
 };
 
@@ -2884,7 +2940,7 @@ const handleActions = (actionMap, defaultState) => (state = defaultState, action
   return state;
 };
 
-var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$2 = {
   notifications: [],
@@ -2899,7 +2955,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.push(toast);
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       toasts: newToasts
     });
   },
@@ -2907,7 +2963,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.shift();
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       toasts: newToasts
     });
   },
@@ -2918,7 +2974,7 @@ const notificationsReducer = handleActions({
     const newNotifications = state.notifications.slice();
     newNotifications.push(notification);
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       notifications: newNotifications
     });
   },
@@ -2929,7 +2985,7 @@ const notificationsReducer = handleActions({
 
     notifications = notifications.map(pastNotification => pastNotification.id === notification.id ? notification : pastNotification);
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       notifications
     });
   },
@@ -2938,7 +2994,7 @@ const notificationsReducer = handleActions({
     let newNotifications = state.notifications.slice();
     newNotifications = newNotifications.filter(notification => notification.id !== id);
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       notifications: newNotifications
     });
   },
@@ -2949,7 +3005,7 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.push(error);
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       errors: newErrors
     });
   },
@@ -2957,13 +3013,13 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.shift();
 
-    return _extends$3({}, state, {
+    return _extends$5({}, state, {
       errors: newErrors
     });
   }
 }, defaultState$2);
 
-var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$3 = {
   isActive: false, // does the user have any typed text in the search input
@@ -2983,61 +3039,51 @@ const defaultState$3 = {
 };
 
 const searchReducer = handleActions({
-  [SEARCH_START]: state => _extends$4({}, state, {
+  [SEARCH_START]: state => _extends$6({}, state, {
     searching: true
   }),
   [SEARCH_SUCCESS]: (state, action) => {
     const { query, uris } = action.data;
 
-    return _extends$4({}, state, {
+    return _extends$6({}, state, {
       searching: false,
       urisByQuery: Object.assign({}, state.urisByQuery, { [query]: uris })
     });
   },
 
-  [SEARCH_FAIL]: state => _extends$4({}, state, {
+  [SEARCH_FAIL]: state => _extends$6({}, state, {
     searching: false
   }),
 
-  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$4({}, state, {
+  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$6({}, state, {
     searchQuery: action.data.query,
     isActive: true
   }),
 
-  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$4({}, state, {
-    suggestions: _extends$4({}, state.suggestions, {
+  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$6({}, state, {
+    suggestions: _extends$6({}, state.suggestions, {
       [action.data.query]: action.data.suggestions
     })
   }),
 
-  // clear the searchQuery on back/forward unless to search page
-  [HISTORY_NAVIGATE]: (state, action) => {
-    const { url } = action.data;
-    return _extends$4({}, state, {
-      searchQuery: url.indexOf('/search') === 0 ? url.slice(14) : '',
-      isActive: url.indexOf('/search') === 0,
-      suggestions: {}
-    });
-  },
-
   // sets isActive to false so the uri will be populated correctly if the
   // user is on a file page. The search query will still be present on any
   // other page
-  [DISMISS_NOTIFICATION]: state => _extends$4({}, state, {
+  [DISMISS_NOTIFICATION]: state => _extends$6({}, state, {
     isActive: false
   }),
 
-  [SEARCH_FOCUS]: state => _extends$4({}, state, {
+  [SEARCH_FOCUS]: state => _extends$6({}, state, {
     focused: true
   }),
-  [SEARCH_BLUR]: state => _extends$4({}, state, {
+  [SEARCH_BLUR]: state => _extends$6({}, state, {
     focused: false
   }),
   [UPDATE_SEARCH_OPTIONS]: (state, action) => {
     const { options: oldOptions } = state;
     const newOptions = action.data;
-    const options = _extends$4({}, oldOptions, newOptions);
-    return _extends$4({}, state, {
+    const options = _extends$6({}, oldOptions, newOptions);
+    return _extends$6({}, state, {
       options
     });
   }
@@ -3292,7 +3338,7 @@ function walletReducer(state = defaultState$4, action) {
   return state;
 }
 
-var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$3 = {};
 const defaultState$5 = {
@@ -3301,9 +3347,9 @@ const defaultState$5 = {
 
 reducers$3[SET_CONTENT_POSITION] = (state, action) => {
   const { claimId, outpoint, position } = action.data;
-  return _extends$5({}, state, {
-    positions: _extends$5({}, state.positions, {
-      [claimId]: _extends$5({}, state.positions[claimId], {
+  return _extends$7({}, state, {
+    positions: _extends$7({}, state.positions, {
+      [claimId]: _extends$7({}, state.positions[claimId], {
         [outpoint]: position
       })
     })
@@ -3327,14 +3373,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$5 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$5, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$6({
+    return _extends$8({
       id
     }, params);
   }
@@ -3372,11 +3418,12 @@ exports.doAbandonClaim = doAbandonClaim;
 exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
+exports.doCreateChannel = doCreateChannel;
 exports.doDismissError = doDismissError;
 exports.doDismissToast = doDismissToast;
 exports.doError = doError;
 exports.doFetchBlock = doFetchBlock;
-exports.doFetchClaimCountByChannel = doFetchClaimCountByChannel;
+exports.doFetchChannelListMine = doFetchChannelListMine;
 exports.doFetchClaimListMine = doFetchClaimListMine;
 exports.doFetchClaimsByChannel = doFetchClaimsByChannel;
 exports.doFetchFileInfo = doFetchFileInfo;
@@ -3433,6 +3480,7 @@ exports.makeSelectPendingByUri = makeSelectPendingByUri;
 exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
 exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
 exports.makeSelectSearchUris = makeSelectSearchUris;
+exports.makeSelectThumbnailForUri = makeSelectThumbnailForUri;
 exports.makeSelectTitleForUri = makeSelectTitleForUri;
 exports.makeSelectTotalItemsForChannel = makeSelectTotalItemsForChannel;
 exports.makeSelectTotalPagesForChannel = makeSelectTotalPagesForChannel;

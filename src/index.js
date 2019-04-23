@@ -5,12 +5,8 @@ import * as TRANSACTIONS from 'constants/transaction_types';
 import * as SORT_OPTIONS from 'constants/sort_options';
 import * as PAGES from 'constants/pages';
 import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
-
 import Lbry from 'lbry';
 import { selectState as selectSearchState } from 'redux/selectors/search';
-
-// types
-// export { Toast } from 'types/Notification';
 
 // constants
 export {
@@ -43,11 +39,12 @@ export { doToast, doDismissToast, doError, doDismissError } from 'redux/actions/
 
 export {
   doFetchClaimsByChannel,
-  doFetchClaimCountByChannel,
   doFetchClaimListMine,
   doAbandonClaim,
   doResolveUris,
   doResolveUri,
+  doFetchChannelListMine,
+  doCreateChannel,
 } from 'redux/actions/claims';
 
 export {
@@ -146,6 +143,7 @@ export {
   selectPlayingUri,
   selectChannelClaimCounts,
   selectCurrentChannelPage,
+  makeSelectThumbnailForUri,
 } from 'redux/selectors/claims';
 
 export {

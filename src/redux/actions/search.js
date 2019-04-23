@@ -1,5 +1,4 @@
 // @flow
-import type { SearchState, SearchOptions } from 'types/Search';
 import * as ACTIONS from 'constants/action_types';
 import { buildURI } from 'lbryURI';
 import { doResolveUri } from 'redux/actions/claims';
@@ -113,7 +112,7 @@ export const doSearch = (
 
   fetch(`${CONNECTION_STRING}search?${queryWithOptions}`)
     .then(handleFetchResponse)
-    .then(data => {
+    .then((data: Array<{ name: String, claimId: string }>) => {
       const uris = [];
       const actions = [];
 

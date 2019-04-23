@@ -3,7 +3,12 @@
 [include]
 
 [libs]
+./flow-typed
 
 [options]
-module.system.node.resolve_dirname=src
-module.system.node.resolve_dirname=node_modules
+module.system.node.resolve_dirname=./src
+module.name_mapper='^redux\(.*\)$' -> '<PROJECT_ROOT>/src/redux\1'
+module.name_mapper='^util\(.*\)$' -> '<PROJECT_ROOT>/src/util\1'
+module.name_mapper='^constants\(.*\)$' -> '<PROJECT_ROOT>/src/constants\1'
+module.name_mapper='^lbry\(.*\)$' -> '<PROJECT_ROOT>/src/lbry\1'
+module.name_mapper='^lbryURI\(.*\)$' -> '<PROJECT_ROOT>/src/lbryURI\1'
