@@ -1128,7 +1128,8 @@ const isClaimNsfw = claim => {
 
   const tags = claim.value.tags || [];
   for (let i = 0; i < tags.length; i += 1) {
-    if (naughtyTags[tags[i]]) {
+    const tag = tags[i].toLowerCase();
+    if (naughtyTags[tag]) {
       return true;
     }
   }
@@ -1317,6 +1318,19 @@ const makeSelectNsfwCountForChannel = uri => reselect.createSelector(selectClaim
     }
     return acc;
   }, 0);
+});
+
+const makeSelectClaimIsNsfw = uri => reselect.createSelector(makeSelectClaimForUri(uri),
+// Eventually these will come from some list of tags that are considered adult
+// Or possibly come from users settings of what tags they want to hide
+// For now, there is just a hard coded list of tags inside `isClaimNsfw`
+// selectNaughtyTags(),
+claim => {
+  if (!claim) {
+    return false;
+  }
+
+  return isClaimNsfw(claim);
 });
 
 const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), selectSearchUrisByQuery, (claim, searchUrisByQuery) => {
@@ -3462,6 +3476,7 @@ exports.makeSelectBlockDate = makeSelectBlockDate;
 exports.makeSelectChannelForClaimUri = makeSelectChannelForClaimUri;
 exports.makeSelectClaimForUri = makeSelectClaimForUri;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;
+exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
 exports.makeSelectClaimIsPending = makeSelectClaimIsPending;
 exports.makeSelectClaimsInChannelForCurrentPageState = makeSelectClaimsInChannelForCurrentPageState;
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;

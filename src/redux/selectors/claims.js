@@ -331,6 +331,22 @@ export const makeSelectNsfwCountForChannel = (uri: string) =>
     }
   );
 
+export const makeSelectClaimIsNsfw = (uri: string): boolean =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    // Eventually these will come from some list of tags that are considered adult
+    // Or possibly come from users settings of what tags they want to hide
+    // For now, there is just a hard coded list of tags inside `isClaimNsfw`
+    // selectNaughtyTags(),
+    (claim: StreamClaim) => {
+      if (!claim) {
+        return false;
+      }
+
+      return isClaimNsfw(claim);
+    }
+  );
+
 export const makeSelectRecommendedContentForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),

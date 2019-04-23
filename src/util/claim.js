@@ -16,7 +16,8 @@ export const isClaimNsfw = (claim: StreamClaim): boolean => {
 
   const tags = claim.value.tags || [];
   for (let i = 0; i < tags.length; i += 1) {
-    if (naughtyTags[tags[i]]) {
+    const tag = tags[i].toLowerCase();
+    if (naughtyTags[tag]) {
       return true;
     }
   }

@@ -117,6 +117,7 @@ export {
   makeSelectTotalPagesForChannel,
   makeSelectNsfwCountFromUris,
   makeSelectNsfwCountForChannel,
+  makeSelectClaimIsNsfw,
   makeSelectRecommendedContentForUri,
   makeSelectFirstRecommendedFileForUri,
   makeSelectChannelForClaimUri,
