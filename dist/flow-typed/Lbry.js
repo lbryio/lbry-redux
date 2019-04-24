@@ -125,6 +125,11 @@ declare type AccountListResponse = Array<{
   modified_on: string,
 }>;
 
+declare type SyncApplyResponse = {
+  hash: string,
+  data: string,
+};
+
 //
 // Types used in the generic Lbry object that is exported
 //
@@ -170,6 +175,11 @@ declare type LbryTypes = {
   address_is_mine: (params: {}) => Promise<boolean>,
   address_unused: (params: {}) => Promise<string>, // New address
   transaction_list: (params: {}) => Promise<TxListResponse>,
+
+  // Sync
+  sync_hash: (params: {}) => Promise<string>,
+  sync_apply: (params: {}) => Promise<SyncApplyResponse>,
+
   // The app shouldn't need to do this
   utxo_release: () => Promise<any>,
 };
