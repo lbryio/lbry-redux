@@ -97,7 +97,6 @@ export function doGetNewAddress() {
       type: ACTIONS.GET_NEW_ADDRESS_STARTED,
     });
 
-    // Removed localStorage use, since address is expected to be stored in redux store
     Lbry.address_unused().then(address => {
       dispatch({
         type: ACTIONS.GET_NEW_ADDRESS_COMPLETED,
@@ -181,8 +180,8 @@ export function doSendDraftTransaction(address, amount) {
       );
     };
 
-    Lbry.wallet_send({
-      address,
+    Lbry.account_send({
+      addresses: [address],
       amount: creditsToString(amount),
     }).then(successCallback, errorCallback);
   };
@@ -259,9 +258,10 @@ export function doSendTip(amount, claimId, uri, successCallback, errorCallback) 
       type: ACTIONS.SUPPORT_TRANSACTION_STARTED,
     });
 
-    Lbry.claim_tip({
+    Lbry.support_create({
       claim_id: claimId,
       amount: creditsToString(amount),
+      tip: true,
     }).then(success, error);
   };
 }

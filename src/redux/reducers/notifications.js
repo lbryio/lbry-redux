@@ -1,12 +1,4 @@
 // @flow
-import type {
-  NotificationState,
-  DoToast,
-  DoError,
-  DoNotification,
-  DoEditNotification,
-  DoDeleteNotification,
-} from 'types/Notification';
 import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
 
@@ -20,8 +12,8 @@ const notificationsReducer = handleActions(
   {
     // Toasts
     [ACTIONS.CREATE_TOAST]: (state: NotificationState, action: DoToast) => {
-      const toast = action.data;
-      const newToasts = state.toasts.slice();
+      const toast: Toast = action.data;
+      const newToasts: Array<Toast> = state.toasts.slice();
       newToasts.push(toast);
 
       return {
@@ -30,7 +22,7 @@ const notificationsReducer = handleActions(
       };
     },
     [ACTIONS.DISMISS_TOAST]: (state: NotificationState) => {
-      const newToasts = state.toasts.slice();
+      const newToasts: Array<Toast> = state.toasts.slice();
       newToasts.shift();
 
       return {
@@ -41,8 +33,8 @@ const notificationsReducer = handleActions(
 
     // Notifications
     [ACTIONS.CREATE_NOTIFICATION]: (state: NotificationState, action: DoNotification) => {
-      const notification = action.data;
-      const newNotifications = state.notifications.slice();
+      const notification: Notification = action.data;
+      const newNotifications: Array<Notification> = state.notifications.slice();
       newNotifications.push(notification);
 
       return {
@@ -53,11 +45,10 @@ const notificationsReducer = handleActions(
     // Used to mark notifications as read/dismissed
     [ACTIONS.EDIT_NOTIFICATION]: (state: NotificationState, action: DoEditNotification) => {
       const { notification } = action.data;
-      let notifications = state.notifications.slice();
+      let notifications: Array<Notification> = state.notifications.slice();
 
-      notifications = notifications.map(
-        pastNotification =>
-          pastNotification.id === notification.id ? notification : pastNotification
+      notifications = notifications.map(pastNotification =>
+        pastNotification.id === notification.id ? notification : pastNotification
       );
 
       return {
@@ -67,7 +58,7 @@ const notificationsReducer = handleActions(
     },
     [ACTIONS.DELETE_NOTIFICATION]: (state: NotificationState, action: DoDeleteNotification) => {
       const { id } = action.data;
-      let newNotifications = state.notifications.slice();
+      let newNotifications: Array<Notification> = state.notifications.slice();
       newNotifications = newNotifications.filter(notification => notification.id !== id);
 
       return {
@@ -78,8 +69,8 @@ const notificationsReducer = handleActions(
 
     // Errors
     [ACTIONS.CREATE_ERROR]: (state: NotificationState, action: DoError) => {
-      const error = action.data;
-      const newErrors = state.errors.slice();
+      const error: ErrorNotification = action.data;
+      const newErrors: Array<ErrorNotification> = state.errors.slice();
       newErrors.push(error);
 
       return {
@@ -88,7 +79,7 @@ const notificationsReducer = handleActions(
       };
     },
     [ACTIONS.DISMISS_ERROR]: (state: NotificationState) => {
-      const newErrors = state.errors.slice();
+      const newErrors: Array<ErrorNotification> = state.errors.slice();
       newErrors.shift();
 
       return {

@@ -1,13 +1,13 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 
-export type SearchSuggestion = {
+declare type SearchSuggestion = {
   value: string,
   shorthand: string,
   type: string,
 };
 
-export type SearchOptions = {
+declare type SearchOptions = {
   // :(
   // https://github.com/facebook/flow/issues/6492
   RESULT_COUNT: number,
@@ -22,7 +22,7 @@ export type SearchOptions = {
   MEDIA_APPLICATION: string,
 };
 
-export type SearchState = {
+declare type SearchState = {
   isActive: boolean,
   searchQuery: string,
   options: SearchOptions,
@@ -30,7 +30,7 @@ export type SearchState = {
   urisByQuery: {},
 };
 
-export type SearchSuccess = {
+declare type SearchSuccess = {
   type: ACTIONS.SEARCH_SUCCESS,
   data: {
     query: string,
@@ -38,14 +38,14 @@ export type SearchSuccess = {
   },
 };
 
-export type UpdateSearchQuery = {
+declare type UpdateSearchQuery = {
   type: ACTIONS.UPDATE_SEARCH_QUERY,
   data: {
     query: string,
   },
 };
 
-export type UpdateSearchSuggestions = {
+declare type UpdateSearchSuggestions = {
   type: ACTIONS.UPDATE_SEARCH_SUGGESTIONS,
   data: {
     query: string,
@@ -53,16 +53,7 @@ export type UpdateSearchSuggestions = {
   },
 };
 
-export type HistoryNavigate = {
-  type: ACTIONS.HISTORY_NAVIGATE,
-  data: {
-    url: string,
-    index?: number,
-    scrollY?: number,
-  },
-};
-
-export type UpdateSearchOptions = {
+declare type UpdateSearchOptions = {
   type: ACTIONS.UPDATE_SEARCH_OPTIONS,
   data: SearchOptions,
 };

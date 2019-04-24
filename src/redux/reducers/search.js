@@ -2,14 +2,6 @@
 import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
 import { SEARCH_OPTIONS } from 'constants/search';
-import type {
-  SearchState,
-  SearchSuccess,
-  UpdateSearchQuery,
-  UpdateSearchSuggestions,
-  HistoryNavigate,
-  UpdateSearchOptions,
-} from 'types/Search';
 
 const defaultState = {
   isActive: false, // does the user have any typed text in the search input
@@ -68,17 +60,6 @@ export const searchReducer = handleActions(
         [action.data.query]: action.data.suggestions,
       },
     }),
-
-    // clear the searchQuery on back/forward unless to search page
-    [ACTIONS.HISTORY_NAVIGATE]: (state: SearchState, action: HistoryNavigate): SearchState => {
-      const { url } = action.data;
-      return {
-        ...state,
-        searchQuery: url.indexOf('/search') === 0 ? url.slice(14) : '',
-        isActive: url.indexOf('/search') === 0,
-        suggestions: {},
-      };
-    },
 
     // sets isActive to false so the uri will be populated correctly if the
     // user is on a file page. The search query will still be present on any

@@ -1,5 +1,4 @@
 // @flow
-import type { ToastParams } from 'types/Notification';
 import * as ACTIONS from 'constants/action_types';
 import uuid from 'uuid/v4';
 

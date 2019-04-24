@@ -1,37 +1,81 @@
+// @flow
+
+// This file has a lot of FlowFixMe comments
+// It's due to Flow's support of Object.{values,entries}
+// https://github.com/facebook/flow/issues/2221
+// We could move to es6 Sets/Maps, but those are not recommended for redux
+// https://github.com/reduxjs/redux/issues/1499
+// Unsure of the best solution at the momentf
+// - Sean
+
 import * as ACTIONS from 'constants/action_types';
-import { buildURI } from 'lbryURI';
+import { buildURI, parseURI } from 'lbryURI';
 
-const reducers = {};
-
-const defaultState = {
-  channelClaimCounts: {},
+type State = {
+  channelClaimCounts: { [string]: number },
+  claimsByUri: { [string]: string },
+  byId: { [string]: StreamClaim | ChannelClaim },
+  resolvingUris: Array<string>,
+  pendingById: { [string]: StreamClaim | ChannelClaim },
+  myChannelClaims: Set<string>,
+  abandoningById: { [string]: boolean },
+  fetchingChannelClaims: { [string]: number },
+  fetchingMyChannels: boolean,
+  claimsByChannel: {
+    [string]: {
+      all: Array<string>,
+      [number]: Array<string>,
+    },
+  },
 };
 
-reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state, action) => {
-  const { resolveInfo } = action.data;
+const reducers = {};
+const defaultState = {
+  byId: {},
+  claimsByUri: {},
+  claimsByChannel: {},
+  channelClaimCounts: {},
+  fetchingChannelClaims: {},
+  resolvingUris: [],
+  // This should not be a Set
+  // Storing sets in reducers can cause issues
+  myChannelClaims: new Set(),
+  fetchingMyChannels: false,
+  abandoningById: {},
+  pendingById: {},
+};
+
+reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state: State, action: any): State => {
+  const { resolveInfo }: { [string]: ClaimWithPossibleCertificate } = action.data;
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
-  Object.entries(resolveInfo).forEach(([uri, { certificate, claimsInChannel }]) => {
-    if (certificate && !Number.isNaN(claimsInChannel)) {
-      channelClaimCounts[uri] = claimsInChannel;
+  Object.entries(resolveInfo).forEach(
+    ([uri: string, resolveResponse: ClaimWithPossibleCertificate]) => {
+      // $FlowFixMe
+      if (resolveResponse.certificate && !Number.isNaN(resolveResponse.claimsInChannel)) {
+        // $FlowFixMe
+        channelClaimCounts[uri] = resolveResponse.claimsInChannel;
+      }
     }
-  });
+  );
 
+  // $FlowFixMe
   Object.entries(resolveInfo).forEach(([uri, { certificate, claim }]) => {
-    if (claim) {
+    if (claim && !certificate) {
       byId[claim.claim_id] = claim;
       byUri[uri] = claim.claim_id;
-    } else if (claim === undefined && certificate !== undefined) {
+    } else if (claim && certificate) {
+      byId[claim.claim_id] = claim;
+      byUri[uri] = claim.claim_id;
+
       byId[certificate.claim_id] = certificate;
-      // Don't point URI at the channel certificate unless it actually is
-      // a channel URI. This is brittle.
-      if (!uri.split(certificate.name)[1].match(/\//)) {
-        byUri[uri] = certificate.claim_id;
-      } else {
-        byUri[uri] = null;
-      }
+      const channelUri = `lbry://${certificate.name}#${certificate.claim_id}`;
+      byUri[channelUri] = certificate.claim_id;
+    } else if (!claim && certificate) {
+      byId[certificate.claim_id] = certificate;
+      byUri[uri] = certificate.claim_id;
     } else {
       byUri[uri] = null;
     }
@@ -45,18 +89,21 @@ reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = state =>
+reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: State): State =>
   Object.assign({}, state, {
     isFetchingClaimListMine: true,
   });
 
-reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
-  const { claims } = action.data;
+reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any): State => {
+  const { claims }: { claims: Array<StreamClaim | ChannelClaim> } = action.data;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
-  const pendingById = Object.assign({}, state.pendingById);
+  const pendingById: { [string]: StreamClaim | ChannelClaim } = Object.assign(
+    {},
+    state.pendingById
+  );
 
-  claims.forEach(claim => {
+  claims.forEach((claim: StreamClaim | ChannelClaim) => {
     const uri = buildURI({ claimName: claim.name, claimId: claim.claim_id });
 
     if (claim.type && claim.type.match(/claim|update/)) {
@@ -73,8 +120,10 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
 
   // Remove old pending publishes
   Object.values(pendingById)
+    // $FlowFixMe
     .filter(pendingClaim => byId[pendingClaim.claim_id])
     .forEach(pendingClaim => {
+      // $FlowFixMe
       delete pendingById[pendingClaim.claim_id];
     });
 
@@ -87,11 +136,11 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = state =>
+reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = (state: State): State =>
   Object.assign({}, state, { fetchingMyChannels: true });
 
-reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
-  const { claims } = action.data;
+reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): State => {
+  const { claims }: { claims: Array<ChannelClaim> } = action.data;
   const myChannelClaims = new Set(state.myChannelClaims);
   const byId = Object.assign({}, state.byId);
 
@@ -107,7 +156,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED] = (state, action) => {
+reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED] = (state: State, action: any): State => {
   const { uri, page } = action.data;
   const fetchingChannelClaims = Object.assign({}, state.fetchingChannelClaims);
 
@@ -119,8 +168,12 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
-  const { uri, claims, page } = action.data;
+reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: State, action: any): State => {
+  const {
+    uri,
+    claims,
+    page,
+  }: { uri: string, claims: Array<StreamClaim>, page: number } = action.data;
 
   const claimsByChannel = Object.assign({}, state.claimsByChannel);
   const byChannel = Object.assign({}, claimsByChannel[uri]);
@@ -153,8 +206,8 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.ABANDON_CLAIM_STARTED] = (state, action) => {
-  const { claimId } = action.data;
+reducers[ACTIONS.ABANDON_CLAIM_STARTED] = (state: State, action: any): State => {
+  const { claimId }: { claimId: string } = action.data;
   const abandoningById = Object.assign({}, state.abandoningById);
 
   abandoningById[claimId] = true;
@@ -164,8 +217,8 @@ reducers[ACTIONS.ABANDON_CLAIM_STARTED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
-  const { claimId } = action.data;
+reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State => {
+  const { claimId }: { claimId: string } = action.data;
   const byId = Object.assign({}, state.byId);
   const claimsByUri = Object.assign({}, state.claimsByUri);
 
@@ -183,8 +236,8 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state, action) => {
-  const { channelClaim } = action.data;
+reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State => {
+  const channelClaim: ChannelClaim = action.data.channelClaim;
   const byId = Object.assign({}, state.byId);
   const myChannelClaims = new Set(state.myChannelClaims);
 
@@ -197,11 +250,11 @@ reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state, action) => {
-  const { uris } = action.data;
+reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state: State, action: any): State => {
+  const { uris }: { uris: Array<string> } = action.data;
 
   const oldResolving = state.resolvingUris || [];
-  const newResolving = Object.assign([], oldResolving);
+  const newResolving = oldResolving.slice();
 
   uris.forEach(uri => {
     if (!newResolving.includes(uri)) {
@@ -214,18 +267,7 @@ reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.FETCH_CHANNEL_CLAIM_COUNT_COMPLETED] = (state, action) => {
-  const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
-  const { uri, totalClaims } = action.data;
-
-  channelClaimCounts[uri] = totalClaims;
-
-  return Object.assign({}, state, {
-    channelClaimCounts,
-  });
-};
-
-export function claimsReducer(state = defaultState, action) {
+export function claimsReducer(state: State = defaultState, action: any) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
   return state;

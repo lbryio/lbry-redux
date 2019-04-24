@@ -9,7 +9,7 @@ import * as ACTIONS from 'constants/action_types';
     - If they are the result of errors, use the isError flag when creating
     - For errors that should interrupt user behavior, use Error
 */
-export type ToastParams = {
+declare type ToastParams = {
   message: string,
   title?: string,
   linkText?: string,
@@ -17,12 +17,12 @@ export type ToastParams = {
   isError?: boolean,
 };
 
-export type Toast = {
+declare type Toast = {
   id: string,
   params: ToastParams,
 };
 
-export type DoToast = {
+declare type DoToast = {
   type: ACTIONS.CREATE_TOAST,
   data: Toast,
 };
@@ -33,7 +33,7 @@ export type DoToast = {
     - Always saved, but can be manually deleted
     - Can happen in the background, or because of user interaction (ex: publish confirmed)
 */
-export type Notification = {
+declare type Notification = {
   id: string, // Unique id
   dateCreated: number,
   isRead: boolean, // Used to display "new" notifications that a user hasn't seen yet
@@ -44,23 +44,19 @@ export type Notification = {
   // priority?: number
 };
 
-export type DoNotification = {
+declare type DoNotification = {
   type: ACTIONS.CREATE_NOTIFICATION,
   data: Notification,
 };
 
-export type DoEditNotification = {
+declare type DoEditNotification = {
   type: ACTIONS.EDIT_NOTIFICATION,
   data: {
-    id: string,
-    isRead: boolean,
-    // In the future we can add `isDismissed` if we decide to show notifications as they come in
-    // Similar to Facebook's notifications in the corner of the screen
-    // isDismissed: boolean,
+    notification: Notification,
   },
 };
 
-export type DoDeleteNotification = {
+declare type DoDeleteNotification = {
   type: ACTIONS.DELETE_NOTIFICATION,
   data: {
     id: string, // The id to delete
@@ -73,25 +69,25 @@ export type DoDeleteNotification = {
     - Errors that should interupt user behavior
     - For errors that can be shown without interrupting a user, use Toast with the isError flag
 */
-export type Error = {
+declare type ErrorNotification = {
   title: string,
   text: string,
 };
 
-export type DoError = {
+declare type DoError = {
   type: ACTIONS.CREATE_ERROR,
-  data: Error,
+  data: ErrorNotification,
 };
 
-export type DoDismissError = {
+declare type DoDismissError = {
   type: ACTIONS.DISMISS_ERROR,
 };
 
 /*
   NotificationState
 */
-export type NotificationState = {
+declare type NotificationState = {
   notifications: Array<Notification>,
-  errors: Array<Error>,
+  errors: Array<ErrorNotification>,
   toasts: Array<Toast>,
 };

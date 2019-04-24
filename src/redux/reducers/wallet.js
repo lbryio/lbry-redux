@@ -284,7 +284,7 @@ reducers[ACTIONS.WALLET_LOCK_FAILED] = (state: WalletState, action: ActionResult
     walletLockResult: action.result,
   });
 
-reducers[ACTIONS.SET_TRANSACTION_LIST_FILTER] = (state: WalletState, action: {}) =>
+reducers[ACTIONS.SET_TRANSACTION_LIST_FILTER] = (state: WalletState, action: { data: string }) =>
   Object.assign({}, state, {
     transactionListFilter: action.data,
   });

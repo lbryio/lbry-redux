@@ -2,11 +2,121 @@
 import 'proxy-polyfill';
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
+//
+// Basic LBRY sdk connection config
+// Offers a proxy to call LBRY sdk methods
 
-const Lbry = {
+//
+const Lbry: LbryTypes = {
   isConnected: false,
+  connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
-  pendingPublishTimeout: 20 * 60 * 1000,
+
+  // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
+  setDaemonConnectionString: (value: string) => {
+    Lbry.daemonConnectionString = value;
+  },
+
+  // Allow overriding Lbry methods
+  overrides: {},
+  setOverride: (methodName, newMethod) => {
+    Lbry.overrides[methodName] = newMethod;
+  },
+
+  // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
+  getMediaType: (contentType: string, extname: ?string) => {
+    if (extname) {
+      const formats = [
+        [/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
+        [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
+        [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'],
+        [/^(stl|obj|fbx|gcode)$/i, '3D-file'],
+      ];
+      const res = formats.reduce((ret, testpair) => {
+        switch (testpair[0].test(ret)) {
+          case true:
+            return testpair[1];
+          default:
+            return ret;
+        }
+      }, extname);
+      return res === extname ? 'unknown' : res;
+    } else if (contentType) {
+      // $FlowFixMe
+      return /^[^/]+/.exec(contentType)[0];
+    }
+    return 'unknown';
+  },
+
+  //
+  // Lbry SDK Methods
+  // https://lbry.tech/api/sdk
+  //
+  status: (params = {}) => daemonCallWithResult('status', params),
+  stop: () => daemonCallWithResult('stop', {}),
+  version: () => daemonCallWithResult('version', {}),
+
+  // Claim fetching and manipulation
+  resolve: params => daemonCallWithResult('resolve', params),
+  get: params => daemonCallWithResult('get', params),
+  publish: params => daemonCallWithResult('publish', params),
+  claim_search: params => daemonCallWithResult('claim_search', params),
+  claim_list: params => daemonCallWithResult('claim_list', params),
+  channel_create: params => daemonCallWithResult('channel_create', params),
+  channel_list: params => daemonCallWithResult('channel_list', params),
+  stream_abandon: params => daemonCallWithResult('stream_abandon', params),
+  channel_abandon: params => daemonCallWithResult('channel_abandon', params),
+  support_create: params => daemonCallWithResult('support_create', params),
+
+  // File fetching and manipulation
+  file_list: (params = {}) => daemonCallWithResult('file_list', params),
+  file_delete: (params = {}) => daemonCallWithResult('file_delete', params),
+  file_set_status: (params = {}) => daemonCallWithResult('file_set_status', params),
+  blob_delete: (params = {}) => daemonCallWithResult('blob_delete', params),
+  blob_list: (params = {}) => daemonCallWithResult('blob_list', params),
+
+  // Wallet utilities
+  account_balance: (params = {}) => daemonCallWithResult('account_balance', params),
+  account_decrypt: () => daemonCallWithResult('account_decrypt', {}),
+  account_encrypt: (params = {}) => daemonCallWithResult('account_encrypt', params),
+  account_unlock: (params = {}) => daemonCallWithResult('account_unlock', params),
+  account_list: (params = {}) => daemonCallWithResult('account_list', params),
+  account_send: (params = {}) => daemonCallWithResult('account_send', params),
+  address_is_mine: (params = {}) => daemonCallWithResult('address_is_mine', params),
+  address_unused: (params = {}) => daemonCallWithResult('address_unused', params),
+  transaction_list: (params = {}) => daemonCallWithResult('transaction_list', params),
+  utxo_release: (params = {}) => daemonCallWithResult('utxo_release', params),
+
+  sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
+  sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
+
+  // Connect to the sdk
+  connect: () => {
+    if (Lbry.connectPromise === null) {
+      Lbry.connectPromise = new Promise((resolve, reject) => {
+        let tryNum = 0;
+        // Check every half second to see if the daemon is accepting connections
+        function checkDaemonStarted() {
+          tryNum += 1;
+          Lbry.status()
+            .then(resolve)
+            .catch(() => {
+              if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
+                setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
+              } else {
+                reject(new Error('Unable to connect to LBRY'));
+              }
+            });
+        }
+
+        checkDaemonStarted();
+      });
+    }
+
+    // Flow thinks this could be empty, but it will always reuturn a promise
+    // $FlowFixMe
+    return Lbry.connectPromise;
+  },
 };
 
 function checkAndParse(response) {
@@ -50,8 +160,8 @@ function apiCall(method: string, params: ?{}, resolve: Function, reject: Functio
     .catch(reject);
 }
 
-const daemonCallWithResult = (name, params = {}) =>
-  new Promise((resolve, reject) => {
+function daemonCallWithResult(name: string, params: ?{} = {}) {
+  return new Promise((resolve, reject) => {
     apiCall(
       name,
       params,
@@ -61,170 +171,12 @@ const daemonCallWithResult = (name, params = {}) =>
       reject
     );
   });
+}
 
-// blobs
-Lbry.blob_delete = (params = {}) => daemonCallWithResult('blob_delete', params);
-Lbry.blob_list = (params = {}) => daemonCallWithResult('blob_list', params);
-
-// core
-Lbry.status = (params = {}) => daemonCallWithResult('status', params);
-Lbry.version = () => daemonCallWithResult('version', {});
-Lbry.file_delete = (params = {}) => daemonCallWithResult('file_delete', params);
-Lbry.file_set_status = (params = {}) => daemonCallWithResult('file_set_status', params);
-Lbry.stop = () => daemonCallWithResult('stop', {});
-
-// claims
-Lbry.claim_list_by_channel = (params = {}) => daemonCallWithResult('claim_list_by_channel', params);
-
-// wallet
-Lbry.account_balance = (params = {}) => daemonCallWithResult('account_balance', params);
-Lbry.account_decrypt = () => daemonCallWithResult('account_decrypt', {});
-Lbry.account_encrypt = (params = {}) => daemonCallWithResult('account_encrypt', params);
-Lbry.account_list = (params = {}) => daemonCallWithResult('account_list', params);
-Lbry.address_is_mine = (params = {}) => daemonCallWithResult('address_is_mine', params);
-Lbry.wallet_lock = () => daemonCallWithResult('wallet_lock', {});
-Lbry.address_unused = (params = {}) => daemonCallWithResult('address_unused', params);
-Lbry.wallet_send = (params = {}) => daemonCallWithResult('wallet_send', params);
-Lbry.account_unlock = (params = {}) => daemonCallWithResult('account_unlock', params);
-Lbry.address_unused = () => daemonCallWithResult('address_unused', {});
-Lbry.claim_tip = (params = {}) => daemonCallWithResult('claim_tip', params);
-
-// transactions
-Lbry.transaction_list = (params = {}) => daemonCallWithResult('transaction_list', params);
-Lbry.utxo_release = (params = {}) => daemonCallWithResult('utxo_release', params);
-
-// sync
-Lbry.sync_hash = (params = {}) => daemonCallWithResult('sync_hash', params);
-Lbry.sync_apply = (params = {}) => daemonCallWithResult('sync_apply', params);
-
-Lbry.connectPromise = null;
-Lbry.connect = () => {
-  if (Lbry.connectPromise === null) {
-    Lbry.connectPromise = new Promise((resolve, reject) => {
-      let tryNum = 0;
-      // Check every half second to see if the daemon is accepting connections
-      function checkDaemonStarted() {
-        tryNum += 1;
-        Lbry.status()
-          .then(resolve)
-          .catch(() => {
-            if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
-              setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
-            } else {
-              reject(new Error('Unable to connect to LBRY'));
-            }
-          });
-      }
-
-      checkDaemonStarted();
-    });
-  }
-
-  return Lbry.connectPromise;
-};
-
-Lbry.getMediaType = (contentType, extname) => {
-  if (extname) {
-    const formats = [
-      [/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
-      [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
-      [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'],
-      [/^(stl|obj|fbx|gcode)$/i, '3D-file'],
-    ];
-    const res = formats.reduce((ret, testpair) => {
-      switch (testpair[0].test(ret)) {
-        case true:
-          return testpair[1];
-        default:
-          return ret;
-      }
-    }, extname);
-    return res === extname ? 'unknown' : res;
-  } else if (contentType) {
-    return /^[^/]+/.exec(contentType)[0];
-  }
-  return 'unknown';
-};
-
-/**
- * Wrappers for API methods to simulate missing or future behavior. Unlike the old-style stubs,
- * these are designed to be transparent wrappers around the corresponding API methods.
- */
-
-/**
- * Returns results from the file_list API method, plus dummy entries for pending publishes.
- * (If a real publish with the same name is found, the pending publish will be ignored and removed.)
- */
-Lbry.file_list = (params = {}) =>
-  new Promise((resolve, reject) => {
-    apiCall(
-      'file_list',
-      params,
-      fileInfos => {
-        resolve(fileInfos);
-      },
-      reject
-    );
-  });
-
-Lbry.claim_list_mine = (params = {}) =>
-  new Promise((resolve, reject) => {
-    apiCall(
-      'claim_list_mine',
-      params,
-      claims => {
-        resolve(claims);
-      },
-      reject
-    );
-  });
-
-Lbry.get = (params = {}) =>
-  new Promise((resolve, reject) => {
-    apiCall(
-      'get',
-      params,
-      streamInfo => {
-        resolve(streamInfo);
-      },
-      reject
-    );
-  });
-
-Lbry.resolve = (params = {}) =>
-  new Promise((resolve, reject) => {
-    apiCall(
-      'resolve',
-      params,
-      data => {
-        resolve(data || {});
-      },
-      reject
-    );
-  });
-
-Lbry.publish = (params = {}) =>
-  new Promise((resolve, reject) => {
-    if (Lbry.overrides.publish) {
-      Lbry.overrides.publish(params).then(resolve, reject);
-    } else {
-      apiCall('publish', params, resolve, reject);
-    }
-  });
-
-// Allow overriding Lbry methods
-Lbry.overrides = {};
-Lbry.setOverride = (methodName, newMethod) => {
-  Lbry.overrides[methodName] = newMethod;
-};
-
-// Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
-Lbry.setDaemonConnectionString = value => {
-  Lbry.daemonConnectionString = value;
-};
-
+// This is only for a fallback
+// If there is a Lbry method that is being called by an app, it should be added to /flow-typed/Lbry.js
 const lbryProxy = new Proxy(Lbry, {
-  get(target, name) {
+  get(target: LbryTypes, name: string) {
     if (name in target) {
       return target[name];
     }
