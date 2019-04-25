@@ -653,6 +653,9 @@ const Lbry = {
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
 
+  comment_list: (params = {}) => daemonCallWithResult('comment_list', params),
+  comment_create: (params = {}) => daemonCallWithResult('comment_create', params),
+
   // Connect to the sdk
   connect: () => {
     if (Lbry.connectPromise === null) {
@@ -1430,9 +1433,14 @@ const selectTransactionItems = reselect.createSelector(selectTransactionsById, b
     append.push(...tx.abandon_info.map(item => Object.assign({}, tx, item, { type: ABANDON })));
 
     if (!append.length) {
-      append.push(Object.assign({}, tx, {
-        type: tx.value < 0 ? SPEND : RECEIVE
-      }));
+      append.push(...tx.claim_info.map(item => Object.assign({}, tx, item, {
+        type: item.claim_name[0] === '@' ? CHANNEL : PUBLISH
+      })));
+      append.push(...tx.support_info.map(item => Object.assign({}, tx, item, {
+        type: !item.is_tip ? SUPPORT : TIP
+      })));
+      append.push(...tx.update_info.map(item => Object.assign({}, tx, item, { type: UPDATE })));
+      append.push(...tx.abandon_info.map(item => Object.assign({}, tx, item, { type: ABANDON })));
     }
 
     items.push(...append.map(item => {
@@ -2229,14 +2237,18 @@ const selectSearchDownloadUris = query => reselect.createSelector(selectFileInfo
   });
 
   return downloadResultsFromQuery.length ? downloadResultsFromQuery.map(fileInfo => {
-    const { channel_name: channelName, claim_id: claimId, claim_name: claimName } = fileInfo;
+    const {
+      channel_name: channelName,
+      claim_id: claimId,
+      claim_name: claimName
+    } = fileInfo;
 
     const uriParams = {};
 
     if (channelName) {
       const claim = claimsById[claimId];
-      if (claim && claim.value) {
-        uriParams.claimId = claim.value.publisherSignature.certificateId;
+      if (claim) {
+        uriParams.claimId = claim.channel_id;
       } else {
         uriParams.claimId = claimId;
       }
