@@ -7,6 +7,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('proxy-polyfill');
 var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
+var seamlessImmutable = require('seamless-immutable');
 
 const WINDOW_FOCUSED = 'WINDOW_FOCUSED';
 const DAEMON_READY = 'DAEMON_READY';
@@ -1908,6 +1909,7 @@ function doResolveUris(uris, returnCachedClaims = false) {
 
     const resolvingUris = selectResolvingUris(state);
     const claimsByUri = selectClaimsByUri(state);
+
     const urisToResolve = normalizedUris.filter(uri => {
       if (resolvingUris.includes(uri)) {
         return false;
@@ -1919,6 +1921,8 @@ function doResolveUris(uris, returnCachedClaims = false) {
     if (urisToResolve.length === 0) {
       return;
     }
+
+    console.log('good');
 
     dispatch({
       type: RESOLVE_URIS_STARTED,
@@ -2512,7 +2516,7 @@ function savePosition(claimId, outpoint, position) {
 //      
 
 const reducers = {};
-const defaultState = {
+const defaultState = new seamlessImmutable.static({
   byId: {},
   claimsByUri: {},
   claimsByChannel: {},
@@ -2525,59 +2529,70 @@ const defaultState = {
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {}
-};
+});
 
 reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
   const { resolveInfo } = action.data;
-  const byUri = Object.assign({}, state.claimsByUri);
-  const byId = Object.assign({}, state.byId);
-  const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
-  Object.entries(resolveInfo).forEach(([uri, resolveResponse]) => {
+  const {
+    claimsByUri,
+    byId,
+    channelClaimCounts
+  } = seamlessImmutable.static.asMutable(state, { deep: true });
+
+  const resolveInfoEntries = Object.entries(resolveInfo);
+
+  resolveInfoEntries.forEach(([uri, resolveResponse]) => {
+    const {
+      certificate,
+      claim,
+      claimsInChannel
+    } = seamlessImmutable.static.asMutable(resolveResponse, { deep: true });
+
     // $FlowFixMe
-    if (resolveResponse.certificate && !Number.isNaN(resolveResponse.claimsInChannel)) {
+    if (certificate && !Number.isNaN(claimsInChannel)) {
       // $FlowFixMe
-      channelClaimCounts[uri] = resolveResponse.claimsInChannel;
+      channelClaimCounts[uri] = claimsInChannel;
     }
-  });
 
-  // $FlowFixMe
-  Object.entries(resolveInfo).forEach(([uri, { certificate, claim }]) => {
     if (claim && !certificate) {
       byId[claim.claim_id] = claim;
-      byUri[uri] = claim.claim_id;
+      claimsByUri[uri] = claim.claim_id;
     } else if (claim && certificate) {
       byId[claim.claim_id] = claim;
-      byUri[uri] = claim.claim_id;
+      claimsByUri[uri] = claim.claim_id;
 
       byId[certificate.claim_id] = certificate;
       const channelUri = `lbry://${certificate.name}#${certificate.claim_id}`;
-      byUri[channelUri] = certificate.claim_id;
+      claimsByUri[channelUri] = certificate.claim_id;
     } else if (!claim && certificate) {
       byId[certificate.claim_id] = certificate;
-      byUri[uri] = certificate.claim_id;
+      claimsByUri[uri] = certificate.claim_id;
     } else {
-      byUri[uri] = null;
+      claimsByUri[uri] = null;
     }
   });
 
-  return Object.assign({}, state, {
+  return seamlessImmutable.static.merge(state, {
     byId,
-    claimsByUri: byUri,
+    claimsByUri,
     channelClaimCounts,
     resolvingUris: (state.resolvingUris || []).filter(uri => !resolveInfo[uri])
   });
 };
 
-reducers[FETCH_CLAIM_LIST_MINE_STARTED] = state => Object.assign({}, state, {
+reducers[FETCH_CLAIM_LIST_MINE_STARTED] = state => seamlessImmutable.static.merge(state, {
   isFetchingClaimListMine: true
 });
 
 reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   const { claims } = action.data;
-  const byId = Object.assign({}, state.byId);
-  const byUri = Object.assign({}, state.claimsByUri);
-  const pendingById = Object.assign({}, state.pendingById);
+
+  const {
+    byId,
+    claimsByUri,
+    pendingById
+  } = seamlessImmutable.static.asMutable(state, { deep: true });
 
   claims.forEach(claim => {
     const uri = buildURI({ claimName: claim.name, claimId: claim.claim_id });
@@ -2586,10 +2601,10 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
       if (claim.confirmations < 1) {
         pendingById[claim.claim_id] = claim;
         delete byId[claim.claim_id];
-        delete byUri[claim.claim_id];
+        delete claimsByUri[claim.claim_id];
       } else {
         byId[claim.claim_id] = claim;
-        byUri[uri] = claim.claim_id;
+        claimsByUri[uri] = claim.claim_id;
       }
     }
   });
@@ -2602,28 +2617,30 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
     delete pendingById[pendingClaim.claim_id];
   });
 
-  return Object.assign({}, state, {
+  return seamlessImmutable.static.merge(state, {
     isFetchingClaimListMine: false,
     myClaims: claims,
     byId,
-    claimsByUri: byUri,
+    claimsByUri,
     pendingById
   });
 };
 
-reducers[FETCH_CHANNEL_LIST_STARTED] = state => Object.assign({}, state, { fetchingMyChannels: true });
+reducers[FETCH_CHANNEL_LIST_STARTED] = state => seamlessImmutable.static.merge(state, {
+  fetchingMyChannels: true
+});
 
 reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   const { claims } = action.data;
   const myChannelClaims = new Set(state.myChannelClaims);
-  const byId = Object.assign({}, state.byId);
+  const byId = seamlessImmutable.static.asMutable(state.byId);
 
   claims.forEach(claim => {
     myChannelClaims.add(claim.claim_id);
     byId[claim.claim_id] = claim;
   });
 
-  return Object.assign({}, state, {
+  return seamlessImmutable.static.merge(state, {
     byId,
     fetchingMyChannels: false,
     myChannelClaims
@@ -2632,12 +2649,13 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
 
 reducers[FETCH_CHANNEL_CLAIMS_STARTED] = (state, action) => {
   const { uri, page } = action.data;
-  const fetchingChannelClaims = Object.assign({}, state.fetchingChannelClaims);
 
   fetchingChannelClaims[uri] = page;
 
-  return Object.assign({}, state, {
-    fetchingChannelClaims,
+  return seamlessImmutable.static.merge(state, {
+    fetchingChannelClaims: seamlessImmutable.static.merge(state.fetchingChannelClaims, {
+      [uri]: page
+    }),
     currentChannelPage: page
   });
 };
@@ -2649,16 +2667,20 @@ reducers[FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
     page
   } = action.data;
 
-  const claimsByChannel = Object.assign({}, state.claimsByChannel);
-  const byChannel = Object.assign({}, claimsByChannel[uri]);
+  const {
+    byId,
+    claimsByChannel,
+    claimsByUri,
+    fetchingChannelClaims
+  } = seamlessImmutable.static.asMutable(state, { deep: true });
+
+  const byChannel = claimsByChannel[uri];
   const allClaimIds = new Set(byChannel.all);
   const currentPageClaimIds = [];
-  const byId = Object.assign({}, state.byId);
-  const fetchingChannelClaims = Object.assign({}, state.fetchingChannelClaims);
-  const claimsByUri = Object.assign({}, state.claimsByUri);
 
   if (claims !== undefined) {
     claims.forEach(claim => {
+      claim = seamlessImmutable.static.asMutable(claim);
       allClaimIds.add(claim.claim_id);
       currentPageClaimIds.push(claim.claim_id);
       byId[claim.claim_id] = claim;
@@ -2671,7 +2693,7 @@ reducers[FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
   claimsByChannel[uri] = byChannel;
   delete fetchingChannelClaims[uri];
 
-  return Object.assign({}, state, {
+  return seamlessImmutable.static.merge(state, {
     claimsByChannel,
     byId,
     fetchingChannelClaims,
@@ -2682,19 +2704,21 @@ reducers[FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
 
 reducers[ABANDON_CLAIM_STARTED] = (state, action) => {
   const { claimId } = action.data;
-  const abandoningById = Object.assign({}, state.abandoningById);
 
-  abandoningById[claimId] = true;
-
-  return Object.assign({}, state, {
-    abandoningById
+  return seamlessImmutable.static.merge(state, {
+    abandoningById: seamlessImmutable.static.merge(state.abandoningById, {
+      [claimId]: true
+    })
   });
 };
 
 reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   const { claimId } = action.data;
-  const byId = Object.assign({}, state.byId);
-  const claimsByUri = Object.assign({}, state.claimsByUri);
+
+  const {
+    byId,
+    claimsByUri
+  } = seamlessImmutable.static.asMutable(state, { deep: true });
 
   Object.keys(claimsByUri).forEach(uri => {
     if (claimsByUri[uri] === claimId) {
@@ -2704,7 +2728,7 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
 
   delete byId[claimId];
 
-  return Object.assign({}, state, {
+  return seamlessImmutable.static.merge(state, {
     byId,
     claimsByUri
   });
@@ -2712,13 +2736,16 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
 
 reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
   const channelClaim = action.data.channelClaim;
-  const byId = Object.assign({}, state.byId);
-  const myChannelClaims = new Set(state.myChannelClaims);
+
+  const {
+    byId,
+    myChannelClaims
+  } = seamlessImmutable.static.asMutable(state, { deep: true });
 
   byId[channelClaim.claim_id] = channelClaim;
   myChannelClaims.add(channelClaim.claim_id);
 
-  return Object.assign({}, state, {
+  return seamlessImmutable.static.merge(state, {
     byId,
     myChannelClaims
   });
@@ -2727,8 +2754,7 @@ reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
 reducers[RESOLVE_URIS_STARTED] = (state, action) => {
   const { uris } = action.data;
 
-  const oldResolving = state.resolvingUris || [];
-  const newResolving = oldResolving.slice();
+  const newResolving = seamlessImmutable.static.asMutable(state.resolvingUris || []);
 
   uris.forEach(uri => {
     if (!newResolving.includes(uri)) {
@@ -2736,7 +2762,7 @@ reducers[RESOLVE_URIS_STARTED] = (state, action) => {
     }
   });
 
-  return Object.assign({}, state, {
+  return seamlessImmutable.static.merge(state, {
     resolvingUris: newResolving
   });
 };

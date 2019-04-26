@@ -14,6 +14,7 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
 
     const resolvingUris = selectResolvingUris(state);
     const claimsByUri = selectClaimsByUri(state);
+
     const urisToResolve = normalizedUris.filter(uri => {
       if (resolvingUris.includes(uri)) {
         return false;
@@ -25,6 +26,8 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
     if (urisToResolve.length === 0) {
       return;
     }
+
+    console.log('good')
 
     dispatch({
       type: ACTIONS.RESOLVE_URIS_STARTED,

@@ -59,7 +59,8 @@
     "rollup-plugin-copy": "^1.1.0",
     "rollup-plugin-eslint": "^5.1.0",
     "rollup-plugin-flow": "^1.1.1",
-    "rollup-plugin-includepaths": "^0.2.3"
+    "rollup-plugin-includepaths": "^0.2.3",
+    "seamless-immutable": "^7.1.4"
   },
   "engines": {
     "yarn": "^1.3"

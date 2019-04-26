@@ -10,6 +10,7 @@
 
 import * as ACTIONS from 'constants/action_types';
 import { buildURI, parseURI } from 'lbryURI';
+import { static as Immutable } from 'seamless-immutable';
 
 type State = {
   channelClaimCounts: { [string]: number },
@@ -30,7 +31,7 @@ type State = {
 };
 
 const reducers = {};
-const defaultState = {
+const defaultState = new Immutable({
   byId: {},
   claimsByUri: {},
   claimsByChannel: {},
@@ -43,65 +44,74 @@ const defaultState = {
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
-};
+});
 
 reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state: State, action: any): State => {
   const { resolveInfo }: { [string]: ClaimWithPossibleCertificate } = action.data;
-  const byUri = Object.assign({}, state.claimsByUri);
-  const byId = Object.assign({}, state.byId);
-  const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
-  Object.entries(resolveInfo).forEach(
+  const {
+    claimsByUri,
+    byId,
+    channelClaimCounts
+  } = Immutable.asMutable(state, { deep: true });
+
+  const resolveInfoEntries = Object.entries(resolveInfo);
+
+  resolveInfoEntries.forEach(
     ([uri: string, resolveResponse: ClaimWithPossibleCertificate]) => {
+      const {
+        certificate,
+        claim,
+        claimsInChannel,
+      } = Immutable.asMutable(resolveResponse, { deep: true });
+
       // $FlowFixMe
-      if (resolveResponse.certificate && !Number.isNaN(resolveResponse.claimsInChannel)) {
+      if (certificate && !Number.isNaN(claimsInChannel)) {
         // $FlowFixMe
-        channelClaimCounts[uri] = resolveResponse.claimsInChannel;
+        channelClaimCounts[uri] = claimsInChannel;
+      }
+
+      if (claim && !certificate) {
+        byId[claim.claim_id] = claim;
+        claimsByUri[uri] = claim.claim_id;
+      } else if (claim && certificate) {
+        byId[claim.claim_id] = claim;
+        claimsByUri[uri] = claim.claim_id;
+
+        byId[certificate.claim_id] = certificate;
+        const channelUri = `lbry://${certificate.name}#${certificate.claim_id}`;
+        claimsByUri[channelUri] = certificate.claim_id;
+      } else if (!claim && certificate) {
+        byId[certificate.claim_id] = certificate;
+        claimsByUri[uri] = certificate.claim_id;
+      } else {
+        claimsByUri[uri] = null;
       }
     }
   );
 
-  // $FlowFixMe
-  Object.entries(resolveInfo).forEach(([uri, { certificate, claim }]) => {
-    if (claim && !certificate) {
-      byId[claim.claim_id] = claim;
-      byUri[uri] = claim.claim_id;
-    } else if (claim && certificate) {
-      byId[claim.claim_id] = claim;
-      byUri[uri] = claim.claim_id;
-
-      byId[certificate.claim_id] = certificate;
-      const channelUri = `lbry://${certificate.name}#${certificate.claim_id}`;
-      byUri[channelUri] = certificate.claim_id;
-    } else if (!claim && certificate) {
-      byId[certificate.claim_id] = certificate;
-      byUri[uri] = certificate.claim_id;
-    } else {
-      byUri[uri] = null;
-    }
-  });
-
-  return Object.assign({}, state, {
+  return Immutable.merge(state, {
     byId,
-    claimsByUri: byUri,
+    claimsByUri,
     channelClaimCounts,
     resolvingUris: (state.resolvingUris || []).filter(uri => !resolveInfo[uri]),
   });
 };
 
-reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: State): State =>
-  Object.assign({}, state, {
+reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: State): State => (
+  Immutable.merge(state, {
     isFetchingClaimListMine: true,
-  });
+  })
+);
 
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any): State => {
   const { claims }: { claims: Array<StreamClaim | ChannelClaim> } = action.data;
-  const byId = Object.assign({}, state.byId);
-  const byUri = Object.assign({}, state.claimsByUri);
-  const pendingById: { [string]: StreamClaim | ChannelClaim } = Object.assign(
-    {},
-    state.pendingById
-  );
+
+  const {
+    byId,
+    claimsByUri,
+    pendingById,
+  } = Immutable.asMutable(state, { deep: true });
 
   claims.forEach((claim: StreamClaim | ChannelClaim) => {
     const uri = buildURI({ claimName: claim.name, claimId: claim.claim_id });
@@ -110,10 +120,10 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
       if (claim.confirmations < 1) {
         pendingById[claim.claim_id] = claim;
         delete byId[claim.claim_id];
-        delete byUri[claim.claim_id];
+        delete claimsByUri[claim.claim_id];
       } else {
         byId[claim.claim_id] = claim;
-        byUri[uri] = claim.claim_id;
+        claimsByUri[uri] = claim.claim_id;
       }
     }
   });
@@ -127,29 +137,32 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
       delete pendingById[pendingClaim.claim_id];
     });
 
-  return Object.assign({}, state, {
+  return Immutable.merge(state, {
     isFetchingClaimListMine: false,
     myClaims: claims,
     byId,
-    claimsByUri: byUri,
+    claimsByUri,
     pendingById,
   });
 };
 
-reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = (state: State): State =>
-  Object.assign({}, state, { fetchingMyChannels: true });
+reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = (state: State): State => (
+  Immutable.merge(state, {
+    fetchingMyChannels: true,
+  })
+);
 
 reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): State => {
   const { claims }: { claims: Array<ChannelClaim> } = action.data;
   const myChannelClaims = new Set(state.myChannelClaims);
-  const byId = Object.assign({}, state.byId);
+  const byId = Immutable.asMutable(state.byId);
 
   claims.forEach(claim => {
     myChannelClaims.add(claim.claim_id);
     byId[claim.claim_id] = claim;
   });
 
-  return Object.assign({}, state, {
+  return Immutable.merge(state, {
     byId,
     fetchingMyChannels: false,
     myChannelClaims,
@@ -158,12 +171,13 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
 
 reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED] = (state: State, action: any): State => {
   const { uri, page } = action.data;
-  const fetchingChannelClaims = Object.assign({}, state.fetchingChannelClaims);
 
   fetchingChannelClaims[uri] = page;
 
-  return Object.assign({}, state, {
-    fetchingChannelClaims,
+  return Immutable.merge(state, {
+    fetchingChannelClaims: Immutable.merge(state.fetchingChannelClaims, {
+      [uri]: page,
+    }),
     currentChannelPage: page,
   });
 };
@@ -175,16 +189,20 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: State, action: any): 
     page,
   }: { uri: string, claims: Array<StreamClaim>, page: number } = action.data;
 
-  const claimsByChannel = Object.assign({}, state.claimsByChannel);
-  const byChannel = Object.assign({}, claimsByChannel[uri]);
+  const {
+    byId,
+    claimsByChannel,
+    claimsByUri,
+    fetchingChannelClaims,
+  } = Immutable.asMutable(state, { deep: true });
+
+  const byChannel = claimsByChannel[uri];
   const allClaimIds = new Set(byChannel.all);
   const currentPageClaimIds = [];
-  const byId = Object.assign({}, state.byId);
-  const fetchingChannelClaims = Object.assign({}, state.fetchingChannelClaims);
-  const claimsByUri = Object.assign({}, state.claimsByUri);
 
   if (claims !== undefined) {
     claims.forEach(claim => {
+      claim = Immutable.asMutable(claim);
       allClaimIds.add(claim.claim_id);
       currentPageClaimIds.push(claim.claim_id);
       byId[claim.claim_id] = claim;
@@ -197,7 +215,7 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: State, action: any): 
   claimsByChannel[uri] = byChannel;
   delete fetchingChannelClaims[uri];
 
-  return Object.assign({}, state, {
+  return Immutable.merge(state, {
     claimsByChannel,
     byId,
     fetchingChannelClaims,
@@ -208,19 +226,21 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: State, action: any): 
 
 reducers[ACTIONS.ABANDON_CLAIM_STARTED] = (state: State, action: any): State => {
   const { claimId }: { claimId: string } = action.data;
-  const abandoningById = Object.assign({}, state.abandoningById);
 
-  abandoningById[claimId] = true;
-
-  return Object.assign({}, state, {
-    abandoningById,
+  return Immutable.merge(state, {
+    abandoningById: Immutable.merge(state.abandoningById, {
+        [claimId]: true,
+    }),
   });
 };
 
 reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State => {
   const { claimId }: { claimId: string } = action.data;
-  const byId = Object.assign({}, state.byId);
-  const claimsByUri = Object.assign({}, state.claimsByUri);
+
+  const {
+    byId,
+    claimsByUri,
+  } = Immutable.asMutable(state, { deep: true });
 
   Object.keys(claimsByUri).forEach(uri => {
     if (claimsByUri[uri] === claimId) {
@@ -230,7 +250,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
 
   delete byId[claimId];
 
-  return Object.assign({}, state, {
+  return Immutable.merge(state, {
     byId,
     claimsByUri,
   });
@@ -238,13 +258,16 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
 
 reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State => {
   const channelClaim: ChannelClaim = action.data.channelClaim;
-  const byId = Object.assign({}, state.byId);
-  const myChannelClaims = new Set(state.myChannelClaims);
+
+  const {
+    byId,
+    myChannelClaims,
+  } = Immutable.asMutable(state, { deep: true });
 
   byId[channelClaim.claim_id] = channelClaim;
   myChannelClaims.add(channelClaim.claim_id);
 
-  return Object.assign({}, state, {
+  return Immutable.merge(state, {
     byId,
     myChannelClaims,
   });
@@ -253,8 +276,7 @@ reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State 
 reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state: State, action: any): State => {
   const { uris }: { uris: Array<string> } = action.data;
 
-  const oldResolving = state.resolvingUris || [];
-  const newResolving = oldResolving.slice();
+  const newResolving = Immutable.asMutable(state.resolvingUris || []);
 
   uris.forEach(uri => {
     if (!newResolving.includes(uri)) {
@@ -262,7 +284,7 @@ reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state: State, action: any): State => {
     }
   });
 
-  return Object.assign({}, state, {
+  return Immutable.merge(state, {
     resolvingUris: newResolving,
   });
 };
