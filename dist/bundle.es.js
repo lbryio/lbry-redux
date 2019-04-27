@@ -2039,9 +2039,12 @@ function doFetchClaimsByChannel(uri, page = 1) {
       data: { uri, page }
     });
 
-    lbryProxy.claim_search({ uri, page: page || 1 }).then(result => {
-      const claimResult = result[uri] || {};
-      const { claims_in_channel: claimsInChannel, returned_page: returnedPage } = claimResult;
+    const { claimId } = parseURI(uri);
+
+    lbryProxy.claim_search({ channel_id: claimId, page: page || 1 }).then(result => {
+      const { items: claimsInChannel, page: returnedPage } = result;
+      console.log(claimsInChannel);
+      console.log(returnedPage);
 
       dispatch({
         type: FETCH_CHANNEL_CLAIMS_COMPLETED,

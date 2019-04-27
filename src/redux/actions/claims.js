@@ -1,7 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
-import { normalizeURI } from 'lbryURI';
+import { normalizeURI, parseURI } from 'lbryURI';
 import { doToast } from 'redux/actions/notifications';
 import { selectMyClaimsRaw, selectResolvingUris, selectClaimsByUri } from 'redux/selectors/claims';
 import { doFetchTransactions } from 'redux/actions/wallet';
@@ -155,19 +155,22 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
       data: { uri, page },
     });
 
-    Lbry.claim_search({ uri, page: page || 1 }).then((result: ClaimSearchResponse) => {
-      const claimResult = result[uri] || {};
-      const { claims_in_channel: claimsInChannel, returned_page: returnedPage } = claimResult;
+    const { claimId } = parseURI(uri);
 
-      dispatch({
-        type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
-        data: {
-          uri,
-          claims: claimsInChannel || [],
-          page: returnedPage || undefined,
-        },
-      });
-    });
+    Lbry.claim_search({ channel_id: claimId, page: page || 1 }).then(
+      (result: ClaimSearchResponse) => {
+        const { items: claimsInChannel, page: returnedPage } = result;
+
+        dispatch({
+          type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
+          data: {
+            uri,
+            claims: claimsInChannel || [],
+            page: returnedPage || undefined,
+          },
+        });
+      }
+    );
   };
 }
 
