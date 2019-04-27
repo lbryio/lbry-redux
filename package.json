@@ -18,7 +18,7 @@
     "name": "LBRY Inc.",
     "email": "hello@lbry.io"
   },
-  "main": "dist/bundle.js",
+  "main": "dist/bundle.es.js",
   "module": "dist/bundle.es.js",
   "scripts": {
     "build": "rollup --config",
