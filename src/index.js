@@ -145,6 +145,7 @@ export {
   selectChannelClaimCounts,
   selectCurrentChannelPage,
   makeSelectThumbnailForUri,
+  makeSelectCoverForUri,
 } from 'redux/selectors/claims';
 
 export {
