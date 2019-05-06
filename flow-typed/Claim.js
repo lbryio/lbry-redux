@@ -31,6 +31,7 @@ declare type GenericClaim = {
   decoded_claim: boolean, // claim made in accordance with sdk protobuf types
   depth: number, // confirmations since tx
   effective_amount: number, // bid amount + supports
+  timestamp?: number, // date of transaction
   has_signature: boolean,
   height: number, // block height the tx was confirmed
   hex: string, // `value` hex encoded

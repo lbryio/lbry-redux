@@ -65,112 +65,130 @@ export const selectWalletLockSucceeded = createSelector(
   state => state.walletLockSucceded
 );
 
-export const selectWalletLockResult = createSelector(selectState, state => state.walletLockResult);
+export const selectWalletLockResult = createSelector(
+  selectState,
+  state => state.walletLockResult
+);
 
-export const selectBalance = createSelector(selectState, state => state.balance);
+export const selectBalance = createSelector(
+  selectState,
+  state => state.balance
+);
 
-export const selectTotalBalance = createSelector(selectState, state => state.totalBalance);
+export const selectTotalBalance = createSelector(
+  selectState,
+  state => state.totalBalance
+);
 
-export const selectTransactionsById = createSelector(selectState, state => state.transactions);
+export const selectTransactionsById = createSelector(
+  selectState,
+  state => state.transactions
+);
 
-export const selectTransactionItems = createSelector(selectTransactionsById, byId => {
-  const items = [];
+export const selectTransactionItems = createSelector(
+  selectTransactionsById,
+  byId => {
+    const items = [];
 
-  Object.keys(byId).forEach(txid => {
-    const tx = byId[txid];
+    Object.keys(byId).forEach(txid => {
+      const tx = byId[txid];
 
-    // ignore dust/fees
-    // it is fee only txn if all infos are also empty
-    if (
-      Math.abs(tx.value) === Math.abs(tx.fee) &&
-      tx.claim_info.length === 0 &&
-      tx.support_info.length === 0 &&
-      tx.update_info.length === 0 &&
-      tx.abandon_info.length === 0
-    ) {
-      return;
-    }
+      // ignore dust/fees
+      // it is fee only txn if all infos are also empty
+      if (
+        Math.abs(tx.value) === Math.abs(tx.fee) &&
+        tx.claim_info.length === 0 &&
+        tx.support_info.length === 0 &&
+        tx.update_info.length === 0 &&
+        tx.abandon_info.length === 0
+      ) {
+        return;
+      }
 
-    const append = [];
+      const append = [];
 
-    append.push(
-      ...tx.claim_info.map(item =>
-        Object.assign({}, tx, item, {
-          type: item.claim_name[0] === '@' ? TRANSACTIONS.CHANNEL : TRANSACTIONS.PUBLISH,
-        })
-      )
-    );
-    append.push(
-      ...tx.support_info.map(item =>
-        Object.assign({}, tx, item, {
-          type: !item.is_tip ? TRANSACTIONS.SUPPORT : TRANSACTIONS.TIP,
-        })
-      )
-    );
-    append.push(
-      ...tx.update_info.map(item => Object.assign({}, tx, item, { type: TRANSACTIONS.UPDATE }))
-    );
-    append.push(
-      ...tx.abandon_info.map(item => Object.assign({}, tx, item, { type: TRANSACTIONS.ABANDON }))
-    );
-
-    if (!append.length) {
       append.push(
-        Object.assign({}, tx, {
-          type: tx.value < 0 ? TRANSACTIONS.SPEND : TRANSACTIONS.RECEIVE,
+        ...tx.claim_info.map(item =>
+          Object.assign({}, tx, item, {
+            type: item.claim_name[0] === '@' ? TRANSACTIONS.CHANNEL : TRANSACTIONS.PUBLISH,
+          })
+        )
+      );
+      append.push(
+        ...tx.support_info.map(item =>
+          Object.assign({}, tx, item, {
+            type: !item.is_tip ? TRANSACTIONS.SUPPORT : TRANSACTIONS.TIP,
+          })
+        )
+      );
+      append.push(
+        ...tx.update_info.map(item => Object.assign({}, tx, item, { type: TRANSACTIONS.UPDATE }))
+      );
+      append.push(
+        ...tx.abandon_info.map(item => Object.assign({}, tx, item, { type: TRANSACTIONS.ABANDON }))
+      );
+
+      if (!append.length) {
+        append.push(
+          Object.assign({}, tx, {
+            type: tx.value < 0 ? TRANSACTIONS.SPEND : TRANSACTIONS.RECEIVE,
+          })
+        );
+      }
+
+      items.push(
+        ...append.map(item => {
+          // value on transaction, amount on outpoint
+          // amount is always positive, but should match sign of value
+          const balanceDelta = parseFloat(item.balance_delta);
+          const value = parseFloat(item.value);
+          const amount = balanceDelta || value;
+          const fee = parseFloat(tx.fee);
+
+          return {
+            txid,
+            timestamp: tx.timestamp,
+            date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
+            amount,
+            fee,
+            claim_id: item.claim_id,
+            claim_name: item.claim_name,
+            type: item.type || TRANSACTIONS.SPEND,
+            nout: item.nout,
+            confirmations: tx.confirmations,
+          };
         })
       );
-    }
+    });
 
-    items.push(
-      ...append.map(item => {
-        // value on transaction, amount on outpoint
-        // amount is always positive, but should match sign of value
-        const balanceDelta = parseFloat(item.balance_delta);
-        const value = parseFloat(item.value);
-        const amount = balanceDelta || value;
-        const fee = parseFloat(tx.fee);
+    return items.sort((tx1, tx2) => {
+      if (!tx1.timestamp && !tx2.timestamp) {
+        return 0;
+      } else if (!tx1.timestamp && tx2.timestamp) {
+        return -1;
+      } else if (tx1.timestamp && !tx2.timestamp) {
+        return 1;
+      }
 
-        return {
-          txid,
-          timestamp: tx.timestamp,
-          date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
-          amount,
-          fee,
-          claim_id: item.claim_id,
-          claim_name: item.claim_name,
-          type: item.type || TRANSACTIONS.SPEND,
-          nout: item.nout,
-          confirmations: tx.confirmations,
-        };
-      })
-    );
-  });
+      return tx2.timestamp - tx1.timestamp;
+    });
+  }
+);
 
-  return items.sort((tx1, tx2) => {
-    if (!tx1.timestamp && !tx2.timestamp) {
-      return 0;
-    } else if (!tx1.timestamp && tx2.timestamp) {
-      return -1;
-    } else if (tx1.timestamp && !tx2.timestamp) {
-      return 1;
-    }
+export const selectRecentTransactions = createSelector(
+  selectTransactionItems,
+  transactions => {
+    const threshold = new Date();
+    threshold.setDate(threshold.getDate() - 7);
+    return transactions.filter(transaction => {
+      if (!transaction.date) {
+        return true; // pending transaction
+      }
 
-    return tx2.timestamp - tx1.timestamp;
-  });
-});
-
-export const selectRecentTransactions = createSelector(selectTransactionItems, transactions => {
-  const threshold = new Date();
-  threshold.setDate(threshold.getDate() - 7);
-  return transactions.filter(transaction => {
-    if (!transaction.date) {
-      return true; // pending transaction
-    }
-
-    return transaction.date > threshold;
-  });
-});
+      return transaction.date > threshold;
+    });
+  }
+);
 
 export const selectHasTransactions = createSelector(
   selectTransactionItems,
@@ -182,9 +200,15 @@ export const selectIsFetchingTransactions = createSelector(
   state => state.fetchingTransactions
 );
 
-export const selectIsSendingSupport = createSelector(selectState, state => state.sendingSupport);
+export const selectIsSendingSupport = createSelector(
+  selectState,
+  state => state.sendingSupport
+);
 
-export const selectReceiveAddress = createSelector(selectState, state => state.receiveAddress);
+export const selectReceiveAddress = createSelector(
+  selectState,
+  state => state.receiveAddress
+);
 
 export const selectGettingNewAddress = createSelector(
   selectState,
@@ -211,30 +235,15 @@ export const selectDraftTransactionError = createSelector(
   draft => draft.error
 );
 
-export const selectBlocks = createSelector(selectState, state => state.blocks);
+export const selectBlocks = createSelector(
+  selectState,
+  state => state.blocks
+);
 
-export const selectCurrentHeight = createSelector(selectState, state => state.latestBlock);
-
-export const makeSelectBlockDate = block =>
-  createSelector(selectBlocks, selectCurrentHeight, (blocks, latestBlock) => {
-    // If we have the block data, look at the actual date,
-    // If not, try to simulate it based on 2.5 minute blocks
-    // Adding this on 11/7/2018 because caling block_show for every claim is causing
-    // performance issues.
-    if (blocks && blocks[block]) {
-      return new Date(blocks[block].time * 1000);
-    }
-
-    // Pending claim
-    if (block < 1) {
-      return null;
-    }
-
-    const difference = latestBlock - block;
-    const msSincePublish = difference * 2.5 * 60 * 1000; // Number of blocks * 2.5 minutes in ms
-    const publishDate = Date.now() - msSincePublish;
-    return new Date(publishDate);
-  });
+export const selectCurrentHeight = createSelector(
+  selectState,
+  state => state.latestBlock
+);
 
 export const selectTransactionListFilter = createSelector(
   selectState,

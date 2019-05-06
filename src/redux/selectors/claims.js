@@ -178,6 +178,19 @@ export const makeSelectTitleForUri = (uri: string) =>
     metadata => metadata && metadata.title
   );
 
+export const makeSelectDateForUri = (uri: string) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    claim => {
+      const timestamp = claim && claim.timestamp ? claim.timestamp * 1000 : undefined;
+      if (!timestamp) {
+        return undefined;
+      }
+      const dateObj = new Date(timestamp);
+      return dateObj;
+    }
+  );
+
 export const makeSelectContentTypeForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
