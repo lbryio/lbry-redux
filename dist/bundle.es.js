@@ -1243,6 +1243,11 @@ const makeSelectThumbnailForUri = uri => reselect.createSelector(makeSelectClaim
   return thumbnail ? thumbnail.url : undefined;
 });
 
+const makeSelectCoverForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+  const cover = claim && claim.value && claim.value.cover;
+  return cover ? cover.url : undefined;
+});
+
 const selectIsFetchingClaimListMine = reselect.createSelector(selectState$1, state => state.isFetchingClaimListMine);
 
 const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaimsById, selectAbandoningIds, selectPendingClaims, (myClaimIds, byId, abandoningIds, pendingClaims) => {
@@ -3483,6 +3488,7 @@ exports.makeSelectClaimsInChannelForCurrentPageState = makeSelectClaimsInChannel
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
 exports.makeSelectContentPositionForUri = makeSelectContentPositionForUri;
 exports.makeSelectContentTypeForUri = makeSelectContentTypeForUri;
+exports.makeSelectCoverForUri = makeSelectCoverForUri;
 exports.makeSelectDownloadingForUri = makeSelectDownloadingForUri;
 exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;

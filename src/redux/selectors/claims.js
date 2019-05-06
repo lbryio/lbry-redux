@@ -196,6 +196,15 @@ export const makeSelectThumbnailForUri = (uri: string) =>
     }
   );
 
+export const makeSelectCoverForUri = (uri: string) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    claim => {
+      const cover = claim && claim.value && claim.value.cover;
+      return cover ? cover.url : undefined;
+    }
+  );
+
 export const selectIsFetchingClaimListMine = createSelector(
   selectState,
   state => state.isFetchingClaimListMine

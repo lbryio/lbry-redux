@@ -62,6 +62,8 @@ declare type ChannelMetadata = GenericMetadata & {
   cover_url?: string,
   contact_email?: string,
   homepage_url?: string,
+  email?: string,
+  website_url?: string,
 };
 
 declare type StreamMetadata = GenericMetadata & {
