@@ -1231,6 +1231,10 @@ const makeSelectMetadataForUri = uri => reselect.createSelector(makeSelectClaimF
   return metadata || (claim === undefined ? undefined : null);
 });
 
+const makeSelectMetadataItemForUri = (uri, key) => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => {
+  return metadata ? metadata[key] : undefined;
+});
+
 const makeSelectTitleForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => metadata && metadata.title);
 
 const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
@@ -3496,6 +3500,7 @@ exports.makeSelectFirstRecommendedFileForUri = makeSelectFirstRecommendedFileFor
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
 exports.makeSelectLoadingForUri = makeSelectLoadingForUri;
 exports.makeSelectMetadataForUri = makeSelectMetadataForUri;
+exports.makeSelectMetadataItemForUri = makeSelectMetadataItemForUri;
 exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
 exports.makeSelectPendingByUri = makeSelectPendingByUri;

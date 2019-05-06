@@ -172,6 +172,14 @@ export const makeSelectMetadataForUri = (uri: string) =>
     }
   );
 
+export const makeSelectMetadataItemForUri = (uri: string, key: string) =>
+  createSelector(
+    makeSelectMetadataForUri(uri),
+    (metadata: ChannelMetadata | StreamMetadata) => {
+      return metadata ? metadata[key] : undefined;
+    }
+  );
+
 export const makeSelectTitleForUri = (uri: string) =>
   createSelector(
     makeSelectMetadataForUri(uri),
