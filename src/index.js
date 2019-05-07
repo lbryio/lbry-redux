@@ -71,7 +71,6 @@ export {
   doUpdateTotalBalance,
   doTotalBalanceSubscribe,
   doFetchTransactions,
-  doFetchBlock,
   doGetNewAddress,
   doCheckAddressIsMine,
   doSendDraftTransaction,
@@ -111,6 +110,7 @@ export {
   makeSelectClaimsInChannelForPage,
   makeSelectMetadataForUri,
   makeSelectTitleForUri,
+  makeSelectDateForUri,
   makeSelectContentTypeForUri,
   makeSelectIsUriResolving,
   makeSelectTotalItemsForChannel,
@@ -178,7 +178,6 @@ export {
 } from 'redux/selectors/search';
 
 export {
-  makeSelectBlockDate,
   selectBalance,
   selectTotalBalance,
   selectTransactionsById,

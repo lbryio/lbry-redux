@@ -183,18 +183,6 @@ reducers[ACTIONS.SUPPORT_TRANSACTION_FAILED] = (state: WalletState, action) =>
     sendingSupport: false,
   });
 
-reducers[ACTIONS.FETCH_BLOCK_SUCCESS] = (state: WalletState, action) => {
-  const {
-    block,
-    block: { height },
-  } = action.data;
-  const blocks = Object.assign({}, state.blocks);
-
-  blocks[height] = block;
-
-  return Object.assign({}, state, { blocks });
-};
-
 reducers[ACTIONS.WALLET_STATUS_COMPLETED] = (state: WalletState, action) =>
   Object.assign({}, state, {
     walletIsEncrypted: action.result,

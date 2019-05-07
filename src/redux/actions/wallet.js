@@ -80,17 +80,6 @@ export function doFetchTransactions() {
   };
 }
 
-export function doFetchBlock(height) {
-  return dispatch => {
-    Lbry.block_show({ height }).then(block => {
-      dispatch({
-        type: ACTIONS.FETCH_BLOCK_SUCCESS,
-        data: { block },
-      });
-    });
-  };
-}
-
 export function doGetNewAddress() {
   return dispatch => {
     dispatch({
