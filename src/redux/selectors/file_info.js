@@ -26,11 +26,15 @@ export const selectIsFetchingFileListDownloadedOrPublished = createSelector(
 );
 
 export const makeSelectFileInfoForUri = uri =>
-  createSelector(selectClaimsByUri, selectFileInfosByOutpoint, (claims, byOutpoint) => {
-    const claim = claims[uri];
-    const outpoint = claim ? `${claim.txid}:${claim.nout}` : undefined;
-    return outpoint ? byOutpoint[outpoint] : undefined;
-  });
+  createSelector(
+    selectClaimsByUri,
+    selectFileInfosByOutpoint,
+    (claims, byOutpoint) => {
+      const claim = claims[uri];
+      const outpoint = claim ? `${claim.txid}:${claim.nout}` : undefined;
+      return outpoint ? byOutpoint[outpoint] : undefined;
+    }
+  );
 
 export const selectDownloadingByOutpoint = createSelector(
   selectState,
@@ -47,10 +51,16 @@ export const makeSelectDownloadingForUri = uri =>
     }
   );
 
-export const selectUrisLoading = createSelector(selectState, state => state.urisLoading || {});
+export const selectUrisLoading = createSelector(
+  selectState,
+  state => state.urisLoading || {}
+);
 
 export const makeSelectLoadingForUri = uri =>
-  createSelector(selectUrisLoading, byUri => byUri && byUri[uri]);
+  createSelector(
+    selectUrisLoading,
+    byUri => byUri && byUri[uri]
+  );
 
 export const selectFileInfosDownloaded = createSelector(
   selectFileInfosByOutpoint,
@@ -93,93 +103,103 @@ export const selectDownloadingFileInfos = createSelector(
   }
 );
 
-export const selectTotalDownloadProgress = createSelector(selectDownloadingFileInfos, fileInfos => {
-  const progress = [];
+export const selectTotalDownloadProgress = createSelector(
+  selectDownloadingFileInfos,
+  fileInfos => {
+    const progress = [];
 
-  fileInfos.forEach(fileInfo => {
-    progress.push((fileInfo.written_bytes / fileInfo.total_bytes) * 100);
-  });
+    fileInfos.forEach(fileInfo => {
+      progress.push((fileInfo.written_bytes / fileInfo.total_bytes) * 100);
+    });
 
-  const totalProgress = progress.reduce((a, b) => a + b, 0);
+    const totalProgress = progress.reduce((a, b) => a + b, 0);
 
-  if (fileInfos.length > 0) return totalProgress / fileInfos.length / 100.0;
-  return -1;
-});
+    if (fileInfos.length > 0) return totalProgress / fileInfos.length / 100.0;
+    return -1;
+  }
+);
 
 export const selectSearchDownloadUris = query =>
-  createSelector(selectFileInfosDownloaded, selectClaimsById, (fileInfos, claimsById) => {
-    if (!query || !fileInfos.length) {
-      return null;
-    }
-
-    const queryParts = query.toLowerCase().split(' ');
-    const searchQueryDictionary = {};
-    queryParts.forEach(subQuery => {
-      searchQueryDictionary[subQuery] = subQuery;
-    });
-
-    const arrayContainsQueryPart = array => {
-      for (let i = 0; i < array.length; i += 1) {
-        const subQuery = array[i];
-        if (searchQueryDictionary[subQuery]) {
-          return true;
-        }
+  createSelector(
+    selectFileInfosDownloaded,
+    selectClaimsById,
+    (fileInfos, claimsById) => {
+      if (!query || !fileInfos.length) {
+        return null;
       }
-      return false;
-    };
 
-    const downloadResultsFromQuery = [];
-    fileInfos.forEach(fileInfo => {
-      const { channel_name: channelName, claim_name: claimName, metadata } = fileInfo;
-      const { author, description, title } = metadata;
+      const queryParts = query.toLowerCase().split(' ');
+      const searchQueryDictionary = {};
+      queryParts.forEach(subQuery => {
+        searchQueryDictionary[subQuery] = subQuery;
+      });
 
-      if (channelName) {
-        const lowerCaseChannel = channelName.toLowerCase();
-        const strippedOutChannelName = lowerCaseChannel.slice(1); // trim off the @
-        if (searchQueryDictionary[channelName] || searchQueryDictionary[strippedOutChannelName]) {
+      const arrayContainsQueryPart = array => {
+        for (let i = 0; i < array.length; i += 1) {
+          const subQuery = array[i];
+          if (searchQueryDictionary[subQuery]) {
+            return true;
+          }
+        }
+        return false;
+      };
+
+      const downloadResultsFromQuery = [];
+      fileInfos.forEach(fileInfo => {
+        const { channel_name: channelName, claim_name: claimName, metadata } = fileInfo;
+        const { author, description, title } = metadata;
+
+        if (channelName) {
+          const lowerCaseChannel = channelName.toLowerCase();
+          const strippedOutChannelName = lowerCaseChannel.slice(1); // trim off the @
+          if (searchQueryDictionary[channelName] || searchQueryDictionary[strippedOutChannelName]) {
+            downloadResultsFromQuery.push(fileInfo);
+            return;
+          }
+        }
+
+        const nameParts = claimName.toLowerCase().split('-');
+        if (arrayContainsQueryPart(nameParts)) {
           downloadResultsFromQuery.push(fileInfo);
           return;
         }
-      }
 
-      const nameParts = claimName.toLowerCase().split('-');
-      if (arrayContainsQueryPart(nameParts)) {
-        downloadResultsFromQuery.push(fileInfo);
-        return;
-      }
-
-      const titleParts = title.toLowerCase().split(' ');
-      if (arrayContainsQueryPart(titleParts)) {
-        downloadResultsFromQuery.push(fileInfo);
-        return;
-      }
-
-      if (author) {
-        const authorParts = author.toLowerCase().split(' ');
-        if (arrayContainsQueryPart(authorParts)) {
+        const titleParts = title.toLowerCase().split(' ');
+        if (arrayContainsQueryPart(titleParts)) {
           downloadResultsFromQuery.push(fileInfo);
           return;
         }
-      }
 
-      if (description) {
-        const descriptionParts = description.toLowerCase().split(' ');
-        if (arrayContainsQueryPart(descriptionParts)) {
-          downloadResultsFromQuery.push(fileInfo);
+        if (author) {
+          const authorParts = author.toLowerCase().split(' ');
+          if (arrayContainsQueryPart(authorParts)) {
+            downloadResultsFromQuery.push(fileInfo);
+            return;
+          }
         }
-      }
-    });
 
-    return downloadResultsFromQuery.length
-      ? downloadResultsFromQuery.map(fileInfo => {
-          const { channel_name: channelName, claim_id: claimId, claim_name: claimName } = fileInfo;
+        if (description) {
+          const descriptionParts = description.toLowerCase().split(' ');
+          if (arrayContainsQueryPart(descriptionParts)) {
+            downloadResultsFromQuery.push(fileInfo);
+          }
+        }
+      });
+
+      return downloadResultsFromQuery.length
+        ? downloadResultsFromQuery.map(fileInfo => {
+          const {
+            channel_name: channelName,
+            claim_id: claimId,
+            claim_name: claimName,
+          } = fileInfo;
 
           const uriParams = {};
 
           if (channelName) {
             const claim = claimsById[claimId];
-            if (claim && claim.value) {
-              uriParams.claimId = claim.value.publisherSignature.certificateId;
+            if (claim && claim.signing_channel) {
+              uriParams.claimId = claim.signing_channel.claim_id;
             } else {
               uriParams.claimId = claimId;
             }
@@ -193,8 +213,9 @@ export const selectSearchDownloadUris = query =>
           const uri = buildURI(uriParams);
           return uri;
         })
-      : null;
-  });
+        : null;
+    }
+  );
 
 export const selectFileListPublishedSort = createSelector(
   selectState,

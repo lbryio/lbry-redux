@@ -50,7 +50,6 @@ const CHECK_ADDRESS_IS_MINE_COMPLETED = 'CHECK_ADDRESS_IS_MINE_COMPLETED';
 const SEND_TRANSACTION_STARTED = 'SEND_TRANSACTION_STARTED';
 const SEND_TRANSACTION_COMPLETED = 'SEND_TRANSACTION_COMPLETED';
 const SEND_TRANSACTION_FAILED = 'SEND_TRANSACTION_FAILED';
-const FETCH_BLOCK_SUCCESS = 'FETCH_BLOCK_SUCCESS';
 const SUPPORT_TRANSACTION_STARTED = 'SUPPORT_TRANSACTION_STARTED';
 const SUPPORT_TRANSACTION_COMPLETED = 'SUPPORT_TRANSACTION_COMPLETED';
 const SUPPORT_TRANSACTION_FAILED = 'SUPPORT_TRANSACTION_FAILED';
@@ -262,7 +261,6 @@ var action_types = /*#__PURE__*/Object.freeze({
     SEND_TRANSACTION_STARTED: SEND_TRANSACTION_STARTED,
     SEND_TRANSACTION_COMPLETED: SEND_TRANSACTION_COMPLETED,
     SEND_TRANSACTION_FAILED: SEND_TRANSACTION_FAILED,
-    FETCH_BLOCK_SUCCESS: FETCH_BLOCK_SUCCESS,
     SUPPORT_TRANSACTION_STARTED: SUPPORT_TRANSACTION_STARTED,
     SUPPORT_TRANSACTION_COMPLETED: SUPPORT_TRANSACTION_COMPLETED,
     SUPPORT_TRANSACTION_FAILED: SUPPORT_TRANSACTION_FAILED,
@@ -1233,6 +1231,15 @@ const makeSelectMetadataForUri = uri => reselect.createSelector(makeSelectClaimF
 
 const makeSelectTitleForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => metadata && metadata.title);
 
+const makeSelectDateForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+  const timestamp = claim && claim.timestamp ? claim.timestamp * 1000 : undefined;
+  if (!timestamp) {
+    return undefined;
+  }
+  const dateObj = new Date(timestamp);
+  return dateObj;
+});
+
 const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const source = claim && claim.value && claim.value.source;
   return source ? source.media_type : undefined;
@@ -1510,26 +1517,6 @@ const selectBlocks = reselect.createSelector(selectState$2, state => state.block
 
 const selectCurrentHeight = reselect.createSelector(selectState$2, state => state.latestBlock);
 
-const makeSelectBlockDate = block => reselect.createSelector(selectBlocks, selectCurrentHeight, (blocks, latestBlock) => {
-  // If we have the block data, look at the actual date,
-  // If not, try to simulate it based on 2.5 minute blocks
-  // Adding this on 11/7/2018 because caling block_show for every claim is causing
-  // performance issues.
-  if (blocks && blocks[block]) {
-    return new Date(blocks[block].time * 1000);
-  }
-
-  // Pending claim
-  if (block < 1) {
-    return null;
-  }
-
-  const difference = latestBlock - block;
-  const msSincePublish = difference * 2.5 * 60 * 1000; // Number of blocks * 2.5 minutes in ms
-  const publishDate = Date.now() - msSincePublish;
-  return new Date(publishDate);
-});
-
 const selectTransactionListFilter = reselect.createSelector(selectState$2, state => state.transactionListFilter || '');
 
 function formatCredits(amount, precision) {
@@ -1626,17 +1613,6 @@ function doFetchTransactions() {
         data: {
           transactions: results
         }
-      });
-    });
-  };
-}
-
-function doFetchBlock(height) {
-  return dispatch => {
-    lbryProxy.block_show({ height }).then(block => {
-      dispatch({
-        type: FETCH_BLOCK_SUCCESS,
-        data: { block }
       });
     });
   };
@@ -2235,14 +2211,18 @@ const selectSearchDownloadUris = query => reselect.createSelector(selectFileInfo
   });
 
   return downloadResultsFromQuery.length ? downloadResultsFromQuery.map(fileInfo => {
-    const { channel_name: channelName, claim_id: claimId, claim_name: claimName } = fileInfo;
+    const {
+      channel_name: channelName,
+      claim_id: claimId,
+      claim_name: claimName
+    } = fileInfo;
 
     const uriParams = {};
 
     if (channelName) {
       const claim = claimsById[claimId];
-      if (claim && claim.value) {
-        uriParams.claimId = claim.value.publisherSignature.certificateId;
+      if (claim && claim.signing_channel) {
+        uriParams.claimId = claim.signing_channel.claim_id;
       } else {
         uriParams.claimId = claimId;
       }
@@ -3256,18 +3236,6 @@ reducers$2[SUPPORT_TRANSACTION_FAILED] = (state, action) => Object.assign({}, st
   sendingSupport: false
 });
 
-reducers$2[FETCH_BLOCK_SUCCESS] = (state, action) => {
-  const {
-    block,
-    block: { height }
-  } = action.data;
-  const blocks = Object.assign({}, state.blocks);
-
-  blocks[height] = block;
-
-  return Object.assign({}, state, { blocks });
-};
-
 reducers$2[WALLET_STATUS_COMPLETED] = (state, action) => Object.assign({}, state, {
   walletIsEncrypted: action.result
 });
@@ -3442,7 +3410,6 @@ exports.doCreateChannel = doCreateChannel;
 exports.doDismissError = doDismissError;
 exports.doDismissToast = doDismissToast;
 exports.doError = doError;
-exports.doFetchBlock = doFetchBlock;
 exports.doFetchChannelListMine = doFetchChannelListMine;
 exports.doFetchClaimListMine = doFetchClaimListMine;
 exports.doFetchClaimsByChannel = doFetchClaimsByChannel;
@@ -3478,7 +3445,6 @@ exports.formatFullPrice = formatFullPrice;
 exports.isNameValid = isNameValid;
 exports.isURIClaimable = isURIClaimable;
 exports.isURIValid = isURIValid;
-exports.makeSelectBlockDate = makeSelectBlockDate;
 exports.makeSelectChannelForClaimUri = makeSelectChannelForClaimUri;
 exports.makeSelectClaimForUri = makeSelectClaimForUri;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;
@@ -3489,6 +3455,7 @@ exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
 exports.makeSelectContentPositionForUri = makeSelectContentPositionForUri;
 exports.makeSelectContentTypeForUri = makeSelectContentTypeForUri;
 exports.makeSelectCoverForUri = makeSelectCoverForUri;
+exports.makeSelectDateForUri = makeSelectDateForUri;
 exports.makeSelectDownloadingForUri = makeSelectDownloadingForUri;
 exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
