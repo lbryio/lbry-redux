@@ -109,6 +109,9 @@ export {
   makeSelectFetchingChannelClaims,
   makeSelectClaimsInChannelForPage,
   makeSelectMetadataForUri,
+  makeSelectMetadataItemForUri,
+  makeSelectThumbnailForUri,
+  makeSelectCoverForUri,
   makeSelectTitleForUri,
   makeSelectDateForUri,
   makeSelectContentTypeForUri,
@@ -144,8 +147,6 @@ export {
   selectPlayingUri,
   selectChannelClaimCounts,
   selectCurrentChannelPage,
-  makeSelectThumbnailForUri,
-  makeSelectCoverForUri,
 } from 'redux/selectors/claims';
 
 export {
