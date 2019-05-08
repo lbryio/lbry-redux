@@ -31,6 +31,7 @@ const Lbry: LbryTypes = {
         [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
         [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'],
         [/^(stl|obj|fbx|gcode)$/i, '3D-file'],
+        [/^(cbr|cbz|cbt)$/i, 'comic-book'],
       ];
       const res = formats.reduce((ret, testpair) => {
         switch (testpair[0].test(ret)) {
