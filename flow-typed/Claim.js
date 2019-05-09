@@ -111,7 +111,7 @@ declare type Location = {
 };
 
 declare type Fee = {
-  amount: number, // should be a string https://github.com/lbryio/lbry/issues/1576
+  amount: string,
   currency: string,
   address: string,
 };
