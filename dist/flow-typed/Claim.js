@@ -29,7 +29,6 @@ declare type GenericClaim = {
   claim_op: 'create' | 'update',
   confirmations: number, // This isn't the most stable atm: https://github.com/lbryio/lbry/issues/2000
   decoded_claim: boolean, // claim made in accordance with sdk protobuf types
-  depth: number, // confirmations since tx
   effective_amount: number, // bid amount + supports
   timestamp?: number, // date of transaction
   has_signature: boolean,
@@ -61,10 +60,9 @@ declare type GenericMetadata = {
 declare type ChannelMetadata = GenericMetadata & {
   public_key: string,
   cover_url?: string,
-  contact_email?: string,
-  homepage_url?: string,
   email?: string,
   website_url?: string,
+  featured?: Array<string>,
 };
 
 declare type StreamMetadata = GenericMetadata & {
@@ -108,6 +106,7 @@ declare type Location = {
   longitude?: number,
   country?: string,
   state?: string,
+  city?: string,
   code?: string,
 };
 
