@@ -3446,6 +3446,7 @@ exports.doWalletUnlock = doWalletUnlock;
 exports.fileInfoReducer = fileInfoReducer;
 exports.formatCredits = formatCredits;
 exports.formatFullPrice = formatFullPrice;
+exports.isClaimNsfw = isClaimNsfw;
 exports.isNameValid = isNameValid;
 exports.isURIClaimable = isURIClaimable;
 exports.isURIValid = isURIValid;

@@ -89,6 +89,7 @@ export {
 export { batchActions } from 'util/batchActions';
 export { parseQueryParams, toQueryString } from 'util/query_params';
 export { formatCredits, formatFullPrice, creditsToString } from 'util/formatCredits';
+export { isClaimNsfw } from 'util/claim';
 
 // reducers
 export { claimsReducer } from 'redux/reducers/claims';
