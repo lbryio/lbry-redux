@@ -63,6 +63,7 @@ export function doTotalBalanceSubscribe() {
 
 export function doFetchTransactions() {
   return dispatch => {
+    dispatch(doFetchSupports());
     dispatch({
       type: ACTIONS.FETCH_TRANSACTIONS_STARTED,
     });
@@ -77,6 +78,23 @@ export function doFetchTransactions() {
           },
         });
       });
+  };
+}
+
+export function doFetchSupports() {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.FETCH_SUPPORTS_STARTED,
+    });
+
+    Lbry.support_list().then(results => {
+      dispatch({
+        type: ACTIONS.FETCH_SUPPORTS_COMPLETED,
+        data: {
+          supports: results,
+        },
+      });
+    });
   };
 }
 
