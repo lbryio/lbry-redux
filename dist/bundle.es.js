@@ -984,7 +984,7 @@ function isURIClaimable(URI) {
 
 function convertToShareLink(URI) {
   const { claimName, path, bidPosition, claimSequence, claimId } = parseURI(URI);
-  return buildURI({ claimName, path, claimSequence, bidPosition, claimId }, true, 'https://open.lbry.io/');
+  return buildURI({ claimName, path, claimSequence, bidPosition, claimId }, true, 'https://open.lbry.com/');
 }
 
 var _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -2400,7 +2400,7 @@ function handleFetchResponse(response) {
 const DEBOUNCED_SEARCH_SUGGESTION_MS = 300;
 
 // We can't use env's because they aren't passed into node_modules
-let CONNECTION_STRING = 'https://lighthouse.lbry.io/';
+let CONNECTION_STRING = 'https://lighthouse.lbry.com/';
 
 const setSearchApi = endpoint => {
   CONNECTION_STRING = endpoint.replace(/\/*$/, '/'); // exactly one slash at the end;
