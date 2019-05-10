@@ -643,6 +643,7 @@ const Lbry = {
   account_unlock: (params = {}) => daemonCallWithResult('account_unlock', params),
   account_list: (params = {}) => daemonCallWithResult('account_list', params),
   account_send: (params = {}) => daemonCallWithResult('account_send', params),
+  account_set: (params = {}) => daemonCallWithResult('account_set', params),
   address_is_mine: (params = {}) => daemonCallWithResult('address_is_mine', params),
   address_unused: (params = {}) => daemonCallWithResult('address_unused', params),
   transaction_list: (params = {}) => daemonCallWithResult('transaction_list', params),
