@@ -5,6 +5,7 @@ import { normalizeURI, parseURI } from 'lbryURI';
 import { doToast } from 'redux/actions/notifications';
 import { selectMyClaimsRaw, selectResolvingUris, selectClaimsByUri } from 'redux/selectors/claims';
 import { doFetchTransactions } from 'redux/actions/wallet';
+import { selectSupportsById } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/formatCredits';
 
 export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean = false) {
@@ -92,26 +93,38 @@ export function doAbandonClaim(txid: string, nout: number) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const myClaims: Array<ChannelClaim | StreamClaim> = selectMyClaimsRaw(state);
-    const claimToAbandon = myClaims.find(claim => claim.txid === txid && claim.nout === nout);
+    const mySupports: { [string]: Support } = selectSupportsById(state);
 
-    if (!claimToAbandon) {
-      console.error('No associated claim with txid: ', txid);
+    // A user could be trying to abandon a support or one of their claims
+    const claimToAbandon = myClaims.find(claim => claim.txid === txid && claim.nout === nout);
+    const supportToAbandon = mySupports[txid];
+
+    if (!claimToAbandon && !supportToAbandon) {
+      console.error('No associated support or claim with txid: ', txid);
       return;
     }
 
-    const { claim_id: claimId, name: claimName } = claimToAbandon;
+    const data = claimToAbandon
+      ? { claimId: claimToAbandon.claim_id }
+      : { txid: supportToAbandon.txid };
+
+    const isClaim = !!claimToAbandon;
+    const startedActionType = isClaim
+      ? ACTIONS.ABANDON_CLAIM_STARTED
+      : ACTIONS.ABANDON_SUPPORT_STARTED;
+    const completedActionType = isClaim
+      ? ACTIONS.ABANDON_CLAIM_STARTED
+      : ACTIONS.ABANDON_SUPPORT_COMPLETED;
 
     dispatch({
-      type: ACTIONS.ABANDON_CLAIM_STARTED,
-      data: {
-        claimId,
-      },
+      type: startedActionType,
+      data,
     });
 
     const errorCallback = () => {
       dispatch(
         doToast({
-          message: 'Error abandoning claim',
+          message: isClaim ? 'Error abandoning your claim' : 'Error unlocking your tip',
           isError: true,
         })
       );
@@ -119,15 +132,15 @@ export function doAbandonClaim(txid: string, nout: number) {
 
     const successCallback = () => {
       dispatch({
-        type: ACTIONS.ABANDON_CLAIM_SUCCEEDED,
-        data: {
-          claimId,
-        },
+        type: completedActionType,
+        data,
       });
 
       dispatch(
         doToast({
-          message: 'Successfully abandoned your claim',
+          message: isClaim
+            ? 'Successfully abandoned your claim'
+            : 'Successfully unlocked your tip!',
         })
       );
 
@@ -143,7 +156,19 @@ export function doAbandonClaim(txid: string, nout: number) {
       blocking: true,
     };
 
-    const method = claimName.startsWith('@') ? 'channel_abandon' : 'stream_abandon';
+    let method;
+    if (supportToAbandon) {
+      method = 'support_abandon';
+    } else if (claimToAbandon) {
+      const { name: claimName } = claimToAbandon;
+      method = claimName.startsWith('@') ? 'channel_abandon' : 'stream_abandon';
+    }
+
+    if (!method) {
+      console.error('No "method" chosen for claim or support abandon');
+      return;
+    }
+
     Lbry[method](abandonParams).then(successCallback, errorCallback);
   };
 }

@@ -43,6 +43,10 @@ const GET_NEW_ADDRESS_STARTED = 'GET_NEW_ADDRESS_STARTED';
 const GET_NEW_ADDRESS_COMPLETED = 'GET_NEW_ADDRESS_COMPLETED';
 const FETCH_TRANSACTIONS_STARTED = 'FETCH_TRANSACTIONS_STARTED';
 const FETCH_TRANSACTIONS_COMPLETED = 'FETCH_TRANSACTIONS_COMPLETED';
+const FETCH_SUPPORTS_STARTED = 'FETCH_SUPPORTS_STARTED';
+const FETCH_SUPPORTS_COMPLETED = 'FETCH_SUPPORTS_COMPLETED';
+const ABANDON_SUPPORT_STARTED = 'ABANDON_SUPPORT_STARTED';
+const ABANDON_SUPPORT_COMPLETED = 'ABANDON_SUPPORT_COMPLETED';
 const UPDATE_BALANCE = 'UPDATE_BALANCE';
 const UPDATE_TOTAL_BALANCE = 'UPDATE_TOTAL_BALANCE';
 const CHECK_ADDRESS_IS_MINE_STARTED = 'CHECK_ADDRESS_IS_MINE_STARTED';
@@ -254,6 +258,10 @@ var action_types = /*#__PURE__*/Object.freeze({
     GET_NEW_ADDRESS_COMPLETED: GET_NEW_ADDRESS_COMPLETED,
     FETCH_TRANSACTIONS_STARTED: FETCH_TRANSACTIONS_STARTED,
     FETCH_TRANSACTIONS_COMPLETED: FETCH_TRANSACTIONS_COMPLETED,
+    FETCH_SUPPORTS_STARTED: FETCH_SUPPORTS_STARTED,
+    FETCH_SUPPORTS_COMPLETED: FETCH_SUPPORTS_COMPLETED,
+    ABANDON_SUPPORT_STARTED: ABANDON_SUPPORT_STARTED,
+    ABANDON_SUPPORT_COMPLETED: ABANDON_SUPPORT_COMPLETED,
     UPDATE_BALANCE: UPDATE_BALANCE,
     UPDATE_TOTAL_BALANCE: UPDATE_TOTAL_BALANCE,
     CHECK_ADDRESS_IS_MINE_STARTED: CHECK_ADDRESS_IS_MINE_STARTED,
@@ -647,6 +655,7 @@ const Lbry = {
   address_unused: (params = {}) => daemonCallWithResult('address_unused', params),
   transaction_list: (params = {}) => daemonCallWithResult('transaction_list', params),
   utxo_release: (params = {}) => daemonCallWithResult('utxo_release', params),
+  support_abandon: (params = {}) => daemonCallWithResult('support_abandon', params),
 
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
@@ -975,7 +984,7 @@ function isURIClaimable(URI) {
 
 function convertToShareLink(URI) {
   const { claimName, path, bidPosition, claimSequence, claimId } = parseURI(URI);
-  return buildURI({ claimName, path, claimSequence, bidPosition, claimId }, true, 'https://open.lbry.io/');
+  return buildURI({ claimName, path, claimSequence, bidPosition, claimId }, true, 'https://open.lbry.com/');
 }
 
 var _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1421,7 +1430,9 @@ const selectBalance = reselect.createSelector(selectState$2, state => state.bala
 
 const selectTotalBalance = reselect.createSelector(selectState$2, state => state.totalBalance);
 
-const selectTransactionsById = reselect.createSelector(selectState$2, state => state.transactions);
+const selectTransactionsById = reselect.createSelector(selectState$2, state => state.transactions || {});
+
+const selectSupportsById = reselect.createSelector(selectState$2, state => state.supports || {});
 
 const selectTransactionItems = reselect.createSelector(selectTransactionsById, byId => {
   const items = [];
@@ -1608,6 +1619,7 @@ function doTotalBalanceSubscribe() {
 
 function doFetchTransactions() {
   return dispatch => {
+    dispatch(doFetchSupports());
     dispatch({
       type: FETCH_TRANSACTIONS_STARTED
     });
@@ -1617,6 +1629,23 @@ function doFetchTransactions() {
         type: FETCH_TRANSACTIONS_COMPLETED,
         data: {
           transactions: results
+        }
+      });
+    });
+  };
+}
+
+function doFetchSupports() {
+  return dispatch => {
+    dispatch({
+      type: FETCH_SUPPORTS_STARTED
+    });
+
+    lbryProxy.support_list().then(results => {
+      dispatch({
+        type: FETCH_SUPPORTS_COMPLETED,
+        data: {
+          supports: results
         }
       });
     });
@@ -1966,39 +1995,43 @@ function doAbandonClaim(txid, nout) {
   return (dispatch, getState) => {
     const state = getState();
     const myClaims = selectMyClaimsRaw(state);
-    const claimToAbandon = myClaims.find(claim => claim.txid === txid && claim.nout === nout);
+    const mySupports = selectSupportsById(state);
 
-    if (!claimToAbandon) {
-      console.error('No associated claim with txid: ', txid);
+    // A user could be trying to abandon a support or one of their claims
+    const claimToAbandon = myClaims.find(claim => claim.txid === txid && claim.nout === nout);
+    const supportToAbandon = mySupports[txid];
+
+    if (!claimToAbandon && !supportToAbandon) {
+      console.error('No associated support or claim with txid: ', txid);
       return;
     }
 
-    const { claim_id: claimId, name: claimName } = claimToAbandon;
+    const data = claimToAbandon ? { claimId: claimToAbandon.claim_id } : { txid: supportToAbandon.txid };
+
+    const isClaim = !!claimToAbandon;
+    const startedActionType = isClaim ? ABANDON_CLAIM_STARTED : ABANDON_SUPPORT_STARTED;
+    const completedActionType = isClaim ? ABANDON_CLAIM_STARTED : ABANDON_SUPPORT_COMPLETED;
 
     dispatch({
-      type: ABANDON_CLAIM_STARTED,
-      data: {
-        claimId
-      }
+      type: startedActionType,
+      data
     });
 
     const errorCallback = () => {
       dispatch(doToast({
-        message: 'Error abandoning claim',
+        message: isClaim ? 'Error abandoning your claim' : 'Error unlocking your tip',
         isError: true
       }));
     };
 
     const successCallback = () => {
       dispatch({
-        type: ABANDON_CLAIM_SUCCEEDED,
-        data: {
-          claimId
-        }
+        type: completedActionType,
+        data
       });
 
       dispatch(doToast({
-        message: 'Successfully abandoned your claim'
+        message: isClaim ? 'Successfully abandoned your claim' : 'Successfully unlocked your tip!'
       }));
 
       // After abandoning, call claim_list to show the claim as abandoned
@@ -2013,7 +2046,19 @@ function doAbandonClaim(txid, nout) {
       blocking: true
     };
 
-    const method = claimName.startsWith('@') ? 'channel_abandon' : 'stream_abandon';
+    let method;
+    if (supportToAbandon) {
+      method = 'support_abandon';
+    } else if (claimToAbandon) {
+      const { name: claimName } = claimToAbandon;
+      method = claimName.startsWith('@') ? 'channel_abandon' : 'stream_abandon';
+    }
+
+    if (!method) {
+      console.error('No "method" chosen for claim or support abandon');
+      return;
+    }
+
     lbryProxy[method](abandonParams).then(successCallback, errorCallback);
   };
 }
@@ -2355,7 +2400,7 @@ function handleFetchResponse(response) {
 const DEBOUNCED_SEARCH_SUGGESTION_MS = 300;
 
 // We can't use env's because they aren't passed into node_modules
-let CONNECTION_STRING = 'https://lighthouse.lbry.io/';
+let CONNECTION_STRING = 'https://lighthouse.lbry.com/';
 
 const setSearchApi = endpoint => {
   CONNECTION_STRING = endpoint.replace(/\/*$/, '/'); // exactly one slash at the end;
@@ -3094,9 +3139,8 @@ const searchReducer = handleActions({
   }
 }, defaultState$3);
 
-//      
+var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const reducers$2 = {};
 const buildDraftTransaction = () => ({
   amount: undefined,
   address: undefined
@@ -3109,10 +3153,12 @@ const buildDraftTransaction = () => ({
 const defaultState$4 = {
   balance: undefined,
   totalBalance: undefined,
-  blocks: {},
   latestBlock: undefined,
   transactions: {},
   fetchingTransactions: false,
+  supports: {},
+  fetchingSupports: false,
+  abandoningSupportsById: {},
   gettingNewAddress: false,
   draftTransaction: buildDraftTransaction(),
   sendingSupport: false,
@@ -3132,217 +3178,234 @@ const defaultState$4 = {
   transactionListFilter: 'all'
 };
 
-reducers$2[FETCH_TRANSACTIONS_STARTED] = state => Object.assign({}, state, {
-  fetchingTransactions: true
-});
+const walletReducer = handleActions({
+  [FETCH_TRANSACTIONS_STARTED]: state => _extends$7({}, state, {
+    fetchingTransactions: true
+  }),
 
-reducers$2[FETCH_TRANSACTIONS_COMPLETED] = (state, action) => {
-  const byId = Object.assign({}, state.transactions);
+  [FETCH_TRANSACTIONS_COMPLETED]: (state, action) => {
+    const byId = _extends$7({}, state.transactions);
 
-  const { transactions } = action.data;
+    const { transactions } = action.data;
+    transactions.forEach(transaction => {
+      byId[transaction.txid] = transaction;
+    });
 
-  transactions.forEach(transaction => {
-    byId[transaction.txid] = transaction;
-  });
+    return _extends$7({}, state, {
+      transactions: byId,
+      fetchingTransactions: false
+    });
+  },
 
-  return Object.assign({}, state, {
-    transactions: byId,
-    fetchingTransactions: false
-  });
-};
+  [FETCH_SUPPORTS_STARTED]: state => _extends$7({}, state, {
+    fetchingSupports: true
+  }),
 
-reducers$2[GET_NEW_ADDRESS_STARTED] = state => Object.assign({}, state, {
-  gettingNewAddress: true
-});
+  [FETCH_SUPPORTS_COMPLETED]: (state, action) => {
+    const byId = state.supports;
+    const { supports } = action.data;
 
-reducers$2[GET_NEW_ADDRESS_COMPLETED] = (state, action) => {
-  const { address } = action.data;
+    supports.forEach(support => {
+      byId[support.txid] = support;
+    });
 
-  // Say no to localStorage!
-  return Object.assign({}, state, {
-    gettingNewAddress: false,
-    receiveAddress: address
-  });
-};
+    return _extends$7({}, state, { supports: byId, fetchingSupports: false });
+  },
 
-reducers$2[UPDATE_BALANCE] = (state, action) => Object.assign({}, state, {
-  balance: action.data.balance
-});
+  [ABANDON_SUPPORT_STARTED]: (state, action) => {
+    const { txid } = action.data;
+    const abandoningById = state.abandoningSupportsById;
 
-reducers$2[UPDATE_TOTAL_BALANCE] = (state, action) => Object.assign({}, state, {
-  totalBalance: action.data.totalBalance
-});
+    abandoningById[txid] = true;
 
-reducers$2[CHECK_ADDRESS_IS_MINE_STARTED] = state => Object.assign({}, state, {
-  checkingAddressOwnership: true
-});
+    return _extends$7({}, state, {
+      abandoningSupportsById: abandoningById
+    });
+  },
 
-reducers$2[CHECK_ADDRESS_IS_MINE_COMPLETED] = state => Object.assign({}, state, {
-  checkingAddressOwnership: false
-});
+  [ABANDON_SUPPORT_COMPLETED]: (state, action) => {
+    const { txid } = action.data;
+    const byId = state.supports;
+    const abandoningById = state.abandoningSupportsById;
 
-reducers$2[SET_DRAFT_TRANSACTION_AMOUNT] = (state, action) => {
-  const oldDraft = state.draftTransaction;
-  const newDraft = Object.assign({}, oldDraft, {
-    amount: parseFloat(action.data.amount)
-  });
+    delete abandoningById[txid];
+    delete byId[txid];
 
-  return Object.assign({}, state, {
-    draftTransaction: newDraft
-  });
-};
+    return _extends$7({}, state, {
+      supports: byId,
+      abandoningSupportsById: abandoningById
+    });
+  },
 
-reducers$2[SET_DRAFT_TRANSACTION_ADDRESS] = (state, action) => {
-  const oldDraft = state.draftTransaction;
-  const newDraft = Object.assign({}, oldDraft, {
-    address: action.data.address
-  });
+  [GET_NEW_ADDRESS_STARTED]: state => _extends$7({}, state, {
+    gettingNewAddress: true
+  }),
 
-  return Object.assign({}, state, {
-    draftTransaction: newDraft
-  });
-};
+  [GET_NEW_ADDRESS_COMPLETED]: (state, action) => {
+    const { address } = action.data;
 
-reducers$2[SEND_TRANSACTION_STARTED] = state => {
-  const newDraftTransaction = Object.assign({}, state.draftTransaction, {
-    sending: true
-  });
+    return _extends$7({}, state, { gettingNewAddress: false, receiveAddress: address });
+  },
 
-  return Object.assign({}, state, {
-    draftTransaction: newDraftTransaction
-  });
-};
+  [UPDATE_BALANCE]: (state, action) => _extends$7({}, state, {
+    balance: action.data.balance
+  }),
 
-reducers$2[SEND_TRANSACTION_COMPLETED] = state => Object.assign({}, state, {
-  draftTransaction: buildDraftTransaction()
-});
+  [UPDATE_TOTAL_BALANCE]: (state, action) => _extends$7({}, state, {
+    totalBalance: action.data.totalBalance
+  }),
 
-reducers$2[SEND_TRANSACTION_FAILED] = (state, action) => {
-  const newDraftTransaction = Object.assign({}, state.draftTransaction, {
-    sending: false,
-    error: action.data.error
-  });
+  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$7({}, state, {
+    checkingAddressOwnership: true
+  }),
 
-  return Object.assign({}, state, {
-    draftTransaction: newDraftTransaction
-  });
-};
+  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$7({}, state, {
+    checkingAddressOwnership: false
+  }),
 
-reducers$2[SUPPORT_TRANSACTION_STARTED] = state => Object.assign({}, state, {
-  sendingSupport: true
-});
+  [SET_DRAFT_TRANSACTION_AMOUNT]: (state, action) => {
+    const oldDraft = state.draftTransaction;
+    const newDraft = _extends$7({}, oldDraft, { amount: parseFloat(action.data.amount) });
 
-reducers$2[SUPPORT_TRANSACTION_COMPLETED] = state => Object.assign({}, state, {
-  sendingSupport: false
-});
+    return _extends$7({}, state, { draftTransaction: newDraft });
+  },
 
-reducers$2[SUPPORT_TRANSACTION_FAILED] = (state, action) => Object.assign({}, state, {
-  error: action.data.error,
-  sendingSupport: false
-});
+  [SET_DRAFT_TRANSACTION_ADDRESS]: (state, action) => {
+    const oldDraft = state.draftTransaction;
+    const newDraft = _extends$7({}, oldDraft, { address: action.data.address });
 
-reducers$2[WALLET_STATUS_COMPLETED] = (state, action) => Object.assign({}, state, {
-  walletIsEncrypted: action.result
-});
+    return _extends$7({}, state, { draftTransaction: newDraft });
+  },
 
-reducers$2[WALLET_ENCRYPT_START] = state => Object.assign({}, state, {
-  walletEncryptPending: true,
-  walletEncryptSucceded: null,
-  walletEncryptResult: null
-});
+  [SEND_TRANSACTION_STARTED]: state => {
+    const newDraftTransaction = _extends$7({}, state.draftTransaction, { sending: true });
 
-reducers$2[WALLET_ENCRYPT_COMPLETED] = (state, action) => Object.assign({}, state, {
-  walletEncryptPending: false,
-  walletEncryptSucceded: true,
-  walletEncryptResult: action.result
-});
+    return _extends$7({}, state, { draftTransaction: newDraftTransaction });
+  },
 
-reducers$2[WALLET_ENCRYPT_FAILED] = (state, action) => Object.assign({}, state, {
-  walletEncryptPending: false,
-  walletEncryptSucceded: false,
-  walletEncryptResult: action.result
-});
+  [SEND_TRANSACTION_COMPLETED]: state => Object.assign({}, state, {
+    draftTransaction: buildDraftTransaction()
+  }),
 
-reducers$2[WALLET_DECRYPT_START] = state => Object.assign({}, state, {
-  walletDecryptPending: true,
-  walletDecryptSucceded: null,
-  walletDecryptResult: null
-});
+  [SEND_TRANSACTION_FAILED]: (state, action) => {
+    const newDraftTransaction = Object.assign({}, state.draftTransaction, {
+      sending: false,
+      error: action.data.error
+    });
 
-reducers$2[WALLET_DECRYPT_COMPLETED] = (state, action) => Object.assign({}, state, {
-  walletDecryptPending: false,
-  walletDecryptSucceded: true,
-  walletDecryptResult: action.result
-});
+    return _extends$7({}, state, { draftTransaction: newDraftTransaction });
+  },
 
-reducers$2[WALLET_DECRYPT_FAILED] = (state, action) => Object.assign({}, state, {
-  walletDecryptPending: false,
-  walletDecryptSucceded: false,
-  walletDecryptResult: action.result
-});
+  [SUPPORT_TRANSACTION_STARTED]: state => _extends$7({}, state, {
+    sendingSupport: true
+  }),
 
-reducers$2[WALLET_UNLOCK_START] = state => Object.assign({}, state, {
-  walletUnlockPending: true,
-  walletUnlockSucceded: null,
-  walletUnlockResult: null
-});
+  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$7({}, state, {
+    sendingSupport: false
+  }),
 
-reducers$2[WALLET_UNLOCK_COMPLETED] = (state, action) => Object.assign({}, state, {
-  walletUnlockPending: false,
-  walletUnlockSucceded: true,
-  walletUnlockResult: action.result
-});
+  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$7({}, state, {
+    error: action.data.error,
+    sendingSupport: false
+  }),
 
-reducers$2[WALLET_UNLOCK_FAILED] = (state, action) => Object.assign({}, state, {
-  walletUnlockPending: false,
-  walletUnlockSucceded: false,
-  walletUnlockResult: action.result
-});
+  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$7({}, state, {
+    walletIsEncrypted: action.result
+  }),
 
-reducers$2[WALLET_LOCK_START] = state => Object.assign({}, state, {
-  walletLockPending: false,
-  walletLockSucceded: null,
-  walletLockResult: null
-});
+  [WALLET_ENCRYPT_START]: state => _extends$7({}, state, {
+    walletEncryptPending: true,
+    walletEncryptSucceded: null,
+    walletEncryptResult: null
+  }),
 
-reducers$2[WALLET_LOCK_COMPLETED] = (state, action) => Object.assign({}, state, {
-  walletLockPending: false,
-  walletLockSucceded: true,
-  walletLockResult: action.result
-});
+  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$7({}, state, {
+    walletEncryptPending: false,
+    walletEncryptSucceded: true,
+    walletEncryptResult: action.result
+  }),
 
-reducers$2[WALLET_LOCK_FAILED] = (state, action) => Object.assign({}, state, {
-  walletLockPending: false,
-  walletLockSucceded: false,
-  walletLockResult: action.result
-});
+  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$7({}, state, {
+    walletEncryptPending: false,
+    walletEncryptSucceded: false,
+    walletEncryptResult: action.result
+  }),
 
-reducers$2[SET_TRANSACTION_LIST_FILTER] = (state, action) => Object.assign({}, state, {
-  transactionListFilter: action.data
-});
+  [WALLET_DECRYPT_START]: state => _extends$7({}, state, {
+    walletDecryptPending: true,
+    walletDecryptSucceded: null,
+    walletDecryptResult: null
+  }),
 
-reducers$2[UPDATE_CURRENT_HEIGHT] = (state, action) => Object.assign({}, state, {
-  latestBlock: action.data
-});
+  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$7({}, state, {
+    walletDecryptPending: false,
+    walletDecryptSucceded: true,
+    walletDecryptResult: action.result
+  }),
 
-function walletReducer(state = defaultState$4, action) {
-  const handler = reducers$2[action.type];
-  if (handler) return handler(state, action);
-  return state;
-}
+  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$7({}, state, {
+    walletDecryptPending: false,
+    walletDecryptSucceded: false,
+    walletDecryptResult: action.result
+  }),
 
-var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+  [WALLET_UNLOCK_START]: state => _extends$7({}, state, {
+    walletUnlockPending: true,
+    walletUnlockSucceded: null,
+    walletUnlockResult: null
+  }),
 
-const reducers$3 = {};
+  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$7({}, state, {
+    walletUnlockPending: false,
+    walletUnlockSucceded: true,
+    walletUnlockResult: action.result
+  }),
+
+  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$7({}, state, {
+    walletUnlockPending: false,
+    walletUnlockSucceded: false,
+    walletUnlockResult: action.result
+  }),
+
+  [WALLET_LOCK_START]: state => _extends$7({}, state, {
+    walletLockPending: false,
+    walletLockSucceded: null,
+    walletLockResult: null
+  }),
+
+  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$7({}, state, {
+    walletLockPending: false,
+    walletLockSucceded: true,
+    walletLockResult: action.result
+  }),
+
+  [WALLET_LOCK_FAILED]: (state, action) => _extends$7({}, state, {
+    walletLockPending: false,
+    walletLockSucceded: false,
+    walletLockResult: action.result
+  }),
+
+  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$7({}, state, {
+    transactionListFilter: action.data
+  }),
+
+  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$7({}, state, {
+    latestBlock: action.data
+  })
+}, defaultState$4);
+
+var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+const reducers$2 = {};
 const defaultState$5 = {
   positions: {}
 };
 
-reducers$3[SET_CONTENT_POSITION] = (state, action) => {
+reducers$2[SET_CONTENT_POSITION] = (state, action) => {
   const { claimId, outpoint, position } = action.data;
-  return _extends$7({}, state, {
-    positions: _extends$7({}, state.positions, {
-      [claimId]: _extends$7({}, state.positions[claimId], {
+  return _extends$8({}, state, {
+    positions: _extends$8({}, state.positions, {
+      [claimId]: _extends$8({}, state.positions[claimId], {
         [outpoint]: position
       })
     })
@@ -3350,7 +3413,7 @@ reducers$3[SET_CONTENT_POSITION] = (state, action) => {
 };
 
 function contentReducer(state = defaultState$5, action) {
-  const handler = reducers$3[action.type];
+  const handler = reducers$2[action.type];
   if (handler) return handler(state, action);
   return state;
 }
@@ -3366,14 +3429,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$5 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$5, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$8({
+    return _extends$9({
       id
     }, params);
   }
@@ -3537,6 +3600,7 @@ exports.selectSearchState = selectState;
 exports.selectSearchSuggestions = selectSearchSuggestions;
 exports.selectSearchUrisByQuery = selectSearchUrisByQuery;
 exports.selectSearchValue = selectSearchValue;
+exports.selectSupportsById = selectSupportsById;
 exports.selectToast = selectToast;
 exports.selectTotalBalance = selectTotalBalance;
 exports.selectTotalDownloadProgress = selectTotalDownloadProgress;
