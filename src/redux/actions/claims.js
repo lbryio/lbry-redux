@@ -5,7 +5,7 @@ import { normalizeURI, parseURI } from 'lbryURI';
 import { doToast } from 'redux/actions/notifications';
 import { selectMyClaimsRaw, selectResolvingUris, selectClaimsByUri } from 'redux/selectors/claims';
 import { doFetchTransactions } from 'redux/actions/wallet';
-import { selectSupportsById } from 'redux/selectors/wallet';
+import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/formatCredits';
 
 export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean = false) {
@@ -90,14 +90,16 @@ export function doFetchClaimListMine() {
 }
 
 export function doAbandonClaim(txid: string, nout: number) {
+  const outpoint = `${txid}:${nout}`;
+
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const myClaims: Array<ChannelClaim | StreamClaim> = selectMyClaimsRaw(state);
-    const mySupports: { [string]: Support } = selectSupportsById(state);
+    const mySupports: { [string]: Support } = selectSupportsByOutpoint(state);
 
     // A user could be trying to abandon a support or one of their claims
     const claimToAbandon = myClaims.find(claim => claim.txid === txid && claim.nout === nout);
-    const supportToAbandon = mySupports[txid];
+    const supportToAbandon = mySupports[outpoint];
 
     if (!claimToAbandon && !supportToAbandon) {
       console.error('No associated support or claim with txid: ', txid);
@@ -106,7 +108,7 @@ export function doAbandonClaim(txid: string, nout: number) {
 
     const data = claimToAbandon
       ? { claimId: claimToAbandon.claim_id }
-      : { txid: supportToAbandon.txid };
+      : { outpoint: `${supportToAbandon.txid}:${supportToAbandon.nout}` };
 
     const isClaim = !!claimToAbandon;
     const startedActionType = isClaim

@@ -85,7 +85,7 @@ export const selectTransactionsById = createSelector(
   state => state.transactions || {}
 );
 
-export const selectSupportsById = createSelector(
+export const selectSupportsByOutpoint = createSelector(
   selectState,
   state => state.supports || {}
 );

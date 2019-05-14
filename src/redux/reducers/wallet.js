@@ -19,7 +19,7 @@ type WalletState = {
   latestBlock: ?number,
   transactions: { [string]: Transaction },
   supports: { [string]: Support },
-  abandoningSupportsById: { [string]: boolean },
+  abandoningSupportsByOutpoint: { [string]: boolean },
   fetchingTransactions: boolean,
   gettingNewAddress: boolean,
   draftTransaction: any,
@@ -47,7 +47,7 @@ const defaultState = {
   fetchingTransactions: false,
   supports: {},
   fetchingSupports: false,
-  abandoningSupportsById: {},
+  abandoningSupportsByOutpoint: {},
   gettingNewAddress: false,
   draftTransaction: buildDraftTransaction(),
   sendingSupport: false,
@@ -95,40 +95,41 @@ export const walletReducer = handleActions(
     }),
 
     [ACTIONS.FETCH_SUPPORTS_COMPLETED]: (state: WalletState, action) => {
-      const byId = state.supports;
+      const byOutpoint = state.supports;
       const { supports } = action.data;
 
-      supports.forEach(support => {
-        byId[support.txid] = support;
+      supports.forEach(transaction => {
+        const { txid, nout } = transaction;
+        byOutpoint[`${txid}:${nout}`] = transaction;
       });
 
-      return { ...state, supports: byId, fetchingSupports: false };
+      return { ...state, supports: byOutpoint, fetchingSupports: false };
     },
 
     [ACTIONS.ABANDON_SUPPORT_STARTED]: (state: WalletState, action: any): WalletState => {
-      const { txid }: { txid: string } = action.data;
-      const abandoningById = state.abandoningSupportsById;
+      const { outpoint }: { outpoint: string } = action.data;
+      const currentlyAbandoning = state.abandoningSupportsByOutpoint;
 
-      abandoningById[txid] = true;
+      currentlyAbandoning[outpoint] = true;
 
       return {
         ...state,
-        abandoningSupportsById: abandoningById,
+        abandoningSupportsByOutpoint: currentlyAbandoning,
       };
     },
 
     [ACTIONS.ABANDON_SUPPORT_COMPLETED]: (state: WalletState, action: any): WalletState => {
-      const { txid }: { txid: string } = action.data;
-      const byId = state.supports;
-      const abandoningById = state.abandoningSupportsById;
+      const { outpoint }: { outpoint: string } = action.data;
+      const byOutpoint = state.supports;
+      const currentlyAbandoning = state.abandoningSupportsByOutpoint;
 
-      delete abandoningById[txid];
-      delete byId[txid];
+      delete currentlyAbandoning[outpoint];
+      delete byOutpoint[outpoint];
 
       return {
         ...state,
-        supports: byId,
-        abandoningSupportsById: abandoningById,
+        supports: byOutpoint,
+        abandoningSupportsById: currentlyAbandoning,
       };
     },
 

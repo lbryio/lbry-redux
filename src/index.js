@@ -183,7 +183,7 @@ export {
   selectBalance,
   selectTotalBalance,
   selectTransactionsById,
-  selectSupportsById,
+  selectSupportsByOutpoint,
   selectTransactionItems,
   selectRecentTransactions,
   selectHasTransactions,

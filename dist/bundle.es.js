@@ -1432,7 +1432,7 @@ const selectTotalBalance = reselect.createSelector(selectState$2, state => state
 
 const selectTransactionsById = reselect.createSelector(selectState$2, state => state.transactions || {});
 
-const selectSupportsById = reselect.createSelector(selectState$2, state => state.supports || {});
+const selectSupportsByOutpoint = reselect.createSelector(selectState$2, state => state.supports || {});
 
 const selectTransactionItems = reselect.createSelector(selectTransactionsById, byId => {
   const items = [];
@@ -1992,21 +1992,23 @@ function doFetchClaimListMine() {
 }
 
 function doAbandonClaim(txid, nout) {
+  const outpoint = `${txid}:${nout}`;
+
   return (dispatch, getState) => {
     const state = getState();
     const myClaims = selectMyClaimsRaw(state);
-    const mySupports = selectSupportsById(state);
+    const mySupports = selectSupportsByOutpoint(state);
 
     // A user could be trying to abandon a support or one of their claims
     const claimToAbandon = myClaims.find(claim => claim.txid === txid && claim.nout === nout);
-    const supportToAbandon = mySupports[txid];
+    const supportToAbandon = mySupports[outpoint];
 
     if (!claimToAbandon && !supportToAbandon) {
       console.error('No associated support or claim with txid: ', txid);
       return;
     }
 
-    const data = claimToAbandon ? { claimId: claimToAbandon.claim_id } : { txid: supportToAbandon.txid };
+    const data = claimToAbandon ? { claimId: claimToAbandon.claim_id } : { outpoint: `${supportToAbandon.txid}:${supportToAbandon.nout}` };
 
     const isClaim = !!claimToAbandon;
     const startedActionType = isClaim ? ABANDON_CLAIM_STARTED : ABANDON_SUPPORT_STARTED;
@@ -3158,7 +3160,7 @@ const defaultState$4 = {
   fetchingTransactions: false,
   supports: {},
   fetchingSupports: false,
-  abandoningSupportsById: {},
+  abandoningSupportsByOutpoint: {},
   gettingNewAddress: false,
   draftTransaction: buildDraftTransaction(),
   sendingSupport: false,
@@ -3202,38 +3204,39 @@ const walletReducer = handleActions({
   }),
 
   [FETCH_SUPPORTS_COMPLETED]: (state, action) => {
-    const byId = state.supports;
+    const byOutpoint = state.supports;
     const { supports } = action.data;
 
-    supports.forEach(support => {
-      byId[support.txid] = support;
+    supports.forEach(transaction => {
+      const { txid, nout } = transaction;
+      byOutpoint[`${txid}:${nout}`] = transaction;
     });
 
-    return _extends$7({}, state, { supports: byId, fetchingSupports: false });
+    return _extends$7({}, state, { supports: byOutpoint, fetchingSupports: false });
   },
 
   [ABANDON_SUPPORT_STARTED]: (state, action) => {
-    const { txid } = action.data;
-    const abandoningById = state.abandoningSupportsById;
+    const { outpoint } = action.data;
+    const currentlyAbandoning = state.abandoningSupportsByOutpoint;
 
-    abandoningById[txid] = true;
+    currentlyAbandoning[outpoint] = true;
 
     return _extends$7({}, state, {
-      abandoningSupportsById: abandoningById
+      abandoningSupportsByOutpoint: currentlyAbandoning
     });
   },
 
   [ABANDON_SUPPORT_COMPLETED]: (state, action) => {
-    const { txid } = action.data;
-    const byId = state.supports;
-    const abandoningById = state.abandoningSupportsById;
+    const { outpoint } = action.data;
+    const byOutpoint = state.supports;
+    const currentlyAbandoning = state.abandoningSupportsByOutpoint;
 
-    delete abandoningById[txid];
-    delete byId[txid];
+    delete currentlyAbandoning[outpoint];
+    delete byOutpoint[outpoint];
 
     return _extends$7({}, state, {
-      supports: byId,
-      abandoningSupportsById: abandoningById
+      supports: byOutpoint,
+      abandoningSupportsById: currentlyAbandoning
     });
   },
 
@@ -3600,7 +3603,7 @@ exports.selectSearchState = selectState;
 exports.selectSearchSuggestions = selectSearchSuggestions;
 exports.selectSearchUrisByQuery = selectSearchUrisByQuery;
 exports.selectSearchValue = selectSearchValue;
-exports.selectSupportsById = selectSupportsById;
+exports.selectSupportsByOutpoint = selectSupportsByOutpoint;
 exports.selectToast = selectToast;
 exports.selectTotalBalance = selectTotalBalance;
 exports.selectTotalDownloadProgress = selectTotalDownloadProgress;
