@@ -130,6 +130,19 @@ declare type SyncApplyResponse = {
   data: string,
 };
 
+declare type AccountSetResponse = Array<{
+  id: string,
+  is_default: string,
+  ledger: string,
+  name: string,
+  seed: string,
+  encrypted: string,
+  private_key: string,
+  public_key: string,
+  address_generator: string,
+  modified_on: string,
+}>;
+
 declare type SupportAbandonResponse = GenericTxResponse;
 
 //
@@ -174,6 +187,7 @@ declare type LbryTypes = {
   account_unlock: (params: {}) => Promise<boolean>,
   account_list: (params: {}) => Promise<AccountListResponse>,
   account_send: (params: {}) => Promise<GenericTxResponse>,
+  account_set: (params: {}) => Promise<AccountSetResponse>,
   address_is_mine: (params: {}) => Promise<boolean>,
   address_unused: (params: {}) => Promise<string>, // New address
   transaction_list: (params: {}) => Promise<TxListResponse>,
