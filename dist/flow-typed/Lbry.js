@@ -143,6 +143,8 @@ declare type AccountSetResponse = Array<{
   modified_on: string,
 }>;
 
+declare type SupportAbandonResponse = GenericTxResponse;
+
 //
 // Types used in the generic Lbry object that is exported
 //
@@ -189,6 +191,7 @@ declare type LbryTypes = {
   address_is_mine: (params: {}) => Promise<boolean>,
   address_unused: (params: {}) => Promise<string>, // New address
   transaction_list: (params: {}) => Promise<TxListResponse>,
+  support_abandon: (params: {}) => Promise<SupportAbandonResponse>,
 
   // Sync
   sync_hash: (params: {}) => Promise<string>,

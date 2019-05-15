@@ -228,6 +228,6 @@ export function convertToShareLink(URI) {
   return buildURI(
     { claimName, path, claimSequence, bidPosition, claimId },
     true,
-    'https://open.lbry.io/'
+    'https://open.lbry.com/'
   );
 }

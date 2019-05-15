@@ -82,7 +82,12 @@ export const selectTotalBalance = createSelector(
 
 export const selectTransactionsById = createSelector(
   selectState,
-  state => state.transactions
+  state => state.transactions || {}
+);
+
+export const selectSupportsByOutpoint = createSelector(
+  selectState,
+  state => state.supports || {}
 );
 
 export const selectTransactionItems = createSelector(

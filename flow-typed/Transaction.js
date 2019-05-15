@@ -9,3 +9,19 @@ declare type Transaction = {
   type: string,
   date: Date,
 };
+
+declare type Support = {
+  address: string,
+  amount: string,
+  claim_id: string,
+  confirmations: number,
+  height: string,
+  is_change: string,
+  is_mine: string,
+  name: string,
+  nout: string,
+  permanent_url: string,
+  timestamp: number,
+  txid: string,
+  type: string,
+};

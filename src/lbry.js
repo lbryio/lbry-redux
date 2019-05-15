@@ -87,6 +87,7 @@ const Lbry: LbryTypes = {
   address_unused: (params = {}) => daemonCallWithResult('address_unused', params),
   transaction_list: (params = {}) => daemonCallWithResult('transaction_list', params),
   utxo_release: (params = {}) => daemonCallWithResult('utxo_release', params),
+  support_abandon: (params = {}) => daemonCallWithResult('support_abandon', params),
 
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
