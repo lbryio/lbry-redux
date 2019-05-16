@@ -7,7 +7,6 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('proxy-polyfill');
 var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
-var lbryRedux = require('lbry-redux');
 var lbryinc = require('lbryinc');
 
 const WINDOW_FOCUSED = 'WINDOW_FOCUSED';
@@ -2147,92 +2146,6 @@ function doFetchChannelListMine() {
   };
 }
 
-function doLoadFile(uri, saveFile = true) {
-  return dispatch => {
-    dispatch({
-      type: lbryRedux.ACTIONS.LOADING_FILE_STARTED,
-      data: {
-        uri
-      }
-    });
-
-    // set save_file argument to True to save the file (old behaviour)
-    lbryRedux.Lbry.get({ uri, save_file: saveFile }).then(streamInfo => {
-      const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
-
-      if (timeout) {
-        dispatch({
-          type: lbryRedux.ACTIONS.LOADING_FILE_FAILED,
-          data: { uri }
-        });
-        dispatch({
-          type: lbryRedux.ACTIONS.PURCHASE_URI_FAILED,
-          data: { uri }
-        });
-
-        dispatch(lbryRedux.doToast({ message: `File timeout for uri ${uri}` }));
-      } else {
-        // purchase was completed successfully
-        dispatch({
-          type: lbryRedux.ACTIONS.PURCHASE_URI_COMPLETED,
-          data: { uri }
-        });
-      }
-    }).catch(() => {
-      dispatch({
-        type: lbryRedux.ACTIONS.LOADING_FILE_FAILED,
-        data: { uri }
-      });
-      dispatch({
-        type: lbryRedux.ACTIONS.PURCHASE_URI_FAILED,
-        data: { uri }
-      });
-
-      dispatch(lbryRedux.doToast({
-        message: `Failed to download ${uri}, please try again. If this problem persists, visit https://lbry.com/faq/support for support.`
-      }));
-    });
-  };
-}
-
-function doPurchaseUri(uri, specificCostInfo) {
-  return (dispatch, getState) => {
-    dispatch({
-      type: lbryRedux.ACTIONS.PURCHASE_URI_STARTED,
-      data: { uri }
-    });
-
-    const state = getState();
-    const balance = lbryRedux.selectBalance(state);
-    const fileInfo = lbryRedux.makeSelectFileInfoForUri(uri)(state);
-
-    // TODO: What about already streaming?
-    const downloadingByOutpoint = lbryRedux.selectDownloadingByOutpoint(state);
-    const alreadyDownloading = fileInfo && !!downloadingByOutpoint[fileInfo.outpoint];
-
-    if (alreadyDownloading) {
-      dispatch({
-        type: lbryRedux.ACTIONS.PURCHASE_URI_FAILED,
-        data: { uri, error: `Already downloading uri: ${uri}` }
-      });
-      return;
-    }
-
-    const costInfo = lbryinc.makeSelectCostInfoForUri(uri)(state) || specificCostInfo;
-    const { cost } = costInfo;
-
-    if (cost > balance) {
-      dispatch({
-        type: lbryRedux.ACTIONS.PURCHASE_URI_FAILED,
-        data: { uri, error: 'Insufficient credits' }
-      });
-      return;
-    }
-
-    dispatch(doLoadFile(uri));
-  };
-}
-
 const selectState$3 = state => state.fileInfo || {};
 
 const selectFileInfosByOutpoint = reselect.createSelector(selectState$3, state => state.byOutpoint || {});
@@ -2393,6 +2306,104 @@ const selectSearchDownloadUris = query => reselect.createSelector(selectFileInfo
 const selectFileListPublishedSort = reselect.createSelector(selectState$3, state => state.fileListPublishedSort);
 
 const selectFileListDownloadedSort = reselect.createSelector(selectState$3, state => state.fileListDownloadedSort);
+
+const selectState$4 = state => state.file || {};
+
+const selectFailedPurchaseUris = reselect.createSelector(selectState$4, state => state.failedPurchaseUris);
+
+const selectPurchasedUris = reselect.createSelector(selectState$4, state => state.purchasedUris);
+
+const selectPurchasedStreamingUrls = reselect.createSelector(selectState$4, state => state.purchasedStreamingUrls);
+
+const selectLastPurchasedUri = reselect.createSelector(selectState$4, state => state.purchasedUris.length > 0 ? state.purchasedUris[state.purchasedUris.length - 1] : null);
+
+const makeSelectStreamingUrlForUri = uri => reselect.createSelector(selectPurchasedStreamingUrls, streamingUrls => streamingUrls && streamingUrls[uri]);
+
+function doLoadFile(uri, saveFile = true) {
+  return dispatch => {
+    dispatch({
+      type: LOADING_FILE_STARTED,
+      data: {
+        uri
+      }
+    });
+
+    // set save_file argument to True to save the file (old behaviour)
+    lbryProxy.get({ uri, save_file: saveFile }).then(streamInfo => {
+      const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
+
+      if (timeout) {
+        dispatch({
+          type: LOADING_FILE_FAILED,
+          data: { uri }
+        });
+        dispatch({
+          type: PURCHASE_URI_FAILED,
+          data: { uri }
+        });
+
+        dispatch(doToast({ message: `File timeout for uri ${uri}` }));
+      } else {
+        // purchase was completed successfully
+        const { streaming_url: streamingUrl } = streamInfo;
+        dispatch({
+          type: PURCHASE_URI_COMPLETED,
+          data: { uri, streamingUrl: !saveFile && streamingUrl ? streamingUrl : null }
+        });
+      }
+    }).catch(() => {
+      dispatch({
+        type: LOADING_FILE_FAILED,
+        data: { uri }
+      });
+      dispatch({
+        type: PURCHASE_URI_FAILED,
+        data: { uri }
+      });
+
+      dispatch(doToast({
+        message: `Failed to download ${uri}, please try again. If this problem persists, visit https://lbry.com/faq/support for support.`
+      }));
+    });
+  };
+}
+
+function doPurchaseUri(uri, specificCostInfo) {
+  return (dispatch, getState) => {
+    dispatch({
+      type: PURCHASE_URI_STARTED,
+      data: { uri }
+    });
+
+    const state = getState();
+    const balance = selectBalance(state);
+    const fileInfo = makeSelectFileInfoForUri(uri)(state);
+    const downloadingByOutpoint = selectDownloadingByOutpoint(state);
+    const alreadyDownloading = fileInfo && !!downloadingByOutpoint[fileInfo.outpoint];
+    const alreadyStreaming = makeSelectStreamingUrlForUri(uri)(state);
+
+    if (alreadyDownloading || alreadyStreaming) {
+      dispatch({
+        type: PURCHASE_URI_FAILED,
+        data: { uri, error: `Already downloading / streaming uri: ${uri}` }
+      });
+      return;
+    }
+
+    const costInfo = lbryinc.makeSelectCostInfoForUri(uri)(state) || specificCostInfo;
+    const { cost } = costInfo;
+
+    if (cost > balance) {
+      dispatch({
+        type: PURCHASE_URI_FAILED,
+        data: { uri, error: 'Insufficient credits' }
+      });
+      return;
+    }
+
+    dispatch(doLoadFile(uri));
+  };
+}
 
 function doFetchFileInfo(uri) {
   return (dispatch, getState) => {
@@ -2889,24 +2900,31 @@ var _extends$4 = Object.assign || function (target) { for (var i = 1; i < argume
 
 const reducers$1 = {};
 const defaultState$1 = {
+  failedPurchaseUris: [],
   purchasedUris: [],
-  failedPurchaseUris: []
+  purchasedStreamingUrls: {}
 };
 
 reducers$1[PURCHASE_URI_COMPLETED] = (state, action) => {
-  const { uri } = action.data;
+  const { uri, streamingUrl } = action.data;
   const newPurchasedUris = state.purchasedUris.slice();
   const newFailedPurchaseUris = state.failedPurchasedUris.slice();
+  const newPurchasedStreamingUrls = Object.assign({}, state.newPurchasedStreamingUrls);
+
   if (!newPurchasedUris.includes(uri)) {
     newPurchasedUris.push(uri);
   }
   if (newFailedPurchaseUris.includes(uri)) {
     newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
   }
+  if (streamingUrl) {
+    newPurchasedStreamingUrls[uri] = streamingUrl;
+  }
 
   return _extends$4({}, state, {
+    failedPurchaseUris: newFailedPurchaseUris,
     purchasedUris: newPurchasedUris,
-    failedPurchaseUris: newFailedPurchaseUris
+    purchasedStreamingUrls: newPurchasedStreamingUrls
   });
 };
 
@@ -3564,9 +3582,9 @@ function contentReducer(state = defaultState$6, action) {
   return state;
 }
 
-const selectState$4 = state => state.content || {};
+const selectState$5 = state => state.content || {};
 
-const makeSelectContentPositionForUri = uri => reselect.createSelector(selectState$4, makeSelectClaimForUri(uri), (state, claim) => {
+const makeSelectContentPositionForUri = uri => reselect.createSelector(selectState$5, makeSelectClaimForUri(uri), (state, claim) => {
   if (!claim) {
     return null;
   }
@@ -3577,9 +3595,9 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
 
 var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const selectState$5 = state => state.notifications || {};
+const selectState$6 = state => state.notifications || {};
 
-const selectToast = reselect.createSelector(selectState$5, state => {
+const selectToast = reselect.createSelector(selectState$6, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
     return _extends$a({
@@ -3590,7 +3608,7 @@ const selectToast = reselect.createSelector(selectState$5, state => {
   return null;
 });
 
-const selectError = reselect.createSelector(selectState$5, state => {
+const selectError = reselect.createSelector(selectState$6, state => {
   if (state.errors.length) {
     const { error } = state.errors[0];
     return {
@@ -3600,14 +3618,6 @@ const selectError = reselect.createSelector(selectState$5, state => {
 
   return null;
 });
-
-const selectState$6 = state => state.file || {};
-
-const selectPurchasedUris = reselect.createSelector(selectState$6, state => state.purchasedUris);
-
-const selectFailedPurchaseUris = reselect.createSelector(selectState$6, state => state.failedPurchaseUris);
-
-const selectLastPurchasedUri = reselect.createSelector(selectState$6, state => state.purchasedUris.length > 0 ? state.purchasedUris[state.purchasedUris.length - 1] : null);
 
 exports.ACTIONS = action_types;
 exports.Lbry = lbryProxy;
@@ -3696,6 +3706,7 @@ exports.makeSelectPendingByUri = makeSelectPendingByUri;
 exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
 exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
 exports.makeSelectSearchUris = makeSelectSearchUris;
+exports.makeSelectStreamingUrlForUri = makeSelectStreamingUrlForUri;
 exports.makeSelectThumbnailForUri = makeSelectThumbnailForUri;
 exports.makeSelectTitleForUri = makeSelectTitleForUri;
 exports.makeSelectTotalItemsForChannel = makeSelectTotalItemsForChannel;
@@ -3749,6 +3760,7 @@ exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
 exports.selectPendingById = selectPendingById;
 exports.selectPendingClaims = selectPendingClaims;
 exports.selectPlayingUri = selectPlayingUri;
+exports.selectPurchasedStreamingUrls = selectPurchasedStreamingUrls;
 exports.selectPurchasedUris = selectPurchasedUris;
 exports.selectReceiveAddress = selectReceiveAddress;
 exports.selectRecentTransactions = selectRecentTransactions;

@@ -1,11 +1,9 @@
-import {
-  ACTIONS,
-  Lbry,
-  doToast,
-  selectBalance,
-  makeSelectFileInfoForUri,
-  selectDownloadingByOutpoint,
-} from 'lbry-redux';
+import * as ACTIONS from 'constants/action_types';
+import Lbry from 'lbry';
+import { doToast } from 'redux/actions/notifications';
+import { selectBalance } from 'redux/selectors/wallet';
+import { makeSelectFileInfoForUri, selectDownloadingByOutpoint } from 'redux/selectors/file_info';
+import { makeSelectStreamingUrlForUri } from 'redux/selectors/file';
 import { makeSelectCostInfoForUri } from 'lbryinc';
 
 export function doLoadFile(uri, saveFile = true) {
@@ -36,9 +34,10 @@ export function doLoadFile(uri, saveFile = true) {
           dispatch(doToast({ message: `File timeout for uri ${uri}` }));
         } else {
           // purchase was completed successfully
+          const { streaming_url: streamingUrl } = streamInfo;
           dispatch({
             type: ACTIONS.PURCHASE_URI_COMPLETED,
-            data: { uri },
+            data: { uri, streamingUrl: !saveFile && streamingUrl ? streamingUrl : null },
           });
         }
       })
@@ -71,15 +70,14 @@ export function doPurchaseUri(uri, specificCostInfo) {
     const state = getState();
     const balance = selectBalance(state);
     const fileInfo = makeSelectFileInfoForUri(uri)(state);
-
-    // TODO: What about already streaming?
     const downloadingByOutpoint = selectDownloadingByOutpoint(state);
     const alreadyDownloading = fileInfo && !!downloadingByOutpoint[fileInfo.outpoint];
+    const alreadyStreaming = makeSelectStreamingUrlForUri(uri)(state);
 
-    if (alreadyDownloading) {
+    if (alreadyDownloading || alreadyStreaming) {
       dispatch({
         type: ACTIONS.PURCHASE_URI_FAILED,
-        data: { uri, error: `Already downloading uri: ${uri}` },
+        data: { uri, error: `Already downloading / streaming uri: ${uri}` },
       });
 
       Promise.resolve();

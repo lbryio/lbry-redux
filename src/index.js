@@ -108,9 +108,11 @@ export { makeSelectContentPositionForUri } from 'redux/selectors/content';
 export { selectToast, selectError } from 'redux/selectors/notifications';
 
 export {
-  selectPurchasedUris,
   selectFailedPurchaseUris,
+  selectPurchasedUris,
+  selectPurchasedStreamingUrls,
   selectLastPurchasedUri,
+  makeSelectStreamingUrlForUri,
 } from 'redux/selectors/file';
 
 export {
