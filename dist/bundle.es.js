@@ -7,6 +7,8 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('proxy-polyfill');
 var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
+var lbryRedux = require('lbry-redux');
+var lbryinc = require('lbryinc');
 
 const WINDOW_FOCUSED = 'WINDOW_FOCUSED';
 const DAEMON_READY = 'DAEMON_READY';
@@ -116,6 +118,12 @@ const FETCH_AVAILABILITY_STARTED = 'FETCH_AVAILABILITY_STARTED';
 const FETCH_AVAILABILITY_COMPLETED = 'FETCH_AVAILABILITY_COMPLETED';
 const FILE_DELETE = 'FILE_DELETE';
 const SET_FILE_LIST_SORT = 'SET_FILE_LIST_SORT';
+const PURCHASE_URI_STARTED = 'PURCHASE_URI_STARTED';
+const PURCHASE_URI_COMPLETED = 'PURCHASE_URI_COMPLETED';
+const PURCHASE_URI_FAILED = 'PURCHASE_URI_FAILED';
+const LOADING_FILE_STARTED = 'LOADING_FILE_STARTED';
+const LOADING_FILE_COMPLETED = 'LOADING_FILE_COMPLETED';
+const LOADING_FILE_FAILED = 'LOADING_FILE_FAILED';
 
 // Search
 const SEARCH_START = 'SEARCH_START';
@@ -327,6 +335,12 @@ var action_types = /*#__PURE__*/Object.freeze({
     FETCH_AVAILABILITY_COMPLETED: FETCH_AVAILABILITY_COMPLETED,
     FILE_DELETE: FILE_DELETE,
     SET_FILE_LIST_SORT: SET_FILE_LIST_SORT,
+    PURCHASE_URI_STARTED: PURCHASE_URI_STARTED,
+    PURCHASE_URI_COMPLETED: PURCHASE_URI_COMPLETED,
+    PURCHASE_URI_FAILED: PURCHASE_URI_FAILED,
+    LOADING_FILE_STARTED: LOADING_FILE_STARTED,
+    LOADING_FILE_COMPLETED: LOADING_FILE_COMPLETED,
+    LOADING_FILE_FAILED: LOADING_FILE_FAILED,
     SEARCH_START: SEARCH_START,
     SEARCH_SUCCESS: SEARCH_SUCCESS,
     SEARCH_FAIL: SEARCH_FAIL,
@@ -2133,6 +2147,92 @@ function doFetchChannelListMine() {
   };
 }
 
+function doLoadFile(uri, saveFile = true) {
+  return dispatch => {
+    dispatch({
+      type: lbryRedux.ACTIONS.LOADING_FILE_STARTED,
+      data: {
+        uri
+      }
+    });
+
+    // set save_file argument to True to save the file (old behaviour)
+    lbryRedux.Lbry.get({ uri, save_file: saveFile }).then(streamInfo => {
+      const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
+
+      if (timeout) {
+        dispatch({
+          type: lbryRedux.ACTIONS.LOADING_FILE_FAILED,
+          data: { uri }
+        });
+        dispatch({
+          type: lbryRedux.ACTIONS.PURCHASE_URI_FAILED,
+          data: { uri }
+        });
+
+        dispatch(lbryRedux.doToast({ message: `File timeout for uri ${uri}` }));
+      } else {
+        // purchase was completed successfully
+        dispatch({
+          type: lbryRedux.ACTIONS.PURCHASE_URI_COMPLETED,
+          data: { uri }
+        });
+      }
+    }).catch(() => {
+      dispatch({
+        type: lbryRedux.ACTIONS.LOADING_FILE_FAILED,
+        data: { uri }
+      });
+      dispatch({
+        type: lbryRedux.ACTIONS.PURCHASE_URI_FAILED,
+        data: { uri }
+      });
+
+      dispatch(lbryRedux.doToast({
+        message: `Failed to download ${uri}, please try again. If this problem persists, visit https://lbry.com/faq/support for support.`
+      }));
+    });
+  };
+}
+
+function doPurchaseUri(uri, specificCostInfo) {
+  return (dispatch, getState) => {
+    dispatch({
+      type: lbryRedux.ACTIONS.PURCHASE_URI_STARTED,
+      data: { uri }
+    });
+
+    const state = getState();
+    const balance = lbryRedux.selectBalance(state);
+    const fileInfo = lbryRedux.makeSelectFileInfoForUri(uri)(state);
+
+    // TODO: What about already streaming?
+    const downloadingByOutpoint = lbryRedux.selectDownloadingByOutpoint(state);
+    const alreadyDownloading = fileInfo && !!downloadingByOutpoint[fileInfo.outpoint];
+
+    if (alreadyDownloading) {
+      dispatch({
+        type: lbryRedux.ACTIONS.PURCHASE_URI_FAILED,
+        data: { uri, error: `Already downloading uri: ${uri}` }
+      });
+      return;
+    }
+
+    const costInfo = lbryinc.makeSelectCostInfoForUri(uri)(state) || specificCostInfo;
+    const { cost } = costInfo;
+
+    if (cost > balance) {
+      dispatch({
+        type: lbryRedux.ACTIONS.PURCHASE_URI_FAILED,
+        data: { uri, error: 'Insufficient credits' }
+      });
+      return;
+    }
+
+    dispatch(doLoadFile(uri));
+  };
+}
+
 const selectState$3 = state => state.fileInfo || {};
 
 const selectFileInfosByOutpoint = reselect.createSelector(selectState$3, state => state.byOutpoint || {});
@@ -2789,15 +2889,58 @@ var _extends$4 = Object.assign || function (target) { for (var i = 1; i < argume
 
 const reducers$1 = {};
 const defaultState$1 = {
+  purchasedUris: [],
+  failedPurchaseUris: []
+};
+
+reducers$1[PURCHASE_URI_COMPLETED] = (state, action) => {
+  const { uri } = action.data;
+  const newPurchasedUris = state.purchasedUris.slice();
+  const newFailedPurchaseUris = state.failedPurchasedUris.slice();
+  if (!newPurchasedUris.includes(uri)) {
+    newPurchasedUris.push(uri);
+  }
+  if (newFailedPurchaseUris.includes(uri)) {
+    newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
+  }
+
+  return _extends$4({}, state, {
+    purchasedUris: newPurchasedUris,
+    failedPurchaseUris: newFailedPurchaseUris
+  });
+};
+
+reducers$1[PURCHASE_URI_FAILED] = (state, action) => {
+  const { uri } = action.data;
+  const newFailedPurchaseUris = state.failedPurchasedUris.slice();
+  if (!newFailedPurchaseUris.includes(uri)) {
+    newFailedPurchaseUris.push(uri);
+  }
+
+  return _extends$4({}, state, {
+    failedPurchaseUris: newFailedPurchaseUris
+  });
+};
+
+function fileReducer(state = defaultState$1, action) {
+  const handler = reducers$1[action.type];
+  if (handler) return handler(state, action);
+  return state;
+}
+
+var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+const reducers$2 = {};
+const defaultState$2 = {
   fileListPublishedSort: DATE_NEW,
   fileListDownloadedSort: DATE_NEW
 };
 
-reducers$1[FILE_LIST_STARTED] = state => Object.assign({}, state, {
+reducers$2[FILE_LIST_STARTED] = state => Object.assign({}, state, {
   isFetchingFileList: true
 });
 
-reducers$1[FILE_LIST_SUCCEEDED] = (state, action) => {
+reducers$2[FILE_LIST_SUCCEEDED] = (state, action) => {
   const { fileInfos } = action.data;
   const newByOutpoint = Object.assign({}, state.byOutpoint);
   const pendingByOutpoint = Object.assign({}, state.pendingByOutpoint);
@@ -2815,7 +2958,7 @@ reducers$1[FILE_LIST_SUCCEEDED] = (state, action) => {
   });
 };
 
-reducers$1[FETCH_FILE_INFO_STARTED] = (state, action) => {
+reducers$2[FETCH_FILE_INFO_STARTED] = (state, action) => {
   const { outpoint } = action.data;
   const newFetching = Object.assign({}, state.fetching);
 
@@ -2826,7 +2969,7 @@ reducers$1[FETCH_FILE_INFO_STARTED] = (state, action) => {
   });
 };
 
-reducers$1[FETCH_FILE_INFO_COMPLETED] = (state, action) => {
+reducers$2[FETCH_FILE_INFO_COMPLETED] = (state, action) => {
   const { fileInfo, outpoint } = action.data;
 
   const newByOutpoint = Object.assign({}, state.byOutpoint);
@@ -2841,7 +2984,7 @@ reducers$1[FETCH_FILE_INFO_COMPLETED] = (state, action) => {
   });
 };
 
-reducers$1[DOWNLOADING_STARTED] = (state, action) => {
+reducers$2[DOWNLOADING_STARTED] = (state, action) => {
   const { uri, outpoint, fileInfo } = action.data;
 
   const newByOutpoint = Object.assign({}, state.byOutpoint);
@@ -2859,7 +3002,7 @@ reducers$1[DOWNLOADING_STARTED] = (state, action) => {
   });
 };
 
-reducers$1[DOWNLOADING_PROGRESSED] = (state, action) => {
+reducers$2[DOWNLOADING_PROGRESSED] = (state, action) => {
   const { outpoint, fileInfo } = action.data;
 
   const newByOutpoint = Object.assign({}, state.byOutpoint);
@@ -2874,7 +3017,7 @@ reducers$1[DOWNLOADING_PROGRESSED] = (state, action) => {
   });
 };
 
-reducers$1[DOWNLOADING_CANCELED] = (state, action) => {
+reducers$2[DOWNLOADING_CANCELED] = (state, action) => {
   const { outpoint } = action.data;
 
   const newDownloading = Object.assign({}, state.downloadingByOutpoint);
@@ -2885,7 +3028,7 @@ reducers$1[DOWNLOADING_CANCELED] = (state, action) => {
   });
 };
 
-reducers$1[DOWNLOADING_COMPLETED] = (state, action) => {
+reducers$2[DOWNLOADING_COMPLETED] = (state, action) => {
   const { outpoint, fileInfo } = action.data;
 
   const newByOutpoint = Object.assign({}, state.byOutpoint);
@@ -2900,7 +3043,7 @@ reducers$1[DOWNLOADING_COMPLETED] = (state, action) => {
   });
 };
 
-reducers$1[FILE_DELETE] = (state, action) => {
+reducers$2[FILE_DELETE] = (state, action) => {
   const { outpoint } = action.data;
 
   const newByOutpoint = Object.assign({}, state.byOutpoint);
@@ -2915,37 +3058,37 @@ reducers$1[FILE_DELETE] = (state, action) => {
   });
 };
 
-reducers$1[LOADING_VIDEO_STARTED] = (state, action) => {
+reducers$2[LOADING_VIDEO_STARTED] = (state, action) => {
   const { uri } = action.data;
 
   const newLoading = Object.assign({}, state.urisLoading);
   newLoading[uri] = true;
 
-  const newErrors = _extends$4({}, state.errors);
+  const newErrors = _extends$5({}, state.errors);
   if (uri in newErrors) delete newErrors[uri];
 
   return Object.assign({}, state, {
     urisLoading: newLoading,
-    errors: _extends$4({}, newErrors)
+    errors: _extends$5({}, newErrors)
   });
 };
 
-reducers$1[LOADING_VIDEO_FAILED] = (state, action) => {
+reducers$2[LOADING_VIDEO_FAILED] = (state, action) => {
   const { uri } = action.data;
 
   const newLoading = Object.assign({}, state.urisLoading);
   delete newLoading[uri];
 
-  const newErrors = _extends$4({}, state.errors);
+  const newErrors = _extends$5({}, state.errors);
   newErrors[uri] = true;
 
   return Object.assign({}, state, {
     urisLoading: newLoading,
-    errors: _extends$4({}, newErrors)
+    errors: _extends$5({}, newErrors)
   });
 };
 
-reducers$1[FETCH_DATE] = (state, action) => {
+reducers$2[FETCH_DATE] = (state, action) => {
   const { time } = action.data;
   if (time) {
     return Object.assign({}, state, {
@@ -2955,7 +3098,7 @@ reducers$1[FETCH_DATE] = (state, action) => {
   return null;
 };
 
-reducers$1[SET_FILE_LIST_SORT] = (state, action) => {
+reducers$2[SET_FILE_LIST_SORT] = (state, action) => {
   const pageSortStates = {
     [PUBLISHED]: 'fileListPublishedSort',
     [DOWNLOADED]: 'fileListDownloadedSort'
@@ -2968,8 +3111,8 @@ reducers$1[SET_FILE_LIST_SORT] = (state, action) => {
   });
 };
 
-function fileInfoReducer(state = defaultState$1, action) {
-  const handler = reducers$1[action.type];
+function fileInfoReducer(state = defaultState$2, action) {
+  const handler = reducers$2[action.type];
   if (handler) return handler(state, action);
   return state;
 }
@@ -2992,9 +3135,9 @@ const handleActions = (actionMap, defaultState) => (state = defaultState, action
   return state;
 };
 
-var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const defaultState$2 = {
+const defaultState$3 = {
   notifications: [],
   toasts: [],
   errors: []
@@ -3007,7 +3150,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.push(toast);
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       toasts: newToasts
     });
   },
@@ -3015,7 +3158,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.shift();
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       toasts: newToasts
     });
   },
@@ -3026,7 +3169,7 @@ const notificationsReducer = handleActions({
     const newNotifications = state.notifications.slice();
     newNotifications.push(notification);
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       notifications: newNotifications
     });
   },
@@ -3037,7 +3180,7 @@ const notificationsReducer = handleActions({
 
     notifications = notifications.map(pastNotification => pastNotification.id === notification.id ? notification : pastNotification);
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       notifications
     });
   },
@@ -3046,7 +3189,7 @@ const notificationsReducer = handleActions({
     let newNotifications = state.notifications.slice();
     newNotifications = newNotifications.filter(notification => notification.id !== id);
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       notifications: newNotifications
     });
   },
@@ -3057,7 +3200,7 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.push(error);
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       errors: newErrors
     });
   },
@@ -3065,15 +3208,15 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.shift();
 
-    return _extends$5({}, state, {
+    return _extends$6({}, state, {
       errors: newErrors
     });
   }
-}, defaultState$2);
+}, defaultState$3);
 
-var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const defaultState$3 = {
+const defaultState$4 = {
   isActive: false, // does the user have any typed text in the search input
   focused: false, // is the search input focused
   searchQuery: '', // needs to be an empty string for input focusing
@@ -3091,29 +3234,29 @@ const defaultState$3 = {
 };
 
 const searchReducer = handleActions({
-  [SEARCH_START]: state => _extends$6({}, state, {
+  [SEARCH_START]: state => _extends$7({}, state, {
     searching: true
   }),
   [SEARCH_SUCCESS]: (state, action) => {
     const { query, uris } = action.data;
 
-    return _extends$6({}, state, {
+    return _extends$7({}, state, {
       searching: false,
       urisByQuery: Object.assign({}, state.urisByQuery, { [query]: uris })
     });
   },
 
-  [SEARCH_FAIL]: state => _extends$6({}, state, {
+  [SEARCH_FAIL]: state => _extends$7({}, state, {
     searching: false
   }),
 
-  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$6({}, state, {
+  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$7({}, state, {
     searchQuery: action.data.query,
     isActive: true
   }),
 
-  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$6({}, state, {
-    suggestions: _extends$6({}, state.suggestions, {
+  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$7({}, state, {
+    suggestions: _extends$7({}, state.suggestions, {
       [action.data.query]: action.data.suggestions
     })
   }),
@@ -3121,27 +3264,27 @@ const searchReducer = handleActions({
   // sets isActive to false so the uri will be populated correctly if the
   // user is on a file page. The search query will still be present on any
   // other page
-  [DISMISS_NOTIFICATION]: state => _extends$6({}, state, {
+  [DISMISS_NOTIFICATION]: state => _extends$7({}, state, {
     isActive: false
   }),
 
-  [SEARCH_FOCUS]: state => _extends$6({}, state, {
+  [SEARCH_FOCUS]: state => _extends$7({}, state, {
     focused: true
   }),
-  [SEARCH_BLUR]: state => _extends$6({}, state, {
+  [SEARCH_BLUR]: state => _extends$7({}, state, {
     focused: false
   }),
   [UPDATE_SEARCH_OPTIONS]: (state, action) => {
     const { options: oldOptions } = state;
     const newOptions = action.data;
-    const options = _extends$6({}, oldOptions, newOptions);
-    return _extends$6({}, state, {
+    const options = _extends$7({}, oldOptions, newOptions);
+    return _extends$7({}, state, {
       options
     });
   }
-}, defaultState$3);
+}, defaultState$4);
 
-var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const buildDraftTransaction = () => ({
   amount: undefined,
@@ -3152,7 +3295,7 @@ const buildDraftTransaction = () => ({
 // See details in https://github.com/lbryio/lbry/issues/1307
 
 
-const defaultState$4 = {
+const defaultState$5 = {
   balance: undefined,
   totalBalance: undefined,
   latestBlock: undefined,
@@ -3181,25 +3324,25 @@ const defaultState$4 = {
 };
 
 const walletReducer = handleActions({
-  [FETCH_TRANSACTIONS_STARTED]: state => _extends$7({}, state, {
+  [FETCH_TRANSACTIONS_STARTED]: state => _extends$8({}, state, {
     fetchingTransactions: true
   }),
 
   [FETCH_TRANSACTIONS_COMPLETED]: (state, action) => {
-    const byId = _extends$7({}, state.transactions);
+    const byId = _extends$8({}, state.transactions);
 
     const { transactions } = action.data;
     transactions.forEach(transaction => {
       byId[transaction.txid] = transaction;
     });
 
-    return _extends$7({}, state, {
+    return _extends$8({}, state, {
       transactions: byId,
       fetchingTransactions: false
     });
   },
 
-  [FETCH_SUPPORTS_STARTED]: state => _extends$7({}, state, {
+  [FETCH_SUPPORTS_STARTED]: state => _extends$8({}, state, {
     fetchingSupports: true
   }),
 
@@ -3212,7 +3355,7 @@ const walletReducer = handleActions({
       byOutpoint[`${txid}:${nout}`] = transaction;
     });
 
-    return _extends$7({}, state, { supports: byOutpoint, fetchingSupports: false });
+    return _extends$8({}, state, { supports: byOutpoint, fetchingSupports: false });
   },
 
   [ABANDON_SUPPORT_STARTED]: (state, action) => {
@@ -3221,7 +3364,7 @@ const walletReducer = handleActions({
 
     currentlyAbandoning[outpoint] = true;
 
-    return _extends$7({}, state, {
+    return _extends$8({}, state, {
       abandoningSupportsByOutpoint: currentlyAbandoning
     });
   },
@@ -3234,56 +3377,56 @@ const walletReducer = handleActions({
     delete currentlyAbandoning[outpoint];
     delete byOutpoint[outpoint];
 
-    return _extends$7({}, state, {
+    return _extends$8({}, state, {
       supports: byOutpoint,
       abandoningSupportsById: currentlyAbandoning
     });
   },
 
-  [GET_NEW_ADDRESS_STARTED]: state => _extends$7({}, state, {
+  [GET_NEW_ADDRESS_STARTED]: state => _extends$8({}, state, {
     gettingNewAddress: true
   }),
 
   [GET_NEW_ADDRESS_COMPLETED]: (state, action) => {
     const { address } = action.data;
 
-    return _extends$7({}, state, { gettingNewAddress: false, receiveAddress: address });
+    return _extends$8({}, state, { gettingNewAddress: false, receiveAddress: address });
   },
 
-  [UPDATE_BALANCE]: (state, action) => _extends$7({}, state, {
+  [UPDATE_BALANCE]: (state, action) => _extends$8({}, state, {
     balance: action.data.balance
   }),
 
-  [UPDATE_TOTAL_BALANCE]: (state, action) => _extends$7({}, state, {
+  [UPDATE_TOTAL_BALANCE]: (state, action) => _extends$8({}, state, {
     totalBalance: action.data.totalBalance
   }),
 
-  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$7({}, state, {
+  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$8({}, state, {
     checkingAddressOwnership: true
   }),
 
-  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$7({}, state, {
+  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$8({}, state, {
     checkingAddressOwnership: false
   }),
 
   [SET_DRAFT_TRANSACTION_AMOUNT]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$7({}, oldDraft, { amount: parseFloat(action.data.amount) });
+    const newDraft = _extends$8({}, oldDraft, { amount: parseFloat(action.data.amount) });
 
-    return _extends$7({}, state, { draftTransaction: newDraft });
+    return _extends$8({}, state, { draftTransaction: newDraft });
   },
 
   [SET_DRAFT_TRANSACTION_ADDRESS]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$7({}, oldDraft, { address: action.data.address });
+    const newDraft = _extends$8({}, oldDraft, { address: action.data.address });
 
-    return _extends$7({}, state, { draftTransaction: newDraft });
+    return _extends$8({}, state, { draftTransaction: newDraft });
   },
 
   [SEND_TRANSACTION_STARTED]: state => {
-    const newDraftTransaction = _extends$7({}, state.draftTransaction, { sending: true });
+    const newDraftTransaction = _extends$8({}, state.draftTransaction, { sending: true });
 
-    return _extends$7({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$8({}, state, { draftTransaction: newDraftTransaction });
   },
 
   [SEND_TRANSACTION_COMPLETED]: state => Object.assign({}, state, {
@@ -3296,127 +3439,127 @@ const walletReducer = handleActions({
       error: action.data.error
     });
 
-    return _extends$7({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$8({}, state, { draftTransaction: newDraftTransaction });
   },
 
-  [SUPPORT_TRANSACTION_STARTED]: state => _extends$7({}, state, {
+  [SUPPORT_TRANSACTION_STARTED]: state => _extends$8({}, state, {
     sendingSupport: true
   }),
 
-  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$7({}, state, {
+  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$8({}, state, {
     sendingSupport: false
   }),
 
-  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$7({}, state, {
+  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$8({}, state, {
     error: action.data.error,
     sendingSupport: false
   }),
 
-  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$7({}, state, {
+  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$8({}, state, {
     walletIsEncrypted: action.result
   }),
 
-  [WALLET_ENCRYPT_START]: state => _extends$7({}, state, {
+  [WALLET_ENCRYPT_START]: state => _extends$8({}, state, {
     walletEncryptPending: true,
     walletEncryptSucceded: null,
     walletEncryptResult: null
   }),
 
-  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$7({}, state, {
+  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$8({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: true,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$7({}, state, {
+  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$8({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: false,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_START]: state => _extends$7({}, state, {
+  [WALLET_DECRYPT_START]: state => _extends$8({}, state, {
     walletDecryptPending: true,
     walletDecryptSucceded: null,
     walletDecryptResult: null
   }),
 
-  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$7({}, state, {
+  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$8({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: true,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$7({}, state, {
+  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$8({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: false,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_UNLOCK_START]: state => _extends$7({}, state, {
+  [WALLET_UNLOCK_START]: state => _extends$8({}, state, {
     walletUnlockPending: true,
     walletUnlockSucceded: null,
     walletUnlockResult: null
   }),
 
-  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$7({}, state, {
+  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$8({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: true,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$7({}, state, {
+  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$8({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: false,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_LOCK_START]: state => _extends$7({}, state, {
+  [WALLET_LOCK_START]: state => _extends$8({}, state, {
     walletLockPending: false,
     walletLockSucceded: null,
     walletLockResult: null
   }),
 
-  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$7({}, state, {
+  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$8({}, state, {
     walletLockPending: false,
     walletLockSucceded: true,
     walletLockResult: action.result
   }),
 
-  [WALLET_LOCK_FAILED]: (state, action) => _extends$7({}, state, {
+  [WALLET_LOCK_FAILED]: (state, action) => _extends$8({}, state, {
     walletLockPending: false,
     walletLockSucceded: false,
     walletLockResult: action.result
   }),
 
-  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$7({}, state, {
+  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$8({}, state, {
     transactionListFilter: action.data
   }),
 
-  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$7({}, state, {
+  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$8({}, state, {
     latestBlock: action.data
   })
-}, defaultState$4);
+}, defaultState$5);
 
-var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const reducers$2 = {};
-const defaultState$5 = {
+const reducers$3 = {};
+const defaultState$6 = {
   positions: {}
 };
 
-reducers$2[SET_CONTENT_POSITION] = (state, action) => {
+reducers$3[SET_CONTENT_POSITION] = (state, action) => {
   const { claimId, outpoint, position } = action.data;
-  return _extends$8({}, state, {
-    positions: _extends$8({}, state.positions, {
-      [claimId]: _extends$8({}, state.positions[claimId], {
+  return _extends$9({}, state, {
+    positions: _extends$9({}, state.positions, {
+      [claimId]: _extends$9({}, state.positions[claimId], {
         [outpoint]: position
       })
     })
   });
 };
 
-function contentReducer(state = defaultState$5, action) {
-  const handler = reducers$2[action.type];
+function contentReducer(state = defaultState$6, action) {
+  const handler = reducers$3[action.type];
   if (handler) return handler(state, action);
   return state;
 }
@@ -3432,14 +3575,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$5 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$5, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$9({
+    return _extends$a({
       id
     }, params);
   }
@@ -3457,6 +3600,14 @@ const selectError = reselect.createSelector(selectState$5, state => {
 
   return null;
 });
+
+const selectState$6 = state => state.file || {};
+
+const selectPurchasedUris = reselect.createSelector(selectState$6, state => state.purchasedUris);
+
+const selectFailedPurchaseUris = reselect.createSelector(selectState$6, state => state.failedPurchaseUris);
+
+const selectLastPurchasedUri = reselect.createSelector(selectState$6, state => state.purchasedUris.length > 0 ? state.purchasedUris[state.purchasedUris.length - 1] : null);
 
 exports.ACTIONS = action_types;
 exports.Lbry = lbryProxy;
@@ -3490,6 +3641,8 @@ exports.doFetchTransactions = doFetchTransactions;
 exports.doFileList = doFileList;
 exports.doFocusSearchInput = doFocusSearchInput;
 exports.doGetNewAddress = doGetNewAddress;
+exports.doLoadFile = doLoadFile;
+exports.doPurchaseUri = doPurchaseUri;
 exports.doResolveUri = doResolveUri;
 exports.doResolveUris = doResolveUris;
 exports.doSearch = doSearch;
@@ -3511,6 +3664,7 @@ exports.doWalletEncrypt = doWalletEncrypt;
 exports.doWalletStatus = doWalletStatus;
 exports.doWalletUnlock = doWalletUnlock;
 exports.fileInfoReducer = fileInfoReducer;
+exports.fileReducer = fileReducer;
 exports.formatCredits = formatCredits;
 exports.formatFullPrice = formatFullPrice;
 exports.isClaimNsfw = isClaimNsfw;
@@ -3571,6 +3725,7 @@ exports.selectDraftTransactionAddress = selectDraftTransactionAddress;
 exports.selectDraftTransactionAmount = selectDraftTransactionAmount;
 exports.selectDraftTransactionError = selectDraftTransactionError;
 exports.selectError = selectError;
+exports.selectFailedPurchaseUris = selectFailedPurchaseUris;
 exports.selectFetchingMyChannels = selectFetchingMyChannels;
 exports.selectFileInfosByOutpoint = selectFileInfosByOutpoint;
 exports.selectFileInfosDownloaded = selectFileInfosDownloaded;
@@ -3584,6 +3739,7 @@ exports.selectIsFetchingFileListDownloadedOrPublished = selectIsFetchingFileList
 exports.selectIsFetchingTransactions = selectIsFetchingTransactions;
 exports.selectIsSearching = selectIsSearching;
 exports.selectIsSendingSupport = selectIsSendingSupport;
+exports.selectLastPurchasedUri = selectLastPurchasedUri;
 exports.selectMyActiveClaims = selectMyActiveClaims;
 exports.selectMyChannelClaims = selectMyChannelClaims;
 exports.selectMyClaims = selectMyClaims;
@@ -3593,6 +3749,7 @@ exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
 exports.selectPendingById = selectPendingById;
 exports.selectPendingClaims = selectPendingClaims;
 exports.selectPlayingUri = selectPlayingUri;
+exports.selectPurchasedUris = selectPurchasedUris;
 exports.selectReceiveAddress = selectReceiveAddress;
 exports.selectRecentTransactions = selectRecentTransactions;
 exports.selectResolvingUris = selectResolvingUris;
