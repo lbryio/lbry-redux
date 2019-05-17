@@ -7,7 +7,6 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('proxy-polyfill');
 var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
-var lbryinc = require('lbryinc');
 
 const WINDOW_FOCUSED = 'WINDOW_FOCUSED';
 const DAEMON_READY = 'DAEMON_READY';
@@ -235,6 +234,11 @@ const DISMISS_ERROR = 'DISMISS_ERROR';
 
 const FETCH_DATE = 'FETCH_DATE';
 
+// Cost info
+const FETCH_COST_INFO_STARTED = 'FETCH_COST_INFO_STARTED';
+const FETCH_COST_INFO_COMPLETED = 'FETCH_COST_INFO_COMPLETED';
+const FETCH_COST_INFO_FAILED = 'FETCH_COST_INFO_FAILED';
+
 var action_types = /*#__PURE__*/Object.freeze({
     WINDOW_FOCUSED: WINDOW_FOCUSED,
     DAEMON_READY: DAEMON_READY,
@@ -431,7 +435,10 @@ var action_types = /*#__PURE__*/Object.freeze({
     DISMISS_TOAST: DISMISS_TOAST,
     CREATE_ERROR: CREATE_ERROR,
     DISMISS_ERROR: DISMISS_ERROR,
-    FETCH_DATE: FETCH_DATE
+    FETCH_DATE: FETCH_DATE,
+    FETCH_COST_INFO_STARTED: FETCH_COST_INFO_STARTED,
+    FETCH_COST_INFO_COMPLETED: FETCH_COST_INFO_COMPLETED,
+    FETCH_COST_INFO_FAILED: FETCH_COST_INFO_FAILED
 });
 
 const API_DOWN = 'apiDown';
@@ -2342,7 +2349,7 @@ function doLoadFile(uri, saveFile = true) {
           data: { uri }
         });
 
-        dispatch(doToast({ message: `File timeout for uri ${uri}` }));
+        dispatch(doToast({ message: `File timeout for uri ${uri}`, isError: true }));
       } else {
         // purchase was completed successfully
         const { streaming_url: streamingUrl } = streamInfo;
@@ -2362,13 +2369,14 @@ function doLoadFile(uri, saveFile = true) {
       });
 
       dispatch(doToast({
-        message: `Failed to download ${uri}, please try again. If this problem persists, visit https://lbry.com/faq/support for support.`
+        message: `Failed to download ${uri}, please try again. If this problem persists, visit https://lbry.com/faq/support for support.`,
+        isError: true
       }));
     });
   };
 }
 
-function doPurchaseUri(uri, specificCostInfo) {
+function doPurchaseUri(uri, costInfo, saveFile = true) {
   return (dispatch, getState) => {
     dispatch({
       type: PURCHASE_URI_STARTED,
@@ -2390,7 +2398,6 @@ function doPurchaseUri(uri, specificCostInfo) {
       return;
     }
 
-    const costInfo = lbryinc.makeSelectCostInfoForUri(uri)(state) || specificCostInfo;
     const { cost } = costInfo;
 
     if (cost > balance) {
@@ -2401,7 +2408,7 @@ function doPurchaseUri(uri, specificCostInfo) {
       return;
     }
 
-    dispatch(doLoadFile(uri));
+    dispatch(doLoadFile(uri, saveFile));
   };
 }
 
@@ -2908,7 +2915,7 @@ const defaultState$1 = {
 reducers$1[PURCHASE_URI_COMPLETED] = (state, action) => {
   const { uri, streamingUrl } = action.data;
   const newPurchasedUris = state.purchasedUris.slice();
-  const newFailedPurchaseUris = state.failedPurchasedUris.slice();
+  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
   const newPurchasedStreamingUrls = Object.assign({}, state.newPurchasedStreamingUrls);
 
   if (!newPurchasedUris.includes(uri)) {
@@ -2930,7 +2937,7 @@ reducers$1[PURCHASE_URI_COMPLETED] = (state, action) => {
 
 reducers$1[PURCHASE_URI_FAILED] = (state, action) => {
   const { uri } = action.data;
-  const newFailedPurchaseUris = state.failedPurchasedUris.slice();
+  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
   if (!newFailedPurchaseUris.includes(uri)) {
     newFailedPurchaseUris.push(uri);
   }

@@ -4,7 +4,6 @@ import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
 import { makeSelectFileInfoForUri, selectDownloadingByOutpoint } from 'redux/selectors/file_info';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file';
-import { makeSelectCostInfoForUri } from 'lbryinc';
 
 export function doLoadFile(uri, saveFile = true) {
   return dispatch => {
@@ -31,7 +30,7 @@ export function doLoadFile(uri, saveFile = true) {
             data: { uri },
           });
 
-          dispatch(doToast({ message: `File timeout for uri ${uri}` }));
+          dispatch(doToast({ message: `File timeout for uri ${uri}`, isError: true }));
         } else {
           // purchase was completed successfully
           const { streaming_url: streamingUrl } = streamInfo;
@@ -54,13 +53,14 @@ export function doLoadFile(uri, saveFile = true) {
         dispatch(
           doToast({
             message: `Failed to download ${uri}, please try again. If this problem persists, visit https://lbry.com/faq/support for support.`,
+            isError: true,
           })
         );
       });
   };
 }
 
-export function doPurchaseUri(uri, specificCostInfo) {
+export function doPurchaseUri(uri, costInfo, saveFile = true) {
   return (dispatch, getState) => {
     dispatch({
       type: ACTIONS.PURCHASE_URI_STARTED,
@@ -84,7 +84,6 @@ export function doPurchaseUri(uri, specificCostInfo) {
       return;
     }
 
-    const costInfo = makeSelectCostInfoForUri(uri)(state) || specificCostInfo;
     const { cost } = costInfo;
 
     if (cost > balance) {
@@ -97,6 +96,6 @@ export function doPurchaseUri(uri, specificCostInfo) {
       return;
     }
 
-    dispatch(doLoadFile(uri));
+    dispatch(doLoadFile(uri, saveFile));
   };
 }

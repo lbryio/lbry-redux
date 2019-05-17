@@ -1,5 +1,4 @@
 import * as ACTIONS from 'constants/action_types';
-import { buildURI, parseURI } from 'lbryURI';
 
 const reducers = {};
 const defaultState = {
@@ -11,7 +10,7 @@ const defaultState = {
 reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (state, action) => {
   const { uri, streamingUrl } = action.data;
   const newPurchasedUris = state.purchasedUris.slice();
-  const newFailedPurchaseUris = state.failedPurchasedUris.slice();
+  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
   const newPurchasedStreamingUrls = Object.assign({}, state.newPurchasedStreamingUrls);
 
   if (!newPurchasedUris.includes(uri)) {
@@ -34,7 +33,7 @@ reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (state, action) => {
 
 reducers[ACTIONS.PURCHASE_URI_FAILED] = (state, action) => {
   const { uri } = action.data;
-  const newFailedPurchaseUris = state.failedPurchasedUris.slice();
+  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
   if (!newFailedPurchaseUris.includes(uri)) {
     newFailedPurchaseUris.push(uri);
   }
