@@ -35,7 +35,10 @@ reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (
   };
 };
 
-reducers[ACTIONS.PURCHASE_URI_FAILED] = (state: FileState, action: PurchaseUriFailed) => {
+reducers[ACTIONS.PURCHASE_URI_FAILED] = (
+  state: FileState,
+  action: PurchaseUriFailed
+): FileState => {
   const { uri } = action.data;
   const newFailedPurchaseUris = state.failedPurchaseUris.slice();
   if (!newFailedPurchaseUris.includes(uri)) {

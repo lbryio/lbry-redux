@@ -24,6 +24,7 @@ declare type FileListItem = {
   stopped: false,
   stream_hash: string,
   stream_name: string,
+  streaming_url: string,
   suggested_file_name: string,
   total_bytes: number,
   total_bytes_lower_bound: number,

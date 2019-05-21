@@ -2314,6 +2314,8 @@ const selectFileListPublishedSort = reselect.createSelector(selectState$3, state
 
 const selectFileListDownloadedSort = reselect.createSelector(selectState$3, state => state.fileListDownloadedSort);
 
+//      
+
 const selectState$4 = state => state.file || {};
 
 const selectFailedPurchaseUris = reselect.createSelector(selectState$4, state => state.failedPurchaseUris);
@@ -2328,7 +2330,7 @@ const makeSelectStreamingUrlForUri = uri => reselect.createSelector(selectPurcha
 
 //      
 
-function doLoadFile(uri, saveFile = true) {
+function doFileGet(uri, saveFile = true) {
   return dispatch => {
     dispatch({
       type: LOADING_FILE_STARTED,
@@ -2339,7 +2341,7 @@ function doLoadFile(uri, saveFile = true) {
 
     // set save_file argument to True to save the file (old behaviour)
     lbryProxy.get({ uri, save_file: saveFile }).then(streamInfo => {
-      const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
+      const timeout = streamInfo === null || typeof streamInfo !== 'object';
 
       if (timeout) {
         dispatch({
@@ -2395,7 +2397,7 @@ function doPurchaseUri(uri, costInfo, saveFile = true) {
     if (alreadyDownloading || alreadyStreaming) {
       dispatch({
         type: PURCHASE_URI_FAILED,
-        data: { uri, error: `Already downloading / streaming uri: ${uri}` }
+        data: { uri, error: `Already fetching uri: ${uri}` }
       });
       return;
     }
@@ -2410,7 +2412,7 @@ function doPurchaseUri(uri, costInfo, saveFile = true) {
       return;
     }
 
-    dispatch(doLoadFile(uri, saveFile));
+    dispatch(doFileGet(uri, saveFile));
   };
 }
 
@@ -2918,7 +2920,7 @@ reducers$1[PURCHASE_URI_COMPLETED] = (state, action) => {
   const { uri, streamingUrl } = action.data;
   const newPurchasedUris = state.purchasedUris.slice();
   const newFailedPurchaseUris = state.failedPurchaseUris.slice();
-  const newPurchasedStreamingUrls = Object.assign({}, state.newPurchasedStreamingUrls);
+  const newPurchasedStreamingUrls = Object.assign({}, state.purchasedStreamingUrls);
 
   if (!newPurchasedUris.includes(uri)) {
     newPurchasedUris.push(uri);
@@ -3657,10 +3659,10 @@ exports.doFetchClaimsByChannel = doFetchClaimsByChannel;
 exports.doFetchFileInfo = doFetchFileInfo;
 exports.doFetchFileInfosAndPublishedClaims = doFetchFileInfosAndPublishedClaims;
 exports.doFetchTransactions = doFetchTransactions;
+exports.doFileGet = doFileGet;
 exports.doFileList = doFileList;
 exports.doFocusSearchInput = doFocusSearchInput;
 exports.doGetNewAddress = doGetNewAddress;
-exports.doLoadFile = doLoadFile;
 exports.doPurchaseUri = doPurchaseUri;
 exports.doResolveUri = doResolveUri;
 exports.doResolveUris = doResolveUris;
