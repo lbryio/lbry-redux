@@ -1,3 +1,4 @@
+// @flow
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import { doToast } from 'redux/actions/notifications';
@@ -5,8 +6,11 @@ import { selectBalance } from 'redux/selectors/wallet';
 import { makeSelectFileInfoForUri, selectDownloadingByOutpoint } from 'redux/selectors/file_info';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file';
 
-export function doLoadFile(uri, saveFile = true) {
-  return dispatch => {
+type Dispatch = (action: any) => any;
+type GetState = () => { file: FileState };
+
+export function doLoadFile(uri: string, saveFile: boolean = true) {
+  return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.LOADING_FILE_STARTED,
       data: {
@@ -16,9 +20,8 @@ export function doLoadFile(uri, saveFile = true) {
 
     // set save_file argument to True to save the file (old behaviour)
     Lbry.get({ uri, save_file: saveFile })
-      .then(streamInfo => {
-        const timeout =
-          streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
+      .then((streamInfo: GetResponse) => {
+        const timeout = streamInfo === null || typeof streamInfo !== 'object';
 
         if (timeout) {
           dispatch({
@@ -60,8 +63,8 @@ export function doLoadFile(uri, saveFile = true) {
   };
 }
 
-export function doPurchaseUri(uri, costInfo, saveFile = true) {
-  return (dispatch, getState) => {
+export function doPurchaseUri(uri: string, costInfo: { cost: number }, saveFile: boolean = true) {
+  return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
       type: ACTIONS.PURCHASE_URI_STARTED,
       data: { uri },

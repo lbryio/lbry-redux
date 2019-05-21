@@ -24,6 +24,7 @@ declare type FileListItem = {
   stopped: false,
   stream_hash: string,
   stream_name: string,
+  streaming_url: string,
   suggested_file_name: string,
   total_bytes: number,
   total_bytes_lower_bound: number,
@@ -32,4 +33,25 @@ declare type FileListItem = {
   tx: {},
   txid: string,
   written_bytes: number,
+};
+
+declare type FileState = {
+  failedPurchaseUris: Array<string>,
+  purchasedUris: Array<string>,
+  purchasedStreamingUrls: {},
+};
+
+declare type PurchaseUriCompleted = {
+  type: ACTIONS.PURCHASE_URI_COMPLETED,
+  data: {
+    uri: string,
+    streamingUrl: string,
+  },
+};
+
+declare type PurchaseUriFailed = {
+  type: ACTIONS.PURCHASE_URI_FAILED,
+  data: {
+    uri: string
+  },
 };

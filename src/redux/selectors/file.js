@@ -1,29 +1,32 @@
+// @flow
 import { createSelector } from 'reselect';
 
-export const selectState = state => state.file || {};
+type State = { file: FileState };
 
-export const selectFailedPurchaseUris = createSelector(
+export const selectState = (state: State): FileState => state.file || {};
+
+export const selectFailedPurchaseUris: (state: State) => Array<string> = createSelector(
   selectState,
   state => state.failedPurchaseUris
 );
 
-export const selectPurchasedUris = createSelector(
+export const selectPurchasedUris: (state: State) => Array<string> = createSelector(
   selectState,
   state => state.purchasedUris
 );
 
-export const selectPurchasedStreamingUrls = createSelector(
+export const selectPurchasedStreamingUrls: (state: State) => {} = createSelector(
   selectState,
   state => state.purchasedStreamingUrls
 );
 
-export const selectLastPurchasedUri = createSelector(
+export const selectLastPurchasedUri: (state: State) => string = createSelector(
   selectState,
   state =>
     state.purchasedUris.length > 0 ? state.purchasedUris[state.purchasedUris.length - 1] : null
 );
 
-export const makeSelectStreamingUrlForUri = uri =>
+export const makeSelectStreamingUrlForUri = (uri: string): ((state: State) => {}) =>
   createSelector(
     selectPurchasedStreamingUrls,
     streamingUrls => streamingUrls && streamingUrls[uri]

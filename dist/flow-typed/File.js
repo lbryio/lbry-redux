@@ -33,3 +33,24 @@ declare type FileListItem = {
   txid: string,
   written_bytes: number,
 };
+
+declare type FileState = {
+  failedPurchaseUris: Array<string>,
+  purchasedUris: Array<string>,
+  purchasedStreamingUrls: {},
+};
+
+declare type PurchaseUriCompleted = {
+  type: ACTIONS.PURCHASE_URI_COMPLETED,
+  data: {
+    uri: string,
+    streamingUrl: string,
+  },
+};
+
+declare type PurchaseUriFailed = {
+  type: ACTIONS.PURCHASE_URI_FAILED,
+  data: {
+    uri: string
+  },
+};

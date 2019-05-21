@@ -1,3 +1,4 @@
+// @flow
 import * as ACTIONS from 'constants/action_types';
 
 const reducers = {};
@@ -7,11 +8,14 @@ const defaultState = {
   purchasedStreamingUrls: {},
 };
 
-reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (state, action) => {
+reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (
+  state: FileState,
+  action: PurchaseUriCompleted
+): FileState => {
   const { uri, streamingUrl } = action.data;
   const newPurchasedUris = state.purchasedUris.slice();
   const newFailedPurchaseUris = state.failedPurchaseUris.slice();
-  const newPurchasedStreamingUrls = Object.assign({}, state.newPurchasedStreamingUrls);
+  const newPurchasedStreamingUrls = Object.assign({}, state.purchasedStreamingUrls);
 
   if (!newPurchasedUris.includes(uri)) {
     newPurchasedUris.push(uri);
@@ -31,7 +35,7 @@ reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (state, action) => {
   };
 };
 
-reducers[ACTIONS.PURCHASE_URI_FAILED] = (state, action) => {
+reducers[ACTIONS.PURCHASE_URI_FAILED] = (state: FileState, action: PurchaseUriFailed) => {
   const { uri } = action.data;
   const newFailedPurchaseUris = state.failedPurchaseUris.slice();
   if (!newFailedPurchaseUris.includes(uri)) {
@@ -44,7 +48,7 @@ reducers[ACTIONS.PURCHASE_URI_FAILED] = (state, action) => {
   };
 };
 
-export function fileReducer(state = defaultState, action) {
+export function fileReducer(state: FileState = defaultState, action: any) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
   return state;
