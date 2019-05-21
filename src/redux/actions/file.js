@@ -9,7 +9,7 @@ import { makeSelectStreamingUrlForUri } from 'redux/selectors/file';
 type Dispatch = (action: any) => any;
 type GetState = () => { file: FileState };
 
-export function doLoadFile(uri: string, saveFile: boolean = true) {
+export function doFileGet(uri: string, saveFile: boolean = true) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.LOADING_FILE_STARTED,
@@ -80,7 +80,7 @@ export function doPurchaseUri(uri: string, costInfo: { cost: number }, saveFile:
     if (alreadyDownloading || alreadyStreaming) {
       dispatch({
         type: ACTIONS.PURCHASE_URI_FAILED,
-        data: { uri, error: `Already downloading / streaming uri: ${uri}` },
+        data: { uri, error: `Already fetching uri: ${uri}` },
       });
 
       Promise.resolve();
@@ -99,6 +99,6 @@ export function doPurchaseUri(uri: string, costInfo: { cost: number }, saveFile:
       return;
     }
 
-    dispatch(doLoadFile(uri, saveFile));
+    dispatch(doFileGet(uri, saveFile));
   };
 }

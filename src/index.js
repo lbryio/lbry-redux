@@ -47,7 +47,7 @@ export {
   doCreateChannel,
 } from 'redux/actions/claims';
 
-export { doPurchaseUri, doLoadFile } from 'redux/actions/file';
+export { doPurchaseUri, doFileGet } from 'redux/actions/file';
 
 export {
   doFetchFileInfo,
