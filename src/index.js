@@ -47,6 +47,8 @@ export {
   doCreateChannel,
 } from 'redux/actions/claims';
 
+export { doPurchaseUri, doFileGet } from 'redux/actions/file';
+
 export {
   doFetchFileInfo,
   doFileList,
@@ -93,6 +95,7 @@ export { isClaimNsfw } from 'util/claim';
 
 // reducers
 export { claimsReducer } from 'redux/reducers/claims';
+export { fileReducer } from 'redux/reducers/file';
 export { fileInfoReducer } from 'redux/reducers/file_info';
 export { notificationsReducer } from 'redux/reducers/notifications';
 export { searchReducer } from 'redux/reducers/search';
@@ -103,6 +106,14 @@ export { contentReducer } from 'redux/reducers/content';
 export { makeSelectContentPositionForUri } from 'redux/selectors/content';
 
 export { selectToast, selectError } from 'redux/selectors/notifications';
+
+export {
+  selectFailedPurchaseUris,
+  selectPurchasedUris,
+  selectPurchasedStreamingUrls,
+  selectLastPurchasedUri,
+  makeSelectStreamingUrlForUri,
+} from 'redux/selectors/file';
 
 export {
   makeSelectClaimForUri,
