@@ -182,9 +182,7 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
       data: { uri, page },
     });
 
-    const { claimId } = parseURI(uri);
-
-    Lbry.claim_search({ channel_id: claimId, page: page || 1 }).then(
+    Lbry.claim_search({ channel_name: uri, page: page || 1, winning: true }).then(
       (result: ClaimSearchResponse) => {
         const { items: claimsInChannel, page: returnedPage } = result;
 
