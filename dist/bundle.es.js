@@ -2917,6 +2917,18 @@ const defaultState$1 = {
   purchasedStreamingUrls: {}
 };
 
+reducers$1[PURCHASE_URI_STARTED] = (state, action) => {
+  const { uri } = action.data;
+  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
+  if (newFailedPurchaseUris.includes(uri)) {
+    newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
+  }
+
+  return _extends$4({}, state, {
+    failedPurchaseUris: newFailedPurchaseUris
+  });
+};
+
 reducers$1[PURCHASE_URI_COMPLETED] = (state, action) => {
   const { uri, streamingUrl } = action.data;
   const newPurchasedUris = state.purchasedUris.slice();
