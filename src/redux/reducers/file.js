@@ -8,6 +8,22 @@ const defaultState = {
   purchasedStreamingUrls: {},
 };
 
+reducers[ACTIONS.PURCHASE_URI_STARTED] = (
+  state: FileState,
+  action: PurchaseUriStarted
+): FileState => {
+  const { uri } = action.data;
+  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
+  if (newFailedPurchaseUris.includes(uri)) {
+    newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
+  }
+
+  return {
+    ...state,
+    failedPurchaseUris: newFailedPurchaseUris,
+  };
+};
+
 reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (
   state: FileState,
   action: PurchaseUriCompleted
