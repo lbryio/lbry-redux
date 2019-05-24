@@ -119,6 +119,7 @@ const SET_FILE_LIST_SORT = 'SET_FILE_LIST_SORT';
 const PURCHASE_URI_STARTED = 'PURCHASE_URI_STARTED';
 const PURCHASE_URI_COMPLETED = 'PURCHASE_URI_COMPLETED';
 const PURCHASE_URI_FAILED = 'PURCHASE_URI_FAILED';
+const DELETE_PURCHASED_URI = 'DELETE_PURCHASED_URI';
 const LOADING_FILE_STARTED = 'LOADING_FILE_STARTED';
 const LOADING_FILE_COMPLETED = 'LOADING_FILE_COMPLETED';
 const LOADING_FILE_FAILED = 'LOADING_FILE_FAILED';
@@ -341,6 +342,7 @@ var action_types = /*#__PURE__*/Object.freeze({
     PURCHASE_URI_STARTED: PURCHASE_URI_STARTED,
     PURCHASE_URI_COMPLETED: PURCHASE_URI_COMPLETED,
     PURCHASE_URI_FAILED: PURCHASE_URI_FAILED,
+    DELETE_PURCHASED_URI: DELETE_PURCHASED_URI,
     LOADING_FILE_STARTED: LOADING_FILE_STARTED,
     LOADING_FILE_COMPLETED: LOADING_FILE_COMPLETED,
     LOADING_FILE_FAILED: LOADING_FILE_FAILED,
@@ -2417,6 +2419,13 @@ function doPurchaseUri(uri, costInfo, saveFile = true) {
   };
 }
 
+function doDeletePurchasedUri(uri) {
+  return {
+    type: DELETE_PURCHASED_URI,
+    data: { uri }
+  };
+}
+
 function doFetchFileInfo(uri) {
   return (dispatch, getState) => {
     const state = getState();
@@ -2961,6 +2970,18 @@ reducers$1[PURCHASE_URI_FAILED] = (state, action) => {
 
   return _extends$4({}, state, {
     failedPurchaseUris: newFailedPurchaseUris
+  });
+};
+
+reducers$1[DELETE_PURCHASED_URI] = (state, action) => {
+  const { uri } = action.data;
+  const newPurchasedUris = state.purchasedUris.slice();
+  if (newPurchasedUris.includes(uri)) {
+    newPurchasedUris.splice(newPurchasedUris.indexOf(uri), 1);
+  }
+
+  return _extends$4({}, state, {
+    purchasedUris: newPurchasedUris
   });
 };
 
@@ -3663,6 +3684,7 @@ exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
 exports.doCreateChannel = doCreateChannel;
+exports.doDeletePurchasedUri = doDeletePurchasedUri;
 exports.doDismissError = doDismissError;
 exports.doDismissToast = doDismissToast;
 exports.doError = doError;

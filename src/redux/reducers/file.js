@@ -67,6 +67,22 @@ reducers[ACTIONS.PURCHASE_URI_FAILED] = (
   };
 };
 
+reducers[ACTIONS.DELETE_PURCHASED_URI] = (
+  state: FileState,
+  action: DeletePurchasedUri
+): FileState => {
+  const { uri } = action.data;
+  const newPurchasedUris = state.purchasedUris.slice();
+  if (newPurchasedUris.includes(uri)) {
+    newPurchasedUris.splice(newPurchasedUris.indexOf(uri), 1);
+  }
+
+  return {
+    ...state,
+    purchasedUris: newPurchasedUris,
+  };
+};
+
 export function fileReducer(state: FileState = defaultState, action: any) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);

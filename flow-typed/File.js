@@ -63,3 +63,10 @@ declare type PurchaseUriStarted = {
     streamingUrl: string,
   },
 };
+
+declare type DeletePurchasedUri = {
+  type: ACTIONS.DELETE_PURCHASED_URI,
+  data: {
+    uri: string
+  },
+};
