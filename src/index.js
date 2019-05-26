@@ -111,6 +111,7 @@ export {
   selectFailedPurchaseUris,
   selectPurchasedUris,
   selectPurchasedStreamingUrls,
+  selectPurchaseUriErrorMessage,
   selectLastPurchasedUri,
   makeSelectStreamingUrlForUri,
 } from 'redux/selectors/file';

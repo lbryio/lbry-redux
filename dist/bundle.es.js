@@ -2321,6 +2321,8 @@ const selectFileListDownloadedSort = reselect.createSelector(selectState$3, stat
 
 const selectState$4 = state => state.file || {};
 
+const selectPurchaseUriErrorMessage = reselect.createSelector(selectState$4, state => state.purchaseUriErrorMessage);
+
 const selectFailedPurchaseUris = reselect.createSelector(selectState$4, state => state.failedPurchaseUris);
 
 const selectPurchasedUris = reselect.createSelector(selectState$4, state => state.purchasedUris);
@@ -2406,8 +2408,7 @@ function doPurchaseUri(uri, costInfo, saveFile = true) {
     }
 
     const { cost } = costInfo;
-
-    if (cost > balance) {
+    if (parseFloat(cost) > balance) {
       dispatch({
         type: PURCHASE_URI_FAILED,
         data: { uri, error: 'Insufficient credits' }
@@ -2923,7 +2924,8 @@ const reducers$1 = {};
 const defaultState$1 = {
   failedPurchaseUris: [],
   purchasedUris: [],
-  purchasedStreamingUrls: {}
+  purchasedStreamingUrls: {},
+  purchaseUriErrorMessage: ''
 };
 
 reducers$1[PURCHASE_URI_STARTED] = (state, action) => {
@@ -2934,7 +2936,8 @@ reducers$1[PURCHASE_URI_STARTED] = (state, action) => {
   }
 
   return _extends$4({}, state, {
-    failedPurchaseUris: newFailedPurchaseUris
+    failedPurchaseUris: newFailedPurchaseUris,
+    purchaseUriErrorMessage: ''
   });
 };
 
@@ -2957,19 +2960,22 @@ reducers$1[PURCHASE_URI_COMPLETED] = (state, action) => {
   return _extends$4({}, state, {
     failedPurchaseUris: newFailedPurchaseUris,
     purchasedUris: newPurchasedUris,
-    purchasedStreamingUrls: newPurchasedStreamingUrls
+    purchasedStreamingUrls: newPurchasedStreamingUrls,
+    purchaseUriErrorMessage: ''
   });
 };
 
 reducers$1[PURCHASE_URI_FAILED] = (state, action) => {
-  const { uri } = action.data;
+  const { uri, error } = action.data;
   const newFailedPurchaseUris = state.failedPurchaseUris.slice();
+
   if (!newFailedPurchaseUris.includes(uri)) {
     newFailedPurchaseUris.push(uri);
   }
 
   return _extends$4({}, state, {
-    failedPurchaseUris: newFailedPurchaseUris
+    failedPurchaseUris: newFailedPurchaseUris,
+    purchaseUriErrorMessage: error
   });
 };
 
@@ -3806,6 +3812,7 @@ exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
 exports.selectPendingById = selectPendingById;
 exports.selectPendingClaims = selectPendingClaims;
 exports.selectPlayingUri = selectPlayingUri;
+exports.selectPurchaseUriErrorMessage = selectPurchaseUriErrorMessage;
 exports.selectPurchasedStreamingUrls = selectPurchasedStreamingUrls;
 exports.selectPurchasedUris = selectPurchasedUris;
 exports.selectReceiveAddress = selectReceiveAddress;

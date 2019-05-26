@@ -88,7 +88,6 @@ export function doPurchaseUri(uri: string, costInfo: { cost: number }, saveFile:
     }
 
     const { cost } = costInfo;
-
     if (parseFloat(cost) > balance) {
       dispatch({
         type: ACTIONS.PURCHASE_URI_FAILED,

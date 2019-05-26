@@ -5,6 +5,11 @@ type State = { file: FileState };
 
 export const selectState = (state: State): FileState => state.file || {};
 
+export const selectPurchaseUriErrorMessage: (state: State) => string = createSelector(
+  selectState,
+  state => state.purchaseUriErrorMessage
+);
+
 export const selectFailedPurchaseUris: (state: State) => Array<string> = createSelector(
   selectState,
   state => state.failedPurchaseUris

@@ -52,7 +52,8 @@ declare type PurchaseUriCompleted = {
 declare type PurchaseUriFailed = {
   type: ACTIONS.PURCHASE_URI_FAILED,
   data: {
-    uri: string
+    uri: string,
+    error: any
   },
 };
 
