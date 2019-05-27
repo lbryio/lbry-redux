@@ -119,6 +119,7 @@ const SET_FILE_LIST_SORT = 'SET_FILE_LIST_SORT';
 const PURCHASE_URI_STARTED = 'PURCHASE_URI_STARTED';
 const PURCHASE_URI_COMPLETED = 'PURCHASE_URI_COMPLETED';
 const PURCHASE_URI_FAILED = 'PURCHASE_URI_FAILED';
+const DELETE_PURCHASED_URI = 'DELETE_PURCHASED_URI';
 const LOADING_FILE_STARTED = 'LOADING_FILE_STARTED';
 const LOADING_FILE_COMPLETED = 'LOADING_FILE_COMPLETED';
 const LOADING_FILE_FAILED = 'LOADING_FILE_FAILED';
@@ -341,6 +342,7 @@ var action_types = /*#__PURE__*/Object.freeze({
     PURCHASE_URI_STARTED: PURCHASE_URI_STARTED,
     PURCHASE_URI_COMPLETED: PURCHASE_URI_COMPLETED,
     PURCHASE_URI_FAILED: PURCHASE_URI_FAILED,
+    DELETE_PURCHASED_URI: DELETE_PURCHASED_URI,
     LOADING_FILE_STARTED: LOADING_FILE_STARTED,
     LOADING_FILE_COMPLETED: LOADING_FILE_COMPLETED,
     LOADING_FILE_FAILED: LOADING_FILE_FAILED,
@@ -2317,6 +2319,8 @@ const selectFileListDownloadedSort = reselect.createSelector(selectState$3, stat
 
 const selectState$4 = state => state.file || {};
 
+const selectPurchaseUriErrorMessage = reselect.createSelector(selectState$4, state => state.purchaseUriErrorMessage);
+
 const selectFailedPurchaseUris = reselect.createSelector(selectState$4, state => state.failedPurchaseUris);
 
 const selectPurchasedUris = reselect.createSelector(selectState$4, state => state.purchasedUris);
@@ -2402,8 +2406,7 @@ function doPurchaseUri(uri, costInfo, saveFile = true) {
     }
 
     const { cost } = costInfo;
-
-    if (cost > balance) {
+    if (parseFloat(cost) > balance) {
       dispatch({
         type: PURCHASE_URI_FAILED,
         data: { uri, error: 'Insufficient credits' }
@@ -2412,6 +2415,13 @@ function doPurchaseUri(uri, costInfo, saveFile = true) {
     }
 
     dispatch(doFileGet(uri, saveFile));
+  };
+}
+
+function doDeletePurchasedUri(uri) {
+  return {
+    type: DELETE_PURCHASED_URI,
+    data: { uri }
   };
 }
 
@@ -2912,7 +2922,21 @@ const reducers$1 = {};
 const defaultState$1 = {
   failedPurchaseUris: [],
   purchasedUris: [],
-  purchasedStreamingUrls: {}
+  purchasedStreamingUrls: {},
+  purchaseUriErrorMessage: ''
+};
+
+reducers$1[PURCHASE_URI_STARTED] = (state, action) => {
+  const { uri } = action.data;
+  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
+  if (newFailedPurchaseUris.includes(uri)) {
+    newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
+  }
+
+  return _extends$4({}, state, {
+    failedPurchaseUris: newFailedPurchaseUris,
+    purchaseUriErrorMessage: ''
+  });
 };
 
 reducers$1[PURCHASE_URI_COMPLETED] = (state, action) => {
@@ -2934,19 +2958,34 @@ reducers$1[PURCHASE_URI_COMPLETED] = (state, action) => {
   return _extends$4({}, state, {
     failedPurchaseUris: newFailedPurchaseUris,
     purchasedUris: newPurchasedUris,
-    purchasedStreamingUrls: newPurchasedStreamingUrls
+    purchasedStreamingUrls: newPurchasedStreamingUrls,
+    purchaseUriErrorMessage: ''
   });
 };
 
 reducers$1[PURCHASE_URI_FAILED] = (state, action) => {
-  const { uri } = action.data;
+  const { uri, error } = action.data;
   const newFailedPurchaseUris = state.failedPurchaseUris.slice();
+
   if (!newFailedPurchaseUris.includes(uri)) {
     newFailedPurchaseUris.push(uri);
   }
 
   return _extends$4({}, state, {
-    failedPurchaseUris: newFailedPurchaseUris
+    failedPurchaseUris: newFailedPurchaseUris,
+    purchaseUriErrorMessage: error
+  });
+};
+
+reducers$1[DELETE_PURCHASED_URI] = (state, action) => {
+  const { uri } = action.data;
+  const newPurchasedUris = state.purchasedUris.slice();
+  if (newPurchasedUris.includes(uri)) {
+    newPurchasedUris.splice(newPurchasedUris.indexOf(uri), 1);
+  }
+
+  return _extends$4({}, state, {
+    purchasedUris: newPurchasedUris
   });
 };
 
@@ -3649,6 +3688,7 @@ exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
 exports.doCreateChannel = doCreateChannel;
+exports.doDeletePurchasedUri = doDeletePurchasedUri;
 exports.doDismissError = doDismissError;
 exports.doDismissToast = doDismissToast;
 exports.doError = doError;
@@ -3770,6 +3810,7 @@ exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
 exports.selectPendingById = selectPendingById;
 exports.selectPendingClaims = selectPendingClaims;
 exports.selectPlayingUri = selectPlayingUri;
+exports.selectPurchaseUriErrorMessage = selectPurchaseUriErrorMessage;
 exports.selectPurchasedStreamingUrls = selectPurchasedStreamingUrls;
 exports.selectPurchasedUris = selectPurchasedUris;
 exports.selectReceiveAddress = selectReceiveAddress;

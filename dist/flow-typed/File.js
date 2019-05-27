@@ -52,6 +52,22 @@ declare type PurchaseUriCompleted = {
 declare type PurchaseUriFailed = {
   type: ACTIONS.PURCHASE_URI_FAILED,
   data: {
+    uri: string,
+    error: any
+  },
+};
+
+declare type PurchaseUriStarted = {
+  type: ACTIONS.PURCHASE_URI_STARTED,
+  data: {
+    uri: string,
+    streamingUrl: string,
+  },
+};
+
+declare type DeletePurchasedUri = {
+  type: ACTIONS.DELETE_PURCHASED_URI,
+  data: {
     uri: string
   },
 };

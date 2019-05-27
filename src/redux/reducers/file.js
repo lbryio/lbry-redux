@@ -6,6 +6,24 @@ const defaultState = {
   failedPurchaseUris: [],
   purchasedUris: [],
   purchasedStreamingUrls: {},
+  purchaseUriErrorMessage: '',
+};
+
+reducers[ACTIONS.PURCHASE_URI_STARTED] = (
+  state: FileState,
+  action: PurchaseUriStarted
+): FileState => {
+  const { uri } = action.data;
+  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
+  if (newFailedPurchaseUris.includes(uri)) {
+    newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
+  }
+
+  return {
+    ...state,
+    failedPurchaseUris: newFailedPurchaseUris,
+    purchaseUriErrorMessage: '',
+  };
 };
 
 reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (
@@ -32,6 +50,7 @@ reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (
     failedPurchaseUris: newFailedPurchaseUris,
     purchasedUris: newPurchasedUris,
     purchasedStreamingUrls: newPurchasedStreamingUrls,
+    purchaseUriErrorMessage: '',
   };
 };
 
@@ -39,8 +58,9 @@ reducers[ACTIONS.PURCHASE_URI_FAILED] = (
   state: FileState,
   action: PurchaseUriFailed
 ): FileState => {
-  const { uri } = action.data;
+  const { uri, error } = action.data;
   const newFailedPurchaseUris = state.failedPurchaseUris.slice();
+
   if (!newFailedPurchaseUris.includes(uri)) {
     newFailedPurchaseUris.push(uri);
   }
@@ -48,6 +68,23 @@ reducers[ACTIONS.PURCHASE_URI_FAILED] = (
   return {
     ...state,
     failedPurchaseUris: newFailedPurchaseUris,
+    purchaseUriErrorMessage: error,
+  };
+};
+
+reducers[ACTIONS.DELETE_PURCHASED_URI] = (
+  state: FileState,
+  action: DeletePurchasedUri
+): FileState => {
+  const { uri } = action.data;
+  const newPurchasedUris = state.purchasedUris.slice();
+  if (newPurchasedUris.includes(uri)) {
+    newPurchasedUris.splice(newPurchasedUris.indexOf(uri), 1);
+  }
+
+  return {
+    ...state,
+    purchasedUris: newPurchasedUris,
   };
 };
 

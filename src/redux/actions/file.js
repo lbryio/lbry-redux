@@ -88,8 +88,7 @@ export function doPurchaseUri(uri: string, costInfo: { cost: number }, saveFile:
     }
 
     const { cost } = costInfo;
-
-    if (cost > balance) {
+    if (parseFloat(cost) > balance) {
       dispatch({
         type: ACTIONS.PURCHASE_URI_FAILED,
         data: { uri, error: 'Insufficient credits' },
@@ -100,5 +99,12 @@ export function doPurchaseUri(uri: string, costInfo: { cost: number }, saveFile:
     }
 
     dispatch(doFileGet(uri, saveFile));
+  };
+}
+
+export function doDeletePurchasedUri(uri: string) {
+  return {
+    type: ACTIONS.DELETE_PURCHASED_URI,
+    data: { uri },
   };
 }
