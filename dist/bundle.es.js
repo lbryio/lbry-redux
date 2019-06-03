@@ -822,7 +822,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
-const regexInvalidURI = /[^A-Za-z0-9-]/g;
+// see https://spec.lbry.com/#urls
+const regexInvalidURI = exports.regexInvalidURI = /[=&#:$@%?\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/gu;
 const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 
 /**
@@ -990,9 +991,8 @@ function isURIValid(URI) {
   return parts && parts.claimName;
 }
 
-function isNameValid(claimName, checkCase = true) {
-  const regexp = new RegExp('^[a-z0-9-]+$', checkCase ? '' : 'i');
-  return regexp.test(claimName);
+function isNameValid(claimName) {
+  return !regexInvalidURI.test(claimName);
 }
 
 function isURIClaimable(URI) {
@@ -3766,7 +3766,6 @@ exports.notificationsReducer = notificationsReducer;
 exports.parseQueryParams = parseQueryParams;
 exports.parseURI = parseURI;
 exports.regexAddress = regexAddress;
-exports.regexInvalidURI = regexInvalidURI;
 exports.savePosition = savePosition;
 exports.searchReducer = searchReducer;
 exports.selectAbandoningIds = selectAbandoningIds;

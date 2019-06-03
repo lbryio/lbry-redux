@@ -23,7 +23,6 @@ export {
 // common
 export { Lbry };
 export {
-  regexInvalidURI,
   regexAddress,
   parseURI,
   buildURI,
