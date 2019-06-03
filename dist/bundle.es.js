@@ -606,12 +606,20 @@ const Lbry = {
   isConnected: false,
   connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
+  apiRequestHeaders: { 'Content-Type': 'application/json-rpc' },
 
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
   setDaemonConnectionString: value => {
     Lbry.daemonConnectionString = value;
   },
 
+  setApiHeader: (key, value) => {
+    Lbry.apiRequestHeaders = Object.assign(Lbry.apiRequestHeaders, { [key]: value });
+  },
+
+  unsetApiHeader: key => {
+    Object.keys(Lbry.apiRequestHeaders).includes(key) && delete Lbry.apiRequestHeaders['key'];
+  },
   // Allow overriding Lbry methods
   overrides: {},
   setOverride: (methodName, newMethod) => {
@@ -730,6 +738,7 @@ function apiCall(method, params, resolve, reject) {
   const counter = new Date().getTime();
   const options = {
     method: 'POST',
+    headers: Lbry.apiRequestHeaders,
     body: JSON.stringify({
       jsonrpc: '2.0',
       method,
