@@ -3766,6 +3766,7 @@ exports.notificationsReducer = notificationsReducer;
 exports.parseQueryParams = parseQueryParams;
 exports.parseURI = parseURI;
 exports.regexAddress = regexAddress;
+exports.regexInvalidURI = regexInvalidURI;
 exports.savePosition = savePosition;
 exports.searchReducer = searchReducer;
 exports.selectAbandoningIds = selectAbandoningIds;
