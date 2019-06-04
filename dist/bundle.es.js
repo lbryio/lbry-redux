@@ -1975,13 +1975,22 @@ function doResolveUris(uris, returnCachedClaims = false) {
 
         // Flow has terrible Object.entries support
         // https://github.com/facebook/flow/issues/2221
-        // $FlowFixMe
-        if (uriResolveInfo.error) {
-          resolveInfo[uri] = _extends$3({}, fallbackResolveInfo);
-        } else {
-          // $FlowFixMe
-          const { claim, certificate, claims_in_channel: claimsInChannel } = uriResolveInfo;
-          resolveInfo[uri] = { claim, certificate, claimsInChannel };
+        if (uriResolveInfo) {
+          if (uriResolveInfo.error) {
+            resolveInfo[uri] = _extends$3({}, fallbackResolveInfo);
+          } else {
+            let result = {};
+            if (uriResolveInfo.value_type === 'channel') {
+              result.certificate = uriResolveInfo;
+              // $FlowFixMe
+              result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+            } else {
+              result.claim = uriResolveInfo;
+            }
+
+            // $FlowFixMe
+            resolveInfo[uri] = result;
+          }
         }
       });
 
@@ -2095,7 +2104,7 @@ function doFetchClaimsByChannel(uri, page = 1) {
       data: { uri, page }
     });
 
-    lbryProxy.claim_search({ channel_name: uri, page: page || 1, winning: true }).then(result => {
+    lbryProxy.claim_search({ channel: uri, controlling: true, page: page || 1 }).then(result => {
       const { items: claimsInChannel, page: returnedPage } = result;
 
       dispatch({
@@ -3153,16 +3162,6 @@ reducers$2[LOADING_VIDEO_FAILED] = (state, action) => {
     urisLoading: newLoading,
     errors: _extends$5({}, newErrors)
   });
-};
-
-reducers$2[FETCH_DATE] = (state, action) => {
-  const { time } = action.data;
-  if (time) {
-    return Object.assign({}, state, {
-      publishedDate: time
-    });
-  }
-  return null;
 };
 
 reducers$2[SET_FILE_LIST_SORT] = (state, action) => {

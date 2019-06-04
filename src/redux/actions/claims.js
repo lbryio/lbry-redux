@@ -50,13 +50,22 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
 
         // Flow has terrible Object.entries support
         // https://github.com/facebook/flow/issues/2221
-        // $FlowFixMe
-        if (uriResolveInfo.error) {
-          resolveInfo[uri] = { ...fallbackResolveInfo };
-        } else {
-          // $FlowFixMe
-          const { claim, certificate, claims_in_channel: claimsInChannel } = uriResolveInfo;
-          resolveInfo[uri] = { claim, certificate, claimsInChannel };
+        if (uriResolveInfo) {
+          if (uriResolveInfo.error) {
+            resolveInfo[uri] = { ...fallbackResolveInfo };
+          } else {
+            let result = {};
+            if (uriResolveInfo.value_type === 'channel') {
+              result.certificate = uriResolveInfo;
+              // $FlowFixMe
+              result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+            } else {
+              result.claim = uriResolveInfo;
+            }
+
+            // $FlowFixMe
+            resolveInfo[uri] = result;
+          }
         }
       });
 
@@ -182,7 +191,7 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
       data: { uri, page },
     });
 
-    Lbry.claim_search({ channel_name: uri, page: page || 1, winning: true }).then(
+    Lbry.claim_search({ channel: uri, controlling: true, page: page || 1 }).then(
       (result: ClaimSearchResponse) => {
         const { items: claimsInChannel, page: returnedPage } = result;
 

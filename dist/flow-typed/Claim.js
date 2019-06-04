@@ -44,6 +44,20 @@ declare type GenericClaim = {
   type: 'claim' | 'update' | 'support',
   valid_at_height?: number, // BUG: this should always exist https://github.com/lbryio/lbry/issues/1728
   value_type: 'stream' | 'channel',
+  meta: {
+    activation_height: number,
+    creation_height: number,
+    creation_timestamp: number,
+    effective_amount: string,
+    expiration_height: number,
+    is_controlling: boolean,
+    support_amount: string,
+    trending_global: number,
+    trending_group: number,
+    trending_local: number,
+    trending_mixed: number,
+    claims_in_channel?: number,
+  },
 };
 
 declare type GenericMetadata = {
