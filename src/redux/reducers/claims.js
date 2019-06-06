@@ -14,9 +14,9 @@ import { buildURI, parseURI } from 'lbryURI';
 type State = {
   channelClaimCounts: { [string]: number },
   claimsByUri: { [string]: string },
-  byId: { [string]: StreamClaim | ChannelClaim },
+  byId: { [string]: Claim },
   resolvingUris: Array<string>,
-  pendingById: { [string]: StreamClaim | ChannelClaim },
+  pendingById: { [string]: Claim },
   myChannelClaims: Set<string>,
   abandoningById: { [string]: boolean },
   fetchingChannelClaims: { [string]: number },
@@ -46,36 +46,42 @@ const defaultState = {
 };
 
 reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state: State, action: any): State => {
-  const { resolveInfo }: { [string]: ClaimWithPossibleCertificate } = action.data;
+  const {
+    resolveInfo,
+  }: {
+    [string]: {
+      stream: ?StreamClaim,
+      channel: ?ChannelClaim,
+      claimsInChannel: ?number,
+    },
+  } = action.data;
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
-  Object.entries(resolveInfo).forEach(
-    ([uri: string, resolveResponse: ClaimWithPossibleCertificate]) => {
+  Object.entries(resolveInfo).forEach(([uri: string, resolveResponse: Claim]) => {
+    // $FlowFixMe
+    if (resolveResponse.claimsInChannel) {
       // $FlowFixMe
-      if (resolveResponse.certificate && !Number.isNaN(resolveResponse.claimsInChannel)) {
-        // $FlowFixMe
-        channelClaimCounts[uri] = resolveResponse.claimsInChannel;
-      }
+      channelClaimCounts[uri] = resolveResponse.claimsInChannel;
     }
-  );
+  });
 
   // $FlowFixMe
-  Object.entries(resolveInfo).forEach(([uri, { certificate, claim }]) => {
-    if (claim && !certificate) {
-      byId[claim.claim_id] = claim;
-      byUri[uri] = claim.claim_id;
-    } else if (claim && certificate) {
-      byId[claim.claim_id] = claim;
-      byUri[uri] = claim.claim_id;
+  Object.entries(resolveInfo).forEach(([uri, { channel, stream }]) => {
+    if (stream && !channel) {
+      byId[stream.claim_id] = stream;
+      byUri[uri] = stream.claim_id;
+    } else if (stream && channel) {
+      byId[stream.claim_id] = stream;
+      byUri[uri] = stream.claim_id;
 
-      byId[certificate.claim_id] = certificate;
-      const channelUri = `lbry://${certificate.name}#${certificate.claim_id}`;
-      byUri[channelUri] = certificate.claim_id;
-    } else if (!claim && certificate) {
-      byId[certificate.claim_id] = certificate;
-      byUri[uri] = certificate.claim_id;
+      byId[channel.claim_id] = channel;
+      const channelUri = channel.permanent_url;
+      byUri[channelUri] = channel.claim_id;
+    } else if (!stream && channel) {
+      byId[channel.claim_id] = channel;
+      byUri[uri] = channel.claim_id;
     } else {
       byUri[uri] = null;
     }
@@ -95,15 +101,12 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: State): State =>
   });
 
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any): State => {
-  const { claims }: { claims: Array<StreamClaim | ChannelClaim> } = action.data;
+  const { claims }: { claims: Array<Claim> } = action.data;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
-  const pendingById: { [string]: StreamClaim | ChannelClaim } = Object.assign(
-    {},
-    state.pendingById
-  );
+  const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
 
-  claims.forEach((claim: StreamClaim | ChannelClaim) => {
+  claims.forEach((claim: Claim) => {
     const uri = buildURI({ claimName: claim.name, claimId: claim.claim_id });
 
     if (claim.type && claim.type.match(/claim|update/)) {

@@ -34,8 +34,8 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
 
     const resolveInfo: {
       [string]: {
-        claim: ?StreamClaim,
-        certificate: ?ChannelClaim,
+        stream: ?StreamClaim,
+        channel: ?ChannelClaim,
         claimsInChannel: ?number,
       },
     } = {};
@@ -43,9 +43,9 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
     Lbry.resolve({ urls: urisToResolve }).then((result: ResolveResponse) => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
-          claim: null,
+          stream: null,
           claimsInChannel: null,
-          certificate: null,
+          channel: null,
         };
 
         // Flow has terrible Object.entries support
@@ -55,12 +55,16 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
             resolveInfo[uri] = { ...fallbackResolveInfo };
           } else {
             let result = {};
-            if (uriResolveInfo.value_type === 'channel') {
-              result.certificate = uriResolveInfo;
+            if (uriResolveInfo.value_type === 'channel' ) {
+              result.channel = uriResolveInfo;
               // $FlowFixMe
               result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
             } else {
-              result.claim = uriResolveInfo;
+              result.stream = uriResolveInfo;
+              if (uriResolveInfo.signing_channel) {
+                result.channel = uriResolveInfo.signing_channel;
+                result.claimsInChannel = uriResolveInfo.signing_channel.meta.claims_in_channel;
+              }
             }
 
             // $FlowFixMe
@@ -103,7 +107,7 @@ export function doAbandonClaim(txid: string, nout: number) {
 
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myClaims: Array<ChannelClaim | StreamClaim> = selectMyClaimsRaw(state);
+    const myClaims: Array<Claim> = selectMyClaimsRaw(state);
     const mySupports: { [string]: Support } = selectSupportsByOutpoint(state);
 
     // A user could be trying to abandon a support or one of their claims
@@ -191,7 +195,7 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
       data: { uri, page },
     });
 
-    Lbry.claim_search({ channel: uri, controlling: true, page: page || 1 }).then(
+    Lbry.claim_search({ channel: uri, is_controlling: true, page: page || 1, order_by: ['release_time']  }).then(
       (result: ClaimSearchResponse) => {
         const { items: claimsInChannel, page: returnedPage } = result;
 

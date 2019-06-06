@@ -190,7 +190,7 @@ export const makeSelectDateForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
     claim => {
-      const timestamp = claim && claim.timestamp ? claim.timestamp * 1000 : undefined;
+      const timestamp = claim && claim.value && (claim.value.release_time ? claim.value.release_time * 1000 : claim.value.meta.creation_timestamp * 1000);
       if (!timestamp) {
         return undefined;
       }
@@ -368,7 +368,7 @@ export const makeSelectClaimIsNsfw = (uri: string): boolean =>
     // Or possibly come from users settings of what tags they want to hide
     // For now, there is just a hard coded list of tags inside `isClaimNsfw`
     // selectNaughtyTags(),
-    (claim: StreamClaim) => {
+    (claim: Claim) => {
       if (!claim) {
         return false;
       }
@@ -418,7 +418,7 @@ export const makeSelectFirstRecommendedFileForUri = (uri: string) =>
 export const makeSelectChannelForClaimUri = (uri: string, includePrefix: boolean = false) =>
   createSelector(
     makeSelectClaimForUri(uri),
-    (claim: ?StreamClaim) => {
+    (claim: ?Claim) => {
       if (!claim || !claim.signing_channel) {
         return null;
       }

@@ -1269,7 +1269,7 @@ const makeSelectMetadataItemForUri = (uri, key) => reselect.createSelector(makeS
 const makeSelectTitleForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => metadata && metadata.title);
 
 const makeSelectDateForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
-  const timestamp = claim && claim.timestamp ? claim.timestamp * 1000 : undefined;
+  const timestamp = claim && claim.value && (claim.value.release_time ? claim.value.release_time * 1000 : claim.value.meta.creation_timestamp * 1000);
   if (!timestamp) {
     return undefined;
   }
@@ -1968,9 +1968,9 @@ function doResolveUris(uris, returnCachedClaims = false) {
     lbryProxy.resolve({ urls: urisToResolve }).then(result => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
-          claim: null,
+          stream: null,
           claimsInChannel: null,
-          certificate: null
+          channel: null
         };
 
         // Flow has terrible Object.entries support
@@ -1981,11 +1981,15 @@ function doResolveUris(uris, returnCachedClaims = false) {
           } else {
             let result = {};
             if (uriResolveInfo.value_type === 'channel') {
-              result.certificate = uriResolveInfo;
+              result.channel = uriResolveInfo;
               // $FlowFixMe
               result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
             } else {
-              result.claim = uriResolveInfo;
+              result.stream = uriResolveInfo;
+              if (uriResolveInfo.signing_channel) {
+                result.channel = uriResolveInfo.signing_channel;
+                result.claimsInChannel = uriResolveInfo.signing_channel.meta.claims_in_channel;
+              }
             }
 
             // $FlowFixMe
@@ -2104,7 +2108,7 @@ function doFetchClaimsByChannel(uri, page = 1) {
       data: { uri, page }
     });
 
-    lbryProxy.claim_search({ channel: uri, controlling: true, page: page || 1 }).then(result => {
+    lbryProxy.claim_search({ channel: uri, is_controlling: true, page: page || 1, order_by: ['release_time'] }).then(result => {
       const { items: claimsInChannel, page: returnedPage } = result;
 
       dispatch({
@@ -2708,34 +2712,36 @@ const defaultState = {
 };
 
 reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
-  const { resolveInfo } = action.data;
+  const {
+    resolveInfo
+  } = action.data;
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
   Object.entries(resolveInfo).forEach(([uri, resolveResponse]) => {
     // $FlowFixMe
-    if (resolveResponse.certificate && !Number.isNaN(resolveResponse.claimsInChannel)) {
+    if (resolveResponse.claimsInChannel) {
       // $FlowFixMe
       channelClaimCounts[uri] = resolveResponse.claimsInChannel;
     }
   });
 
   // $FlowFixMe
-  Object.entries(resolveInfo).forEach(([uri, { certificate, claim }]) => {
-    if (claim && !certificate) {
-      byId[claim.claim_id] = claim;
-      byUri[uri] = claim.claim_id;
-    } else if (claim && certificate) {
-      byId[claim.claim_id] = claim;
-      byUri[uri] = claim.claim_id;
+  Object.entries(resolveInfo).forEach(([uri, { channel, stream }]) => {
+    if (stream && !channel) {
+      byId[stream.claim_id] = stream;
+      byUri[uri] = stream.claim_id;
+    } else if (stream && channel) {
+      byId[stream.claim_id] = stream;
+      byUri[uri] = stream.claim_id;
 
-      byId[certificate.claim_id] = certificate;
-      const channelUri = `lbry://${certificate.name}#${certificate.claim_id}`;
-      byUri[channelUri] = certificate.claim_id;
-    } else if (!claim && certificate) {
-      byId[certificate.claim_id] = certificate;
-      byUri[uri] = certificate.claim_id;
+      byId[channel.claim_id] = channel;
+      const channelUri = channel.permanent_url;
+      byUri[channelUri] = channel.claim_id;
+    } else if (!stream && channel) {
+      byId[channel.claim_id] = channel;
+      byUri[uri] = channel.claim_id;
     } else {
       byUri[uri] = null;
     }
