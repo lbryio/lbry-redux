@@ -164,10 +164,12 @@ export const selectSearchDownloadUris = query =>
           return;
         }
 
-        const titleParts = title.toLowerCase().split(' ');
-        if (arrayContainsQueryPart(titleParts)) {
-          downloadResultsFromQuery.push(fileInfo);
-          return;
+        if (title) {
+          const titleParts = title.toLowerCase().split(' ');
+          if (arrayContainsQueryPart(titleParts)) {
+            downloadResultsFromQuery.push(fileInfo);
+            return;
+          }
         }
 
         if (author) {
