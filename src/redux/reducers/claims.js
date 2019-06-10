@@ -69,20 +69,15 @@ reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state: State, action: any): State =>
 
   // $FlowFixMe
   Object.entries(resolveInfo).forEach(([uri, { channel, stream }]) => {
-    if (stream && !channel) {
+    if (stream) {
       byId[stream.claim_id] = stream;
       byUri[uri] = stream.claim_id;
-    } else if (stream && channel) {
-      byId[stream.claim_id] = stream;
-      byUri[uri] = stream.claim_id;
-
+    }
+    if (channel) {
       byId[channel.claim_id] = channel;
-      const channelUri = channel.permanent_url;
-      byUri[channelUri] = channel.claim_id;
-    } else if (!stream && channel) {
-      byId[channel.claim_id] = channel;
-      byUri[uri] = channel.claim_id;
-    } else {
+      byUri[stream ? channel.permanent_url : uri] = channel.claim_id;
+    }
+    if (!stream && !channel) {
       byUri[uri] = null;
     }
   });

@@ -55,7 +55,7 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
             resolveInfo[uri] = { ...fallbackResolveInfo };
           } else {
             let result = {};
-            if (uriResolveInfo.value_type === 'channel' ) {
+            if (uriResolveInfo.value_type === 'channel') {
               result.channel = uriResolveInfo;
               // $FlowFixMe
               result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
@@ -63,7 +63,8 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
               result.stream = uriResolveInfo;
               if (uriResolveInfo.signing_channel) {
                 result.channel = uriResolveInfo.signing_channel;
-                result.claimsInChannel = uriResolveInfo.signing_channel.meta.claims_in_channel;
+                result.claimsInChannel =
+                  (uriResolveInfo.meta && uriResolveInfo.meta.claims_in_channel) || 0;
               }
             }
 
@@ -195,20 +196,23 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
       data: { uri, page },
     });
 
-    Lbry.claim_search({ channel: uri, is_controlling: true, page: page || 1, order_by: ['release_time']  }).then(
-      (result: ClaimSearchResponse) => {
-        const { items: claimsInChannel, page: returnedPage } = result;
+    Lbry.claim_search({
+      channel: uri,
+      is_controlling: true,
+      page: page || 1,
+      order_by: ['release_time'],
+    }).then((result: ClaimSearchResponse) => {
+      const { items: claimsInChannel, page: returnedPage } = result;
 
-        dispatch({
-          type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
-          data: {
-            uri,
-            claims: claimsInChannel || [],
-            page: returnedPage || undefined,
-          },
-        });
-      }
-    );
+      dispatch({
+        type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
+        data: {
+          uri,
+          claims: claimsInChannel || [],
+          page: returnedPage || undefined,
+        },
+      });
+    });
   };
 }
 

@@ -190,7 +190,12 @@ export const makeSelectDateForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
     claim => {
-      const timestamp = claim && claim.value && (claim.value.release_time ? claim.value.release_time * 1000 : claim.meta.creation_timestamp * 1000);
+      const timestamp =
+        claim &&
+        claim.value &&
+        (claim.value.release_time
+          ? claim.value.release_time * 1000
+          : claim.meta.creation_timestamp * 1000);
       if (!timestamp) {
         return undefined;
       }
@@ -418,7 +423,7 @@ export const makeSelectFirstRecommendedFileForUri = (uri: string) =>
 export const makeSelectChannelForClaimUri = (uri: string, includePrefix: boolean = false) =>
   createSelector(
     makeSelectClaimForUri(uri),
-    (claim: ?Claim) => {
+    (claim: ?StreamClaim) => {
       if (!claim || !claim.signing_channel) {
         return null;
       }
