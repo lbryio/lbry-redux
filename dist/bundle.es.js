@@ -3878,7 +3878,7 @@ const selectKnownTagsByName = reselect.createSelector(selectState$7, state => st
 
 const selectFollowedTagsList = reselect.createSelector(selectState$7, state => state.followedTags);
 
-const selectFollowedTags = reselect.createSelector(selectFollowedTagsList, followedTags => followedTags.map(tag => ({ name: tag })));
+const selectFollowedTags = reselect.createSelector(selectFollowedTagsList, followedTags => followedTags.map(tag => ({ name: tag })).sort((a, b) => a.name.localeCompare(b.name)));
 
 const selectUnfollowedTags = reselect.createSelector(selectKnownTagsByName, selectFollowedTagsList, (tagsByName, followedTags) => {
   const followedTagsSet = new Set(followedTags);
