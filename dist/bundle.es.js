@@ -3815,9 +3815,11 @@ const tagsReducer = handleActions({
 
     let newKnownTags = _extends$b({}, knownTags);
     delete newKnownTags[name];
+    const newFollowedTags = followedTags.filter(tag => tag !== name);
 
     return _extends$b({}, state, {
-      knownTags: newKnownTags
+      knownTags: newKnownTags,
+      followedTags: newFollowedTags
     });
   },
   [FETCH_TRENDING_STARTED]: state => _extends$b({}, state, {

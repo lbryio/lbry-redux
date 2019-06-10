@@ -59,10 +59,12 @@ export const tagsReducer = handleActions(
 
       let newKnownTags = { ...knownTags };
       delete newKnownTags[name];
+      const newFollowedTags = followedTags.filter(tag => tag !== name);
 
       return {
         ...state,
         knownTags: newKnownTags,
+        followedTags: newFollowedTags,
       };
     },
     [ACTIONS.FETCH_TRENDING_STARTED]: (state: TagState) => ({
