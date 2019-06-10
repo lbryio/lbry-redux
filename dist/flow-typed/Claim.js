@@ -1,49 +1,52 @@
 // @flow
 
-declare type ClaimWithPossibleCertificate = {
-  certificate?: ChannelClaim,
-  claim: StreamClaim,
-};
+declare type Claim = StreamClaim | ChannelClaim;
 
 declare type ChannelClaim = GenericClaim & {
+  is_channel_signature_valid?: boolean, // we may have signed channels in the future, fixes some flow issues for now.
+  signing_channel?: ChannelMetadata,
   value: ChannelMetadata,
 };
 
 declare type StreamClaim = GenericClaim & {
   is_channel_signature_valid?: boolean,
-  signing_channel?: {
-    claim_id: string,
-    name: string,
-    value: {
-      public_key: string,
-    },
-  },
+  signing_channel?: ChannelMetadata,
   value: StreamMetadata,
 };
 
 declare type GenericClaim = {
   address: string, // address associated with tx
-  amount: number, // bid amount at time of tx
+  amount: string, // bid amount at time of tx
+  canonical_url: string, // URL with short id, includes channel with short id
   claim_id: string, // unique claim identifier
-  claim_sequence: number,
+  claim_sequence: number, // not being used currently
   claim_op: 'create' | 'update',
-  confirmations: number, // This isn't the most stable atm: https://github.com/lbryio/lbry/issues/2000
-  decoded_claim: boolean, // claim made in accordance with sdk protobuf types
-  effective_amount: number, // bid amount + supports
-  timestamp?: number, // date of transaction
-  has_signature: boolean,
+  confirmations: number,
+  decoded_claim: boolean, // Not available currently https://github.com/lbryio/lbry/issues/2044
+  timestamp?: number, // date of last transaction
   height: number, // block height the tx was confirmed
-  hex: string, // `value` hex encoded
   name: string,
-  channel_name?: string,
   normalized_name: string, // `name` normalized via unicode NFD spec,
   nout: number, // index number for an output of a tx
   permanent_url: string, // name + claim_id
-  supports: Array<{}>, // TODO: add support type once we start using it
+  short_url: string, // permanent_url with short id, no channel
   txid: string, // unique tx id
   type: 'claim' | 'update' | 'support',
-  valid_at_height?: number, // BUG: this should always exist https://github.com/lbryio/lbry/issues/1728
   value_type: 'stream' | 'channel',
+  meta: {
+    activation_height: number,
+    claims_in_channel?: number,
+    creation_height: number,
+    creation_timestamp: number,
+    effective_amount: string,
+    expiration_height: number,
+    is_controlling: boolean,
+    support_amount: string,
+    trending_global: number,
+    trending_group: number,
+    trending_local: number,
+    trending_mixed: number,
+  },
 };
 
 declare type GenericMetadata = {
@@ -59,6 +62,7 @@ declare type GenericMetadata = {
 
 declare type ChannelMetadata = GenericMetadata & {
   public_key: string,
+  public_key_id: string,
   cover_url?: string,
   email?: string,
   website_url?: string,

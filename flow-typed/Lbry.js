@@ -66,8 +66,8 @@ declare type VersionResponse = {
 declare type ResolveResponse = {
   // Keys are the url(s) passed to resolve
   [string]:
-    | { error: {}, certificate: ChannelClaim, claims_in_channel: number }
-    | { error?: {}, claim: StreamClaim, certificate?: ChannelClaim },
+    | Claim
+    | { error?: {} },
 };
 
 declare type GetResponse = FileListItem;
@@ -86,18 +86,19 @@ declare type GenericTxResponse = {
 declare type PublishResponse = GenericTxResponse & {
   // Only first value in outputs is a claim
   // That's the only value we care about
-  outputs: Array<StreamClaim>,
+  outputs: Array<Claim>,
 };
 
 declare type ClaimSearchResponse = {
-  items: Array<StreamClaim>,
+  items: Array<Claim>,
   page: number,
   page_size: number,
-  page_number: number,
+  total_items: number,
+  total_pages: number,
 };
 
 declare type ClaimListResponse = {
-  claims: Array<ChannelClaim | StreamClaim>,
+  claims: Array<ChannelClaim | Claim>,
 };
 
 declare type ChannelCreateResponse = GenericTxResponse & {

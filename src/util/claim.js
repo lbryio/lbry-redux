@@ -5,7 +5,7 @@ const naughtyTags = ['porn', 'nsfw', 'mature', 'xxx'].reduce(
   {}
 );
 
-export const isClaimNsfw = (claim: StreamClaim): boolean => {
+export const isClaimNsfw = (claim: Claim): boolean => {
   if (!claim) {
     throw new Error('No claim passed to isClaimNsfw()');
   }

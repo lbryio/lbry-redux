@@ -34,8 +34,8 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
 
     const resolveInfo: {
       [string]: {
-        claim: ?StreamClaim,
-        certificate: ?ChannelClaim,
+        stream: ?StreamClaim,
+        channel: ?ChannelClaim,
         claimsInChannel: ?number,
       },
     } = {};
@@ -43,20 +43,34 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
     Lbry.resolve({ urls: urisToResolve }).then((result: ResolveResponse) => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
-          claim: null,
+          stream: null,
           claimsInChannel: null,
-          certificate: null,
+          channel: null,
         };
 
         // Flow has terrible Object.entries support
         // https://github.com/facebook/flow/issues/2221
-        // $FlowFixMe
-        if (uriResolveInfo.error) {
-          resolveInfo[uri] = { ...fallbackResolveInfo };
-        } else {
-          // $FlowFixMe
-          const { claim, certificate, claims_in_channel: claimsInChannel } = uriResolveInfo;
-          resolveInfo[uri] = { claim, certificate, claimsInChannel };
+        if (uriResolveInfo) {
+          if (uriResolveInfo.error) {
+            resolveInfo[uri] = { ...fallbackResolveInfo };
+          } else {
+            let result = {};
+            if (uriResolveInfo.value_type === 'channel') {
+              result.channel = uriResolveInfo;
+              // $FlowFixMe
+              result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+            } else {
+              result.stream = uriResolveInfo;
+              if (uriResolveInfo.signing_channel) {
+                result.channel = uriResolveInfo.signing_channel;
+                result.claimsInChannel =
+                  (uriResolveInfo.meta && uriResolveInfo.meta.claims_in_channel) || 0;
+              }
+            }
+
+            // $FlowFixMe
+            resolveInfo[uri] = result;
+          }
         }
       });
 
@@ -94,7 +108,7 @@ export function doAbandonClaim(txid: string, nout: number) {
 
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myClaims: Array<ChannelClaim | StreamClaim> = selectMyClaimsRaw(state);
+    const myClaims: Array<Claim> = selectMyClaimsRaw(state);
     const mySupports: { [string]: Support } = selectSupportsByOutpoint(state);
 
     // A user could be trying to abandon a support or one of their claims
@@ -182,20 +196,23 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
       data: { uri, page },
     });
 
-    Lbry.claim_search({ channel_name: uri, page: page || 1, winning: true }).then(
-      (result: ClaimSearchResponse) => {
-        const { items: claimsInChannel, page: returnedPage } = result;
+    Lbry.claim_search({
+      channel: uri,
+      is_controlling: true,
+      page: page || 1,
+      order_by: ['release_time'],
+    }).then((result: ClaimSearchResponse) => {
+      const { items: claimsInChannel, page: returnedPage } = result;
 
-        dispatch({
-          type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
-          data: {
-            uri,
-            claims: claimsInChannel || [],
-            page: returnedPage || undefined,
-          },
-        });
-      }
-    );
+      dispatch({
+        type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
+        data: {
+          uri,
+          claims: claimsInChannel || [],
+          page: returnedPage || undefined,
+        },
+      });
+    });
   };
 }
 

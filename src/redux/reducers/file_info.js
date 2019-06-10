@@ -161,16 +161,6 @@ reducers[ACTIONS.LOADING_VIDEO_FAILED] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.FETCH_DATE] = (state, action) => {
-  const { time } = action.data;
-  if (time) {
-    return Object.assign({}, state, {
-      publishedDate: time,
-    });
-  }
-  return null;
-};
-
 reducers[ACTIONS.SET_FILE_LIST_SORT] = (state, action) => {
   const pageSortStates = {
     [PAGES.PUBLISHED]: 'fileListPublishedSort',
