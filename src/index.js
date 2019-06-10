@@ -87,6 +87,8 @@ export {
   doUpdateBlockHeight,
 } from 'redux/actions/wallet';
 
+export { doToggleTagFollow, doAddTag, doDeleteTag, doFetchByTags } from 'redux/actions/tags';
+
 // utils
 export { batchActions } from 'util/batchActions';
 export { parseQueryParams, toQueryString } from 'util/query_params';
@@ -101,6 +103,7 @@ export { notificationsReducer } from 'redux/reducers/notifications';
 export { searchReducer } from 'redux/reducers/search';
 export { walletReducer } from 'redux/reducers/wallet';
 export { contentReducer } from 'redux/reducers/content';
+export { tagsReducer } from 'redux/reducers/tags';
 
 // selectors
 export { makeSelectContentPositionForUri } from 'redux/selectors/content';
@@ -127,6 +130,7 @@ export {
   makeSelectCoverForUri,
   makeSelectTitleForUri,
   makeSelectDateForUri,
+  makeSelectTagsForUri,
   makeSelectContentTypeForUri,
   makeSelectIsUriResolving,
   makeSelectTotalItemsForChannel,
@@ -177,6 +181,7 @@ export {
   selectSearchDownloadUris,
   selectFileListDownloadedSort,
   selectFileListPublishedSort,
+  selectDownloadedUris,
 } from 'redux/selectors/file_info';
 
 export { selectSearchState };
@@ -221,3 +226,10 @@ export {
   selectWalletUnlockResult,
   selectTransactionListFilter,
 } from 'redux/selectors/wallet';
+
+export {
+  selectFollowedTags,
+  selectUnfollowedTags,
+  selectTrendingUris,
+  selectFetchingTrending,
+} from 'redux/selectors/tags';

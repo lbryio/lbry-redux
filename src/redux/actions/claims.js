@@ -7,6 +7,7 @@ import { selectMyClaimsRaw, selectResolvingUris, selectClaimsByUri } from 'redux
 import { doFetchTransactions } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/formatCredits';
+import { batchActions } from 'util/batchActions';
 
 export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean = false) {
   return (dispatch: Dispatch, getState: GetState) => {
@@ -69,7 +70,6 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
                   0;
               }
             }
-
             // $FlowFixMe
             resolveInfo[uri] = result;
           }
@@ -262,5 +262,50 @@ export function doFetchChannelListMine() {
     };
 
     Lbry.channel_list().then(callback);
+  };
+}
+
+export function doClaimSearch(
+  amount: number = 20,
+  options: {} = {},
+  cb: (?Error, ?Array<string>) => void
+) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.CLAIM_SEARCH_STARTED,
+    });
+
+    const success = (data: ClaimSearchResponse) => {
+      const resolveInfo = {};
+      const uris = [];
+      data.items.forEach((stream: Claim) => {
+        resolveInfo[stream.permanent_url] = { stream };
+        uris.push(stream.permanent_url);
+      });
+
+      dispatch({
+        type: ACTIONS.CLAIM_SEARCH_COMPLETED,
+        data: { resolveInfo },
+      });
+
+      if (cb) {
+        cb(null, uris);
+      }
+    };
+
+    const failure = err => {
+      dispatch({
+        type: ACTIONS.CLAIM_SEARCH_FAILED,
+        error: err,
+      });
+      if (cb) {
+        cb(err);
+      }
+    };
+
+    Lbry.claim_search({
+      page_size: amount,
+      ...options,
+    }).then(success, failure);
   };
 }

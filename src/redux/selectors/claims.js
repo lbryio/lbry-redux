@@ -433,3 +433,11 @@ export const makeSelectChannelForClaimUri = (uri: string, includePrefix: boolean
       return includePrefix ? `lbry://${channel}` : channel;
     }
   );
+
+export const makeSelectTagsForUri = (uri: string) =>
+  createSelector(
+    makeSelectMetadataForUri(uri),
+    (metadata: ?GenericMetadata) => {
+      return (metadata && metadata.tags) || [];
+    }
+  );

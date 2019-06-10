@@ -228,3 +228,9 @@ export const selectFileListDownloadedSort = createSelector(
   selectState,
   state => state.fileListDownloadedSort
 );
+
+export const selectDownloadedUris = createSelector(
+  selectFileInfosDownloaded,
+  // We should use permament_url but it doesn't exist in file_list
+  info => info.map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`)
+);
