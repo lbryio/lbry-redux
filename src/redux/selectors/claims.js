@@ -259,6 +259,11 @@ export const selectMyClaimsWithoutChannels = createSelector(
   myClaims => myClaims.filter(claim => !claim.name.match(/^@/))
 );
 
+export const selectMyClaimUrisWithoutChannels = createSelector(
+  selectMyClaimsWithoutChannels,
+  myClaims => myClaims.map(claim => `lbry://${claim.name}#${claim.claim_id}`)
+);
+
 export const selectAllMyClaimsByOutpoint = createSelector(
   selectMyClaimsRaw,
   claims =>

@@ -1302,6 +1302,8 @@ const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaim
 
 const selectMyClaimsWithoutChannels = reselect.createSelector(selectMyClaims, myClaims => myClaims.filter(claim => !claim.name.match(/^@/)));
 
+const selectMyClaimUrisWithoutChannels = reselect.createSelector(selectMyClaimsWithoutChannels, myClaims => myClaims.map(claim => `lbry://${claim.name}#${claim.claim_id}`));
+
 const selectAllMyClaimsByOutpoint = reselect.createSelector(selectMyClaimsRaw, claims => new Set(claims && claims.length ? claims.map(claim => `${claim.txid}:${claim.nout}`) : null));
 
 const selectMyClaimsOutpoints = reselect.createSelector(selectMyClaims, myClaims => {
@@ -3997,6 +3999,7 @@ exports.selectLastClaimSearchUris = selectLastClaimSearchUris;
 exports.selectLastPurchasedUri = selectLastPurchasedUri;
 exports.selectMyActiveClaims = selectMyActiveClaims;
 exports.selectMyChannelClaims = selectMyChannelClaims;
+exports.selectMyClaimUrisWithoutChannels = selectMyClaimUrisWithoutChannels;
 exports.selectMyClaims = selectMyClaims;
 exports.selectMyClaimsOutpoints = selectMyClaimsOutpoints;
 exports.selectMyClaimsRaw = selectMyClaimsRaw;

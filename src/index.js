@@ -157,6 +157,7 @@ export {
   selectPendingClaims,
   selectMyClaims,
   selectMyClaimsWithoutChannels,
+  selectMyClaimUrisWithoutChannels,
   selectAllMyClaimsByOutpoint,
   selectMyClaimsOutpoints,
   selectFetchingMyChannels,
