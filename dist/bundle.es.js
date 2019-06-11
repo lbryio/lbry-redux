@@ -1997,7 +1997,7 @@ function doResolveUris(uris, returnCachedClaims = false) {
               result.stream = uriResolveInfo;
               if (uriResolveInfo.signing_channel) {
                 result.channel = uriResolveInfo.signing_channel;
-                result.claimsInChannel = uriResolveInfo.signing_channel.meta.claims_in_channel;
+                result.claimsInChannel = uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel || 0;
               }
             }
 
@@ -2117,7 +2117,12 @@ function doFetchClaimsByChannel(uri, page = 1) {
       data: { uri, page }
     });
 
-    lbryProxy.claim_search({ channel: uri, is_controlling: true, page: page || 1, order_by: ['release_time'] }).then(result => {
+    lbryProxy.claim_search({
+      channel: uri,
+      valid_channel_signatures: true,
+      page: page || 1,
+      order_by: ['release_time']
+    }).then(result => {
       const { items: claimsInChannel, page: returnedPage } = result;
 
       dispatch({
@@ -2738,20 +2743,15 @@ reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
 
   // $FlowFixMe
   Object.entries(resolveInfo).forEach(([uri, { channel, stream }]) => {
-    if (stream && !channel) {
+    if (stream) {
       byId[stream.claim_id] = stream;
       byUri[uri] = stream.claim_id;
-    } else if (stream && channel) {
-      byId[stream.claim_id] = stream;
-      byUri[uri] = stream.claim_id;
-
+    }
+    if (channel) {
       byId[channel.claim_id] = channel;
-      const channelUri = channel.permanent_url;
-      byUri[channelUri] = channel.claim_id;
-    } else if (!stream && channel) {
-      byId[channel.claim_id] = channel;
-      byUri[uri] = channel.claim_id;
-    } else {
+      byUri[stream ? channel.permanent_url : uri] = channel.claim_id;
+    }
+    if (!stream && !channel) {
       byUri[uri] = null;
     }
   });

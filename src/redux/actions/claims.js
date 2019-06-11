@@ -64,7 +64,9 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
               if (uriResolveInfo.signing_channel) {
                 result.channel = uriResolveInfo.signing_channel;
                 result.claimsInChannel =
-                  (uriResolveInfo.meta && uriResolveInfo.meta.claims_in_channel) || 0;
+                  (uriResolveInfo.signing_channel.meta &&
+                    uriResolveInfo.signing_channel.meta.claims_in_channel) ||
+                  0;
               }
             }
 
@@ -198,7 +200,7 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
 
     Lbry.claim_search({
       channel: uri,
-      is_controlling: true,
+      valid_channel_signatures: true,
       page: page || 1,
       order_by: ['release_time'],
     }).then((result: ClaimSearchResponse) => {
