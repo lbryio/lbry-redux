@@ -36,13 +36,3 @@ export const selectUnfollowedTags = createSelector(
     return tagsToReturn;
   }
 );
-
-export const selectTrendingUris = createSelector(
-  selectState,
-  state => state.trending || []
-);
-
-export const selectFetchingTrending = createSelector(
-  selectState,
-  state => state.fetchingTrending
-);

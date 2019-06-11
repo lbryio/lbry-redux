@@ -43,6 +43,8 @@ const defaultState = {
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
+  fetchingClaimSearch: false,
+  lastClaimSearchUris: [],
 };
 
 function handleClaimAction(state: State, action: any): State {
@@ -91,7 +93,9 @@ function handleClaimAction(state: State, action: any): State {
 }
 
 reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state: State, action: any): State => {
-  return handleClaimAction(state, action);
+  return {
+    ...handleClaimAction(state, action),
+  };
 };
 
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: State): State =>
@@ -275,7 +279,11 @@ reducers[ACTIONS.CLAIM_SEARCH_STARTED] = (state: State): State => {
   });
 };
 reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State => {
-  return { ...handleClaimAction(state, action), fetchingClaimSearch: false };
+  return {
+    ...handleClaimAction(state, action),
+    fetchingClaimSearch: false,
+    lastClaimSearchUris: action.data.uris,
+  };
 };
 reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State): State => {
   return Object.assign({}, state, {

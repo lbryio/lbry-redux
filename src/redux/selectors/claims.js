@@ -441,3 +441,13 @@ export const makeSelectTagsForUri = (uri: string) =>
       return (metadata && metadata.tags) || [];
     }
   );
+
+export const selectFetchingClaimSearch = createSelector(
+  selectState,
+  state => state.fetchingClaimSearch
+);
+
+export const selectLastClaimSearchUris = createSelector(
+  selectState,
+  state => state.lastClaimSearchUris
+);

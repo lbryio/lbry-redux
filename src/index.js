@@ -45,6 +45,7 @@ export {
   doResolveUri,
   doFetchChannelListMine,
   doCreateChannel,
+  doClaimSearch,
 } from 'redux/actions/claims';
 
 export { doDeletePurchasedUri, doPurchaseUri, doFileGet } from 'redux/actions/file';
@@ -87,7 +88,7 @@ export {
   doUpdateBlockHeight,
 } from 'redux/actions/wallet';
 
-export { doToggleTagFollow, doAddTag, doDeleteTag, doFetchByTags } from 'redux/actions/tags';
+export { doToggleTagFollow, doAddTag, doDeleteTag } from 'redux/actions/tags';
 
 // utils
 export { batchActions } from 'util/batchActions';
@@ -164,6 +165,8 @@ export {
   selectPlayingUri,
   selectChannelClaimCounts,
   selectCurrentChannelPage,
+  selectFetchingClaimSearch,
+  selectLastClaimSearchUris,
 } from 'redux/selectors/claims';
 
 export {
@@ -227,9 +230,4 @@ export {
   selectTransactionListFilter,
 } from 'redux/selectors/wallet';
 
-export {
-  selectFollowedTags,
-  selectUnfollowedTags,
-  selectTrendingUris,
-  selectFetchingTrending,
-} from 'redux/selectors/tags';
+export { selectFollowedTags, selectUnfollowedTags } from 'redux/selectors/tags';

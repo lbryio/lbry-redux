@@ -16,8 +16,6 @@ function getDefaultRecommendedTags() {
 const defaultState: TagState = {
   followedTags: defaultFollowedTags,
   knownTags: getDefaultRecommendedTags(),
-  trending: [],
-  fetchingTrending: false,
 };
 
 export const tagsReducer = handleActions(
@@ -67,20 +65,6 @@ export const tagsReducer = handleActions(
         followedTags: newFollowedTags,
       };
     },
-    [ACTIONS.FETCH_TRENDING_STARTED]: (state: TagState) => ({
-      ...state,
-      fetchingTrending: true,
-    }),
-    [ACTIONS.FETCH_TRENDING_COMPLETED]: (state: TagState, action: TrendingTagAction) => ({
-      ...state,
-      trending: action.data.uris,
-      fetchingTrending: false,
-    }),
-    [ACTIONS.FETCH_TRENDING_FAILED]: (state: TagState) => ({
-      ...state,
-      trending: [],
-      fetchingTrending: false,
-    }),
   },
   defaultState
 );

@@ -231,9 +231,6 @@ const FETCH_COST_INFO_FAILED = 'FETCH_COST_INFO_FAILED';
 const TOGGLE_TAG_FOLLOW = 'TOGGLE_TAG_FOLLOW';
 const TAG_ADD = 'TAG_ADD';
 const TAG_DELETE = 'TAG_DELETE';
-const FETCH_TRENDING_STARTED = 'FETCH_TRENDING_STARTED';
-const FETCH_TRENDING_COMPLETED = 'FETCH_TRENDING_COMPLETED';
-const FETCH_TRENDING_FAILED = 'FETCH_TRENDING_FAILED';
 
 var action_types = /*#__PURE__*/Object.freeze({
     WINDOW_FOCUSED: WINDOW_FOCUSED,
@@ -428,10 +425,7 @@ var action_types = /*#__PURE__*/Object.freeze({
     FETCH_COST_INFO_FAILED: FETCH_COST_INFO_FAILED,
     TOGGLE_TAG_FOLLOW: TOGGLE_TAG_FOLLOW,
     TAG_ADD: TAG_ADD,
-    TAG_DELETE: TAG_DELETE,
-    FETCH_TRENDING_STARTED: FETCH_TRENDING_STARTED,
-    FETCH_TRENDING_COMPLETED: FETCH_TRENDING_COMPLETED,
-    FETCH_TRENDING_FAILED: FETCH_TRENDING_FAILED
+    TAG_DELETE: TAG_DELETE
 });
 
 const API_DOWN = 'apiDown';
@@ -1423,6 +1417,10 @@ const makeSelectTagsForUri = uri => reselect.createSelector(makeSelectMetadataFo
   return metadata && metadata.tags || [];
 });
 
+const selectFetchingClaimSearch = reselect.createSelector(selectState$1, state => state.fetchingClaimSearch);
+
+const selectLastClaimSearchUris = reselect.createSelector(selectState$1, state => state.lastClaimSearchUris);
+
 const selectState$2 = state => state.wallet || {};
 
 const selectWalletState = selectState$2;
@@ -2191,7 +2189,7 @@ function doFetchChannelListMine() {
   };
 }
 
-function doClaimSearch(amount = 20, options = {}, cb) {
+function doClaimSearch(amount = 20, options = {}) {
   return dispatch => {
     dispatch({
       type: CLAIM_SEARCH_STARTED
@@ -2207,12 +2205,8 @@ function doClaimSearch(amount = 20, options = {}, cb) {
 
       dispatch({
         type: CLAIM_SEARCH_COMPLETED,
-        data: { resolveInfo }
+        data: { resolveInfo, uris }
       });
-
-      if (cb) {
-        cb(null, uris);
-      }
     };
 
     const failure = err => {
@@ -2220,9 +2214,6 @@ function doClaimSearch(amount = 20, options = {}, cb) {
         type: CLAIM_SEARCH_FAILED,
         error: err
       });
-      if (cb) {
-        cb(err);
-      }
     };
 
     lbryProxy.claim_search(_extends$3({
@@ -2776,32 +2767,6 @@ const doDeleteTag = name => ({
   }
 });
 
-const doFetchByTags = (amount = 10, options = {}) => {
-  return dispatch => {
-    dispatch({
-      type: FETCH_TRENDING_STARTED
-    });
-
-    const callback = (error, uris = []) => {
-      if (error) {
-        return dispatch({
-          type: FETCH_TRENDING_FAILED,
-          error
-        });
-      }
-
-      dispatch({
-        type: FETCH_TRENDING_COMPLETED,
-        data: {
-          uris
-        }
-      });
-    };
-
-    dispatch(doClaimSearch(amount, options, callback));
-  };
-};
-
 var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers = {};
@@ -2817,7 +2782,9 @@ const defaultState = {
   myChannelClaims: new Set(),
   fetchingMyChannels: false,
   abandoningById: {},
-  pendingById: {}
+  pendingById: {},
+  fetchingClaimSearch: false,
+  lastClaimSearchUris: []
 };
 
 function handleClaimAction(state, action) {
@@ -2860,7 +2827,7 @@ function handleClaimAction(state, action) {
 }
 
 reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
-  return handleClaimAction(state, action);
+  return _extends$4({}, handleClaimAction(state, action));
 };
 
 reducers[FETCH_CLAIM_LIST_MINE_STARTED] = state => Object.assign({}, state, {
@@ -3041,7 +3008,10 @@ reducers[CLAIM_SEARCH_STARTED] = state => {
   });
 };
 reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
-  return _extends$4({}, handleClaimAction(state, action), { fetchingClaimSearch: false });
+  return _extends$4({}, handleClaimAction(state, action), {
+    fetchingClaimSearch: false,
+    lastClaimSearchUris: action.data.uris
+  });
 };
 reducers[CLAIM_SEARCH_FAILED] = state => {
   return Object.assign({}, state, {
@@ -3774,9 +3744,7 @@ function getDefaultRecommendedTags() {
 
 const defaultState$7 = {
   followedTags: defaultFollowedTags,
-  knownTags: getDefaultRecommendedTags(),
-  trending: [],
-  fetchingTrending: false
+  knownTags: getDefaultRecommendedTags()
 };
 
 const tagsReducer = handleActions({
@@ -3821,18 +3789,7 @@ const tagsReducer = handleActions({
       knownTags: newKnownTags,
       followedTags: newFollowedTags
     });
-  },
-  [FETCH_TRENDING_STARTED]: state => _extends$b({}, state, {
-    fetchingTrending: true
-  }),
-  [FETCH_TRENDING_COMPLETED]: (state, action) => _extends$b({}, state, {
-    trending: action.data.uris,
-    fetchingTrending: false
-  }),
-  [FETCH_TRENDING_FAILED]: state => _extends$b({}, state, {
-    trending: [],
-    fetchingTrending: false
-  })
+  }
 }, defaultState$7);
 
 const selectState$5 = state => state.content || {};
@@ -3896,10 +3853,6 @@ const selectUnfollowedTags = reselect.createSelector(selectKnownTagsByName, sele
   return tagsToReturn;
 });
 
-const selectTrendingUris = reselect.createSelector(selectState$7, state => state.trending || []);
-
-const selectFetchingTrending = reselect.createSelector(selectState$7, state => state.fetchingTrending);
-
 exports.ACTIONS = action_types;
 exports.Lbry = lbryProxy;
 exports.PAGES = pages;
@@ -3920,13 +3873,13 @@ exports.doAddTag = doAddTag;
 exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
+exports.doClaimSearch = doClaimSearch;
 exports.doCreateChannel = doCreateChannel;
 exports.doDeletePurchasedUri = doDeletePurchasedUri;
 exports.doDeleteTag = doDeleteTag;
 exports.doDismissError = doDismissError;
 exports.doDismissToast = doDismissToast;
 exports.doError = doError;
-exports.doFetchByTags = doFetchByTags;
 exports.doFetchChannelListMine = doFetchChannelListMine;
 exports.doFetchClaimListMine = doFetchClaimListMine;
 exports.doFetchClaimsByChannel = doFetchClaimsByChannel;
@@ -4025,8 +3978,8 @@ exports.selectDraftTransactionAmount = selectDraftTransactionAmount;
 exports.selectDraftTransactionError = selectDraftTransactionError;
 exports.selectError = selectError;
 exports.selectFailedPurchaseUris = selectFailedPurchaseUris;
+exports.selectFetchingClaimSearch = selectFetchingClaimSearch;
 exports.selectFetchingMyChannels = selectFetchingMyChannels;
-exports.selectFetchingTrending = selectFetchingTrending;
 exports.selectFileInfosByOutpoint = selectFileInfosByOutpoint;
 exports.selectFileInfosDownloaded = selectFileInfosDownloaded;
 exports.selectFileListDownloadedSort = selectFileListDownloadedSort;
@@ -4040,6 +3993,7 @@ exports.selectIsFetchingFileListDownloadedOrPublished = selectIsFetchingFileList
 exports.selectIsFetchingTransactions = selectIsFetchingTransactions;
 exports.selectIsSearching = selectIsSearching;
 exports.selectIsSendingSupport = selectIsSendingSupport;
+exports.selectLastClaimSearchUris = selectLastClaimSearchUris;
 exports.selectLastPurchasedUri = selectLastPurchasedUri;
 exports.selectMyActiveClaims = selectMyActiveClaims;
 exports.selectMyChannelClaims = selectMyChannelClaims;
@@ -4070,7 +4024,6 @@ exports.selectTotalDownloadProgress = selectTotalDownloadProgress;
 exports.selectTransactionItems = selectTransactionItems;
 exports.selectTransactionListFilter = selectTransactionListFilter;
 exports.selectTransactionsById = selectTransactionsById;
-exports.selectTrendingUris = selectTrendingUris;
 exports.selectUnfollowedTags = selectUnfollowedTags;
 exports.selectUrisLoading = selectUrisLoading;
 exports.selectWalletDecryptPending = selectWalletDecryptPending;

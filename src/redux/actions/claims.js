@@ -265,11 +265,7 @@ export function doFetchChannelListMine() {
   };
 }
 
-export function doClaimSearch(
-  amount: number = 20,
-  options: {} = {},
-  cb: (?Error, ?Array<string>) => void
-) {
+export function doClaimSearch(amount: number = 20, options: {} = {}) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
@@ -285,12 +281,8 @@ export function doClaimSearch(
 
       dispatch({
         type: ACTIONS.CLAIM_SEARCH_COMPLETED,
-        data: { resolveInfo },
+        data: { resolveInfo, uris },
       });
-
-      if (cb) {
-        cb(null, uris);
-      }
     };
 
     const failure = err => {
@@ -298,9 +290,6 @@ export function doClaimSearch(
         type: ACTIONS.CLAIM_SEARCH_FAILED,
         error: err,
       });
-      if (cb) {
-        cb(err);
-      }
     };
 
     Lbry.claim_search({
