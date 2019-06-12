@@ -102,6 +102,14 @@ const CLAIM_SEARCH_STARTED = 'CLAIM_SEARCH_STARTED';
 const CLAIM_SEARCH_COMPLETED = 'CLAIM_SEARCH_COMPLETED';
 const CLAIM_SEARCH_FAILED = 'CLAIM_SEARCH_FAILED';
 
+// Comments
+const COMMENT_LIST_STARTED = 'COMMENT_LIST_STARTED';
+const COMMENT_LIST_COMPLETED = 'COMMENT_LIST_COMPLETED';
+const COMMENT_LIST_UPDATED = 'COMMENT_LIST_UPDATED';
+const COMMENT_CREATE_STARTED = 'COMMENT_CREATE_STARTED';
+const COMMENT_CREATE_COMPLETED = 'COMMENT_CREATE_COMPLETED';
+const COMMENT_CREATE_FAILED = 'COMMENT_CREATE_FAILED';
+
 // Files
 const FILE_LIST_STARTED = 'FILE_LIST_STARTED';
 const FILE_LIST_SUCCEEDED = 'FILE_LIST_SUCCEEDED';
@@ -318,6 +326,12 @@ var action_types = /*#__PURE__*/Object.freeze({
     CLAIM_SEARCH_STARTED: CLAIM_SEARCH_STARTED,
     CLAIM_SEARCH_COMPLETED: CLAIM_SEARCH_COMPLETED,
     CLAIM_SEARCH_FAILED: CLAIM_SEARCH_FAILED,
+    COMMENT_LIST_STARTED: COMMENT_LIST_STARTED,
+    COMMENT_LIST_COMPLETED: COMMENT_LIST_COMPLETED,
+    COMMENT_LIST_UPDATED: COMMENT_LIST_UPDATED,
+    COMMENT_CREATE_STARTED: COMMENT_CREATE_STARTED,
+    COMMENT_CREATE_COMPLETED: COMMENT_CREATE_COMPLETED,
+    COMMENT_CREATE_FAILED: COMMENT_CREATE_FAILED,
     FILE_LIST_STARTED: FILE_LIST_STARTED,
     FILE_LIST_SUCCEEDED: FILE_LIST_SUCCEEDED,
     FETCH_FILE_INFO_STARTED: FETCH_FILE_INFO_STARTED,
@@ -676,6 +690,9 @@ const Lbry = {
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
 
+  // Comments
+  comment_list: (params = {}) => daemonCallWithResult('comment_list', params),
+  comment_create: (params = {}) => daemonCallWithResult('comment_create', params),
   // Connect to the sdk
   connect: () => {
     if (Lbry.connectPromise === null) {
@@ -2761,6 +2778,74 @@ const doDeleteTag = name => ({
   }
 });
 
+//      
+
+function doCommentList(uri) {
+  return (dispatch, getState) => {
+    const state = getState();
+    const claim = selectClaimsByUri(state)[uri];
+    const claimId = claim ? claim.claim_id : null;
+
+    dispatch({
+      type: COMMENT_LIST_STARTED
+    });
+    lbryProxy.comment_list({
+      claim_id: claimId
+    }).then(results => {
+      dispatch({
+        type: COMMENT_LIST_COMPLETED,
+        data: {
+          comments: results,
+          claimId: claimId,
+          uri: uri
+        }
+      });
+    }).catch(error => {
+      console.log(error);
+    });
+  };
+}
+
+function doCommentCreate(comment = '', claim_id = '', channel, parent_id) {
+  return (dispatch, getState) => {
+    const state = getState();
+    dispatch({
+      type: COMMENT_CREATE_STARTED
+    });
+    const myChannels = selectMyChannelClaims(state);
+    const namedChannelClaim = myChannels.find(myChannel => myChannel.name === channel);
+    const channel_id = namedChannelClaim ? namedChannelClaim.claim_id : null;
+    return lbryProxy.comment_create({
+      comment,
+      claim_id,
+      channel_id
+    }).then(result => {
+      dispatch({
+        type: COMMENT_CREATE_COMPLETED,
+        data: {
+          response: result
+        }
+      });
+      dispatch({
+        type: COMMENT_LIST_UPDATED,
+        data: {
+          comment: result,
+          claimId: claim_id
+        }
+      });
+    }).catch(error => {
+      dispatch({
+        type: COMMENT_CREATE_FAILED,
+        data: error
+      });
+      dispatch(doToast({
+        message: 'Oops, someone broke comments.',
+        isError: true
+      }));
+    });
+  };
+}
+
 var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers = {};
@@ -3724,6 +3809,70 @@ function contentReducer(state = defaultState$6, action) {
   return state;
 }
 
+//      
+
+// TODO change to handleActions()
+// const commentsReducer = handleActions( {
+const reducers$4 = {};
+
+const defaultState$7 = {
+  byId: {},
+  commentsByUri: {},
+  isLoading: false
+};
+
+reducers$4[COMMENT_CREATE_STARTED] = (state, action) => Object.assign({}, state, {
+  isLoading: true
+});
+
+reducers$4[COMMENT_CREATE_FAILED] = (state, action) => {
+  // TODO: handle error.. what else?
+  return state;
+};
+
+reducers$4[COMMENT_CREATE_COMPLETED] = (state, action) => {
+  const { comments } = action.data;
+  return state;
+};
+
+reducers$4[COMMENT_LIST_UPDATED] = (state, action) => {
+  const { comment, claimId } = action.data;
+  const byId = Object.assign({}, state.byId);
+  const comments = byId[claimId];
+  const newComments = comments.slice();
+  newComments.unshift(comment);
+  byId[claimId] = newComments;
+  return Object.assign({}, state, {
+    byId
+  });
+};
+
+reducers$4[COMMENT_LIST_STARTED] = state => Object.assign({}, state, {
+  isLoading: true
+});
+
+reducers$4[COMMENT_LIST_COMPLETED] = (state, action) => {
+  const { comments, claimId, uri } = action.data;
+  const byId = Object.assign({}, state.byId);
+  const commentsByUri = Object.assign({}, state.commentsByUri);
+
+  if (comments['items']) {
+    byId[claimId] = comments['items'];
+    commentsByUri[uri] = claimId;
+  }
+  return Object.assign({}, state, {
+    byId,
+    commentsByUri,
+    isLoading: false
+  });
+};
+
+function commentReducer(state = defaultState$7, action) {
+  const handler = reducers$4[action.type];
+  if (handler) return handler(state, action);
+  return state;
+}
+
 var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const tagsReducerBuilder = defaultState => handleActions({
@@ -3810,11 +3959,36 @@ const selectError = reselect.createSelector(selectState$6, state => {
 
 //      
 
-const selectState$7 = state => state.tags || {};
+const selectState$7 = state => state.comments || {};
 
-const selectKnownTagsByName = reselect.createSelector(selectState$7, state => state.knownTags);
+const selectCommentsById = reselect.createSelector(selectState$7, state => state.byId || {});
 
-const selectFollowedTagsList = reselect.createSelector(selectState$7, state => state.followedTags);
+const selectCommentsByUri = reselect.createSelector(selectState$7, state => {
+  const byUri = state.commentsByUri || {};
+  const comments = {};
+  Object.keys(byUri).forEach(uri => {
+    const claimId = byUri[uri];
+    if (claimId === null) {
+      comments[uri] = null;
+    } else {
+      comments[uri] = claimId;
+    }
+  });
+  return comments;
+});
+
+const makeSelectCommentsForUri = uri => reselect.createSelector(selectCommentsById, selectCommentsByUri, (byId, byUri) => {
+  const claimId = byUri[uri];
+  return byId && byId[claimId];
+});
+
+//      
+
+const selectState$8 = state => state.tags || {};
+
+const selectKnownTagsByName = reselect.createSelector(selectState$8, state => state.knownTags);
+
+const selectFollowedTagsList = reselect.createSelector(selectState$8, state => state.followedTags);
 
 const selectFollowedTags = reselect.createSelector(selectFollowedTagsList, followedTags => followedTags.map(tag => ({ name: tag })).sort((a, b) => a.name.localeCompare(b.name)));
 
@@ -3844,6 +4018,7 @@ exports.TRANSACTIONS = transaction_types;
 exports.batchActions = batchActions;
 exports.buildURI = buildURI;
 exports.claimsReducer = claimsReducer;
+exports.commentReducer = commentReducer;
 exports.contentReducer = contentReducer;
 exports.convertToShareLink = convertToShareLink;
 exports.creditsToString = creditsToString;
@@ -3853,6 +4028,8 @@ exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
 exports.doClaimSearch = doClaimSearch;
+exports.doCommentCreate = doCommentCreate;
+exports.doCommentList = doCommentList;
 exports.doCreateChannel = doCreateChannel;
 exports.doDeletePurchasedUri = doDeletePurchasedUri;
 exports.doDeleteTag = doDeleteTag;
@@ -3906,6 +4083,7 @@ exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
 exports.makeSelectClaimIsPending = makeSelectClaimIsPending;
 exports.makeSelectClaimsInChannelForCurrentPageState = makeSelectClaimsInChannelForCurrentPageState;
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
+exports.makeSelectCommentsForUri = makeSelectCommentsForUri;
 exports.makeSelectContentPositionForUri = makeSelectContentPositionForUri;
 exports.makeSelectContentTypeForUri = makeSelectContentTypeForUri;
 exports.makeSelectCoverForUri = makeSelectCoverForUri;
