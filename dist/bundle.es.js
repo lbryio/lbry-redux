@@ -3732,24 +3732,9 @@ function contentReducer(state = defaultState$6, action) {
   return state;
 }
 
-const defaultFollowedTags = ['gaming', 'blockchain', 'news', 'learning', 'funny', 'technology', 'automotive', 'economics', 'sports', 'food', 'science', 'art', 'nature', 'beliefs', 'music', 'pop culture', 'weapons'];
-
-const defaultRecommendedTags = [];
-
 var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function getDefaultRecommendedTags() {
-  return defaultFollowedTags.concat(defaultRecommendedTags).reduce((tagsMap, tag) => _extends$b({}, tagsMap, {
-    [tag]: { name: tag }
-  }), {});
-}
-
-const defaultState$7 = {
-  followedTags: defaultFollowedTags,
-  knownTags: getDefaultRecommendedTags()
-};
-
-const tagsReducer = handleActions({
+const tagsReducerBuilder = defaultState => handleActions({
   [TOGGLE_TAG_FOLLOW]: (state, action) => {
     const { followedTags } = state;
     const { name } = action.data;
@@ -3792,7 +3777,7 @@ const tagsReducer = handleActions({
       followedTags: newFollowedTags
     });
   }
-}, defaultState$7);
+}, defaultState);
 
 const selectState$5 = state => state.content || {};
 
@@ -4041,6 +4026,6 @@ exports.selectWalletUnlockPending = selectWalletUnlockPending;
 exports.selectWalletUnlockResult = selectWalletUnlockResult;
 exports.selectWalletUnlockSucceeded = selectWalletUnlockSucceeded;
 exports.setSearchApi = setSearchApi;
-exports.tagsReducer = tagsReducer;
+exports.tagsReducerBuilder = tagsReducerBuilder;
 exports.toQueryString = toQueryString;
 exports.walletReducer = walletReducer;

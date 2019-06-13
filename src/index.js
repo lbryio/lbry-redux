@@ -104,7 +104,7 @@ export { notificationsReducer } from 'redux/reducers/notifications';
 export { searchReducer } from 'redux/reducers/search';
 export { walletReducer } from 'redux/reducers/wallet';
 export { contentReducer } from 'redux/reducers/content';
-export { tagsReducer } from 'redux/reducers/tags';
+export { tagsReducerBuilder } from 'redux/reducers/tags';
 
 // selectors
 export { makeSelectContentPositionForUri } from 'redux/selectors/content';
