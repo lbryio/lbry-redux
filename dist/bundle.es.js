@@ -1044,18 +1044,18 @@ const selectSearchSuggestions = reselect.createSelector(selectSearchValue, selec
     return [];
   }
 
-  const queryIsPrefix = query === 'lbry:' || query === 'lbry:/' || query === 'lbry://';
+  const queryIsPrefix = query === 'lbry:' || query === 'lbry:/' || query === 'lbry://' || query === 'lbry://@';
 
-  if (query.startsWith('lbry://') && query !== 'lbry://') {
+  if (queryIsPrefix) {
+    // If it is a prefix, wait until something else comes to figure out what to do
+    return [];
+  } else if (query.startsWith('lbry://')) {
     // If it starts with a prefix, don't show any autocomplete results
     // They are probably typing/pasting in a lbry uri
     return [{
       value: query,
-      type: SEARCH_TYPES.FILE
+      type: query[7] === '@' ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE
     }];
-  } else if (queryIsPrefix) {
-    // If it is a prefix, wait until something else comes to figure out what to do
-    return [];
   }
 
   let searchSuggestions = [];
