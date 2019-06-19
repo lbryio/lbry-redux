@@ -45,6 +45,7 @@ export {
   doResolveUri,
   doFetchChannelListMine,
   doCreateChannel,
+  doClaimSearch,
 } from 'redux/actions/claims';
 
 export { doDeletePurchasedUri, doPurchaseUri, doFileGet } from 'redux/actions/file';
@@ -87,6 +88,8 @@ export {
   doUpdateBlockHeight,
 } from 'redux/actions/wallet';
 
+export { doToggleTagFollow, doAddTag, doDeleteTag } from 'redux/actions/tags';
+
 // utils
 export { batchActions } from 'util/batchActions';
 export { parseQueryParams, toQueryString } from 'util/query_params';
@@ -101,6 +104,7 @@ export { notificationsReducer } from 'redux/reducers/notifications';
 export { searchReducer } from 'redux/reducers/search';
 export { walletReducer } from 'redux/reducers/wallet';
 export { contentReducer } from 'redux/reducers/content';
+export { tagsReducerBuilder } from 'redux/reducers/tags';
 
 // selectors
 export { makeSelectContentPositionForUri } from 'redux/selectors/content';
@@ -127,6 +131,7 @@ export {
   makeSelectCoverForUri,
   makeSelectTitleForUri,
   makeSelectDateForUri,
+  makeSelectTagsForUri,
   makeSelectContentTypeForUri,
   makeSelectIsUriResolving,
   makeSelectTotalItemsForChannel,
@@ -152,6 +157,7 @@ export {
   selectPendingClaims,
   selectMyClaims,
   selectMyClaimsWithoutChannels,
+  selectMyClaimUrisWithoutChannels,
   selectAllMyClaimsByOutpoint,
   selectMyClaimsOutpoints,
   selectFetchingMyChannels,
@@ -160,6 +166,8 @@ export {
   selectPlayingUri,
   selectChannelClaimCounts,
   selectCurrentChannelPage,
+  selectFetchingClaimSearch,
+  selectLastClaimSearchUris,
 } from 'redux/selectors/claims';
 
 export {
@@ -177,6 +185,7 @@ export {
   selectSearchDownloadUris,
   selectFileListDownloadedSort,
   selectFileListPublishedSort,
+  selectDownloadedUris,
 } from 'redux/selectors/file_info';
 
 export { selectSearchState };
@@ -221,3 +230,5 @@ export {
   selectWalletUnlockResult,
   selectTransactionListFilter,
 } from 'redux/selectors/wallet';
+
+export { selectFollowedTags, selectUnfollowedTags } from 'redux/selectors/tags';

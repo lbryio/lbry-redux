@@ -3,14 +3,12 @@
 declare type Claim = StreamClaim | ChannelClaim;
 
 declare type ChannelClaim = GenericClaim & {
-  is_channel_signature_valid?: boolean, // we may have signed channels in the future, fixes some flow issues for now.
-  signing_channel?: ChannelClaim,
+  is_channel_signature_valid?: boolean, // we may have signed channels in the future
   value: ChannelMetadata,
 };
 
 declare type StreamClaim = GenericClaim & {
   is_channel_signature_valid?: boolean,
-  signing_channel?: ChannelClaim,
   value: StreamMetadata,
 };
 
@@ -33,6 +31,7 @@ declare type GenericClaim = {
   txid: string, // unique tx id
   type: 'claim' | 'update' | 'support',
   value_type: 'stream' | 'channel',
+  signing_channel?: ChannelClaim,
   meta: {
     activation_height: number,
     claims_in_channel?: number,

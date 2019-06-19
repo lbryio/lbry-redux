@@ -10,7 +10,6 @@ declare type ChannelClaim = GenericClaim & {
 
 declare type StreamClaim = GenericClaim & {
   is_channel_signature_valid?: boolean,
-  signing_channel?: ChannelClaim,
   value: StreamMetadata,
 };
 
@@ -33,6 +32,7 @@ declare type GenericClaim = {
   txid: string, // unique tx id
   type: 'claim' | 'update' | 'support',
   value_type: 'stream' | 'channel',
+  signing_channel?: ChannelClaim,
   meta: {
     activation_height: number,
     claims_in_channel?: number,

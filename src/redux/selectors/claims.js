@@ -259,6 +259,11 @@ export const selectMyClaimsWithoutChannels = createSelector(
   myClaims => myClaims.filter(claim => !claim.name.match(/^@/))
 );
 
+export const selectMyClaimUrisWithoutChannels = createSelector(
+  selectMyClaimsWithoutChannels,
+  myClaims => myClaims.map(claim => `lbry://${claim.name}#${claim.claim_id}`)
+);
+
 export const selectAllMyClaimsByOutpoint = createSelector(
   selectMyClaimsRaw,
   claims =>
@@ -433,3 +438,21 @@ export const makeSelectChannelForClaimUri = (uri: string, includePrefix: boolean
       return includePrefix ? `lbry://${channel}` : channel;
     }
   );
+
+export const makeSelectTagsForUri = (uri: string) =>
+  createSelector(
+    makeSelectMetadataForUri(uri),
+    (metadata: ?GenericMetadata) => {
+      return (metadata && metadata.tags) || [];
+    }
+  );
+
+export const selectFetchingClaimSearch = createSelector(
+  selectState,
+  state => state.fetchingClaimSearch
+);
+
+export const selectLastClaimSearchUris = createSelector(
+  selectState,
+  state => state.lastClaimSearchUris
+);

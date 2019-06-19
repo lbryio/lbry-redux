@@ -98,6 +98,9 @@ const SET_CONTENT_POSITION = 'SET_CONTENT_POSITION';
 const SET_CONTENT_LAST_VIEWED = 'SET_CONTENT_LAST_VIEWED';
 const CLEAR_CONTENT_HISTORY_URI = 'CLEAR_CONTENT_HISTORY_URI';
 const CLEAR_CONTENT_HISTORY_ALL = 'CLEAR_CONTENT_HISTORY_ALL';
+const CLAIM_SEARCH_STARTED = 'CLAIM_SEARCH_STARTED';
+const CLAIM_SEARCH_COMPLETED = 'CLAIM_SEARCH_COMPLETED';
+const CLAIM_SEARCH_FAILED = 'CLAIM_SEARCH_FAILED';
 
 // Files
 const FILE_LIST_STARTED = 'FILE_LIST_STARTED';
@@ -187,21 +190,6 @@ const FETCH_REWARD_CONTENT_COMPLETED = 'FETCH_REWARD_CONTENT_COMPLETED';
 const DOWNLOAD_LANGUAGE_SUCCEEDED = 'DOWNLOAD_LANGUAGE_SUCCEEDED';
 const DOWNLOAD_LANGUAGE_FAILED = 'DOWNLOAD_LANGUAGE_FAILED';
 
-// ShapeShift
-const GET_SUPPORTED_COINS_START = 'GET_SUPPORTED_COINS_START';
-const GET_SUPPORTED_COINS_SUCCESS = 'GET_SUPPORTED_COINS_SUCCESS';
-const GET_SUPPORTED_COINS_FAIL = 'GET_SUPPORTED_COINS_FAIL';
-const GET_COIN_STATS_START = 'GET_COIN_STATS_START';
-const GET_COIN_STATS_SUCCESS = 'GET_COIN_STATS_SUCCESS';
-const GET_COIN_STATS_FAIL = 'GET_COIN_STATS_FAIL';
-const PREPARE_SHAPE_SHIFT_START = 'PREPARE_SHAPE_SHIFT_START';
-const PREPARE_SHAPE_SHIFT_SUCCESS = 'PREPARE_SHAPE_SHIFT_SUCCESS';
-const PREPARE_SHAPE_SHIFT_FAIL = 'PREPARE_SHAPE_SHIFT_FAIL';
-const GET_ACTIVE_SHIFT_START = 'GET_ACTIVE_SHIFT_START';
-const GET_ACTIVE_SHIFT_SUCCESS = 'GET_ACTIVE_SHIFT_SUCCESS';
-const GET_ACTIVE_SHIFT_FAIL = 'GET_ACTIVE_SHIFT_FAIL';
-const CLEAR_SHAPE_SHIFT = 'CLEAR_SHAPE_SHIFT';
-
 // Subscriptions
 const CHANNEL_SUBSCRIBE = 'CHANNEL_SUBSCRIBE';
 const CHANNEL_UNSUBSCRIBE = 'CHANNEL_UNSUBSCRIBE';
@@ -239,6 +227,10 @@ const FETCH_DATE = 'FETCH_DATE';
 const FETCH_COST_INFO_STARTED = 'FETCH_COST_INFO_STARTED';
 const FETCH_COST_INFO_COMPLETED = 'FETCH_COST_INFO_COMPLETED';
 const FETCH_COST_INFO_FAILED = 'FETCH_COST_INFO_FAILED';
+// Tags
+const TOGGLE_TAG_FOLLOW = 'TOGGLE_TAG_FOLLOW';
+const TAG_ADD = 'TAG_ADD';
+const TAG_DELETE = 'TAG_DELETE';
 
 var action_types = /*#__PURE__*/Object.freeze({
     WINDOW_FOCUSED: WINDOW_FOCUSED,
@@ -323,6 +315,9 @@ var action_types = /*#__PURE__*/Object.freeze({
     SET_CONTENT_LAST_VIEWED: SET_CONTENT_LAST_VIEWED,
     CLEAR_CONTENT_HISTORY_URI: CLEAR_CONTENT_HISTORY_URI,
     CLEAR_CONTENT_HISTORY_ALL: CLEAR_CONTENT_HISTORY_ALL,
+    CLAIM_SEARCH_STARTED: CLAIM_SEARCH_STARTED,
+    CLAIM_SEARCH_COMPLETED: CLAIM_SEARCH_COMPLETED,
+    CLAIM_SEARCH_FAILED: CLAIM_SEARCH_FAILED,
     FILE_LIST_STARTED: FILE_LIST_STARTED,
     FILE_LIST_SUCCEEDED: FILE_LIST_SUCCEEDED,
     FETCH_FILE_INFO_STARTED: FETCH_FILE_INFO_STARTED,
@@ -399,19 +394,6 @@ var action_types = /*#__PURE__*/Object.freeze({
     FETCH_REWARD_CONTENT_COMPLETED: FETCH_REWARD_CONTENT_COMPLETED,
     DOWNLOAD_LANGUAGE_SUCCEEDED: DOWNLOAD_LANGUAGE_SUCCEEDED,
     DOWNLOAD_LANGUAGE_FAILED: DOWNLOAD_LANGUAGE_FAILED,
-    GET_SUPPORTED_COINS_START: GET_SUPPORTED_COINS_START,
-    GET_SUPPORTED_COINS_SUCCESS: GET_SUPPORTED_COINS_SUCCESS,
-    GET_SUPPORTED_COINS_FAIL: GET_SUPPORTED_COINS_FAIL,
-    GET_COIN_STATS_START: GET_COIN_STATS_START,
-    GET_COIN_STATS_SUCCESS: GET_COIN_STATS_SUCCESS,
-    GET_COIN_STATS_FAIL: GET_COIN_STATS_FAIL,
-    PREPARE_SHAPE_SHIFT_START: PREPARE_SHAPE_SHIFT_START,
-    PREPARE_SHAPE_SHIFT_SUCCESS: PREPARE_SHAPE_SHIFT_SUCCESS,
-    PREPARE_SHAPE_SHIFT_FAIL: PREPARE_SHAPE_SHIFT_FAIL,
-    GET_ACTIVE_SHIFT_START: GET_ACTIVE_SHIFT_START,
-    GET_ACTIVE_SHIFT_SUCCESS: GET_ACTIVE_SHIFT_SUCCESS,
-    GET_ACTIVE_SHIFT_FAIL: GET_ACTIVE_SHIFT_FAIL,
-    CLEAR_SHAPE_SHIFT: CLEAR_SHAPE_SHIFT,
     CHANNEL_SUBSCRIBE: CHANNEL_SUBSCRIBE,
     CHANNEL_UNSUBSCRIBE: CHANNEL_UNSUBSCRIBE,
     HAS_FETCHED_SUBSCRIPTIONS: HAS_FETCHED_SUBSCRIPTIONS,
@@ -440,7 +422,10 @@ var action_types = /*#__PURE__*/Object.freeze({
     FETCH_DATE: FETCH_DATE,
     FETCH_COST_INFO_STARTED: FETCH_COST_INFO_STARTED,
     FETCH_COST_INFO_COMPLETED: FETCH_COST_INFO_COMPLETED,
-    FETCH_COST_INFO_FAILED: FETCH_COST_INFO_FAILED
+    FETCH_COST_INFO_FAILED: FETCH_COST_INFO_FAILED,
+    TOGGLE_TAG_FOLLOW: TOGGLE_TAG_FOLLOW,
+    TAG_ADD: TAG_ADD,
+    TAG_DELETE: TAG_DELETE
 });
 
 const API_DOWN = 'apiDown';
@@ -1317,6 +1302,8 @@ const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaim
 
 const selectMyClaimsWithoutChannels = reselect.createSelector(selectMyClaims, myClaims => myClaims.filter(claim => !claim.name.match(/^@/)));
 
+const selectMyClaimUrisWithoutChannels = reselect.createSelector(selectMyClaimsWithoutChannels, myClaims => myClaims.map(claim => `lbry://${claim.name}#${claim.claim_id}`));
+
 const selectAllMyClaimsByOutpoint = reselect.createSelector(selectMyClaimsRaw, claims => new Set(claims && claims.length ? claims.map(claim => `${claim.txid}:${claim.nout}`) : null));
 
 const selectMyClaimsOutpoints = reselect.createSelector(selectMyClaims, myClaims => {
@@ -1427,6 +1414,14 @@ const makeSelectChannelForClaimUri = (uri, includePrefix = false) => reselect.cr
   let channel = `${name}#${claimId}`;
   return includePrefix ? `lbry://${channel}` : channel;
 });
+
+const makeSelectTagsForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => {
+  return metadata && metadata.tags || [];
+});
+
+const selectFetchingClaimSearch = reselect.createSelector(selectState$1, state => state.fetchingClaimSearch);
+
+const selectLastClaimSearchUris = reselect.createSelector(selectState$1, state => state.lastClaimSearchUris);
 
 const selectState$2 = state => state.wallet || {};
 
@@ -1946,6 +1941,14 @@ function doUpdateBlockHeight() {
   });
 }
 
+// https://github.com/reactjs/redux/issues/911
+function batchActions(...actions) {
+  return {
+    type: 'BATCH_ACTIONS',
+    actions
+  };
+}
+
 var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function doResolveUris(uris, returnCachedClaims = false) {
@@ -1997,10 +2000,13 @@ function doResolveUris(uris, returnCachedClaims = false) {
               result.stream = uriResolveInfo;
               if (uriResolveInfo.signing_channel) {
                 result.channel = uriResolveInfo.signing_channel;
+<<<<<<< HEAD
                 result.claimsInChannel = uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel || 0;
+=======
+                result.claimsInChannel = uriResolveInfo.meta && uriResolveInfo.meta.claims_in_channel || 0;
+>>>>>>> add tags
               }
             }
-
             // $FlowFixMe
             resolveInfo[uri] = result;
           }
@@ -2119,7 +2125,11 @@ function doFetchClaimsByChannel(uri, page = 1) {
 
     lbryProxy.claim_search({
       channel: uri,
+<<<<<<< HEAD
       valid_channel_signatures: true,
+=======
+      is_controlling: true,
+>>>>>>> add tags
       page: page || 1,
       order_by: ['release_time']
     }).then(result => {
@@ -2178,6 +2188,39 @@ function doFetchChannelListMine() {
     };
 
     lbryProxy.channel_list().then(callback);
+  };
+}
+
+function doClaimSearch(amount = 20, options = {}) {
+  return dispatch => {
+    dispatch({
+      type: CLAIM_SEARCH_STARTED
+    });
+
+    const success = data => {
+      const resolveInfo = {};
+      const uris = [];
+      data.items.forEach(stream => {
+        resolveInfo[stream.permanent_url] = { stream };
+        uris.push(stream.permanent_url);
+      });
+
+      dispatch({
+        type: CLAIM_SEARCH_COMPLETED,
+        data: { resolveInfo, uris }
+      });
+    };
+
+    const failure = err => {
+      dispatch({
+        type: CLAIM_SEARCH_FAILED,
+        error: err
+      });
+    };
+
+    lbryProxy.claim_search(_extends$3({
+      page_size: amount
+    }, options)).then(success, failure);
   };
 }
 
@@ -2343,6 +2386,10 @@ const selectSearchDownloadUris = query => reselect.createSelector(selectFileInfo
 const selectFileListPublishedSort = reselect.createSelector(selectState$3, state => state.fileListPublishedSort);
 
 const selectFileListDownloadedSort = reselect.createSelector(selectState$3, state => state.fileListDownloadedSort);
+
+const selectDownloadedUris = reselect.createSelector(selectFileInfosDownloaded,
+// We should use permament_url but it doesn't exist in file_list
+info => info.map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`));
 
 //      
 
@@ -2519,14 +2566,6 @@ function doSetFileListSort(page, value) {
   return {
     type: SET_FILE_LIST_SORT,
     data: { page, value }
-  };
-}
-
-// https://github.com/reactjs/redux/issues/911
-function batchActions(...actions) {
-  return {
-    type: 'BATCH_ACTIONS',
-    actions
   };
 }
 
@@ -2709,6 +2748,29 @@ function savePosition(claimId, outpoint, position) {
 
 //      
 
+const doToggleTagFollow = name => ({
+  type: TOGGLE_TAG_FOLLOW,
+  data: {
+    name
+  }
+});
+
+const doAddTag = name => ({
+  type: TAG_ADD,
+  data: {
+    name
+  }
+});
+
+const doDeleteTag = name => ({
+  type: TAG_DELETE,
+  data: {
+    name
+  }
+});
+
+var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 const reducers = {};
 const defaultState = {
   byId: {},
@@ -2722,10 +2784,12 @@ const defaultState = {
   myChannelClaims: new Set(),
   fetchingMyChannels: false,
   abandoningById: {},
-  pendingById: {}
+  pendingById: {},
+  fetchingClaimSearch: false,
+  lastClaimSearchUris: []
 };
 
-reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
+function handleClaimAction(state, action) {
   const {
     resolveInfo
   } = action.data;
@@ -2762,6 +2826,10 @@ reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
     channelClaimCounts,
     resolvingUris: (state.resolvingUris || []).filter(uri => !resolveInfo[uri])
   });
+}
+
+reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
+  return _extends$4({}, handleClaimAction(state, action));
 };
 
 reducers[FETCH_CLAIM_LIST_MINE_STARTED] = state => Object.assign({}, state, {
@@ -2936,13 +3004,30 @@ reducers[RESOLVE_URIS_STARTED] = (state, action) => {
   });
 };
 
+reducers[CLAIM_SEARCH_STARTED] = state => {
+  return Object.assign({}, state, {
+    fetchingClaimSearch: true
+  });
+};
+reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
+  return _extends$4({}, handleClaimAction(state, action), {
+    fetchingClaimSearch: false,
+    lastClaimSearchUris: action.data.uris
+  });
+};
+reducers[CLAIM_SEARCH_FAILED] = state => {
+  return Object.assign({}, state, {
+    fetchingClaimSearch: false
+  });
+};
+
 function claimsReducer(state = defaultState, action) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
   return state;
 }
 
-var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$1 = {};
 const defaultState$1 = {
@@ -2959,7 +3044,7 @@ reducers$1[PURCHASE_URI_STARTED] = (state, action) => {
     newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
   }
 
-  return _extends$4({}, state, {
+  return _extends$5({}, state, {
     failedPurchaseUris: newFailedPurchaseUris,
     purchaseUriErrorMessage: ''
   });
@@ -2981,7 +3066,7 @@ reducers$1[PURCHASE_URI_COMPLETED] = (state, action) => {
     newPurchasedStreamingUrls[uri] = streamingUrl;
   }
 
-  return _extends$4({}, state, {
+  return _extends$5({}, state, {
     failedPurchaseUris: newFailedPurchaseUris,
     purchasedUris: newPurchasedUris,
     purchasedStreamingUrls: newPurchasedStreamingUrls,
@@ -2997,7 +3082,7 @@ reducers$1[PURCHASE_URI_FAILED] = (state, action) => {
     newFailedPurchaseUris.push(uri);
   }
 
-  return _extends$4({}, state, {
+  return _extends$5({}, state, {
     failedPurchaseUris: newFailedPurchaseUris,
     purchaseUriErrorMessage: error
   });
@@ -3010,7 +3095,7 @@ reducers$1[DELETE_PURCHASED_URI] = (state, action) => {
     newPurchasedUris.splice(newPurchasedUris.indexOf(uri), 1);
   }
 
-  return _extends$4({}, state, {
+  return _extends$5({}, state, {
     purchasedUris: newPurchasedUris
   });
 };
@@ -3021,7 +3106,7 @@ function fileReducer(state = defaultState$1, action) {
   return state;
 }
 
-var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$2 = {};
 const defaultState$2 = {
@@ -3157,12 +3242,12 @@ reducers$2[LOADING_VIDEO_STARTED] = (state, action) => {
   const newLoading = Object.assign({}, state.urisLoading);
   newLoading[uri] = true;
 
-  const newErrors = _extends$5({}, state.errors);
+  const newErrors = _extends$6({}, state.errors);
   if (uri in newErrors) delete newErrors[uri];
 
   return Object.assign({}, state, {
     urisLoading: newLoading,
-    errors: _extends$5({}, newErrors)
+    errors: _extends$6({}, newErrors)
   });
 };
 
@@ -3172,12 +3257,12 @@ reducers$2[LOADING_VIDEO_FAILED] = (state, action) => {
   const newLoading = Object.assign({}, state.urisLoading);
   delete newLoading[uri];
 
-  const newErrors = _extends$5({}, state.errors);
+  const newErrors = _extends$6({}, state.errors);
   newErrors[uri] = true;
 
   return Object.assign({}, state, {
     urisLoading: newLoading,
-    errors: _extends$5({}, newErrors)
+    errors: _extends$6({}, newErrors)
   });
 };
 
@@ -3218,7 +3303,7 @@ const handleActions = (actionMap, defaultState) => (state = defaultState, action
   return state;
 };
 
-var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$3 = {
   notifications: [],
@@ -3233,7 +3318,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.push(toast);
 
-    return _extends$6({}, state, {
+    return _extends$7({}, state, {
       toasts: newToasts
     });
   },
@@ -3241,7 +3326,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.shift();
 
-    return _extends$6({}, state, {
+    return _extends$7({}, state, {
       toasts: newToasts
     });
   },
@@ -3252,7 +3337,7 @@ const notificationsReducer = handleActions({
     const newNotifications = state.notifications.slice();
     newNotifications.push(notification);
 
-    return _extends$6({}, state, {
+    return _extends$7({}, state, {
       notifications: newNotifications
     });
   },
@@ -3263,7 +3348,7 @@ const notificationsReducer = handleActions({
 
     notifications = notifications.map(pastNotification => pastNotification.id === notification.id ? notification : pastNotification);
 
-    return _extends$6({}, state, {
+    return _extends$7({}, state, {
       notifications
     });
   },
@@ -3272,7 +3357,7 @@ const notificationsReducer = handleActions({
     let newNotifications = state.notifications.slice();
     newNotifications = newNotifications.filter(notification => notification.id !== id);
 
-    return _extends$6({}, state, {
+    return _extends$7({}, state, {
       notifications: newNotifications
     });
   },
@@ -3283,7 +3368,7 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.push(error);
 
-    return _extends$6({}, state, {
+    return _extends$7({}, state, {
       errors: newErrors
     });
   },
@@ -3291,13 +3376,13 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.shift();
 
-    return _extends$6({}, state, {
+    return _extends$7({}, state, {
       errors: newErrors
     });
   }
 }, defaultState$3);
 
-var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$4 = {
   isActive: false, // does the user have any typed text in the search input
@@ -3317,29 +3402,29 @@ const defaultState$4 = {
 };
 
 const searchReducer = handleActions({
-  [SEARCH_START]: state => _extends$7({}, state, {
+  [SEARCH_START]: state => _extends$8({}, state, {
     searching: true
   }),
   [SEARCH_SUCCESS]: (state, action) => {
     const { query, uris } = action.data;
 
-    return _extends$7({}, state, {
+    return _extends$8({}, state, {
       searching: false,
       urisByQuery: Object.assign({}, state.urisByQuery, { [query]: uris })
     });
   },
 
-  [SEARCH_FAIL]: state => _extends$7({}, state, {
+  [SEARCH_FAIL]: state => _extends$8({}, state, {
     searching: false
   }),
 
-  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$7({}, state, {
+  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$8({}, state, {
     searchQuery: action.data.query,
     isActive: true
   }),
 
-  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$7({}, state, {
-    suggestions: _extends$7({}, state.suggestions, {
+  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$8({}, state, {
+    suggestions: _extends$8({}, state.suggestions, {
       [action.data.query]: action.data.suggestions
     })
   }),
@@ -3347,27 +3432,27 @@ const searchReducer = handleActions({
   // sets isActive to false so the uri will be populated correctly if the
   // user is on a file page. The search query will still be present on any
   // other page
-  [DISMISS_NOTIFICATION]: state => _extends$7({}, state, {
+  [DISMISS_NOTIFICATION]: state => _extends$8({}, state, {
     isActive: false
   }),
 
-  [SEARCH_FOCUS]: state => _extends$7({}, state, {
+  [SEARCH_FOCUS]: state => _extends$8({}, state, {
     focused: true
   }),
-  [SEARCH_BLUR]: state => _extends$7({}, state, {
+  [SEARCH_BLUR]: state => _extends$8({}, state, {
     focused: false
   }),
   [UPDATE_SEARCH_OPTIONS]: (state, action) => {
     const { options: oldOptions } = state;
     const newOptions = action.data;
-    const options = _extends$7({}, oldOptions, newOptions);
-    return _extends$7({}, state, {
+    const options = _extends$8({}, oldOptions, newOptions);
+    return _extends$8({}, state, {
       options
     });
   }
 }, defaultState$4);
 
-var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const buildDraftTransaction = () => ({
   amount: undefined,
@@ -3407,25 +3492,25 @@ const defaultState$5 = {
 };
 
 const walletReducer = handleActions({
-  [FETCH_TRANSACTIONS_STARTED]: state => _extends$8({}, state, {
+  [FETCH_TRANSACTIONS_STARTED]: state => _extends$9({}, state, {
     fetchingTransactions: true
   }),
 
   [FETCH_TRANSACTIONS_COMPLETED]: (state, action) => {
-    const byId = _extends$8({}, state.transactions);
+    const byId = _extends$9({}, state.transactions);
 
     const { transactions } = action.data;
     transactions.forEach(transaction => {
       byId[transaction.txid] = transaction;
     });
 
-    return _extends$8({}, state, {
+    return _extends$9({}, state, {
       transactions: byId,
       fetchingTransactions: false
     });
   },
 
-  [FETCH_SUPPORTS_STARTED]: state => _extends$8({}, state, {
+  [FETCH_SUPPORTS_STARTED]: state => _extends$9({}, state, {
     fetchingSupports: true
   }),
 
@@ -3438,7 +3523,7 @@ const walletReducer = handleActions({
       byOutpoint[`${txid}:${nout}`] = transaction;
     });
 
-    return _extends$8({}, state, { supports: byOutpoint, fetchingSupports: false });
+    return _extends$9({}, state, { supports: byOutpoint, fetchingSupports: false });
   },
 
   [ABANDON_SUPPORT_STARTED]: (state, action) => {
@@ -3447,7 +3532,7 @@ const walletReducer = handleActions({
 
     currentlyAbandoning[outpoint] = true;
 
-    return _extends$8({}, state, {
+    return _extends$9({}, state, {
       abandoningSupportsByOutpoint: currentlyAbandoning
     });
   },
@@ -3460,56 +3545,56 @@ const walletReducer = handleActions({
     delete currentlyAbandoning[outpoint];
     delete byOutpoint[outpoint];
 
-    return _extends$8({}, state, {
+    return _extends$9({}, state, {
       supports: byOutpoint,
       abandoningSupportsById: currentlyAbandoning
     });
   },
 
-  [GET_NEW_ADDRESS_STARTED]: state => _extends$8({}, state, {
+  [GET_NEW_ADDRESS_STARTED]: state => _extends$9({}, state, {
     gettingNewAddress: true
   }),
 
   [GET_NEW_ADDRESS_COMPLETED]: (state, action) => {
     const { address } = action.data;
 
-    return _extends$8({}, state, { gettingNewAddress: false, receiveAddress: address });
+    return _extends$9({}, state, { gettingNewAddress: false, receiveAddress: address });
   },
 
-  [UPDATE_BALANCE]: (state, action) => _extends$8({}, state, {
+  [UPDATE_BALANCE]: (state, action) => _extends$9({}, state, {
     balance: action.data.balance
   }),
 
-  [UPDATE_TOTAL_BALANCE]: (state, action) => _extends$8({}, state, {
+  [UPDATE_TOTAL_BALANCE]: (state, action) => _extends$9({}, state, {
     totalBalance: action.data.totalBalance
   }),
 
-  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$8({}, state, {
+  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$9({}, state, {
     checkingAddressOwnership: true
   }),
 
-  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$8({}, state, {
+  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$9({}, state, {
     checkingAddressOwnership: false
   }),
 
   [SET_DRAFT_TRANSACTION_AMOUNT]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$8({}, oldDraft, { amount: parseFloat(action.data.amount) });
+    const newDraft = _extends$9({}, oldDraft, { amount: parseFloat(action.data.amount) });
 
-    return _extends$8({}, state, { draftTransaction: newDraft });
+    return _extends$9({}, state, { draftTransaction: newDraft });
   },
 
   [SET_DRAFT_TRANSACTION_ADDRESS]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$8({}, oldDraft, { address: action.data.address });
+    const newDraft = _extends$9({}, oldDraft, { address: action.data.address });
 
-    return _extends$8({}, state, { draftTransaction: newDraft });
+    return _extends$9({}, state, { draftTransaction: newDraft });
   },
 
   [SEND_TRANSACTION_STARTED]: state => {
-    const newDraftTransaction = _extends$8({}, state.draftTransaction, { sending: true });
+    const newDraftTransaction = _extends$9({}, state.draftTransaction, { sending: true });
 
-    return _extends$8({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$9({}, state, { draftTransaction: newDraftTransaction });
   },
 
   [SEND_TRANSACTION_COMPLETED]: state => Object.assign({}, state, {
@@ -3522,108 +3607,108 @@ const walletReducer = handleActions({
       error: action.data.error
     });
 
-    return _extends$8({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$9({}, state, { draftTransaction: newDraftTransaction });
   },
 
-  [SUPPORT_TRANSACTION_STARTED]: state => _extends$8({}, state, {
+  [SUPPORT_TRANSACTION_STARTED]: state => _extends$9({}, state, {
     sendingSupport: true
   }),
 
-  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$8({}, state, {
+  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$9({}, state, {
     sendingSupport: false
   }),
 
-  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$8({}, state, {
+  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$9({}, state, {
     error: action.data.error,
     sendingSupport: false
   }),
 
-  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$8({}, state, {
+  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$9({}, state, {
     walletIsEncrypted: action.result
   }),
 
-  [WALLET_ENCRYPT_START]: state => _extends$8({}, state, {
+  [WALLET_ENCRYPT_START]: state => _extends$9({}, state, {
     walletEncryptPending: true,
     walletEncryptSucceded: null,
     walletEncryptResult: null
   }),
 
-  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$8({}, state, {
+  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$9({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: true,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$8({}, state, {
+  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$9({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: false,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_START]: state => _extends$8({}, state, {
+  [WALLET_DECRYPT_START]: state => _extends$9({}, state, {
     walletDecryptPending: true,
     walletDecryptSucceded: null,
     walletDecryptResult: null
   }),
 
-  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$8({}, state, {
+  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$9({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: true,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$8({}, state, {
+  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$9({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: false,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_UNLOCK_START]: state => _extends$8({}, state, {
+  [WALLET_UNLOCK_START]: state => _extends$9({}, state, {
     walletUnlockPending: true,
     walletUnlockSucceded: null,
     walletUnlockResult: null
   }),
 
-  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$8({}, state, {
+  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$9({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: true,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$8({}, state, {
+  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$9({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: false,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_LOCK_START]: state => _extends$8({}, state, {
+  [WALLET_LOCK_START]: state => _extends$9({}, state, {
     walletLockPending: false,
     walletLockSucceded: null,
     walletLockResult: null
   }),
 
-  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$8({}, state, {
+  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$9({}, state, {
     walletLockPending: false,
     walletLockSucceded: true,
     walletLockResult: action.result
   }),
 
-  [WALLET_LOCK_FAILED]: (state, action) => _extends$8({}, state, {
+  [WALLET_LOCK_FAILED]: (state, action) => _extends$9({}, state, {
     walletLockPending: false,
     walletLockSucceded: false,
     walletLockResult: action.result
   }),
 
-  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$8({}, state, {
+  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$9({}, state, {
     transactionListFilter: action.data
   }),
 
-  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$8({}, state, {
+  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$9({}, state, {
     latestBlock: action.data
   })
 }, defaultState$5);
 
-var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$3 = {};
 const defaultState$6 = {
@@ -3632,9 +3717,9 @@ const defaultState$6 = {
 
 reducers$3[SET_CONTENT_POSITION] = (state, action) => {
   const { claimId, outpoint, position } = action.data;
-  return _extends$9({}, state, {
-    positions: _extends$9({}, state.positions, {
-      [claimId]: _extends$9({}, state.positions[claimId], {
+  return _extends$a({}, state, {
+    positions: _extends$a({}, state.positions, {
+      [claimId]: _extends$a({}, state.positions[claimId], {
         [outpoint]: position
       })
     })
@@ -3647,6 +3732,53 @@ function contentReducer(state = defaultState$6, action) {
   return state;
 }
 
+var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+const tagsReducerBuilder = defaultState => handleActions({
+  [TOGGLE_TAG_FOLLOW]: (state, action) => {
+    const { followedTags } = state;
+    const { name } = action.data;
+
+    let newFollowedTags = followedTags.slice();
+
+    if (newFollowedTags.includes(name)) {
+      newFollowedTags = newFollowedTags.filter(tag => tag !== name);
+    } else {
+      newFollowedTags.push(name);
+    }
+
+    return _extends$b({}, state, {
+      followedTags: newFollowedTags
+    });
+  },
+
+  [TAG_ADD]: (state, action) => {
+    const { knownTags } = state;
+    const { name } = action.data;
+
+    let newKnownTags = _extends$b({}, knownTags);
+    newKnownTags[name] = { name };
+
+    return _extends$b({}, state, {
+      knownTags: newKnownTags
+    });
+  },
+
+  [TAG_DELETE]: (state, action) => {
+    const { knownTags, followedTags } = state;
+    const { name } = action.data;
+
+    let newKnownTags = _extends$b({}, knownTags);
+    delete newKnownTags[name];
+    const newFollowedTags = followedTags.filter(tag => tag !== name);
+
+    return _extends$b({}, state, {
+      knownTags: newKnownTags,
+      followedTags: newFollowedTags
+    });
+  }
+}, defaultState);
+
 const selectState$5 = state => state.content || {};
 
 const makeSelectContentPositionForUri = uri => reselect.createSelector(selectState$5, makeSelectClaimForUri(uri), (state, claim) => {
@@ -3658,14 +3790,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$6 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$6, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$a({
+    return _extends$c({
       id
     }, params);
   }
@@ -3684,6 +3816,30 @@ const selectError = reselect.createSelector(selectState$6, state => {
   return null;
 });
 
+//      
+
+const selectState$7 = state => state.tags || {};
+
+const selectKnownTagsByName = reselect.createSelector(selectState$7, state => state.knownTags);
+
+const selectFollowedTagsList = reselect.createSelector(selectState$7, state => state.followedTags);
+
+const selectFollowedTags = reselect.createSelector(selectFollowedTagsList, followedTags => followedTags.map(tag => ({ name: tag })).sort((a, b) => a.name.localeCompare(b.name)));
+
+const selectUnfollowedTags = reselect.createSelector(selectKnownTagsByName, selectFollowedTagsList, (tagsByName, followedTags) => {
+  const followedTagsSet = new Set(followedTags);
+  let tagsToReturn = [];
+
+  Object.keys(tagsByName).forEach(key => {
+    if (!followedTagsSet.has(key)) {
+      const { name } = tagsByName[key];
+      tagsToReturn.push({ name });
+    }
+  });
+
+  return tagsToReturn;
+});
+
 exports.ACTIONS = action_types;
 exports.Lbry = lbryProxy;
 exports.PAGES = pages;
@@ -3700,11 +3856,14 @@ exports.contentReducer = contentReducer;
 exports.convertToShareLink = convertToShareLink;
 exports.creditsToString = creditsToString;
 exports.doAbandonClaim = doAbandonClaim;
+exports.doAddTag = doAddTag;
 exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
+exports.doClaimSearch = doClaimSearch;
 exports.doCreateChannel = doCreateChannel;
 exports.doDeletePurchasedUri = doDeletePurchasedUri;
+exports.doDeleteTag = doDeleteTag;
 exports.doDismissError = doDismissError;
 exports.doDismissToast = doDismissToast;
 exports.doError = doError;
@@ -3729,6 +3888,7 @@ exports.doSetDraftTransactionAmount = doSetDraftTransactionAmount;
 exports.doSetFileListSort = doSetFileListSort;
 exports.doSetTransactionListFilter = doSetTransactionListFilter;
 exports.doToast = doToast;
+exports.doToggleTagFollow = doToggleTagFollow;
 exports.doTotalBalanceSubscribe = doTotalBalanceSubscribe;
 exports.doUpdateBalance = doUpdateBalance;
 exports.doUpdateBlockHeight = doUpdateBlockHeight;
@@ -3773,6 +3933,7 @@ exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
 exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
 exports.makeSelectSearchUris = makeSelectSearchUris;
 exports.makeSelectStreamingUrlForUri = makeSelectStreamingUrlForUri;
+exports.makeSelectTagsForUri = makeSelectTagsForUri;
 exports.makeSelectThumbnailForUri = makeSelectThumbnailForUri;
 exports.makeSelectTitleForUri = makeSelectTitleForUri;
 exports.makeSelectTotalItemsForChannel = makeSelectTotalItemsForChannel;
@@ -3795,6 +3956,7 @@ exports.selectChannelClaimCounts = selectChannelClaimCounts;
 exports.selectClaimsById = selectClaimsById;
 exports.selectClaimsByUri = selectClaimsByUri;
 exports.selectCurrentChannelPage = selectCurrentChannelPage;
+exports.selectDownloadedUris = selectDownloadedUris;
 exports.selectDownloadingByOutpoint = selectDownloadingByOutpoint;
 exports.selectDownloadingFileInfos = selectDownloadingFileInfos;
 exports.selectDraftTransaction = selectDraftTransaction;
@@ -3803,11 +3965,13 @@ exports.selectDraftTransactionAmount = selectDraftTransactionAmount;
 exports.selectDraftTransactionError = selectDraftTransactionError;
 exports.selectError = selectError;
 exports.selectFailedPurchaseUris = selectFailedPurchaseUris;
+exports.selectFetchingClaimSearch = selectFetchingClaimSearch;
 exports.selectFetchingMyChannels = selectFetchingMyChannels;
 exports.selectFileInfosByOutpoint = selectFileInfosByOutpoint;
 exports.selectFileInfosDownloaded = selectFileInfosDownloaded;
 exports.selectFileListDownloadedSort = selectFileListDownloadedSort;
 exports.selectFileListPublishedSort = selectFileListPublishedSort;
+exports.selectFollowedTags = selectFollowedTags;
 exports.selectGettingNewAddress = selectGettingNewAddress;
 exports.selectHasTransactions = selectHasTransactions;
 exports.selectIsFetchingClaimListMine = selectIsFetchingClaimListMine;
@@ -3816,9 +3980,11 @@ exports.selectIsFetchingFileListDownloadedOrPublished = selectIsFetchingFileList
 exports.selectIsFetchingTransactions = selectIsFetchingTransactions;
 exports.selectIsSearching = selectIsSearching;
 exports.selectIsSendingSupport = selectIsSendingSupport;
+exports.selectLastClaimSearchUris = selectLastClaimSearchUris;
 exports.selectLastPurchasedUri = selectLastPurchasedUri;
 exports.selectMyActiveClaims = selectMyActiveClaims;
 exports.selectMyChannelClaims = selectMyChannelClaims;
+exports.selectMyClaimUrisWithoutChannels = selectMyClaimUrisWithoutChannels;
 exports.selectMyClaims = selectMyClaims;
 exports.selectMyClaimsOutpoints = selectMyClaimsOutpoints;
 exports.selectMyClaimsRaw = selectMyClaimsRaw;
@@ -3846,6 +4012,7 @@ exports.selectTotalDownloadProgress = selectTotalDownloadProgress;
 exports.selectTransactionItems = selectTransactionItems;
 exports.selectTransactionListFilter = selectTransactionListFilter;
 exports.selectTransactionsById = selectTransactionsById;
+exports.selectUnfollowedTags = selectUnfollowedTags;
 exports.selectUrisLoading = selectUrisLoading;
 exports.selectWalletDecryptPending = selectWalletDecryptPending;
 exports.selectWalletDecryptResult = selectWalletDecryptResult;
@@ -3859,5 +4026,6 @@ exports.selectWalletUnlockPending = selectWalletUnlockPending;
 exports.selectWalletUnlockResult = selectWalletUnlockResult;
 exports.selectWalletUnlockSucceeded = selectWalletUnlockSucceeded;
 exports.setSearchApi = setSearchApi;
+exports.tagsReducerBuilder = tagsReducerBuilder;
 exports.toQueryString = toQueryString;
 exports.walletReducer = walletReducer;

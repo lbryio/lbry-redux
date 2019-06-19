@@ -43,9 +43,11 @@ const defaultState = {
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
+  fetchingClaimSearch: false,
+  lastClaimSearchUris: [],
 };
 
-reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state: State, action: any): State => {
+function handleClaimAction(state: State, action: any): State {
   const {
     resolveInfo,
   }: {
@@ -88,6 +90,12 @@ reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state: State, action: any): State =>
     channelClaimCounts,
     resolvingUris: (state.resolvingUris || []).filter(uri => !resolveInfo[uri]),
   });
+}
+
+reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state: State, action: any): State => {
+  return {
+    ...handleClaimAction(state, action),
+  };
 };
 
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: State): State =>
@@ -262,6 +270,24 @@ reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state: State, action: any): State => {
 
   return Object.assign({}, state, {
     resolvingUris: newResolving,
+  });
+};
+
+reducers[ACTIONS.CLAIM_SEARCH_STARTED] = (state: State): State => {
+  return Object.assign({}, state, {
+    fetchingClaimSearch: true,
+  });
+};
+reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State => {
+  return {
+    ...handleClaimAction(state, action),
+    fetchingClaimSearch: false,
+    lastClaimSearchUris: action.data.uris,
+  };
+};
+reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State): State => {
+  return Object.assign({}, state, {
+    fetchingClaimSearch: false,
   });
 };
 
