@@ -1,9 +1,10 @@
 import * as ACTIONS from 'constants/action_types';
-import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
-import * as SETTINGS from 'constants/settings';
-import * as TRANSACTIONS from 'constants/transaction_types';
-import * as SORT_OPTIONS from 'constants/sort_options';
+import * as LICENSES from 'constants/licenses';
 import * as PAGES from 'constants/pages';
+import * as SETTINGS from 'constants/settings';
+import * as SORT_OPTIONS from 'constants/sort_options';
+import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
+import * as TRANSACTIONS from 'constants/transaction_types';
 import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
 import Lbry from 'lbry';
 import { selectState as selectSearchState } from 'redux/selectors/search';
@@ -11,6 +12,7 @@ import { selectState as selectSearchState } from 'redux/selectors/search';
 // constants
 export {
   ACTIONS,
+  LICENSES,
   THUMBNAIL_STATUSES,
   SEARCH_TYPES,
   SEARCH_OPTIONS,
@@ -57,6 +59,16 @@ export {
 } from 'redux/actions/file_info';
 
 export {
+  doResetThumbnailStatus,
+  doClearPublish,
+  doUpdatePublishForm,
+  doUploadThumbnail,
+  doPrepareEdit,
+  doPublish,
+  doCheckPendingPublishes
+} from 'redux/actions/publish';
+
+export {
   doSearch,
   doUpdateSearchQuery,
   doFocusSearchInput,
@@ -95,12 +107,13 @@ export { isClaimNsfw } from 'util/claim';
 
 // reducers
 export { claimsReducer } from 'redux/reducers/claims';
+export { contentReducer } from 'redux/reducers/content';
 export { fileReducer } from 'redux/reducers/file';
 export { fileInfoReducer } from 'redux/reducers/file_info';
 export { notificationsReducer } from 'redux/reducers/notifications';
 export { searchReducer } from 'redux/reducers/search';
+export { publishReducer } from 'redux/reducers/publish';
 export { walletReducer } from 'redux/reducers/wallet';
-export { contentReducer } from 'redux/reducers/content';
 
 // selectors
 export { makeSelectContentPositionForUri } from 'redux/selectors/content';
@@ -178,6 +191,14 @@ export {
   selectFileListDownloadedSort,
   selectFileListPublishedSort,
 } from 'redux/selectors/file_info';
+
+export {
+  selectPublishFormValues,
+  selectIsStillEditing,
+  selectMyClaimForUri,
+  selectIsResolvingPublishUris,
+  selectTakeOverAmount,
+} from 'redux/selectors/publish';
 
 export { selectSearchState };
 export {
