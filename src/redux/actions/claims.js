@@ -200,7 +200,7 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
 
     Lbry.claim_search({
       channel: uri,
-      valid_channel_signatures: true,
+      valid_channel_signature: true,
       page: page || 1,
       order_by: ['release_time'],
     }).then((result: ClaimSearchResponse) => {
