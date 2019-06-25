@@ -3,8 +3,7 @@
 declare type Claim = StreamClaim | ChannelClaim;
 
 declare type ChannelClaim = GenericClaim & {
-  is_channel_signature_valid?: boolean, // we may have signed channels in the future, fixes some flow issues for now.
-  signing_channel?: ChannelClaim,
+  is_channel_signature_valid?: boolean, // we may have signed channels in the future
   value: ChannelMetadata,
 };
 
