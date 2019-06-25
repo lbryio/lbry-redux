@@ -2000,11 +2000,7 @@ function doResolveUris(uris, returnCachedClaims = false) {
               result.stream = uriResolveInfo;
               if (uriResolveInfo.signing_channel) {
                 result.channel = uriResolveInfo.signing_channel;
-<<<<<<< HEAD
                 result.claimsInChannel = uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel || 0;
-=======
-                result.claimsInChannel = uriResolveInfo.meta && uriResolveInfo.meta.claims_in_channel || 0;
->>>>>>> add tags
               }
             }
             // $FlowFixMe
@@ -2125,11 +2121,7 @@ function doFetchClaimsByChannel(uri, page = 1) {
 
     lbryProxy.claim_search({
       channel: uri,
-<<<<<<< HEAD
-      valid_channel_signatures: true,
-=======
-      is_controlling: true,
->>>>>>> add tags
+      valid_channel_signature: true,
       page: page || 1,
       order_by: ['release_time']
     }).then(result => {
