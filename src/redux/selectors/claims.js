@@ -256,12 +256,16 @@ export const selectMyClaims = createSelector(
 
 export const selectMyClaimsWithoutChannels = createSelector(
   selectMyClaims,
-  myClaims => myClaims.filter(claim => !claim.name.match(/^@/))
+  myClaims =>
+    myClaims.filter(claim => !claim.name.match(/^@/)).sort((a, b) => a.timestamp - b.timestamp)
 );
 
 export const selectMyClaimUrisWithoutChannels = createSelector(
   selectMyClaimsWithoutChannels,
-  myClaims => myClaims.map(claim => `lbry://${claim.name}#${claim.claim_id}`)
+  myClaims =>
+    myClaims
+      .sort((a, b) => a.confirmations - b.confirmations)
+      .map(claim => `lbry://${claim.name}#${claim.claim_id}`)
 );
 
 export const selectAllMyClaimsByOutpoint = createSelector(
