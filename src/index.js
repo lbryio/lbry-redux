@@ -90,6 +90,8 @@ export {
 
 export { doToggleTagFollow, doAddTag, doDeleteTag } from 'redux/actions/tags';
 
+export { doCommentList, doCommentCreate } from 'redux/actions/comments';
+
 // utils
 export { batchActions } from 'util/batchActions';
 export { parseQueryParams, toQueryString } from 'util/query_params';
@@ -104,6 +106,7 @@ export { notificationsReducer } from 'redux/reducers/notifications';
 export { searchReducer } from 'redux/reducers/search';
 export { walletReducer } from 'redux/reducers/wallet';
 export { contentReducer } from 'redux/reducers/content';
+export { commentReducer } from 'redux/reducers/comments';
 export { tagsReducerBuilder } from 'redux/reducers/tags';
 
 // selectors
@@ -169,6 +172,8 @@ export {
   selectFetchingClaimSearch,
   selectLastClaimSearchUris,
 } from 'redux/selectors/claims';
+
+export { makeSelectCommentsForUri } from 'redux/selectors/comments';
 
 export {
   makeSelectFileInfoForUri,
