@@ -7,7 +7,19 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('proxy-polyfill');
 var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
-require('constants/modal_types');
+
+const MINIMUM_PUBLISH_BID = 0.00000001;
+
+const CHANNEL_ANONYMOUS = 'anonymous';
+const CHANNEL_NEW = 'new';
+const PAGE_SIZE = 20;
+
+var claim = /*#__PURE__*/Object.freeze({
+  MINIMUM_PUBLISH_BID: MINIMUM_PUBLISH_BID,
+  CHANNEL_ANONYMOUS: CHANNEL_ANONYMOUS,
+  CHANNEL_NEW: CHANNEL_NEW,
+  PAGE_SIZE: PAGE_SIZE
+});
 
 const WINDOW_FOCUSED = 'WINDOW_FOCUSED';
 const DAEMON_READY = 'DAEMON_READY';
@@ -3758,8 +3770,6 @@ const searchReducer = handleActions({
   }
 }, defaultState$5);
 
-const CHANNEL_ANONYMOUS = 'anonymous';
-
 var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
@@ -4192,6 +4202,7 @@ const selectTakeOverAmount = reselect.createSelector(selectState$7, selectMyClai
 });
 
 exports.ACTIONS = action_types;
+exports.CLAIM_VALUES = claim;
 exports.LICENSES = licenses;
 exports.Lbry = lbryProxy;
 exports.PAGES = pages;

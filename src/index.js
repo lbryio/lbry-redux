@@ -1,3 +1,4 @@
+import * as CLAIM_VALUES from 'constants/claim';
 import * as ACTIONS from 'constants/action_types';
 import * as LICENSES from 'constants/licenses';
 import * as PAGES from 'constants/pages';
@@ -12,6 +13,7 @@ import { selectState as selectSearchState } from 'redux/selectors/search';
 // constants
 export {
   ACTIONS,
+  CLAIM_VALUES,
   LICENSES,
   THUMBNAIL_STATUSES,
   SEARCH_TYPES,

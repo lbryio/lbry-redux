@@ -1,7 +1,7 @@
 // @flow
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
 import * as ACTIONS from 'constants/action_types';
-import * as MODALS from 'constants/modal_types';
+//import * as MODALS from 'constants/modal_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Lbry from 'lbry';
 import { batchActions } from 'util/batchActions';
