@@ -105,7 +105,7 @@ const CLAIM_SEARCH_FAILED = 'CLAIM_SEARCH_FAILED';
 // Comments
 const COMMENT_LIST_STARTED = 'COMMENT_LIST_STARTED';
 const COMMENT_LIST_COMPLETED = 'COMMENT_LIST_COMPLETED';
-const COMMENT_LIST_UPDATED = 'COMMENT_LIST_UPDATED';
+const COMMENT_LIST_FAILED = 'COMMENT_LIST_FAILED';
 const COMMENT_CREATE_STARTED = 'COMMENT_CREATE_STARTED';
 const COMMENT_CREATE_COMPLETED = 'COMMENT_CREATE_COMPLETED';
 const COMMENT_CREATE_FAILED = 'COMMENT_CREATE_FAILED';
@@ -328,7 +328,7 @@ var action_types = /*#__PURE__*/Object.freeze({
     CLAIM_SEARCH_FAILED: CLAIM_SEARCH_FAILED,
     COMMENT_LIST_STARTED: COMMENT_LIST_STARTED,
     COMMENT_LIST_COMPLETED: COMMENT_LIST_COMPLETED,
-    COMMENT_LIST_UPDATED: COMMENT_LIST_UPDATED,
+    COMMENT_LIST_FAILED: COMMENT_LIST_FAILED,
     COMMENT_CREATE_STARTED: COMMENT_CREATE_STARTED,
     COMMENT_CREATE_COMPLETED: COMMENT_CREATE_COMPLETED,
     COMMENT_CREATE_FAILED: COMMENT_CREATE_FAILED,
@@ -2802,6 +2802,10 @@ function doCommentList(uri) {
       });
     }).catch(error => {
       console.log(error);
+      dispatch({
+        type: COMMENT_LIST_FAILED,
+        data: error
+      });
     });
   };
 }
@@ -2822,12 +2826,6 @@ function doCommentCreate(comment = '', claim_id = '', channel, parent_id) {
     }).then(result => {
       dispatch({
         type: COMMENT_CREATE_COMPLETED,
-        data: {
-          response: result
-        }
-      });
-      dispatch({
-        type: COMMENT_LIST_UPDATED,
         data: {
           comment: result,
           claimId: claim_id
@@ -3809,11 +3807,7 @@ function contentReducer(state = defaultState$6, action) {
   return state;
 }
 
-//      
-
-// TODO change to handleActions()
-// const commentsReducer = handleActions( {
-const reducers$4 = {};
+var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$7 = {
   byId: {},
@@ -3821,59 +3815,53 @@ const defaultState$7 = {
   isLoading: false
 };
 
-reducers$4[COMMENT_CREATE_STARTED] = (state, action) => Object.assign({}, state, {
-  isLoading: true
-});
+const commentReducer = handleActions({
+  [COMMENT_CREATE_STARTED]: (state, action) => _extends$b({}, state, {
+    isLoading: true
+  }),
 
-reducers$4[COMMENT_CREATE_FAILED] = (state, action) => {
-  // TODO: handle error.. what else?
-  return state;
-};
-
-reducers$4[COMMENT_CREATE_COMPLETED] = (state, action) => {
-  const { comments } = action.data;
-  return state;
-};
-
-reducers$4[COMMENT_LIST_UPDATED] = (state, action) => {
-  const { comment, claimId } = action.data;
-  const byId = Object.assign({}, state.byId);
-  const comments = byId[claimId];
-  const newComments = comments.slice();
-  newComments.unshift(comment);
-  byId[claimId] = newComments;
-  return Object.assign({}, state, {
-    byId
-  });
-};
-
-reducers$4[COMMENT_LIST_STARTED] = state => Object.assign({}, state, {
-  isLoading: true
-});
-
-reducers$4[COMMENT_LIST_COMPLETED] = (state, action) => {
-  const { comments, claimId, uri } = action.data;
-  const byId = Object.assign({}, state.byId);
-  const commentsByUri = Object.assign({}, state.commentsByUri);
-
-  if (comments['items']) {
-    byId[claimId] = comments['items'];
-    commentsByUri[uri] = claimId;
-  }
-  return Object.assign({}, state, {
-    byId,
-    commentsByUri,
+  [COMMENT_CREATE_FAILED]: (state, action) => _extends$b({}, state, {
     isLoading: false
-  });
-};
+  }),
 
-function commentReducer(state = defaultState$7, action) {
-  const handler = reducers$4[action.type];
-  if (handler) return handler(state, action);
-  return state;
-}
+  [COMMENT_CREATE_COMPLETED]: (state, action) => {
+    const { comment, claimId } = action.data;
+    const byId = Object.assign({}, state.byId);
+    const comments = byId[claimId];
+    const newComments = comments.slice();
 
-var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+    newComments.unshift(comment);
+    byId[claimId] = newComments;
+
+    return _extends$b({}, state, {
+      byId
+    });
+  },
+
+  [COMMENT_LIST_STARTED]: state => _extends$b({}, state, { isLoading: true }),
+
+  [COMMENT_LIST_COMPLETED]: (state, action) => {
+    const { comments, claimId, uri } = action.data;
+    const byId = Object.assign({}, state.byId);
+    const commentsByUri = Object.assign({}, state.commentsByUri);
+
+    if (comments['items']) {
+      byId[claimId] = comments['items'];
+      commentsByUri[uri] = claimId;
+    }
+    return _extends$b({}, state, {
+      byId,
+      commentsByUri,
+      isLoading: false
+    });
+  },
+
+  [COMMENT_LIST_FAILED]: (state, action) => _extends$b({}, state, {
+    isLoading: false
+  })
+}, defaultState$7);
+
+var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const tagsReducerBuilder = defaultState => handleActions({
   [TOGGLE_TAG_FOLLOW]: (state, action) => {
@@ -3888,7 +3876,7 @@ const tagsReducerBuilder = defaultState => handleActions({
       newFollowedTags.push(name);
     }
 
-    return _extends$b({}, state, {
+    return _extends$c({}, state, {
       followedTags: newFollowedTags
     });
   },
@@ -3897,10 +3885,10 @@ const tagsReducerBuilder = defaultState => handleActions({
     const { knownTags } = state;
     const { name } = action.data;
 
-    let newKnownTags = _extends$b({}, knownTags);
+    let newKnownTags = _extends$c({}, knownTags);
     newKnownTags[name] = { name };
 
-    return _extends$b({}, state, {
+    return _extends$c({}, state, {
       knownTags: newKnownTags
     });
   },
@@ -3909,11 +3897,11 @@ const tagsReducerBuilder = defaultState => handleActions({
     const { knownTags, followedTags } = state;
     const { name } = action.data;
 
-    let newKnownTags = _extends$b({}, knownTags);
+    let newKnownTags = _extends$c({}, knownTags);
     delete newKnownTags[name];
     const newFollowedTags = followedTags.filter(tag => tag !== name);
 
-    return _extends$b({}, state, {
+    return _extends$c({}, state, {
       knownTags: newKnownTags,
       followedTags: newFollowedTags
     });
@@ -3931,14 +3919,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$d = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$6 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$6, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$c({
+    return _extends$d({
       id
     }, params);
   }

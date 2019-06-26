@@ -1,9 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
-
-// TODO change to handleActions()
-// const commentsReducer = handleActions( {
-const reducers = {};
+import { handleActions } from 'util/redux-utils';
 
 const defaultState: CommentsState = {
   byId: {},
@@ -11,56 +8,56 @@ const defaultState: CommentsState = {
   isLoading: false,
 };
 
-reducers[ACTIONS.COMMENT_CREATE_STARTED] = (state: CommentsState, action: any): CommentsState =>
-  Object.assign({}, state, {
-    isLoading: true,
-  });
+export const commentReducer = handleActions(
+  {
+    [ACTIONS.COMMENT_CREATE_STARTED]: (state: CommentsState, action: any): CommentsState => ({
+      ...state,
+      isLoading: true,
+    }),
 
-reducers[ACTIONS.COMMENT_CREATE_FAILED] = (state: CommentsState, action: any): CommentsState => {
-  // TODO: handle error.. what else?
-  return state;
-};
+    [ACTIONS.COMMENT_CREATE_FAILED]: (state: CommentsState, action: any) => ({
+      ...state,
+      isLoading: false,
+    }),
 
-reducers[ACTIONS.COMMENT_CREATE_COMPLETED] = (state: CommentsState, action: any): CommentsState => {
-  const { comments }: any = action.data;
-  return state;
-};
+    [ACTIONS.COMMENT_CREATE_COMPLETED]: (state: CommentsState, action: any): CommentsState => {
+      const { comment, claimId }: any = action.data;
+      const byId = Object.assign({}, state.byId);
+      const comments = byId[claimId];
+      const newComments = comments.slice();
 
-reducers[ACTIONS.COMMENT_LIST_UPDATED] = (state: CommentsState, action: any): CommentsState => {
-  const { comment, claimId }: any = action.data;
-  const byId = Object.assign({}, state.byId);
-  const comments = byId[claimId];
-  const newComments = comments.slice();
-  newComments.unshift(comment);
-  byId[claimId] = newComments;
-  return Object.assign({}, state, {
-    byId,
-  });
-};
+      newComments.unshift(comment);
+      byId[claimId] = newComments;
 
-reducers[ACTIONS.COMMENT_LIST_STARTED] = state =>
-  Object.assign({}, state, {
-    isLoading: true,
-  });
+      return {
+        ...state,
+        byId,
+      };
+    },
 
-reducers[ACTIONS.COMMENT_LIST_COMPLETED] = (state: CommentsState, action: any) => {
-  const { comments, claimId, uri } = action.data;
-  const byId = Object.assign({}, state.byId);
-  const commentsByUri = Object.assign({}, state.commentsByUri);
+    [ACTIONS.COMMENT_LIST_STARTED]: state => ({ ...state, isLoading: true }),
 
-  if (comments['items']) {
-    byId[claimId] = comments['items'];
-    commentsByUri[uri] = claimId;
-  }
-  return Object.assign({}, state, {
-    byId,
-    commentsByUri,
-    isLoading: false,
-  });
-};
+    [ACTIONS.COMMENT_LIST_COMPLETED]: (state: CommentsState, action: any) => {
+      const { comments, claimId, uri } = action.data;
+      const byId = Object.assign({}, state.byId);
+      const commentsByUri = Object.assign({}, state.commentsByUri);
 
-export function commentReducer(state: CommentsState = defaultState, action: any) {
-  const handler = reducers[action.type];
-  if (handler) return handler(state, action);
-  return state;
-}
+      if (comments['items']) {
+        byId[claimId] = comments['items'];
+        commentsByUri[uri] = claimId;
+      }
+      return {
+        ...state,
+        byId,
+        commentsByUri,
+        isLoading: false,
+      };
+    },
+
+    [ACTIONS.COMMENT_LIST_FAILED]: (state: CommentsState, action: any) => ({
+      ...state,
+      isLoading: false,
+    }),
+  },
+  defaultState
+);
