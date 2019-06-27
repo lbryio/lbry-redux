@@ -3112,12 +3112,14 @@ from, isBackgroundSearch = false) => (dispatch, getState) => {
     const actions = [];
 
     data.forEach(result => {
-      const uri = buildURI({
-        claimName: result.name,
-        claimId: result.claimId
-      });
-      actions.push(doResolveUri(uri));
-      uris.push(uri);
+      if (result.name) {
+        const uri = buildURI({
+          claimName: result.name,
+          claimId: result.claimId
+        });
+        actions.push(doResolveUri(uri));
+        uris.push(uri);
+      }
     });
 
     actions.push({
@@ -3128,7 +3130,7 @@ from, isBackgroundSearch = false) => (dispatch, getState) => {
       }
     });
     dispatch(batchActions(...actions));
-  }).catch(() => {
+  }).catch(e => {
     dispatch({
       type: SEARCH_FAIL
     });

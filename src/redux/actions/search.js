@@ -117,12 +117,14 @@ export const doSearch = (
       const actions = [];
 
       data.forEach(result => {
-        const uri = buildURI({
-          claimName: result.name,
-          claimId: result.claimId,
-        });
-        actions.push(doResolveUri(uri));
-        uris.push(uri);
+        if (result.name) {
+          const uri = buildURI({
+            claimName: result.name,
+            claimId: result.claimId,
+          });
+          actions.push(doResolveUri(uri));
+          uris.push(uri);
+        }
       });
 
       actions.push({
@@ -134,7 +136,7 @@ export const doSearch = (
       });
       dispatch(batchActions(...actions));
     })
-    .catch(() => {
+    .catch(e => {
       dispatch({
         type: ACTIONS.SEARCH_FAIL,
       });
