@@ -73,6 +73,7 @@ export const publishReducer = handleActions(
     [ACTIONS.PUBLISH_START]: (state: PublishState): PublishState => ({
       ...state,
       publishing: true,
+      publishSuccess: false,
     }),
     [ACTIONS.PUBLISH_FAIL]: (state: PublishState): PublishState => ({
       ...state,
@@ -81,6 +82,7 @@ export const publishReducer = handleActions(
     [ACTIONS.PUBLISH_SUCCESS]: (state: PublishState): PublishState => ({
       ...state,
       publishing: false,
+      publishSuccess: true,
     }),
     [ACTIONS.DO_PREPARE_EDIT]: (state: PublishState, action) => {
       const { ...publishData } = action.data;

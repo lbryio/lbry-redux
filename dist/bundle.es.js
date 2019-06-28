@@ -3836,13 +3836,15 @@ const publishReducer = handleActions({
   },
   [CLEAR_PUBLISH]: () => _extends$a({}, defaultState$6),
   [PUBLISH_START]: state => _extends$a({}, state, {
-    publishing: true
+    publishing: true,
+    publishSuccess: false
   }),
   [PUBLISH_FAIL]: state => _extends$a({}, state, {
     publishing: false
   }),
   [PUBLISH_SUCCESS]: state => _extends$a({}, state, {
-    publishing: false
+    publishing: false,
+    publishSuccess: true
   }),
   [DO_PREPARE_EDIT]: (state, action) => {
     const publishData = _objectWithoutProperties(action.data, []);
