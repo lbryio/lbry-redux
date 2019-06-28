@@ -60,22 +60,8 @@ export const doUpdatePublishForm = (publishFormValue: UpdatePublishFormData) => 
     data: { ...publishFormValue },
   });
 
-export const doUploadThumbnail = (filePath: string, thumbnailBuffer: Uint8Array) => (dispatch: Dispatch) => {
+export const doUploadThumbnail = (filePath: string, thumbnailBuffer: Uint8Array, fsAdapter: any) => (dispatch: Dispatch) => {
   let thumbnail, fileExt, fileName, fileType;
-
-  if (filePath) {
-    thumbnail = fs.readFileSync(filePath);
-    fileExt = path.extname(filePath);
-    fileName = path.basename(filePath);
-    fileType = `image/${fileExt.slice(1)}`;
-  } else if (thumbnailBuffer) {
-    thumbnail = thumbnailBuffer;
-    fileExt = '.png';
-    fileName = 'thumbnail.png';
-    fileType = 'image/png';
-  } else {
-    return null;
-  }
 
   const makeid = () => {
     let text = '';
@@ -84,7 +70,7 @@ export const doUploadThumbnail = (filePath: string, thumbnailBuffer: Uint8Array)
     return text;
   };
 
-  const uploadError = (error = '') =>
+  const uploadError = (error = '') => {
     dispatch(
       batchActions(
         {
@@ -98,35 +84,79 @@ export const doUploadThumbnail = (filePath: string, thumbnailBuffer: Uint8Array)
         doError(error)
       )
     );
+  }
 
   dispatch({
     type: ACTIONS.UPDATE_PUBLISH_FORM,
     data: { uploadThumbnailStatus: THUMBNAIL_STATUSES.IN_PROGRESS },
   });
 
-  const data = new FormData();
-  const name = makeid();
-  const file = new File([thumbnail], fileName, { type: fileType });
-  data.append('name', name);
-  data.append('file', file);
+  if (fsAdapter && fsAdapter.readFile && filePath) {
+    fsAdapter.readFile(filePath, 'base64').then(base64Image => {
+      fileExt = 'png';
+      fileName = 'thumbnail.png';
+      fileType = 'image/png';
 
-  return fetch('https://spee.ch/api/claim/publish', {
-    method: 'POST',
-    body: data,
-  })
-    .then(response => response.json())
-    .then(json =>
-      json.success
-        ? dispatch({
-            type: ACTIONS.UPDATE_PUBLISH_FORM,
-            data: {
-              uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-              thumbnail: `${json.data.url}${fileExt}`,
-            },
-          })
-        : uploadError(json.message)
-    )
-    .catch(err => uploadError(err.message));
+      const data = new FormData();
+      const name = makeid();
+      data.append('name', name);
+      data.append('file', { uri: 'file://' + filePath, type: fileType, name: fileName });
+
+      return fetch('https://spee.ch/api/claim/publish', {
+        method: 'POST',
+        body: data
+      }).then(response => response.json())
+        .then(json => json.success
+            ? dispatch({
+                type: ACTIONS.UPDATE_PUBLISH_FORM,
+                data: {
+                  uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+                  thumbnail: `${json.data.url}${fileExt}`,
+                },
+              })
+            : uploadError(json.message)
+        )
+        .catch(err => uploadError(err.message));
+    });
+  } else {
+    if (filePath) {
+      thumbnail = fs.readFileSync(filePath);
+      fileExt = path.extname(filePath);
+      fileName = path.basename(filePath);
+      fileType = `image/${fileExt.slice(1)}`;
+    } else if (thumbnailBuffer) {
+      thumbnail = thumbnailBuffer;
+      fileExt = '.png';
+      fileName = 'thumbnail.png';
+      fileType = 'image/png';
+    } else {
+      return null;
+    }
+
+    const data = new FormData();
+    const name = makeid();
+    const file = new File([thumbnail], fileName, { type: fileType });
+    data.append('name', name);
+    data.append('file', file);
+
+    return fetch('https://spee.ch/api/claim/publish', {
+      method: 'POST',
+      body: data,
+    })
+      .then(response => response.json())
+      .then(json =>
+        json.success
+          ? dispatch({
+              type: ACTIONS.UPDATE_PUBLISH_FORM,
+              data: {
+                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+                thumbnail: `${json.data.url}${fileExt}`,
+              },
+            })
+          : uploadError(json.message)
+      )
+      .catch(err => uploadError(err.message));
+  }
 };
 
 export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileListItem) => (dispatch: Dispatch) => {

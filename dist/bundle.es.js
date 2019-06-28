@@ -2610,22 +2610,8 @@ const doUpdatePublishForm = publishFormValue => dispatch => dispatch({
   data: _extends$4({}, publishFormValue)
 });
 
-const doUploadThumbnail = (filePath, thumbnailBuffer) => dispatch => {
+const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter) => dispatch => {
   let thumbnail, fileExt, fileName, fileType;
-
-  if (filePath) {
-    thumbnail = fs.readFileSync(filePath);
-    fileExt = path.extname(filePath);
-    fileName = path.basename(filePath);
-    fileType = `image/${fileExt.slice(1)}`;
-  } else if (thumbnailBuffer) {
-    thumbnail = thumbnailBuffer;
-    fileExt = '.png';
-    fileName = 'thumbnail.png';
-    fileType = 'image/png';
-  } else {
-    return null;
-  }
 
   const makeid = () => {
     let text = '';
@@ -2634,36 +2620,76 @@ const doUploadThumbnail = (filePath, thumbnailBuffer) => dispatch => {
     return text;
   };
 
-  const uploadError = (error = '') => dispatch(batchActions({
-    type: UPDATE_PUBLISH_FORM,
-    data: {
-      uploadThumbnailStatus: READY,
-      thumbnail: '',
-      nsfw: false
-    }
-  }, doError(error)));
+  const uploadError = (error = '') => {
+    dispatch(batchActions({
+      type: UPDATE_PUBLISH_FORM,
+      data: {
+        uploadThumbnailStatus: READY,
+        thumbnail: '',
+        nsfw: false
+      }
+    }, doError(error)));
+  };
 
   dispatch({
     type: UPDATE_PUBLISH_FORM,
     data: { uploadThumbnailStatus: IN_PROGRESS }
   });
 
-  const data = new FormData();
-  const name = makeid();
-  const file = new File([thumbnail], fileName, { type: fileType });
-  data.append('name', name);
-  data.append('file', file);
+  if (fsAdapter && fsAdapter.readFile && filePath) {
+    fsAdapter.readFile(filePath, 'base64').then(base64Image => {
+      fileExt = 'png';
+      fileName = 'thumbnail.png';
+      fileType = 'image/png';
 
-  return fetch('https://spee.ch/api/claim/publish', {
-    method: 'POST',
-    body: data
-  }).then(response => response.json()).then(json => json.success ? dispatch({
-    type: UPDATE_PUBLISH_FORM,
-    data: {
-      uploadThumbnailStatus: COMPLETE,
-      thumbnail: `${json.data.url}${fileExt}`
+      const data = new FormData();
+      const name = makeid();
+      data.append('name', name);
+      data.append('file', { uri: 'file://' + filePath, type: fileType, name: fileName });
+
+      return fetch('https://spee.ch/api/claim/publish', {
+        method: 'POST',
+        body: data
+      }).then(response => response.json()).then(json => json.success ? dispatch({
+        type: UPDATE_PUBLISH_FORM,
+        data: {
+          uploadThumbnailStatus: COMPLETE,
+          thumbnail: `${json.data.url}${fileExt}`
+        }
+      }) : uploadError(json.message)).catch(err => uploadError(err.message));
+    });
+  } else {
+    if (filePath) {
+      thumbnail = fs.readFileSync(filePath);
+      fileExt = path.extname(filePath);
+      fileName = path.basename(filePath);
+      fileType = `image/${fileExt.slice(1)}`;
+    } else if (thumbnailBuffer) {
+      thumbnail = thumbnailBuffer;
+      fileExt = '.png';
+      fileName = 'thumbnail.png';
+      fileType = 'image/png';
+    } else {
+      return null;
     }
-  }) : uploadError(json.message)).catch(err => uploadError(err.message));
+
+    const data = new FormData();
+    const name = makeid();
+    const file = new File([thumbnail], fileName, { type: fileType });
+    data.append('name', name);
+    data.append('file', file);
+
+    return fetch('https://spee.ch/api/claim/publish', {
+      method: 'POST',
+      body: data
+    }).then(response => response.json()).then(json => json.success ? dispatch({
+      type: UPDATE_PUBLISH_FORM,
+      data: {
+        uploadThumbnailStatus: COMPLETE,
+        thumbnail: `${json.data.url}${fileExt}`
+      }
+    }) : uploadError(json.message)).catch(err => uploadError(err.message));
+  }
 };
 
 const doPrepareEdit = (claim, uri, fileInfo) => dispatch => {
