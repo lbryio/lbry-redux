@@ -164,10 +164,12 @@ export const selectSearchDownloadUris = query =>
           return;
         }
 
-        const titleParts = title.toLowerCase().split(' ');
-        if (arrayContainsQueryPart(titleParts)) {
-          downloadResultsFromQuery.push(fileInfo);
-          return;
+        if (title) {
+          const titleParts = title.toLowerCase().split(' ');
+          if (arrayContainsQueryPart(titleParts)) {
+            downloadResultsFromQuery.push(fileInfo);
+            return;
+          }
         }
 
         if (author) {
@@ -225,4 +227,10 @@ export const selectFileListPublishedSort = createSelector(
 export const selectFileListDownloadedSort = createSelector(
   selectState,
   state => state.fileListDownloadedSort
+);
+
+export const selectDownloadedUris = createSelector(
+  selectFileInfosDownloaded,
+  // We should use permament_url but it doesn't exist in file_list
+  info => info.map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`)
 );

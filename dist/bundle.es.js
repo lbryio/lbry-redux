@@ -111,6 +111,17 @@ const SET_CONTENT_POSITION = 'SET_CONTENT_POSITION';
 const SET_CONTENT_LAST_VIEWED = 'SET_CONTENT_LAST_VIEWED';
 const CLEAR_CONTENT_HISTORY_URI = 'CLEAR_CONTENT_HISTORY_URI';
 const CLEAR_CONTENT_HISTORY_ALL = 'CLEAR_CONTENT_HISTORY_ALL';
+const CLAIM_SEARCH_STARTED = 'CLAIM_SEARCH_STARTED';
+const CLAIM_SEARCH_COMPLETED = 'CLAIM_SEARCH_COMPLETED';
+const CLAIM_SEARCH_FAILED = 'CLAIM_SEARCH_FAILED';
+
+// Comments
+const COMMENT_LIST_STARTED = 'COMMENT_LIST_STARTED';
+const COMMENT_LIST_COMPLETED = 'COMMENT_LIST_COMPLETED';
+const COMMENT_LIST_FAILED = 'COMMENT_LIST_FAILED';
+const COMMENT_CREATE_STARTED = 'COMMENT_CREATE_STARTED';
+const COMMENT_CREATE_COMPLETED = 'COMMENT_CREATE_COMPLETED';
+const COMMENT_CREATE_FAILED = 'COMMENT_CREATE_FAILED';
 
 // Files
 const FILE_LIST_STARTED = 'FILE_LIST_STARTED';
@@ -200,21 +211,6 @@ const FETCH_REWARD_CONTENT_COMPLETED = 'FETCH_REWARD_CONTENT_COMPLETED';
 const DOWNLOAD_LANGUAGE_SUCCEEDED = 'DOWNLOAD_LANGUAGE_SUCCEEDED';
 const DOWNLOAD_LANGUAGE_FAILED = 'DOWNLOAD_LANGUAGE_FAILED';
 
-// ShapeShift
-const GET_SUPPORTED_COINS_START = 'GET_SUPPORTED_COINS_START';
-const GET_SUPPORTED_COINS_SUCCESS = 'GET_SUPPORTED_COINS_SUCCESS';
-const GET_SUPPORTED_COINS_FAIL = 'GET_SUPPORTED_COINS_FAIL';
-const GET_COIN_STATS_START = 'GET_COIN_STATS_START';
-const GET_COIN_STATS_SUCCESS = 'GET_COIN_STATS_SUCCESS';
-const GET_COIN_STATS_FAIL = 'GET_COIN_STATS_FAIL';
-const PREPARE_SHAPE_SHIFT_START = 'PREPARE_SHAPE_SHIFT_START';
-const PREPARE_SHAPE_SHIFT_SUCCESS = 'PREPARE_SHAPE_SHIFT_SUCCESS';
-const PREPARE_SHAPE_SHIFT_FAIL = 'PREPARE_SHAPE_SHIFT_FAIL';
-const GET_ACTIVE_SHIFT_START = 'GET_ACTIVE_SHIFT_START';
-const GET_ACTIVE_SHIFT_SUCCESS = 'GET_ACTIVE_SHIFT_SUCCESS';
-const GET_ACTIVE_SHIFT_FAIL = 'GET_ACTIVE_SHIFT_FAIL';
-const CLEAR_SHAPE_SHIFT = 'CLEAR_SHAPE_SHIFT';
-
 // Subscriptions
 const CHANNEL_SUBSCRIBE = 'CHANNEL_SUBSCRIBE';
 const CHANNEL_UNSUBSCRIBE = 'CHANNEL_UNSUBSCRIBE';
@@ -252,6 +248,10 @@ const FETCH_DATE = 'FETCH_DATE';
 const FETCH_COST_INFO_STARTED = 'FETCH_COST_INFO_STARTED';
 const FETCH_COST_INFO_COMPLETED = 'FETCH_COST_INFO_COMPLETED';
 const FETCH_COST_INFO_FAILED = 'FETCH_COST_INFO_FAILED';
+// Tags
+const TOGGLE_TAG_FOLLOW = 'TOGGLE_TAG_FOLLOW';
+const TAG_ADD = 'TAG_ADD';
+const TAG_DELETE = 'TAG_DELETE';
 
 var action_types = /*#__PURE__*/Object.freeze({
   WINDOW_FOCUSED: WINDOW_FOCUSED,
@@ -336,6 +336,15 @@ var action_types = /*#__PURE__*/Object.freeze({
   SET_CONTENT_LAST_VIEWED: SET_CONTENT_LAST_VIEWED,
   CLEAR_CONTENT_HISTORY_URI: CLEAR_CONTENT_HISTORY_URI,
   CLEAR_CONTENT_HISTORY_ALL: CLEAR_CONTENT_HISTORY_ALL,
+  CLAIM_SEARCH_STARTED: CLAIM_SEARCH_STARTED,
+  CLAIM_SEARCH_COMPLETED: CLAIM_SEARCH_COMPLETED,
+  CLAIM_SEARCH_FAILED: CLAIM_SEARCH_FAILED,
+  COMMENT_LIST_STARTED: COMMENT_LIST_STARTED,
+  COMMENT_LIST_COMPLETED: COMMENT_LIST_COMPLETED,
+  COMMENT_LIST_FAILED: COMMENT_LIST_FAILED,
+  COMMENT_CREATE_STARTED: COMMENT_CREATE_STARTED,
+  COMMENT_CREATE_COMPLETED: COMMENT_CREATE_COMPLETED,
+  COMMENT_CREATE_FAILED: COMMENT_CREATE_FAILED,
   FILE_LIST_STARTED: FILE_LIST_STARTED,
   FILE_LIST_SUCCEEDED: FILE_LIST_SUCCEEDED,
   FETCH_FILE_INFO_STARTED: FETCH_FILE_INFO_STARTED,
@@ -412,19 +421,6 @@ var action_types = /*#__PURE__*/Object.freeze({
   FETCH_REWARD_CONTENT_COMPLETED: FETCH_REWARD_CONTENT_COMPLETED,
   DOWNLOAD_LANGUAGE_SUCCEEDED: DOWNLOAD_LANGUAGE_SUCCEEDED,
   DOWNLOAD_LANGUAGE_FAILED: DOWNLOAD_LANGUAGE_FAILED,
-  GET_SUPPORTED_COINS_START: GET_SUPPORTED_COINS_START,
-  GET_SUPPORTED_COINS_SUCCESS: GET_SUPPORTED_COINS_SUCCESS,
-  GET_SUPPORTED_COINS_FAIL: GET_SUPPORTED_COINS_FAIL,
-  GET_COIN_STATS_START: GET_COIN_STATS_START,
-  GET_COIN_STATS_SUCCESS: GET_COIN_STATS_SUCCESS,
-  GET_COIN_STATS_FAIL: GET_COIN_STATS_FAIL,
-  PREPARE_SHAPE_SHIFT_START: PREPARE_SHAPE_SHIFT_START,
-  PREPARE_SHAPE_SHIFT_SUCCESS: PREPARE_SHAPE_SHIFT_SUCCESS,
-  PREPARE_SHAPE_SHIFT_FAIL: PREPARE_SHAPE_SHIFT_FAIL,
-  GET_ACTIVE_SHIFT_START: GET_ACTIVE_SHIFT_START,
-  GET_ACTIVE_SHIFT_SUCCESS: GET_ACTIVE_SHIFT_SUCCESS,
-  GET_ACTIVE_SHIFT_FAIL: GET_ACTIVE_SHIFT_FAIL,
-  CLEAR_SHAPE_SHIFT: CLEAR_SHAPE_SHIFT,
   CHANNEL_SUBSCRIBE: CHANNEL_SUBSCRIBE,
   CHANNEL_UNSUBSCRIBE: CHANNEL_UNSUBSCRIBE,
   HAS_FETCHED_SUBSCRIPTIONS: HAS_FETCHED_SUBSCRIPTIONS,
@@ -453,7 +449,10 @@ var action_types = /*#__PURE__*/Object.freeze({
   FETCH_DATE: FETCH_DATE,
   FETCH_COST_INFO_STARTED: FETCH_COST_INFO_STARTED,
   FETCH_COST_INFO_COMPLETED: FETCH_COST_INFO_COMPLETED,
-  FETCH_COST_INFO_FAILED: FETCH_COST_INFO_FAILED
+  FETCH_COST_INFO_FAILED: FETCH_COST_INFO_FAILED,
+  TOGGLE_TAG_FOLLOW: TOGGLE_TAG_FOLLOW,
+  TAG_ADD: TAG_ADD,
+  TAG_DELETE: TAG_DELETE
 });
 
 const CC_LICENSES = [{
@@ -737,6 +736,9 @@ const Lbry = {
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
 
+  // Comments
+  comment_list: (params = {}) => daemonCallWithResult('comment_list', params),
+  comment_create: (params = {}) => daemonCallWithResult('comment_create', params),
   // Connect to the sdk
   connect: () => {
     if (Lbry.connectPromise === null) {
@@ -877,7 +879,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
-const regexInvalidURI = /[^A-Za-z0-9-]/g;
+// see https://spec.lbry.com/#urls
+const regexInvalidURI = exports.regexInvalidURI = /[=&#:$@%?\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/gu;
 const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 
 /**
@@ -1045,9 +1048,8 @@ function isURIValid(URI) {
   return parts && parts.claimName;
 }
 
-function isNameValid(claimName, checkCase = true) {
-  const regexp = new RegExp('^[a-z0-9-]+$', checkCase ? '' : 'i');
-  return regexp.test(claimName);
+function isNameValid(claimName) {
+  return !regexInvalidURI.test(claimName);
 }
 
 function isURIClaimable(URI) {
@@ -1090,18 +1092,18 @@ const selectSearchSuggestions = reselect.createSelector(selectSearchValue, selec
     return [];
   }
 
-  const queryIsPrefix = query === 'lbry:' || query === 'lbry:/' || query === 'lbry://';
+  const queryIsPrefix = query === 'lbry:' || query === 'lbry:/' || query === 'lbry://' || query === 'lbry://@';
 
-  if (query.startsWith('lbry://') && query !== 'lbry://') {
+  if (queryIsPrefix) {
+    // If it is a prefix, wait until something else comes to figure out what to do
+    return [];
+  } else if (query.startsWith('lbry://')) {
     // If it starts with a prefix, don't show any autocomplete results
     // They are probably typing/pasting in a lbry uri
     return [{
       value: query,
-      type: SEARCH_TYPES.FILE
+      type: query[7] === '@' ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE
     }];
-  } else if (queryIsPrefix) {
-    // If it is a prefix, wait until something else comes to figure out what to do
-    return [];
   }
 
   let searchSuggestions = [];
@@ -1324,7 +1326,7 @@ const makeSelectMetadataItemForUri = (uri, key) => reselect.createSelector(makeS
 const makeSelectTitleForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => metadata && metadata.title);
 
 const makeSelectDateForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
-  const timestamp = claim && claim.timestamp ? claim.timestamp * 1000 : undefined;
+  const timestamp = claim && claim.value && (claim.value.release_time ? claim.value.release_time * 1000 : claim.meta.creation_timestamp * 1000);
   if (!timestamp) {
     return undefined;
   }
@@ -1362,6 +1364,8 @@ const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaim
 });
 
 const selectMyClaimsWithoutChannels = reselect.createSelector(selectMyClaims, myClaims => myClaims.filter(claim => !claim.name.match(/^@/)));
+
+const selectMyClaimUrisWithoutChannels = reselect.createSelector(selectMyClaimsWithoutChannels, myClaims => myClaims.map(claim => `lbry://${claim.name}#${claim.claim_id}`));
 
 const selectAllMyClaimsByOutpoint = reselect.createSelector(selectMyClaimsRaw, claims => new Set(claims && claims.length ? claims.map(claim => `${claim.txid}:${claim.nout}`) : null));
 
@@ -1473,6 +1477,14 @@ const makeSelectChannelForClaimUri = (uri, includePrefix = false) => reselect.cr
   let channel = `${name}#${claimId}`;
   return includePrefix ? `lbry://${channel}` : channel;
 });
+
+const makeSelectTagsForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => {
+  return metadata && metadata.tags || [];
+});
+
+const selectFetchingClaimSearch = reselect.createSelector(selectState$1, state => state.fetchingClaimSearch);
+
+const selectLastClaimSearchUris = reselect.createSelector(selectState$1, state => state.lastClaimSearchUris);
 
 const selectState$2 = state => state.wallet || {};
 
@@ -1992,6 +2004,14 @@ function doUpdateBlockHeight() {
   });
 }
 
+// https://github.com/reactjs/redux/issues/911
+function batchActions(...actions) {
+  return {
+    type: 'BATCH_ACTIONS',
+    actions
+  };
+}
+
 var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function doResolveUris(uris, returnCachedClaims = false) {
@@ -2023,20 +2043,32 @@ function doResolveUris(uris, returnCachedClaims = false) {
     lbryProxy.resolve({ urls: urisToResolve }).then(result => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
-          claim: null,
+          stream: null,
           claimsInChannel: null,
-          certificate: null
+          channel: null
         };
 
         // Flow has terrible Object.entries support
         // https://github.com/facebook/flow/issues/2221
-        // $FlowFixMe
-        if (uriResolveInfo.error) {
-          resolveInfo[uri] = _extends$3({}, fallbackResolveInfo);
-        } else {
-          // $FlowFixMe
-          const { claim, certificate, claims_in_channel: claimsInChannel } = uriResolveInfo;
-          resolveInfo[uri] = { claim, certificate, claimsInChannel };
+        if (uriResolveInfo) {
+          if (uriResolveInfo.error) {
+            resolveInfo[uri] = _extends$3({}, fallbackResolveInfo);
+          } else {
+            let result = {};
+            if (uriResolveInfo.value_type === 'channel') {
+              result.channel = uriResolveInfo;
+              // $FlowFixMe
+              result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+            } else {
+              result.stream = uriResolveInfo;
+              if (uriResolveInfo.signing_channel) {
+                result.channel = uriResolveInfo.signing_channel;
+                result.claimsInChannel = uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel || 0;
+              }
+            }
+            // $FlowFixMe
+            resolveInfo[uri] = result;
+          }
         }
       });
 
@@ -2150,7 +2182,12 @@ function doFetchClaimsByChannel(uri, page = 1) {
       data: { uri, page }
     });
 
-    lbryProxy.claim_search({ channel_name: uri, page: page || 1, winning: true }).then(result => {
+    lbryProxy.claim_search({
+      channel: uri,
+      valid_channel_signature: true,
+      page: page || 1,
+      order_by: ['release_time']
+    }).then(result => {
       const { items: claimsInChannel, page: returnedPage } = result;
 
       dispatch({
@@ -2206,6 +2243,39 @@ function doFetchChannelListMine() {
     };
 
     lbryProxy.channel_list().then(callback);
+  };
+}
+
+function doClaimSearch(amount = 20, options = {}) {
+  return dispatch => {
+    dispatch({
+      type: CLAIM_SEARCH_STARTED
+    });
+
+    const success = data => {
+      const resolveInfo = {};
+      const uris = [];
+      data.items.forEach(stream => {
+        resolveInfo[stream.permanent_url] = { stream };
+        uris.push(stream.permanent_url);
+      });
+
+      dispatch({
+        type: CLAIM_SEARCH_COMPLETED,
+        data: { resolveInfo, uris }
+      });
+    };
+
+    const failure = err => {
+      dispatch({
+        type: CLAIM_SEARCH_FAILED,
+        error: err
+      });
+    };
+
+    lbryProxy.claim_search(_extends$3({
+      page_size: amount
+    }, options)).then(success, failure);
   };
 }
 
@@ -2316,10 +2386,12 @@ const selectSearchDownloadUris = query => reselect.createSelector(selectFileInfo
       return;
     }
 
-    const titleParts = title.toLowerCase().split(' ');
-    if (arrayContainsQueryPart(titleParts)) {
-      downloadResultsFromQuery.push(fileInfo);
-      return;
+    if (title) {
+      const titleParts = title.toLowerCase().split(' ');
+      if (arrayContainsQueryPart(titleParts)) {
+        downloadResultsFromQuery.push(fileInfo);
+        return;
+      }
     }
 
     if (author) {
@@ -2369,6 +2441,10 @@ const selectSearchDownloadUris = query => reselect.createSelector(selectFileInfo
 const selectFileListPublishedSort = reselect.createSelector(selectState$3, state => state.fileListPublishedSort);
 
 const selectFileListDownloadedSort = reselect.createSelector(selectState$3, state => state.fileListDownloadedSort);
+
+const selectDownloadedUris = reselect.createSelector(selectFileInfosDownloaded,
+// We should use permament_url but it doesn't exist in file_list
+info => info.map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`));
 
 //      
 
@@ -2545,14 +2621,6 @@ function doSetFileListSort(page, value) {
   return {
     type: SET_FILE_LIST_SORT,
     data: { page, value }
-  };
-}
-
-// https://github.com/reactjs/redux/issues/911
-function batchActions(...actions) {
-  return {
-    type: 'BATCH_ACTIONS',
-    actions
   };
 }
 
@@ -3101,6 +3169,95 @@ function savePosition(claimId, outpoint, position) {
 
 //      
 
+const doToggleTagFollow = name => ({
+  type: TOGGLE_TAG_FOLLOW,
+  data: {
+    name
+  }
+});
+
+const doAddTag = name => ({
+  type: TAG_ADD,
+  data: {
+    name
+  }
+});
+
+const doDeleteTag = name => ({
+  type: TAG_DELETE,
+  data: {
+    name
+  }
+});
+
+//      
+
+function doCommentList(uri) {
+  return (dispatch, getState) => {
+    const state = getState();
+    const claim = selectClaimsByUri(state)[uri];
+    const claimId = claim ? claim.claim_id : null;
+
+    dispatch({
+      type: COMMENT_LIST_STARTED
+    });
+    lbryProxy.comment_list({
+      claim_id: claimId
+    }).then(results => {
+      dispatch({
+        type: COMMENT_LIST_COMPLETED,
+        data: {
+          comments: results,
+          claimId: claimId,
+          uri: uri
+        }
+      });
+    }).catch(error => {
+      console.log(error);
+      dispatch({
+        type: COMMENT_LIST_FAILED,
+        data: error
+      });
+    });
+  };
+}
+
+function doCommentCreate(comment = '', claim_id = '', channel, parent_id) {
+  return (dispatch, getState) => {
+    const state = getState();
+    dispatch({
+      type: COMMENT_CREATE_STARTED
+    });
+    const myChannels = selectMyChannelClaims(state);
+    const namedChannelClaim = myChannels.find(myChannel => myChannel.name === channel);
+    const channel_id = namedChannelClaim ? namedChannelClaim.claim_id : null;
+    return lbryProxy.comment_create({
+      comment,
+      claim_id,
+      channel_id
+    }).then(result => {
+      dispatch({
+        type: COMMENT_CREATE_COMPLETED,
+        data: {
+          comment: result,
+          claimId: claim_id
+        }
+      });
+    }).catch(error => {
+      dispatch({
+        type: COMMENT_CREATE_FAILED,
+        data: error
+      });
+      dispatch(doToast({
+        message: 'Oops, someone broke comments.',
+        isError: true
+      }));
+    });
+  };
+}
+
+var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 const reducers = {};
 const defaultState = {
   byId: {},
@@ -3114,39 +3271,38 @@ const defaultState = {
   myChannelClaims: new Set(),
   fetchingMyChannels: false,
   abandoningById: {},
-  pendingById: {}
+  pendingById: {},
+  fetchingClaimSearch: false,
+  lastClaimSearchUris: []
 };
 
-reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
-  const { resolveInfo } = action.data;
+function handleClaimAction(state, action) {
+  const {
+    resolveInfo
+  } = action.data;
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
   Object.entries(resolveInfo).forEach(([uri, resolveResponse]) => {
     // $FlowFixMe
-    if (resolveResponse.certificate && !Number.isNaN(resolveResponse.claimsInChannel)) {
+    if (resolveResponse.claimsInChannel) {
       // $FlowFixMe
       channelClaimCounts[uri] = resolveResponse.claimsInChannel;
     }
   });
 
   // $FlowFixMe
-  Object.entries(resolveInfo).forEach(([uri, { certificate, claim }]) => {
-    if (claim && !certificate) {
-      byId[claim.claim_id] = claim;
-      byUri[uri] = claim.claim_id;
-    } else if (claim && certificate) {
-      byId[claim.claim_id] = claim;
-      byUri[uri] = claim.claim_id;
-
-      byId[certificate.claim_id] = certificate;
-      const channelUri = `lbry://${certificate.name}#${certificate.claim_id}`;
-      byUri[channelUri] = certificate.claim_id;
-    } else if (!claim && certificate) {
-      byId[certificate.claim_id] = certificate;
-      byUri[uri] = certificate.claim_id;
-    } else {
+  Object.entries(resolveInfo).forEach(([uri, { channel, stream }]) => {
+    if (stream) {
+      byId[stream.claim_id] = stream;
+      byUri[uri] = stream.claim_id;
+    }
+    if (channel) {
+      byId[channel.claim_id] = channel;
+      byUri[stream ? channel.permanent_url : uri] = channel.claim_id;
+    }
+    if (!stream && !channel) {
       byUri[uri] = null;
     }
   });
@@ -3157,6 +3313,10 @@ reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
     channelClaimCounts,
     resolvingUris: (state.resolvingUris || []).filter(uri => !resolveInfo[uri])
   });
+}
+
+reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
+  return _extends$5({}, handleClaimAction(state, action));
 };
 
 reducers[FETCH_CLAIM_LIST_MINE_STARTED] = state => Object.assign({}, state, {
@@ -3331,300 +3491,25 @@ reducers[RESOLVE_URIS_STARTED] = (state, action) => {
   });
 };
 
+reducers[CLAIM_SEARCH_STARTED] = state => {
+  return Object.assign({}, state, {
+    fetchingClaimSearch: true
+  });
+};
+reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
+  return _extends$5({}, handleClaimAction(state, action), {
+    fetchingClaimSearch: false,
+    lastClaimSearchUris: action.data.uris
+  });
+};
+reducers[CLAIM_SEARCH_FAILED] = state => {
+  return Object.assign({}, state, {
+    fetchingClaimSearch: false
+  });
+};
+
 function claimsReducer(state = defaultState, action) {
   const handler = reducers[action.type];
-  if (handler) return handler(state, action);
-  return state;
-}
-
-var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-const reducers$1 = {};
-const defaultState$1 = {
-  positions: {}
-};
-
-reducers$1[SET_CONTENT_POSITION] = (state, action) => {
-  const { claimId, outpoint, position } = action.data;
-  return _extends$5({}, state, {
-    positions: _extends$5({}, state.positions, {
-      [claimId]: _extends$5({}, state.positions[claimId], {
-        [outpoint]: position
-      })
-    })
-  });
-};
-
-function contentReducer(state = defaultState$1, action) {
-  const handler = reducers$1[action.type];
-  if (handler) return handler(state, action);
-  return state;
-}
-
-var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-const reducers$2 = {};
-const defaultState$2 = {
-  failedPurchaseUris: [],
-  purchasedUris: [],
-  purchasedStreamingUrls: {},
-  purchaseUriErrorMessage: ''
-};
-
-reducers$2[PURCHASE_URI_STARTED] = (state, action) => {
-  const { uri } = action.data;
-  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
-  if (newFailedPurchaseUris.includes(uri)) {
-    newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
-  }
-
-  return _extends$6({}, state, {
-    failedPurchaseUris: newFailedPurchaseUris,
-    purchaseUriErrorMessage: ''
-  });
-};
-
-reducers$2[PURCHASE_URI_COMPLETED] = (state, action) => {
-  const { uri, streamingUrl } = action.data;
-  const newPurchasedUris = state.purchasedUris.slice();
-  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
-  const newPurchasedStreamingUrls = Object.assign({}, state.purchasedStreamingUrls);
-
-  if (!newPurchasedUris.includes(uri)) {
-    newPurchasedUris.push(uri);
-  }
-  if (newFailedPurchaseUris.includes(uri)) {
-    newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
-  }
-  if (streamingUrl) {
-    newPurchasedStreamingUrls[uri] = streamingUrl;
-  }
-
-  return _extends$6({}, state, {
-    failedPurchaseUris: newFailedPurchaseUris,
-    purchasedUris: newPurchasedUris,
-    purchasedStreamingUrls: newPurchasedStreamingUrls,
-    purchaseUriErrorMessage: ''
-  });
-};
-
-reducers$2[PURCHASE_URI_FAILED] = (state, action) => {
-  const { uri, error } = action.data;
-  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
-
-  if (!newFailedPurchaseUris.includes(uri)) {
-    newFailedPurchaseUris.push(uri);
-  }
-
-  return _extends$6({}, state, {
-    failedPurchaseUris: newFailedPurchaseUris,
-    purchaseUriErrorMessage: error
-  });
-};
-
-reducers$2[DELETE_PURCHASED_URI] = (state, action) => {
-  const { uri } = action.data;
-  const newPurchasedUris = state.purchasedUris.slice();
-  if (newPurchasedUris.includes(uri)) {
-    newPurchasedUris.splice(newPurchasedUris.indexOf(uri), 1);
-  }
-
-  return _extends$6({}, state, {
-    purchasedUris: newPurchasedUris
-  });
-};
-
-function fileReducer(state = defaultState$2, action) {
-  const handler = reducers$2[action.type];
-  if (handler) return handler(state, action);
-  return state;
-}
-
-var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-const reducers$3 = {};
-const defaultState$3 = {
-  fileListPublishedSort: DATE_NEW,
-  fileListDownloadedSort: DATE_NEW
-};
-
-reducers$3[FILE_LIST_STARTED] = state => Object.assign({}, state, {
-  isFetchingFileList: true
-});
-
-reducers$3[FILE_LIST_SUCCEEDED] = (state, action) => {
-  const { fileInfos } = action.data;
-  const newByOutpoint = Object.assign({}, state.byOutpoint);
-  const pendingByOutpoint = Object.assign({}, state.pendingByOutpoint);
-
-  fileInfos.forEach(fileInfo => {
-    const { outpoint } = fileInfo;
-
-    if (outpoint) newByOutpoint[fileInfo.outpoint] = fileInfo;
-  });
-
-  return Object.assign({}, state, {
-    isFetchingFileList: false,
-    byOutpoint: newByOutpoint,
-    pendingByOutpoint
-  });
-};
-
-reducers$3[FETCH_FILE_INFO_STARTED] = (state, action) => {
-  const { outpoint } = action.data;
-  const newFetching = Object.assign({}, state.fetching);
-
-  newFetching[outpoint] = true;
-
-  return Object.assign({}, state, {
-    fetching: newFetching
-  });
-};
-
-reducers$3[FETCH_FILE_INFO_COMPLETED] = (state, action) => {
-  const { fileInfo, outpoint } = action.data;
-
-  const newByOutpoint = Object.assign({}, state.byOutpoint);
-  const newFetching = Object.assign({}, state.fetching);
-
-  newByOutpoint[outpoint] = fileInfo;
-  delete newFetching[outpoint];
-
-  return Object.assign({}, state, {
-    byOutpoint: newByOutpoint,
-    fetching: newFetching
-  });
-};
-
-reducers$3[DOWNLOADING_STARTED] = (state, action) => {
-  const { uri, outpoint, fileInfo } = action.data;
-
-  const newByOutpoint = Object.assign({}, state.byOutpoint);
-  const newDownloading = Object.assign({}, state.downloadingByOutpoint);
-  const newLoading = Object.assign({}, state.urisLoading);
-
-  newDownloading[outpoint] = true;
-  newByOutpoint[outpoint] = fileInfo;
-  delete newLoading[uri];
-
-  return Object.assign({}, state, {
-    downloadingByOutpoint: newDownloading,
-    urisLoading: newLoading,
-    byOutpoint: newByOutpoint
-  });
-};
-
-reducers$3[DOWNLOADING_PROGRESSED] = (state, action) => {
-  const { outpoint, fileInfo } = action.data;
-
-  const newByOutpoint = Object.assign({}, state.byOutpoint);
-  const newDownloading = Object.assign({}, state.downloadingByOutpoint);
-
-  newByOutpoint[outpoint] = fileInfo;
-  newDownloading[outpoint] = true;
-
-  return Object.assign({}, state, {
-    byOutpoint: newByOutpoint,
-    downloadingByOutpoint: newDownloading
-  });
-};
-
-reducers$3[DOWNLOADING_CANCELED] = (state, action) => {
-  const { outpoint } = action.data;
-
-  const newDownloading = Object.assign({}, state.downloadingByOutpoint);
-  delete newDownloading[outpoint];
-
-  return Object.assign({}, state, {
-    downloadingByOutpoint: newDownloading
-  });
-};
-
-reducers$3[DOWNLOADING_COMPLETED] = (state, action) => {
-  const { outpoint, fileInfo } = action.data;
-
-  const newByOutpoint = Object.assign({}, state.byOutpoint);
-  const newDownloading = Object.assign({}, state.downloadingByOutpoint);
-
-  newByOutpoint[outpoint] = fileInfo;
-  delete newDownloading[outpoint];
-
-  return Object.assign({}, state, {
-    byOutpoint: newByOutpoint,
-    downloadingByOutpoint: newDownloading
-  });
-};
-
-reducers$3[FILE_DELETE] = (state, action) => {
-  const { outpoint } = action.data;
-
-  const newByOutpoint = Object.assign({}, state.byOutpoint);
-  const downloadingByOutpoint = Object.assign({}, state.downloadingByOutpoint);
-
-  delete newByOutpoint[outpoint];
-  delete downloadingByOutpoint[outpoint];
-
-  return Object.assign({}, state, {
-    byOutpoint: newByOutpoint,
-    downloadingByOutpoint
-  });
-};
-
-reducers$3[LOADING_VIDEO_STARTED] = (state, action) => {
-  const { uri } = action.data;
-
-  const newLoading = Object.assign({}, state.urisLoading);
-  newLoading[uri] = true;
-
-  const newErrors = _extends$7({}, state.errors);
-  if (uri in newErrors) delete newErrors[uri];
-
-  return Object.assign({}, state, {
-    urisLoading: newLoading,
-    errors: _extends$7({}, newErrors)
-  });
-};
-
-reducers$3[LOADING_VIDEO_FAILED] = (state, action) => {
-  const { uri } = action.data;
-
-  const newLoading = Object.assign({}, state.urisLoading);
-  delete newLoading[uri];
-
-  const newErrors = _extends$7({}, state.errors);
-  newErrors[uri] = true;
-
-  return Object.assign({}, state, {
-    urisLoading: newLoading,
-    errors: _extends$7({}, newErrors)
-  });
-};
-
-reducers$3[FETCH_DATE] = (state, action) => {
-  const { time } = action.data;
-  if (time) {
-    return Object.assign({}, state, {
-      publishedDate: time
-    });
-  }
-  return null;
-};
-
-reducers$3[SET_FILE_LIST_SORT] = (state, action) => {
-  const pageSortStates = {
-    [PUBLISHED]: 'fileListPublishedSort',
-    [DOWNLOADED]: 'fileListDownloadedSort'
-  };
-  const pageSortState = pageSortStates[action.data.page];
-  const { value } = action.data;
-
-  return Object.assign({}, state, {
-    [pageSortState]: value
-  });
-};
-
-function fileInfoReducer(state = defaultState$3, action) {
-  const handler = reducers$3[action.type];
   if (handler) return handler(state, action);
   return state;
 }
@@ -3647,9 +3532,345 @@ const handleActions = (actionMap, defaultState) => (state = defaultState, action
   return state;
 };
 
+var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+const defaultState$1 = {
+  byId: {},
+  commentsByUri: {},
+  isLoading: false
+};
+
+const commentReducer = handleActions({
+  [COMMENT_CREATE_STARTED]: (state, action) => _extends$6({}, state, {
+    isLoading: true
+  }),
+
+  [COMMENT_CREATE_FAILED]: (state, action) => _extends$6({}, state, {
+    isLoading: false
+  }),
+
+  [COMMENT_CREATE_COMPLETED]: (state, action) => {
+    const { comment, claimId } = action.data;
+    const byId = Object.assign({}, state.byId);
+    const comments = byId[claimId];
+    const newComments = comments.slice();
+
+    newComments.unshift(comment);
+    byId[claimId] = newComments;
+
+    return _extends$6({}, state, {
+      byId
+    });
+  },
+
+  [COMMENT_LIST_STARTED]: state => _extends$6({}, state, { isLoading: true }),
+
+  [COMMENT_LIST_COMPLETED]: (state, action) => {
+    const { comments, claimId, uri } = action.data;
+    const byId = Object.assign({}, state.byId);
+    const commentsByUri = Object.assign({}, state.commentsByUri);
+
+    if (comments['items']) {
+      byId[claimId] = comments['items'];
+      commentsByUri[uri] = claimId;
+    }
+    return _extends$6({}, state, {
+      byId,
+      commentsByUri,
+      isLoading: false
+    });
+  },
+
+  [COMMENT_LIST_FAILED]: (state, action) => _extends$6({}, state, {
+    isLoading: false
+  })
+}, defaultState$1);
+
+var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+const reducers$1 = {};
+const defaultState$2 = {
+  positions: {}
+};
+
+reducers$1[SET_CONTENT_POSITION] = (state, action) => {
+  const { claimId, outpoint, position } = action.data;
+  return _extends$7({}, state, {
+    positions: _extends$7({}, state.positions, {
+      [claimId]: _extends$7({}, state.positions[claimId], {
+        [outpoint]: position
+      })
+    })
+  });
+};
+
+function contentReducer(state = defaultState$2, action) {
+  const handler = reducers$1[action.type];
+  if (handler) return handler(state, action);
+  return state;
+}
+
 var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+const reducers$2 = {};
+const defaultState$3 = {
+  fileListPublishedSort: DATE_NEW,
+  fileListDownloadedSort: DATE_NEW
+};
+
+reducers$2[FILE_LIST_STARTED] = state => Object.assign({}, state, {
+  isFetchingFileList: true
+});
+
+reducers$2[FILE_LIST_SUCCEEDED] = (state, action) => {
+  const { fileInfos } = action.data;
+  const newByOutpoint = Object.assign({}, state.byOutpoint);
+  const pendingByOutpoint = Object.assign({}, state.pendingByOutpoint);
+
+  fileInfos.forEach(fileInfo => {
+    const { outpoint } = fileInfo;
+
+    if (outpoint) newByOutpoint[fileInfo.outpoint] = fileInfo;
+  });
+
+  return Object.assign({}, state, {
+    isFetchingFileList: false,
+    byOutpoint: newByOutpoint,
+    pendingByOutpoint
+  });
+};
+
+reducers$2[FETCH_FILE_INFO_STARTED] = (state, action) => {
+  const { outpoint } = action.data;
+  const newFetching = Object.assign({}, state.fetching);
+
+  newFetching[outpoint] = true;
+
+  return Object.assign({}, state, {
+    fetching: newFetching
+  });
+};
+
+reducers$2[FETCH_FILE_INFO_COMPLETED] = (state, action) => {
+  const { fileInfo, outpoint } = action.data;
+
+  const newByOutpoint = Object.assign({}, state.byOutpoint);
+  const newFetching = Object.assign({}, state.fetching);
+
+  newByOutpoint[outpoint] = fileInfo;
+  delete newFetching[outpoint];
+
+  return Object.assign({}, state, {
+    byOutpoint: newByOutpoint,
+    fetching: newFetching
+  });
+};
+
+reducers$2[DOWNLOADING_STARTED] = (state, action) => {
+  const { uri, outpoint, fileInfo } = action.data;
+
+  const newByOutpoint = Object.assign({}, state.byOutpoint);
+  const newDownloading = Object.assign({}, state.downloadingByOutpoint);
+  const newLoading = Object.assign({}, state.urisLoading);
+
+  newDownloading[outpoint] = true;
+  newByOutpoint[outpoint] = fileInfo;
+  delete newLoading[uri];
+
+  return Object.assign({}, state, {
+    downloadingByOutpoint: newDownloading,
+    urisLoading: newLoading,
+    byOutpoint: newByOutpoint
+  });
+};
+
+reducers$2[DOWNLOADING_PROGRESSED] = (state, action) => {
+  const { outpoint, fileInfo } = action.data;
+
+  const newByOutpoint = Object.assign({}, state.byOutpoint);
+  const newDownloading = Object.assign({}, state.downloadingByOutpoint);
+
+  newByOutpoint[outpoint] = fileInfo;
+  newDownloading[outpoint] = true;
+
+  return Object.assign({}, state, {
+    byOutpoint: newByOutpoint,
+    downloadingByOutpoint: newDownloading
+  });
+};
+
+reducers$2[DOWNLOADING_CANCELED] = (state, action) => {
+  const { outpoint } = action.data;
+
+  const newDownloading = Object.assign({}, state.downloadingByOutpoint);
+  delete newDownloading[outpoint];
+
+  return Object.assign({}, state, {
+    downloadingByOutpoint: newDownloading
+  });
+};
+
+reducers$2[DOWNLOADING_COMPLETED] = (state, action) => {
+  const { outpoint, fileInfo } = action.data;
+
+  const newByOutpoint = Object.assign({}, state.byOutpoint);
+  const newDownloading = Object.assign({}, state.downloadingByOutpoint);
+
+  newByOutpoint[outpoint] = fileInfo;
+  delete newDownloading[outpoint];
+
+  return Object.assign({}, state, {
+    byOutpoint: newByOutpoint,
+    downloadingByOutpoint: newDownloading
+  });
+};
+
+reducers$2[FILE_DELETE] = (state, action) => {
+  const { outpoint } = action.data;
+
+  const newByOutpoint = Object.assign({}, state.byOutpoint);
+  const downloadingByOutpoint = Object.assign({}, state.downloadingByOutpoint);
+
+  delete newByOutpoint[outpoint];
+  delete downloadingByOutpoint[outpoint];
+
+  return Object.assign({}, state, {
+    byOutpoint: newByOutpoint,
+    downloadingByOutpoint
+  });
+};
+
+reducers$2[LOADING_VIDEO_STARTED] = (state, action) => {
+  const { uri } = action.data;
+
+  const newLoading = Object.assign({}, state.urisLoading);
+  newLoading[uri] = true;
+
+  const newErrors = _extends$8({}, state.errors);
+  if (uri in newErrors) delete newErrors[uri];
+
+  return Object.assign({}, state, {
+    urisLoading: newLoading,
+    errors: _extends$8({}, newErrors)
+  });
+};
+
+reducers$2[LOADING_VIDEO_FAILED] = (state, action) => {
+  const { uri } = action.data;
+
+  const newLoading = Object.assign({}, state.urisLoading);
+  delete newLoading[uri];
+
+  const newErrors = _extends$8({}, state.errors);
+  newErrors[uri] = true;
+
+  return Object.assign({}, state, {
+    urisLoading: newLoading,
+    errors: _extends$8({}, newErrors)
+  });
+};
+
+reducers$2[SET_FILE_LIST_SORT] = (state, action) => {
+  const pageSortStates = {
+    [PUBLISHED]: 'fileListPublishedSort',
+    [DOWNLOADED]: 'fileListDownloadedSort'
+  };
+  const pageSortState = pageSortStates[action.data.page];
+  const { value } = action.data;
+
+  return Object.assign({}, state, {
+    [pageSortState]: value
+  });
+};
+
+function fileInfoReducer(state = defaultState$3, action) {
+  const handler = reducers$2[action.type];
+  if (handler) return handler(state, action);
+  return state;
+}
+
+var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+const reducers$3 = {};
 const defaultState$4 = {
+  failedPurchaseUris: [],
+  purchasedUris: [],
+  purchasedStreamingUrls: {},
+  purchaseUriErrorMessage: ''
+};
+
+reducers$3[PURCHASE_URI_STARTED] = (state, action) => {
+  const { uri } = action.data;
+  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
+  if (newFailedPurchaseUris.includes(uri)) {
+    newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
+  }
+
+  return _extends$9({}, state, {
+    failedPurchaseUris: newFailedPurchaseUris,
+    purchaseUriErrorMessage: ''
+  });
+};
+
+reducers$3[PURCHASE_URI_COMPLETED] = (state, action) => {
+  const { uri, streamingUrl } = action.data;
+  const newPurchasedUris = state.purchasedUris.slice();
+  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
+  const newPurchasedStreamingUrls = Object.assign({}, state.purchasedStreamingUrls);
+
+  if (!newPurchasedUris.includes(uri)) {
+    newPurchasedUris.push(uri);
+  }
+  if (newFailedPurchaseUris.includes(uri)) {
+    newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
+  }
+  if (streamingUrl) {
+    newPurchasedStreamingUrls[uri] = streamingUrl;
+  }
+
+  return _extends$9({}, state, {
+    failedPurchaseUris: newFailedPurchaseUris,
+    purchasedUris: newPurchasedUris,
+    purchasedStreamingUrls: newPurchasedStreamingUrls,
+    purchaseUriErrorMessage: ''
+  });
+};
+
+reducers$3[PURCHASE_URI_FAILED] = (state, action) => {
+  const { uri, error } = action.data;
+  const newFailedPurchaseUris = state.failedPurchaseUris.slice();
+
+  if (!newFailedPurchaseUris.includes(uri)) {
+    newFailedPurchaseUris.push(uri);
+  }
+
+  return _extends$9({}, state, {
+    failedPurchaseUris: newFailedPurchaseUris,
+    purchaseUriErrorMessage: error
+  });
+};
+
+reducers$3[DELETE_PURCHASED_URI] = (state, action) => {
+  const { uri } = action.data;
+  const newPurchasedUris = state.purchasedUris.slice();
+  if (newPurchasedUris.includes(uri)) {
+    newPurchasedUris.splice(newPurchasedUris.indexOf(uri), 1);
+  }
+
+  return _extends$9({}, state, {
+    purchasedUris: newPurchasedUris
+  });
+};
+
+function fileReducer(state = defaultState$4, action) {
+  const handler = reducers$3[action.type];
+  if (handler) return handler(state, action);
+  return state;
+}
+
+var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+const defaultState$5 = {
   notifications: [],
   toasts: [],
   errors: []
@@ -3662,7 +3883,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.push(toast);
 
-    return _extends$8({}, state, {
+    return _extends$a({}, state, {
       toasts: newToasts
     });
   },
@@ -3670,7 +3891,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.shift();
 
-    return _extends$8({}, state, {
+    return _extends$a({}, state, {
       toasts: newToasts
     });
   },
@@ -3681,7 +3902,7 @@ const notificationsReducer = handleActions({
     const newNotifications = state.notifications.slice();
     newNotifications.push(notification);
 
-    return _extends$8({}, state, {
+    return _extends$a({}, state, {
       notifications: newNotifications
     });
   },
@@ -3692,7 +3913,7 @@ const notificationsReducer = handleActions({
 
     notifications = notifications.map(pastNotification => pastNotification.id === notification.id ? notification : pastNotification);
 
-    return _extends$8({}, state, {
+    return _extends$a({}, state, {
       notifications
     });
   },
@@ -3701,7 +3922,7 @@ const notificationsReducer = handleActions({
     let newNotifications = state.notifications.slice();
     newNotifications = newNotifications.filter(notification => notification.id !== id);
 
-    return _extends$8({}, state, {
+    return _extends$a({}, state, {
       notifications: newNotifications
     });
   },
@@ -3712,7 +3933,7 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.push(error);
 
-    return _extends$8({}, state, {
+    return _extends$a({}, state, {
       errors: newErrors
     });
   },
@@ -3720,83 +3941,13 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.shift();
 
-    return _extends$8({}, state, {
+    return _extends$a({}, state, {
       errors: newErrors
-    });
-  }
-}, defaultState$4);
-
-var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-const defaultState$5 = {
-  isActive: false, // does the user have any typed text in the search input
-  focused: false, // is the search input focused
-  searchQuery: '', // needs to be an empty string for input focusing
-  options: {
-    [SEARCH_OPTIONS.RESULT_COUNT]: 30,
-    [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_FILES_AND_CHANNELS,
-    [SEARCH_OPTIONS.MEDIA_AUDIO]: true,
-    [SEARCH_OPTIONS.MEDIA_VIDEO]: true,
-    [SEARCH_OPTIONS.MEDIA_TEXT]: true,
-    [SEARCH_OPTIONS.MEDIA_IMAGE]: true,
-    [SEARCH_OPTIONS.MEDIA_APPLICATION]: true
-  },
-  suggestions: {},
-  urisByQuery: {}
-};
-
-const searchReducer = handleActions({
-  [SEARCH_START]: state => _extends$9({}, state, {
-    searching: true
-  }),
-  [SEARCH_SUCCESS]: (state, action) => {
-    const { query, uris } = action.data;
-
-    return _extends$9({}, state, {
-      searching: false,
-      urisByQuery: Object.assign({}, state.urisByQuery, { [query]: uris })
-    });
-  },
-
-  [SEARCH_FAIL]: state => _extends$9({}, state, {
-    searching: false
-  }),
-
-  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$9({}, state, {
-    searchQuery: action.data.query,
-    isActive: true
-  }),
-
-  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$9({}, state, {
-    suggestions: _extends$9({}, state.suggestions, {
-      [action.data.query]: action.data.suggestions
-    })
-  }),
-
-  // sets isActive to false so the uri will be populated correctly if the
-  // user is on a file page. The search query will still be present on any
-  // other page
-  [DISMISS_NOTIFICATION]: state => _extends$9({}, state, {
-    isActive: false
-  }),
-
-  [SEARCH_FOCUS]: state => _extends$9({}, state, {
-    focused: true
-  }),
-  [SEARCH_BLUR]: state => _extends$9({}, state, {
-    focused: false
-  }),
-  [UPDATE_SEARCH_OPTIONS]: (state, action) => {
-    const { options: oldOptions } = state;
-    const newOptions = action.data;
-    const options = _extends$9({}, oldOptions, newOptions);
-    return _extends$9({}, state, {
-      options
     });
   }
 }, defaultState$5);
 
-var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -3832,17 +3983,17 @@ const defaultState$6 = {
 const publishReducer = handleActions({
   [UPDATE_PUBLISH_FORM]: (state, action) => {
     const { data } = action;
-    return _extends$a({}, state, data);
+    return _extends$b({}, state, data);
   },
-  [CLEAR_PUBLISH]: () => _extends$a({}, defaultState$6),
-  [PUBLISH_START]: state => _extends$a({}, state, {
+  [CLEAR_PUBLISH]: () => _extends$b({}, defaultState$6),
+  [PUBLISH_START]: state => _extends$b({}, state, {
     publishing: true,
     publishSuccess: false
   }),
-  [PUBLISH_FAIL]: state => _extends$a({}, state, {
+  [PUBLISH_FAIL]: state => _extends$b({}, state, {
     publishing: false
   }),
-  [PUBLISH_SUCCESS]: state => _extends$a({}, state, {
+  [PUBLISH_SUCCESS]: state => _extends$b({}, state, {
     publishing: false,
     publishSuccess: true
   }),
@@ -3857,14 +4008,131 @@ const publishReducer = handleActions({
       contentName: name
     });
 
-    return _extends$a({}, defaultState$6, publishData, {
+    return _extends$b({}, defaultState$6, publishData, {
       editingURI: uri,
       uri: shortUri
     });
   }
 }, defaultState$6);
 
-var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+const defaultState$7 = {
+  isActive: false, // does the user have any typed text in the search input
+  focused: false, // is the search input focused
+  searchQuery: '', // needs to be an empty string for input focusing
+  options: {
+    [SEARCH_OPTIONS.RESULT_COUNT]: 30,
+    [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_FILES_AND_CHANNELS,
+    [SEARCH_OPTIONS.MEDIA_AUDIO]: true,
+    [SEARCH_OPTIONS.MEDIA_VIDEO]: true,
+    [SEARCH_OPTIONS.MEDIA_TEXT]: true,
+    [SEARCH_OPTIONS.MEDIA_IMAGE]: true,
+    [SEARCH_OPTIONS.MEDIA_APPLICATION]: true
+  },
+  suggestions: {},
+  urisByQuery: {}
+};
+
+const searchReducer = handleActions({
+  [SEARCH_START]: state => _extends$c({}, state, {
+    searching: true
+  }),
+  [SEARCH_SUCCESS]: (state, action) => {
+    const { query, uris } = action.data;
+
+    return _extends$c({}, state, {
+      searching: false,
+      urisByQuery: Object.assign({}, state.urisByQuery, { [query]: uris })
+    });
+  },
+
+  [SEARCH_FAIL]: state => _extends$c({}, state, {
+    searching: false
+  }),
+
+  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$c({}, state, {
+    searchQuery: action.data.query,
+    isActive: true
+  }),
+
+  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$c({}, state, {
+    suggestions: _extends$c({}, state.suggestions, {
+      [action.data.query]: action.data.suggestions
+    })
+  }),
+
+  // sets isActive to false so the uri will be populated correctly if the
+  // user is on a file page. The search query will still be present on any
+  // other page
+  [DISMISS_NOTIFICATION]: state => _extends$c({}, state, {
+    isActive: false
+  }),
+
+  [SEARCH_FOCUS]: state => _extends$c({}, state, {
+    focused: true
+  }),
+  [SEARCH_BLUR]: state => _extends$c({}, state, {
+    focused: false
+  }),
+  [UPDATE_SEARCH_OPTIONS]: (state, action) => {
+    const { options: oldOptions } = state;
+    const newOptions = action.data;
+    const options = _extends$c({}, oldOptions, newOptions);
+    return _extends$c({}, state, {
+      options
+    });
+  }
+}, defaultState$7);
+
+var _extends$d = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+const tagsReducerBuilder = defaultState => handleActions({
+  [TOGGLE_TAG_FOLLOW]: (state, action) => {
+    const { followedTags } = state;
+    const { name } = action.data;
+
+    let newFollowedTags = followedTags.slice();
+
+    if (newFollowedTags.includes(name)) {
+      newFollowedTags = newFollowedTags.filter(tag => tag !== name);
+    } else {
+      newFollowedTags.push(name);
+    }
+
+    return _extends$d({}, state, {
+      followedTags: newFollowedTags
+    });
+  },
+
+  [TAG_ADD]: (state, action) => {
+    const { knownTags } = state;
+    const { name } = action.data;
+
+    let newKnownTags = _extends$d({}, knownTags);
+    newKnownTags[name] = { name };
+
+    return _extends$d({}, state, {
+      knownTags: newKnownTags
+    });
+  },
+
+  [TAG_DELETE]: (state, action) => {
+    const { knownTags, followedTags } = state;
+    const { name } = action.data;
+
+    let newKnownTags = _extends$d({}, knownTags);
+    delete newKnownTags[name];
+    const newFollowedTags = followedTags.filter(tag => tag !== name);
+
+    return _extends$d({}, state, {
+      knownTags: newKnownTags,
+      followedTags: newFollowedTags
+    });
+  }
+}, defaultState);
+
+var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const buildDraftTransaction = () => ({
   amount: undefined,
@@ -3875,7 +4143,7 @@ const buildDraftTransaction = () => ({
 // See details in https://github.com/lbryio/lbry/issues/1307
 
 
-const defaultState$7 = {
+const defaultState$8 = {
   balance: undefined,
   totalBalance: undefined,
   latestBlock: undefined,
@@ -3904,25 +4172,25 @@ const defaultState$7 = {
 };
 
 const walletReducer = handleActions({
-  [FETCH_TRANSACTIONS_STARTED]: state => _extends$b({}, state, {
+  [FETCH_TRANSACTIONS_STARTED]: state => _extends$e({}, state, {
     fetchingTransactions: true
   }),
 
   [FETCH_TRANSACTIONS_COMPLETED]: (state, action) => {
-    const byId = _extends$b({}, state.transactions);
+    const byId = _extends$e({}, state.transactions);
 
     const { transactions } = action.data;
     transactions.forEach(transaction => {
       byId[transaction.txid] = transaction;
     });
 
-    return _extends$b({}, state, {
+    return _extends$e({}, state, {
       transactions: byId,
       fetchingTransactions: false
     });
   },
 
-  [FETCH_SUPPORTS_STARTED]: state => _extends$b({}, state, {
+  [FETCH_SUPPORTS_STARTED]: state => _extends$e({}, state, {
     fetchingSupports: true
   }),
 
@@ -3935,7 +4203,7 @@ const walletReducer = handleActions({
       byOutpoint[`${txid}:${nout}`] = transaction;
     });
 
-    return _extends$b({}, state, { supports: byOutpoint, fetchingSupports: false });
+    return _extends$e({}, state, { supports: byOutpoint, fetchingSupports: false });
   },
 
   [ABANDON_SUPPORT_STARTED]: (state, action) => {
@@ -3944,7 +4212,7 @@ const walletReducer = handleActions({
 
     currentlyAbandoning[outpoint] = true;
 
-    return _extends$b({}, state, {
+    return _extends$e({}, state, {
       abandoningSupportsByOutpoint: currentlyAbandoning
     });
   },
@@ -3957,56 +4225,56 @@ const walletReducer = handleActions({
     delete currentlyAbandoning[outpoint];
     delete byOutpoint[outpoint];
 
-    return _extends$b({}, state, {
+    return _extends$e({}, state, {
       supports: byOutpoint,
       abandoningSupportsById: currentlyAbandoning
     });
   },
 
-  [GET_NEW_ADDRESS_STARTED]: state => _extends$b({}, state, {
+  [GET_NEW_ADDRESS_STARTED]: state => _extends$e({}, state, {
     gettingNewAddress: true
   }),
 
   [GET_NEW_ADDRESS_COMPLETED]: (state, action) => {
     const { address } = action.data;
 
-    return _extends$b({}, state, { gettingNewAddress: false, receiveAddress: address });
+    return _extends$e({}, state, { gettingNewAddress: false, receiveAddress: address });
   },
 
-  [UPDATE_BALANCE]: (state, action) => _extends$b({}, state, {
+  [UPDATE_BALANCE]: (state, action) => _extends$e({}, state, {
     balance: action.data.balance
   }),
 
-  [UPDATE_TOTAL_BALANCE]: (state, action) => _extends$b({}, state, {
+  [UPDATE_TOTAL_BALANCE]: (state, action) => _extends$e({}, state, {
     totalBalance: action.data.totalBalance
   }),
 
-  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$b({}, state, {
+  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$e({}, state, {
     checkingAddressOwnership: true
   }),
 
-  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$b({}, state, {
+  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$e({}, state, {
     checkingAddressOwnership: false
   }),
 
   [SET_DRAFT_TRANSACTION_AMOUNT]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$b({}, oldDraft, { amount: parseFloat(action.data.amount) });
+    const newDraft = _extends$e({}, oldDraft, { amount: parseFloat(action.data.amount) });
 
-    return _extends$b({}, state, { draftTransaction: newDraft });
+    return _extends$e({}, state, { draftTransaction: newDraft });
   },
 
   [SET_DRAFT_TRANSACTION_ADDRESS]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$b({}, oldDraft, { address: action.data.address });
+    const newDraft = _extends$e({}, oldDraft, { address: action.data.address });
 
-    return _extends$b({}, state, { draftTransaction: newDraft });
+    return _extends$e({}, state, { draftTransaction: newDraft });
   },
 
   [SEND_TRANSACTION_STARTED]: state => {
-    const newDraftTransaction = _extends$b({}, state.draftTransaction, { sending: true });
+    const newDraftTransaction = _extends$e({}, state.draftTransaction, { sending: true });
 
-    return _extends$b({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$e({}, state, { draftTransaction: newDraftTransaction });
   },
 
   [SEND_TRANSACTION_COMPLETED]: state => Object.assign({}, state, {
@@ -4019,106 +4287,106 @@ const walletReducer = handleActions({
       error: action.data.error
     });
 
-    return _extends$b({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$e({}, state, { draftTransaction: newDraftTransaction });
   },
 
-  [SUPPORT_TRANSACTION_STARTED]: state => _extends$b({}, state, {
+  [SUPPORT_TRANSACTION_STARTED]: state => _extends$e({}, state, {
     sendingSupport: true
   }),
 
-  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$b({}, state, {
+  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$e({}, state, {
     sendingSupport: false
   }),
 
-  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$b({}, state, {
+  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$e({}, state, {
     error: action.data.error,
     sendingSupport: false
   }),
 
-  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$b({}, state, {
+  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletIsEncrypted: action.result
   }),
 
-  [WALLET_ENCRYPT_START]: state => _extends$b({}, state, {
+  [WALLET_ENCRYPT_START]: state => _extends$e({}, state, {
     walletEncryptPending: true,
     walletEncryptSucceded: null,
     walletEncryptResult: null
   }),
 
-  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$b({}, state, {
+  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: true,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$b({}, state, {
+  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$e({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: false,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_START]: state => _extends$b({}, state, {
+  [WALLET_DECRYPT_START]: state => _extends$e({}, state, {
     walletDecryptPending: true,
     walletDecryptSucceded: null,
     walletDecryptResult: null
   }),
 
-  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$b({}, state, {
+  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: true,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$b({}, state, {
+  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$e({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: false,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_UNLOCK_START]: state => _extends$b({}, state, {
+  [WALLET_UNLOCK_START]: state => _extends$e({}, state, {
     walletUnlockPending: true,
     walletUnlockSucceded: null,
     walletUnlockResult: null
   }),
 
-  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$b({}, state, {
+  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: true,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$b({}, state, {
+  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$e({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: false,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_LOCK_START]: state => _extends$b({}, state, {
+  [WALLET_LOCK_START]: state => _extends$e({}, state, {
     walletLockPending: false,
     walletLockSucceded: null,
     walletLockResult: null
   }),
 
-  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$b({}, state, {
+  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletLockPending: false,
     walletLockSucceded: true,
     walletLockResult: action.result
   }),
 
-  [WALLET_LOCK_FAILED]: (state, action) => _extends$b({}, state, {
+  [WALLET_LOCK_FAILED]: (state, action) => _extends$e({}, state, {
     walletLockPending: false,
     walletLockSucceded: false,
     walletLockResult: action.result
   }),
 
-  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$b({}, state, {
+  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$e({}, state, {
     transactionListFilter: action.data
   }),
 
-  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$b({}, state, {
+  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$e({}, state, {
     latestBlock: action.data
   })
-}, defaultState$7);
+}, defaultState$8);
 
 const selectState$5 = state => state.content || {};
 
@@ -4131,14 +4399,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$6 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$6, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$c({
+    return _extends$f({
       id
     }, params);
   }
@@ -4157,11 +4425,36 @@ const selectError = reselect.createSelector(selectState$6, state => {
   return null;
 });
 
+//      
+
+const selectState$7 = state => state.comments || {};
+
+const selectCommentsById = reselect.createSelector(selectState$7, state => state.byId || {});
+
+const selectCommentsByUri = reselect.createSelector(selectState$7, state => {
+  const byUri = state.commentsByUri || {};
+  const comments = {};
+  Object.keys(byUri).forEach(uri => {
+    const claimId = byUri[uri];
+    if (claimId === null) {
+      comments[uri] = null;
+    } else {
+      comments[uri] = claimId;
+    }
+  });
+  return comments;
+});
+
+const makeSelectCommentsForUri = uri => reselect.createSelector(selectCommentsById, selectCommentsByUri, (byId, byUri) => {
+  const claimId = byUri[uri];
+  return byId && byId[claimId];
+});
+
 function _objectWithoutProperties$1(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-const selectState$7 = state => state.publish || {};
+const selectState$8 = state => state.publish || {};
 
-const selectPublishFormValues = reselect.createSelector(selectState$7, state => {
+const selectPublishFormValues = reselect.createSelector(selectState$8, state => {
   const formValues = _objectWithoutProperties$1(state, ['pendingPublish']);
   return formValues;
 });
@@ -4193,7 +4486,7 @@ const selectMyClaimForUri = reselect.createSelector(selectPublishFormValues, sel
   return isStillEditing ? claimsById[editClaimId] : myClaims.find(claim => !contentName ? claim.name === claimName : claim.name === contentName || claim.name === claimName);
 });
 
-const selectIsResolvingPublishUris = reselect.createSelector(selectState$7, selectResolvingUris, ({ uri, name }, resolvingUris) => {
+const selectIsResolvingPublishUris = reselect.createSelector(selectState$8, selectResolvingUris, ({ uri, name }, resolvingUris) => {
   if (uri) {
     const isResolvingUri = resolvingUris.includes(uri);
     const { isChannel } = parseURI(uri);
@@ -4210,7 +4503,7 @@ const selectIsResolvingPublishUris = reselect.createSelector(selectState$7, sele
   return false;
 });
 
-const selectTakeOverAmount = reselect.createSelector(selectState$7, selectMyClaimForUri, selectClaimsByUri, ({ name }, myClaimForUri, claimsByUri) => {
+const selectTakeOverAmount = reselect.createSelector(selectState$8, selectMyClaimForUri, selectClaimsByUri, ({ name }, myClaimForUri, claimsByUri) => {
   // We only care about the winning claim for the short uri
   const shortUri = buildURI({ contentName: name });
   const claimForShortUri = claimsByUri[shortUri];
@@ -4229,6 +4522,30 @@ const selectTakeOverAmount = reselect.createSelector(selectState$7, selectMyClai
   return null;
 });
 
+//      
+
+const selectState$9 = state => state.tags || {};
+
+const selectKnownTagsByName = reselect.createSelector(selectState$9, state => state.knownTags);
+
+const selectFollowedTagsList = reselect.createSelector(selectState$9, state => state.followedTags);
+
+const selectFollowedTags = reselect.createSelector(selectFollowedTagsList, followedTags => followedTags.map(tag => ({ name: tag })).sort((a, b) => a.name.localeCompare(b.name)));
+
+const selectUnfollowedTags = reselect.createSelector(selectKnownTagsByName, selectFollowedTagsList, (tagsByName, followedTags) => {
+  const followedTagsSet = new Set(followedTags);
+  let tagsToReturn = [];
+
+  Object.keys(tagsByName).forEach(key => {
+    if (!followedTagsSet.has(key)) {
+      const { name } = tagsByName[key];
+      tagsToReturn.push({ name });
+    }
+  });
+
+  return tagsToReturn;
+});
+
 exports.ACTIONS = action_types;
 exports.CLAIM_VALUES = claim;
 exports.LICENSES = licenses;
@@ -4243,17 +4560,23 @@ exports.TRANSACTIONS = transaction_types;
 exports.batchActions = batchActions;
 exports.buildURI = buildURI;
 exports.claimsReducer = claimsReducer;
+exports.commentReducer = commentReducer;
 exports.contentReducer = contentReducer;
 exports.convertToShareLink = convertToShareLink;
 exports.creditsToString = creditsToString;
 exports.doAbandonClaim = doAbandonClaim;
+exports.doAddTag = doAddTag;
 exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
 exports.doCheckPendingPublishes = doCheckPendingPublishes;
+exports.doClaimSearch = doClaimSearch;
 exports.doClearPublish = doClearPublish;
+exports.doCommentCreate = doCommentCreate;
+exports.doCommentList = doCommentList;
 exports.doCreateChannel = doCreateChannel;
 exports.doDeletePurchasedUri = doDeletePurchasedUri;
+exports.doDeleteTag = doDeleteTag;
 exports.doDismissError = doDismissError;
 exports.doDismissToast = doDismissToast;
 exports.doError = doError;
@@ -4281,6 +4604,7 @@ exports.doSetDraftTransactionAmount = doSetDraftTransactionAmount;
 exports.doSetFileListSort = doSetFileListSort;
 exports.doSetTransactionListFilter = doSetTransactionListFilter;
 exports.doToast = doToast;
+exports.doToggleTagFollow = doToggleTagFollow;
 exports.doTotalBalanceSubscribe = doTotalBalanceSubscribe;
 exports.doUpdateBalance = doUpdateBalance;
 exports.doUpdateBlockHeight = doUpdateBlockHeight;
@@ -4308,6 +4632,7 @@ exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
 exports.makeSelectClaimIsPending = makeSelectClaimIsPending;
 exports.makeSelectClaimsInChannelForCurrentPageState = makeSelectClaimsInChannelForCurrentPageState;
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
+exports.makeSelectCommentsForUri = makeSelectCommentsForUri;
 exports.makeSelectContentPositionForUri = makeSelectContentPositionForUri;
 exports.makeSelectContentTypeForUri = makeSelectContentTypeForUri;
 exports.makeSelectCoverForUri = makeSelectCoverForUri;
@@ -4327,6 +4652,7 @@ exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
 exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
 exports.makeSelectSearchUris = makeSelectSearchUris;
 exports.makeSelectStreamingUrlForUri = makeSelectStreamingUrlForUri;
+exports.makeSelectTagsForUri = makeSelectTagsForUri;
 exports.makeSelectThumbnailForUri = makeSelectThumbnailForUri;
 exports.makeSelectTitleForUri = makeSelectTitleForUri;
 exports.makeSelectTotalItemsForChannel = makeSelectTotalItemsForChannel;
@@ -4350,6 +4676,7 @@ exports.selectChannelClaimCounts = selectChannelClaimCounts;
 exports.selectClaimsById = selectClaimsById;
 exports.selectClaimsByUri = selectClaimsByUri;
 exports.selectCurrentChannelPage = selectCurrentChannelPage;
+exports.selectDownloadedUris = selectDownloadedUris;
 exports.selectDownloadingByOutpoint = selectDownloadingByOutpoint;
 exports.selectDownloadingFileInfos = selectDownloadingFileInfos;
 exports.selectDraftTransaction = selectDraftTransaction;
@@ -4358,11 +4685,13 @@ exports.selectDraftTransactionAmount = selectDraftTransactionAmount;
 exports.selectDraftTransactionError = selectDraftTransactionError;
 exports.selectError = selectError;
 exports.selectFailedPurchaseUris = selectFailedPurchaseUris;
+exports.selectFetchingClaimSearch = selectFetchingClaimSearch;
 exports.selectFetchingMyChannels = selectFetchingMyChannels;
 exports.selectFileInfosByOutpoint = selectFileInfosByOutpoint;
 exports.selectFileInfosDownloaded = selectFileInfosDownloaded;
 exports.selectFileListDownloadedSort = selectFileListDownloadedSort;
 exports.selectFileListPublishedSort = selectFileListPublishedSort;
+exports.selectFollowedTags = selectFollowedTags;
 exports.selectGettingNewAddress = selectGettingNewAddress;
 exports.selectHasTransactions = selectHasTransactions;
 exports.selectIsFetchingClaimListMine = selectIsFetchingClaimListMine;
@@ -4373,10 +4702,12 @@ exports.selectIsResolvingPublishUris = selectIsResolvingPublishUris;
 exports.selectIsSearching = selectIsSearching;
 exports.selectIsSendingSupport = selectIsSendingSupport;
 exports.selectIsStillEditing = selectIsStillEditing;
+exports.selectLastClaimSearchUris = selectLastClaimSearchUris;
 exports.selectLastPurchasedUri = selectLastPurchasedUri;
 exports.selectMyActiveClaims = selectMyActiveClaims;
 exports.selectMyChannelClaims = selectMyChannelClaims;
 exports.selectMyClaimForUri = selectMyClaimForUri;
+exports.selectMyClaimUrisWithoutChannels = selectMyClaimUrisWithoutChannels;
 exports.selectMyClaims = selectMyClaims;
 exports.selectMyClaimsOutpoints = selectMyClaimsOutpoints;
 exports.selectMyClaimsRaw = selectMyClaimsRaw;
@@ -4406,6 +4737,7 @@ exports.selectTotalDownloadProgress = selectTotalDownloadProgress;
 exports.selectTransactionItems = selectTransactionItems;
 exports.selectTransactionListFilter = selectTransactionListFilter;
 exports.selectTransactionsById = selectTransactionsById;
+exports.selectUnfollowedTags = selectUnfollowedTags;
 exports.selectUrisLoading = selectUrisLoading;
 exports.selectWalletDecryptPending = selectWalletDecryptPending;
 exports.selectWalletDecryptResult = selectWalletDecryptResult;
@@ -4419,5 +4751,6 @@ exports.selectWalletUnlockPending = selectWalletUnlockPending;
 exports.selectWalletUnlockResult = selectWalletUnlockResult;
 exports.selectWalletUnlockSucceeded = selectWalletUnlockSucceeded;
 exports.setSearchApi = setSearchApi;
+exports.tagsReducerBuilder = tagsReducerBuilder;
 exports.toQueryString = toQueryString;
 exports.walletReducer = walletReducer;

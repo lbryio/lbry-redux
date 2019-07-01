@@ -190,7 +190,12 @@ export const makeSelectDateForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
     claim => {
-      const timestamp = claim && claim.timestamp ? claim.timestamp * 1000 : undefined;
+      const timestamp =
+        claim &&
+        claim.value &&
+        (claim.value.release_time
+          ? claim.value.release_time * 1000
+          : claim.meta.creation_timestamp * 1000);
       if (!timestamp) {
         return undefined;
       }
@@ -252,6 +257,11 @@ export const selectMyClaims = createSelector(
 export const selectMyClaimsWithoutChannels = createSelector(
   selectMyClaims,
   myClaims => myClaims.filter(claim => !claim.name.match(/^@/))
+);
+
+export const selectMyClaimUrisWithoutChannels = createSelector(
+  selectMyClaimsWithoutChannels,
+  myClaims => myClaims.map(claim => `lbry://${claim.name}#${claim.claim_id}`)
 );
 
 export const selectAllMyClaimsByOutpoint = createSelector(
@@ -368,7 +378,7 @@ export const makeSelectClaimIsNsfw = (uri: string): boolean =>
     // Or possibly come from users settings of what tags they want to hide
     // For now, there is just a hard coded list of tags inside `isClaimNsfw`
     // selectNaughtyTags(),
-    (claim: StreamClaim) => {
+    (claim: Claim) => {
       if (!claim) {
         return false;
       }
@@ -428,3 +438,21 @@ export const makeSelectChannelForClaimUri = (uri: string, includePrefix: boolean
       return includePrefix ? `lbry://${channel}` : channel;
     }
   );
+
+export const makeSelectTagsForUri = (uri: string) =>
+  createSelector(
+    makeSelectMetadataForUri(uri),
+    (metadata: ?GenericMetadata) => {
+      return (metadata && metadata.tags) || [];
+    }
+  );
+
+export const selectFetchingClaimSearch = createSelector(
+  selectState,
+  state => state.fetchingClaimSearch
+);
+
+export const selectLastClaimSearchUris = createSelector(
+  selectState,
+  state => state.lastClaimSearchUris
+);

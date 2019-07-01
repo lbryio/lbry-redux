@@ -100,6 +100,9 @@ const Lbry: LbryTypes = {
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
 
+  // Comments
+  comment_list: (params = {}) => daemonCallWithResult('comment_list', params),
+  comment_create: (params = {}) => daemonCallWithResult('comment_create', params),
   // Connect to the sdk
   connect: () => {
     if (Lbry.connectPromise === null) {

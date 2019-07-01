@@ -49,6 +49,7 @@ export {
   doResolveUri,
   doFetchChannelListMine,
   doCreateChannel,
+  doClaimSearch,
 } from 'redux/actions/claims';
 
 export { doDeletePurchasedUri, doPurchaseUri, doFileGet } from 'redux/actions/file';
@@ -101,6 +102,10 @@ export {
   doUpdateBlockHeight,
 } from 'redux/actions/wallet';
 
+export { doToggleTagFollow, doAddTag, doDeleteTag } from 'redux/actions/tags';
+
+export { doCommentList, doCommentCreate } from 'redux/actions/comments';
+
 // utils
 export { batchActions } from 'util/batchActions';
 export { parseQueryParams, toQueryString } from 'util/query_params';
@@ -109,12 +114,14 @@ export { isClaimNsfw } from 'util/claim';
 
 // reducers
 export { claimsReducer } from 'redux/reducers/claims';
+export { commentReducer } from 'redux/reducers/comments';
 export { contentReducer } from 'redux/reducers/content';
-export { fileReducer } from 'redux/reducers/file';
 export { fileInfoReducer } from 'redux/reducers/file_info';
+export { fileReducer } from 'redux/reducers/file';
 export { notificationsReducer } from 'redux/reducers/notifications';
-export { searchReducer } from 'redux/reducers/search';
 export { publishReducer } from 'redux/reducers/publish';
+export { searchReducer } from 'redux/reducers/search';
+export { tagsReducerBuilder } from 'redux/reducers/tags';
 export { walletReducer } from 'redux/reducers/wallet';
 
 // selectors
@@ -142,6 +149,7 @@ export {
   makeSelectCoverForUri,
   makeSelectTitleForUri,
   makeSelectDateForUri,
+  makeSelectTagsForUri,
   makeSelectContentTypeForUri,
   makeSelectIsUriResolving,
   makeSelectTotalItemsForChannel,
@@ -167,6 +175,7 @@ export {
   selectPendingClaims,
   selectMyClaims,
   selectMyClaimsWithoutChannels,
+  selectMyClaimUrisWithoutChannels,
   selectAllMyClaimsByOutpoint,
   selectMyClaimsOutpoints,
   selectFetchingMyChannels,
@@ -175,7 +184,11 @@ export {
   selectPlayingUri,
   selectChannelClaimCounts,
   selectCurrentChannelPage,
+  selectFetchingClaimSearch,
+  selectLastClaimSearchUris,
 } from 'redux/selectors/claims';
+
+export { makeSelectCommentsForUri } from 'redux/selectors/comments';
 
 export {
   makeSelectFileInfoForUri,
@@ -192,6 +205,7 @@ export {
   selectSearchDownloadUris,
   selectFileListDownloadedSort,
   selectFileListPublishedSort,
+  selectDownloadedUris,
 } from 'redux/selectors/file_info';
 
 export {
@@ -244,3 +258,5 @@ export {
   selectWalletUnlockResult,
   selectTransactionListFilter,
 } from 'redux/selectors/wallet';
+
+export { selectFollowedTags, selectUnfollowedTags } from 'redux/selectors/tags';
