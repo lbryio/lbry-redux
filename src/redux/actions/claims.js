@@ -248,6 +248,40 @@ export function doCreateChannel(name: string, amount: number) {
   };
 }
 
+export function doUpdateChannel(params: any) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.UPDATE_CHANNEL_STARTED,
+    });
+    const updateParams = {
+      claim_id: params.claim_id,
+      bid: creditsToString(params.amount),
+      title: params.title,
+      cover_url: params.cover,
+      thumbnail_url: params.thumbnail,
+      description: params.description,
+      website_url: params.website,
+      email: params.email,
+      replace: true,
+    };
+
+    return Lbry.channel_update(updateParams)
+      .then((result: ChannelCreateResponse) => {
+        const channelClaim = result.outputs[0];
+        dispatch({
+          type: ACTIONS.UPDATE_CHANNEL_COMPLETED,
+          data: { channelClaim },
+        });
+      })
+      .catch(error => {
+        dispatch({
+          type: ACTIONS.UPDATE_CHANNEL_FAILED,
+          data: error,
+        });
+      });
+  };
+}
+
 export function doFetchChannelListMine() {
   return (dispatch: Dispatch) => {
     dispatch({

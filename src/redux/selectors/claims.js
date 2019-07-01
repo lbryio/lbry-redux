@@ -204,6 +204,14 @@ export const makeSelectDateForUri = (uri: string) =>
     }
   );
 
+export const makeSelectAmountForUri = (uri: string) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    claim => {
+      return claim && claim.amount;
+    }
+  );
+
 export const makeSelectContentTypeForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
