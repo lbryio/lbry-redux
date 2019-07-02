@@ -1,9 +1,7 @@
 // @flow
+import { MATURE_TAGS } from 'constants/tags';
 
-const naughtyTags = ['porn', 'nsfw', 'mature', 'xxx'].reduce(
-  (acc, tag) => ({ ...acc, [tag]: true }),
-  {}
-);
+const matureTagMap = MATURE_TAGS.reduce((acc, tag) => ({ ...acc, [tag]: true }), {});
 
 export const isClaimNsfw = (claim: Claim): boolean => {
   if (!claim) {
@@ -17,7 +15,7 @@ export const isClaimNsfw = (claim: Claim): boolean => {
   const tags = claim.value.tags || [];
   for (let i = 0; i < tags.length; i += 1) {
     const tag = tags[i].toLowerCase();
-    if (naughtyTags[tag]) {
+    if (matureTagMap[tag]) {
       return true;
     }
   }

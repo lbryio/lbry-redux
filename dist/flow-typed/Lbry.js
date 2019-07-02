@@ -103,7 +103,7 @@ declare type ChannelCreateResponse = GenericTxResponse & {
   outputs: Array<ChannelClaim>,
 };
 
-declare type UpdateChannelResponse = GenericTxResponse & {
+declare type ChannelUpdateResponse = GenericTxResponse & {
   outputs: Array<ChannelClaim>,
 };
 
@@ -178,7 +178,7 @@ declare type LbryTypes = {
   claim_search: (params: {}) => Promise<ClaimSearchResponse>,
   claim_list: (params?: {}) => Promise<ClaimListResponse>,
   channel_create: (params: {}) => Promise<ChannelCreateResponse>,
-  channel_update: (params: {}) => Promise<UpdateChannelResponse>,
+  channel_update: (params: {}) => Promise<ChannelUpdateResponse>,
   channel_list: () => Promise<ChannelListResponse>,
   stream_abandon: (params: {}) => Promise<GenericTxResponse>,
   channel_abandon: (params: {}) => Promise<GenericTxResponse>,
