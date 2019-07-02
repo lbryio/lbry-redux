@@ -257,6 +257,17 @@ reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State 
   });
 };
 
+reducers[ACTIONS.UPDATE_CHANNEL_COMPLETED] = (state: State, action: any): State => {
+  const channelClaim: ChannelClaim = action.data.channelClaim;
+  const byId = Object.assign({}, state.byId);
+
+  byId[channelClaim.claim_id] = channelClaim;
+
+  return Object.assign({}, state, {
+    byId,
+  });
+};
+
 reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state: State, action: any): State => {
   const { uris }: { uris: Array<string> } = action.data;
 

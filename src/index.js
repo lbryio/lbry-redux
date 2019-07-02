@@ -49,6 +49,7 @@ export {
   doResolveUri,
   doFetchChannelListMine,
   doCreateChannel,
+  doUpdateChannel,
   doClaimSearch,
 } from 'redux/actions/claims';
 
@@ -149,6 +150,7 @@ export {
   makeSelectCoverForUri,
   makeSelectTitleForUri,
   makeSelectDateForUri,
+  makeSelectAmountForUri,
   makeSelectTagsForUri,
   makeSelectContentTypeForUri,
   makeSelectIsUriResolving,

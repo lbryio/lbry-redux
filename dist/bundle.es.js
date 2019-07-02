@@ -103,6 +103,9 @@ const FETCH_CHANNEL_LIST_COMPLETED = 'FETCH_CHANNEL_LIST_COMPLETED';
 const CREATE_CHANNEL_STARTED = 'CREATE_CHANNEL_STARTED';
 const CREATE_CHANNEL_COMPLETED = 'CREATE_CHANNEL_COMPLETED';
 const CREATE_CHANNEL_FAILED = 'CREATE_CHANNEL_FAILED';
+const UPDATE_CHANNEL_STARTED = 'UPDATE_CHANNEL_STARTED';
+const UPDATE_CHANNEL_COMPLETED = 'UPDATE_CHANNEL_COMPLETED';
+const UPDATE_CHANNEL_FAILED = 'UPDATE_CHANNEL_FAILED';
 const PUBLISH_STARTED = 'PUBLISH_STARTED';
 const PUBLISH_COMPLETED = 'PUBLISH_COMPLETED';
 const PUBLISH_FAILED = 'PUBLISH_FAILED';
@@ -328,6 +331,9 @@ var action_types = /*#__PURE__*/Object.freeze({
   CREATE_CHANNEL_STARTED: CREATE_CHANNEL_STARTED,
   CREATE_CHANNEL_COMPLETED: CREATE_CHANNEL_COMPLETED,
   CREATE_CHANNEL_FAILED: CREATE_CHANNEL_FAILED,
+  UPDATE_CHANNEL_STARTED: UPDATE_CHANNEL_STARTED,
+  UPDATE_CHANNEL_COMPLETED: UPDATE_CHANNEL_COMPLETED,
+  UPDATE_CHANNEL_FAILED: UPDATE_CHANNEL_FAILED,
   PUBLISH_STARTED: PUBLISH_STARTED,
   PUBLISH_COMPLETED: PUBLISH_COMPLETED,
   PUBLISH_FAILED: PUBLISH_FAILED,
@@ -707,6 +713,7 @@ const Lbry = {
   claim_search: params => daemonCallWithResult('claim_search', params),
   claim_list: params => daemonCallWithResult('claim_list', params),
   channel_create: params => daemonCallWithResult('channel_create', params),
+  channel_update: params => daemonCallWithResult('channel_update', params),
   channel_list: params => daemonCallWithResult('channel_list', params),
   stream_abandon: params => daemonCallWithResult('stream_abandon', params),
   channel_abandon: params => daemonCallWithResult('channel_abandon', params),
@@ -1332,6 +1339,10 @@ const makeSelectDateForUri = uri => reselect.createSelector(makeSelectClaimForUr
   }
   const dateObj = new Date(timestamp);
   return dateObj;
+});
+
+const makeSelectAmountForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+  return claim && claim.amount;
 });
 
 const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
@@ -2223,6 +2234,38 @@ function doCreateChannel(name, amount) {
     }).catch(error => {
       dispatch({
         type: CREATE_CHANNEL_FAILED,
+        data: error
+      });
+    });
+  };
+}
+
+function doUpdateChannel(params) {
+  return dispatch => {
+    dispatch({
+      type: UPDATE_CHANNEL_STARTED
+    });
+    const updateParams = {
+      claim_id: params.claim_id,
+      bid: creditsToString(params.amount),
+      title: params.title,
+      cover_url: params.cover,
+      thumbnail_url: params.thumbnail,
+      description: params.description,
+      website_url: params.website,
+      email: params.email,
+      replace: true
+    };
+
+    return lbryProxy.channel_update(updateParams).then(result => {
+      const channelClaim = result.outputs[0];
+      dispatch({
+        type: UPDATE_CHANNEL_COMPLETED,
+        data: { channelClaim }
+      });
+    }).catch(error => {
+      dispatch({
+        type: UPDATE_CHANNEL_FAILED,
         data: error
       });
     });
@@ -3476,6 +3519,17 @@ reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
   });
 };
 
+reducers[UPDATE_CHANNEL_COMPLETED] = (state, action) => {
+  const channelClaim = action.data.channelClaim;
+  const byId = Object.assign({}, state.byId);
+
+  byId[channelClaim.claim_id] = channelClaim;
+
+  return Object.assign({}, state, {
+    byId
+  });
+};
+
 reducers[RESOLVE_URIS_STARTED] = (state, action) => {
   const { uris } = action.data;
 
@@ -4619,6 +4673,7 @@ exports.doToggleTagFollow = doToggleTagFollow;
 exports.doTotalBalanceSubscribe = doTotalBalanceSubscribe;
 exports.doUpdateBalance = doUpdateBalance;
 exports.doUpdateBlockHeight = doUpdateBlockHeight;
+exports.doUpdateChannel = doUpdateChannel;
 exports.doUpdatePublishForm = doUpdatePublishForm;
 exports.doUpdateSearchOptions = doUpdateSearchOptions;
 exports.doUpdateSearchQuery = doUpdateSearchQuery;
@@ -4636,6 +4691,7 @@ exports.isClaimNsfw = isClaimNsfw;
 exports.isNameValid = isNameValid;
 exports.isURIClaimable = isURIClaimable;
 exports.isURIValid = isURIValid;
+exports.makeSelectAmountForUri = makeSelectAmountForUri;
 exports.makeSelectChannelForClaimUri = makeSelectChannelForClaimUri;
 exports.makeSelectClaimForUri = makeSelectClaimForUri;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;

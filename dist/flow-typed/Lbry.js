@@ -65,9 +65,7 @@ declare type VersionResponse = {
 
 declare type ResolveResponse = {
   // Keys are the url(s) passed to resolve
-  [string]:
-    | Claim
-    | { error?: {} },
+  [string]: Claim | { error?: {} },
 };
 
 declare type GetResponse = FileListItem;
@@ -102,6 +100,10 @@ declare type ClaimListResponse = {
 };
 
 declare type ChannelCreateResponse = GenericTxResponse & {
+  outputs: Array<ChannelClaim>,
+};
+
+declare type UpdateChannelResponse = GenericTxResponse & {
   outputs: Array<ChannelClaim>,
 };
 
@@ -157,10 +159,10 @@ declare type LbryTypes = {
   connectPromise: ?Promise<any>,
   connect: () => void,
   daemonConnectionString: string,
-  apiRequestHeaders: {[key: string]: string},
+  apiRequestHeaders: { [key: string]: string },
   setDaemonConnectionString: string => void,
   setApiHeader: (string, string) => void,
-  unsetApiHeader: (string) => void,
+  unsetApiHeader: string => void,
   overrides: { [string]: ?Function },
   setOverride: (string, Function) => void,
   getMediaType: (string, ?string) => string,
@@ -176,6 +178,7 @@ declare type LbryTypes = {
   claim_search: (params: {}) => Promise<ClaimSearchResponse>,
   claim_list: (params?: {}) => Promise<ClaimListResponse>,
   channel_create: (params: {}) => Promise<ChannelCreateResponse>,
+  channel_update: (params: {}) => Promise<UpdateChannelResponse>,
   channel_list: () => Promise<ChannelListResponse>,
   stream_abandon: (params: {}) => Promise<GenericTxResponse>,
   channel_abandon: (params: {}) => Promise<GenericTxResponse>,
