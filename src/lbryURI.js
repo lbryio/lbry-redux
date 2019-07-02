@@ -44,14 +44,12 @@ export function parseURI(URI, requireProto = false) {
 
   // Validate protocol
   if (requireProto && !proto) {
-    console.error(__('LBRY URIs must include a protocol prefix (lbry://).'));
-    return {};
+    throw new Error(__('LBRY URIs must include a protocol prefix (lbry://).'));
   }
 
   // Validate and process name
   if (!claimName) {
-    console.error(__('URI does not include name.'));
-    return {};
+    throw new Error(__('URI does not include name.'));
   }
 
   const isChannel = claimName.startsWith('@');
@@ -59,13 +57,11 @@ export function parseURI(URI, requireProto = false) {
 
   if (isChannel) {
     if (!channelName) {
-      console.error(__('No channel name after @.'));
-      return {};
+      throw new Error(__('No channel name after @.'));
     }
 
     if (channelName.length < channelNameMinLength) {
-      console.error(__(`Channel names must be at least %s characters.`, channelNameMinLength));
-      return {};
+      throw new Error(__(`Channel names must be at least %s characters.`, channelNameMinLength));
     }
 
     contentName = path;
@@ -73,14 +69,13 @@ export function parseURI(URI, requireProto = false) {
 
   const nameBadChars = (channelName || claimName).match(regexInvalidURI);
   if (nameBadChars) {
-    console.error(
+    throw new Error(
       __(
         `Invalid character %s in name: %s.`,
         nameBadChars.length === 1 ? '' : 's',
         nameBadChars.join(', ')
       )
     );
-    return {};
   }
 
   // Validate and process modifier (claim ID, bid position or claim sequence)
@@ -89,8 +84,7 @@ export function parseURI(URI, requireProto = false) {
   let bidPosition;
   if (modSep) {
     if (!modVal) {
-      console.error(__(`No modifier provided after separator %s.`, modSep));
-      return {};
+      throw new Error(__(`No modifier provided after separator %s.`, modSep));
     }
 
     if (modSep === '#') {
@@ -103,37 +97,31 @@ export function parseURI(URI, requireProto = false) {
   }
 
   if (claimId && (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/))) {
-    console.error(__(`Invalid claim ID %s.`, claimId));
-    return {};
+    throw new Error(__(`Invalid claim ID %s.`, claimId));
   }
 
   if (claimSequence && !claimSequence.match(/^-?[1-9][0-9]*$/)) {
-    console.error(__('Claim sequence must be a number.'));
-    return {};
+    throw new Error(__('Claim sequence must be a number.'));
   }
 
   if (bidPosition && !bidPosition.match(/^-?[1-9][0-9]*$/)) {
-    console.error(__('Bid position must be a number.'));
-    return {};
+    throw new Error(__('Bid position must be a number.'));
   }
 
   // Validate and process path
   if (path) {
     if (!isChannel) {
-      console.error(__('Only channel URIs may have a path.'));
-      return {};
+      throw new Error(__('Only channel URIs may have a path.'));
     }
 
     const pathBadChars = path.match(regexInvalidURI);
     if (pathBadChars) {
-      console.error(__(`Invalid character in path: %s`, pathBadChars.join(', ')));
-      return {};
+      throw new Error(__(`Invalid character in path: %s`, pathBadChars.join(', ')));
     }
 
     contentName = path;
   } else if (pathSep) {
-    console.error(__('No path provided after /'));
-    return {};
+    throw new Error(__('No path provided after /'));
   }
 
   return {

@@ -236,5 +236,5 @@ export const selectDownloadedUris = createSelector(
     info
       .slice()
       .reverse()
-      .map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`)
+      .map(claim => console.log(claim) || `lbry://${claim.claim_name}#${claim.claim_id}`)
 );

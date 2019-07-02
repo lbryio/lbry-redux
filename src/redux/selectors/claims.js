@@ -264,7 +264,7 @@ export const selectMyClaimUrisWithoutChannels = createSelector(
   selectMyClaimsWithoutChannels,
   myClaims =>
     myClaims
-      .sort((a, b) => a.confirmations - b.confirmations)
+      .sort((a, b) => b.timestamp - a.timestamp)
       .map(claim => `lbry://${claim.name}#${claim.claim_id}`)
 );
 
