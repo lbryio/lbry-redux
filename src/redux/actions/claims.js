@@ -266,7 +266,7 @@ export function doUpdateChannel(params: any) {
     };
 
     return Lbry.channel_update(updateParams)
-      .then((result: ChannelCreateResponse) => {
+      .then((result: ChannelUpdateResponse) => {
         const channelClaim = result.outputs[0];
         dispatch({
           type: ACTIONS.UPDATE_CHANNEL_COMPLETED,
