@@ -1363,9 +1363,9 @@ const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaim
   return [...claims, ...pendingClaims];
 });
 
-const selectMyClaimsWithoutChannels = reselect.createSelector(selectMyClaims, myClaims => myClaims.filter(claim => !claim.name.match(/^@/)));
+const selectMyClaimsWithoutChannels = reselect.createSelector(selectMyClaims, myClaims => myClaims.filter(claim => !claim.name.match(/^@/)).sort((a, b) => a.timestamp - b.timestamp));
 
-const selectMyClaimUrisWithoutChannels = reselect.createSelector(selectMyClaimsWithoutChannels, myClaims => myClaims.map(claim => `lbry://${claim.name}#${claim.claim_id}`));
+const selectMyClaimUrisWithoutChannels = reselect.createSelector(selectMyClaimsWithoutChannels, myClaims => myClaims.sort((a, b) => b.timestamp - a.timestamp).map(claim => `lbry://${claim.name}#${claim.claim_id}`));
 
 const selectAllMyClaimsByOutpoint = reselect.createSelector(selectMyClaimsRaw, claims => new Set(claims && claims.length ? claims.map(claim => `${claim.txid}:${claim.nout}`) : null));
 
@@ -2262,7 +2262,7 @@ function doClaimSearch(amount = 20, options = {}) {
 
       dispatch({
         type: CLAIM_SEARCH_COMPLETED,
-        data: { resolveInfo, uris }
+        data: { resolveInfo, uris, append: options.page && options.page !== 1 }
       });
     };
 
@@ -2444,7 +2444,7 @@ const selectFileListDownloadedSort = reselect.createSelector(selectState$3, stat
 
 const selectDownloadedUris = reselect.createSelector(selectFileInfosDownloaded,
 // We should use permament_url but it doesn't exist in file_list
-info => info.map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`));
+info => info.slice().reverse().map(claim => console.log(claim) || `lbry://${claim.claim_name}#${claim.claim_id}`));
 
 //      
 
@@ -3112,12 +3112,14 @@ from, isBackgroundSearch = false) => (dispatch, getState) => {
     const actions = [];
 
     data.forEach(result => {
-      const uri = buildURI({
-        claimName: result.name,
-        claimId: result.claimId
-      });
-      actions.push(doResolveUri(uri));
-      uris.push(uri);
+      if (result.name) {
+        const uri = buildURI({
+          claimName: result.name,
+          claimId: result.claimId
+        });
+        actions.push(doResolveUri(uri));
+        uris.push(uri);
+      }
     });
 
     actions.push({
@@ -3128,7 +3130,7 @@ from, isBackgroundSearch = false) => (dispatch, getState) => {
       }
     });
     dispatch(batchActions(...actions));
-  }).catch(() => {
+  }).catch(e => {
     dispatch({
       type: SEARCH_FAIL
     });
@@ -3497,9 +3499,18 @@ reducers[CLAIM_SEARCH_STARTED] = state => {
   });
 };
 reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
+  const { lastClaimSearchUris } = state;
+
+  let newClaimSearchUris = [];
+  if (action.data.append) {
+    newClaimSearchUris = lastClaimSearchUris.concat(action.data.uris);
+  } else {
+    newClaimSearchUris = action.data.uris;
+  }
+
   return _extends$5({}, handleClaimAction(state, action), {
     fetchingClaimSearch: false,
-    lastClaimSearchUris: action.data.uris
+    lastClaimSearchUris: newClaimSearchUris
   });
 };
 reducers[CLAIM_SEARCH_FAILED] = state => {
