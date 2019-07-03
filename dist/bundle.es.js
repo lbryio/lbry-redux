@@ -1337,7 +1337,7 @@ const makeSelectMetadataItemForUri = (uri, key) => reselect.createSelector(makeS
 const makeSelectTitleForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => metadata && metadata.title);
 
 const makeSelectDateForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
-  const timestamp = claim && claim.value && (claim.value.release_time ? claim.value.release_time * 1000 : claim.meta.creation_timestamp * 1000);
+  const timestamp = claim && claim.value && (claim.value.release_time ? claim.value.release_time * 1000 : claim.meta.creation_timestamp ? claim.meta.creation_timestamp * 1000 : null);
   if (!timestamp) {
     return undefined;
   }
