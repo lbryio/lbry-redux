@@ -195,7 +195,7 @@ export const makeSelectDateForUri = (uri: string) =>
         claim.value &&
         (claim.value.release_time
           ? claim.value.release_time * 1000
-          : claim.meta.creation_timestamp * 1000);
+          : (claim.meta.creation_timestamp ? claim.meta.creation_timestamp * 1000 : null));
       if (!timestamp) {
         return undefined;
       }
