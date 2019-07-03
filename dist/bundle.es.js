@@ -645,6 +645,12 @@ const SEARCH_OPTIONS = {
   MEDIA_APPLICATION: 'application'
 };
 
+const DEFAULT_FOLLOWED_TAGS = ['blockchain', 'news', 'learning', 'technology', 'automotive', 'economics', 'food', 'science', 'art', 'nature'];
+
+const MATURE_TAGS = ['porn', 'nsfw', 'mature', 'xxx'];
+
+const DEFAULT_KNOWN_TAGS = ['beliefs', 'funny', 'gaming', 'pop culture', 'music', 'sports', 'weapons'];
+
 //      
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
@@ -1208,9 +1214,7 @@ function doDismissError() {
 
 var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-//      
-
-const naughtyTags = ['porn', 'nsfw', 'mature', 'xxx'].reduce((acc, tag) => _extends$2({}, acc, { [tag]: true }), {});
+const matureTagMap = MATURE_TAGS.reduce((acc, tag) => _extends$2({}, acc, { [tag]: true }), {});
 
 const isClaimNsfw = claim => {
   if (!claim) {
@@ -1224,7 +1228,7 @@ const isClaimNsfw = claim => {
   const tags = claim.value.tags || [];
   for (let i = 0; i < tags.length; i += 1) {
     const tag = tags[i].toLowerCase();
-    if (naughtyTags[tag]) {
+    if (matureTagMap[tag]) {
       return true;
     }
   }
@@ -4152,7 +4156,18 @@ const searchReducer = handleActions({
 
 var _extends$d = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const tagsReducerBuilder = defaultState => handleActions({
+function getDefaultKnownTags() {
+  return DEFAULT_FOLLOWED_TAGS.concat(DEFAULT_KNOWN_TAGS).reduce((tagsMap, tag) => _extends$d({}, tagsMap, {
+    [tag]: { name: tag }
+  }), {});
+}
+
+const defaultState$8 = {
+  followedTags: DEFAULT_FOLLOWED_TAGS,
+  knownTags: getDefaultKnownTags()
+};
+
+const tagsReducer = handleActions({
   [TOGGLE_TAG_FOLLOW]: (state, action) => {
     const { followedTags } = state;
     const { name } = action.data;
@@ -4195,7 +4210,7 @@ const tagsReducerBuilder = defaultState => handleActions({
       followedTags: newFollowedTags
     });
   }
-}, defaultState);
+}, defaultState$8);
 
 var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -4208,7 +4223,7 @@ const buildDraftTransaction = () => ({
 // See details in https://github.com/lbryio/lbry/issues/1307
 
 
-const defaultState$8 = {
+const defaultState$9 = {
   balance: undefined,
   totalBalance: undefined,
   latestBlock: undefined,
@@ -4451,7 +4466,7 @@ const walletReducer = handleActions({
   [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$e({}, state, {
     latestBlock: action.data
   })
-}, defaultState$8);
+}, defaultState$9);
 
 const selectState$5 = state => state.content || {};
 
@@ -4613,8 +4628,11 @@ const selectUnfollowedTags = reselect.createSelector(selectKnownTagsByName, sele
 
 exports.ACTIONS = action_types;
 exports.CLAIM_VALUES = claim;
+exports.DEFAULT_FOLLOWED_TAGS = DEFAULT_FOLLOWED_TAGS;
+exports.DEFAULT_KNOWN_TAGS = DEFAULT_KNOWN_TAGS;
 exports.LICENSES = licenses;
 exports.Lbry = lbryProxy;
+exports.MATURE_TAGS = MATURE_TAGS;
 exports.PAGES = pages;
 exports.SEARCH_OPTIONS = SEARCH_OPTIONS;
 exports.SEARCH_TYPES = SEARCH_TYPES;
@@ -4818,6 +4836,6 @@ exports.selectWalletUnlockPending = selectWalletUnlockPending;
 exports.selectWalletUnlockResult = selectWalletUnlockResult;
 exports.selectWalletUnlockSucceeded = selectWalletUnlockSucceeded;
 exports.setSearchApi = setSearchApi;
-exports.tagsReducerBuilder = tagsReducerBuilder;
+exports.tagsReducer = tagsReducer;
 exports.toQueryString = toQueryString;
 exports.walletReducer = walletReducer;

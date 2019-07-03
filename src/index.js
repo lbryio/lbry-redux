@@ -7,6 +7,7 @@ import * as SORT_OPTIONS from 'constants/sort_options';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import * as TRANSACTIONS from 'constants/transaction_types';
 import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
+import { DEFAULT_KNOWN_TAGS, DEFAULT_FOLLOWED_TAGS, MATURE_TAGS } from 'constants/tags';
 import Lbry from 'lbry';
 import { selectState as selectSearchState } from 'redux/selectors/search';
 
@@ -22,6 +23,9 @@ export {
   TRANSACTIONS,
   SORT_OPTIONS,
   PAGES,
+  DEFAULT_KNOWN_TAGS,
+  DEFAULT_FOLLOWED_TAGS,
+  MATURE_TAGS,
 };
 
 // common
@@ -69,7 +73,7 @@ export {
   doUploadThumbnail,
   doPrepareEdit,
   doPublish,
-  doCheckPendingPublishes
+  doCheckPendingPublishes,
 } from 'redux/actions/publish';
 
 export {
@@ -122,7 +126,7 @@ export { fileReducer } from 'redux/reducers/file';
 export { notificationsReducer } from 'redux/reducers/notifications';
 export { publishReducer } from 'redux/reducers/publish';
 export { searchReducer } from 'redux/reducers/search';
-export { tagsReducerBuilder } from 'redux/reducers/tags';
+export { tagsReducer } from 'redux/reducers/tags';
 export { walletReducer } from 'redux/reducers/wallet';
 
 // selectors
