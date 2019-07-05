@@ -17,7 +17,7 @@ declare type UpdatePublishFormData = {
   channelId?: string,
   name?: string,
   nameError?: string,
-  bid?: number,
+  bid?: string,
   bidError?: string,
   otherLicenseDescription?: string,
   licenseUrl?: string,
@@ -25,7 +25,7 @@ declare type UpdatePublishFormData = {
   uri?: string,
   nsfw: boolean,
 };
-
+// This was only used when we were passing params instead of selecting them
 declare type PublishParams = {
   name: ?string,
   bid: ?number,

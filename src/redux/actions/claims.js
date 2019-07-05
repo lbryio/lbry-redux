@@ -1,7 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
-import { normalizeURI, parseURI } from 'lbryURI';
+import { normalizeURI } from 'lbryURI';
 import { doToast } from 'redux/actions/notifications';
 import { selectMyClaimsRaw, selectResolvingUris, selectClaimsByUri } from 'redux/selectors/claims';
 import { doFetchTransactions } from 'redux/actions/wallet';
@@ -348,7 +348,11 @@ export function doClaimSearch(options: { page_size?: number, page?: number } = {
 }
 
 // tags can be one or many (comma separated)
-export function doClaimSearchByTags(tags: Array<string>, amount: number = 10, options: { page?: number } = {}) {
+export function doClaimSearchByTags(
+  tags: Array<string>,
+  amount: number = 10,
+  options: { page?: number } = {}
+) {
   return (dispatch: Dispatch) => {
     const tagList = createNormalizedTagKey(tags);
     dispatch({

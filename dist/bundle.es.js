@@ -7,6 +7,8 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('proxy-polyfill');
 var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
+var fs = _interopDefault(require('fs'));
+var path = _interopDefault(require('path'));
 
 const MINIMUM_PUBLISH_BID = 0.00000001;
 
@@ -2082,14 +2084,6 @@ function doUpdateBlockHeight() {
   });
 }
 
-// https://github.com/reactjs/redux/issues/911
-function batchActions(...actions) {
-  return {
-    type: 'BATCH_ACTIONS',
-    actions
-  };
-}
-
 var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function doResolveUris(uris, returnCachedClaims = false) {
@@ -2786,18 +2780,90 @@ function doSetFileListSort(page, value) {
   };
 }
 
-//      
+// https://github.com/reactjs/redux/issues/911
+function batchActions(...actions) {
+  return {
+    type: 'BATCH_ACTIONS',
+    actions
+  };
+}
 
-const formatLbryUriForWeb = uri => {
-  const { claimName, claimId } = parseURI(uri);
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-  let webUrl = `/${claimName}`;
-  if (claimId) {
-    webUrl += `/${claimId}`;
+const selectState$5 = state => state.publish || {};
+
+const selectPublishFormValues = reselect.createSelector(selectState$5, state => {
+  const formValues = _objectWithoutProperties(state, ['pendingPublish']);
+  return formValues;
+});
+const makeSelectPublishFormValue = item => reselect.createSelector(selectState$5, state => state[item]);
+
+// Is the current uri the same as the uri they clicked "edit" on
+const selectIsStillEditing = reselect.createSelector(selectPublishFormValues, publishState => {
+  const { editingURI, uri } = publishState;
+
+  if (!editingURI || !uri) {
+    return false;
   }
 
-  return webUrl;
-};
+  const { isChannel: currentIsChannel, claimName: currentClaimName, contentName: currentContentName } = parseURI(uri);
+  const { isChannel: editIsChannel, claimName: editClaimName, contentName: editContentName } = parseURI(editingURI);
+
+  // Depending on the previous/current use of a channel, we need to compare different things
+  // ex: going from a channel to anonymous, the new uri won't return contentName, so we need to use claimName
+  const currentName = currentIsChannel ? currentContentName : currentClaimName;
+  const editName = editIsChannel ? editContentName : editClaimName;
+  return currentName === editName;
+});
+
+const selectMyClaimForUri = reselect.createSelector(selectPublishFormValues, selectIsStillEditing, selectClaimsById, selectMyClaimsWithoutChannels, ({ editingURI, uri }, isStillEditing, claimsById, myClaims) => {
+  const { contentName, claimName } = parseURI(uri);
+  const { claimId: editClaimId } = parseURI(editingURI);
+
+  // If isStillEditing
+  // They clicked "edit" from the file page
+  // They haven't changed the channel/name after clicking edit
+  // Get the claim so they can edit without re-uploading a new file
+  return isStillEditing ? claimsById[editClaimId] : myClaims.find(claim => !contentName ? claim.name === claimName : claim.name === contentName || claim.name === claimName);
+});
+
+const selectIsResolvingPublishUris = reselect.createSelector(selectState$5, selectResolvingUris, ({ uri, name }, resolvingUris) => {
+  if (uri) {
+    const isResolvingUri = resolvingUris.includes(uri);
+    const { isChannel } = parseURI(uri);
+
+    let isResolvingShortUri;
+    if (isChannel) {
+      const shortUri = buildURI({ contentName: name });
+      isResolvingShortUri = resolvingUris.includes(shortUri);
+    }
+
+    return isResolvingUri || isResolvingShortUri;
+  }
+
+  return false;
+});
+
+const selectTakeOverAmount = reselect.createSelector(selectState$5, selectMyClaimForUri, selectClaimsByUri, ({ name }, myClaimForUri, claimsByUri) => {
+  // We only care about the winning claim for the short uri
+  const shortUri = buildURI({ contentName: name });
+  const claimForShortUri = claimsByUri[shortUri];
+
+  if (!myClaimForUri && claimForShortUri) {
+    return claimForShortUri.effective_amount;
+  } else if (myClaimForUri && claimForShortUri) {
+    // https://github.com/lbryio/lbry/issues/1476
+    // We should check the current effective_amount on my claim to see how much additional lbc
+    // is needed to win the claim. Currently this is not possible during a takeover.
+    // With this, we could say something like, "You have x lbc in support, if you bid y additional LBC you will control the claim"
+    // For now just ignore supports. We will just show the winning claim's bid amount
+    return claimForShortUri.effective_amount || claimForShortUri.amount;
+  }
+
+  return null;
+});
+
+//
 
 var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -2875,6 +2941,7 @@ const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter) => dispatch => 
       const data = new FormData();
       const name = makeid();
       data.append('name', name);
+      // $FlowFixMe
       data.append('file', { uri: 'file://' + filePath, type: fileType, name: fileName });
 
       return fetch('https://spee.ch/api/claim/publish', {
@@ -2923,15 +2990,15 @@ const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter) => dispatch => 
 };
 
 const doPrepareEdit = (claim, uri, fileInfo) => dispatch => {
-  const { name, amount, channel_name: channelName, value } = claim;
-
+  const { name, amount, value } = claim;
+  const channelName = claim && claim.signing_channel && claim.signing_channel.normalized_name || null;
   const {
     author,
     description,
     // use same values as default state
     // fee will be undefined for free content
     fee = {
-      amount: 0,
+      amount: '0',
       currency: 'LBC'
     },
     languages,
@@ -2943,7 +3010,6 @@ const doPrepareEdit = (claim, uri, fileInfo) => dispatch => {
 
   const publishData = {
     name,
-    channel: channelName,
     bid: amount,
     contentIsFree: !fee.amount,
     author,
@@ -2973,6 +3039,9 @@ const doPrepareEdit = (claim, uri, fileInfo) => dispatch => {
   } else {
     publishData.licenseType = license;
   }
+  if (channelName) {
+    publishData['channel'] = channelName;
+  }
 
   if (fileInfo && fileInfo.download_path) {
     try {
@@ -2986,13 +3055,17 @@ const doPrepareEdit = (claim, uri, fileInfo) => dispatch => {
   dispatch({ type: DO_PREPARE_EDIT, data: publishData });
 };
 
-const doPublish = params => (dispatch, getState) => {
+const doPublish = (success, fail) => (dispatch, getState) => {
   dispatch({ type: PUBLISH_START });
 
   const state = getState();
+  const myClaimForUri = selectMyClaimForUri(state);
   const myChannels = selectMyChannelClaims(state);
   const myClaims = selectMyClaimsWithoutChannels(state);
+  // get redux publish form
+  const publishData = selectPublishFormValues(state);
 
+  // destructure the data values
   const {
     name,
     bid,
@@ -3001,6 +3074,8 @@ const doPublish = params => (dispatch, getState) => {
     language,
     license,
     licenseUrl,
+    licenseType,
+    otherLicenseDescription,
     thumbnail,
     channel,
     title,
@@ -3008,8 +3083,20 @@ const doPublish = params => (dispatch, getState) => {
     fee,
     uri,
     nsfw,
-    claim
-  } = params;
+    // claim,
+    tags,
+    locations
+  } = publishData;
+
+  let publishingLicense;
+  switch (licenseType) {
+    case COPYRIGHT:
+    case OTHER:
+      publishingLicense = otherLicenseDescription;
+      break;
+    default:
+      publishingLicense = licenseType;
+  }
 
   // get the claim id from the channel name, we will use that instead
   const namedChannelClaim = myChannels.find(myChannel => myChannel.name === channel);
@@ -3017,18 +3104,22 @@ const doPublish = params => (dispatch, getState) => {
 
   const publishPayload = {
     name,
-    bid: creditsToString(bid),
     title,
-    license,
-    languages: [language],
     description,
-    tags: claim && claim.value.tags || [],
-    locations: claim && claim.value.locations
-  };
+    locations: locations,
+    bid: creditsToString(bid),
+    languages: [language],
+    tags: tags && tags.map(tag => tag.name),
+    thumbnail_url: thumbnail
 
+  };
   // Temporary solution to keep the same publish flow with the new tags api
   // Eventually we will allow users to enter their own tags on publish
   // `nsfw` will probably be removed
+
+  if (publishingLicense) {
+    publishPayload.license = publishingLicense;
+  }
 
   if (licenseUrl) {
     publishPayload.license_url = licenseUrl;
@@ -3038,8 +3129,8 @@ const doPublish = params => (dispatch, getState) => {
     publishPayload.thumbnail_url = thumbnail;
   }
 
-  if (claim && claim.value.release_time) {
-    publishPayload.release_time = Number(claim.value.release_time);
+  if (myClaimForUri && myClaimForUri.value.release_time) {
+    publishPayload.release_time = Number(myClaimForUri.value.release_time);
   }
 
   if (nsfw) {
@@ -3066,41 +3157,7 @@ const doPublish = params => (dispatch, getState) => {
   // The sdk will figure it out
   if (filePath) publishPayload.file_path = filePath;
 
-  const success = successResponse => {
-    //analytics.apiLogPublish();
-
-    const pendingClaim = successResponse.outputs[0];
-    const actions = [];
-
-    actions.push({
-      type: PUBLISH_SUCCESS
-    });
-
-    //actions.push(doOpenModal(MODALS.PUBLISH, { uri }));
-
-    // We have to fake a temp claim until the new pending one is returned by claim_list_mine
-    // We can't rely on claim_list_mine because there might be some delay before the new claims are returned
-    // Doing this allows us to show the pending claim immediately, it will get overwritten by the real one
-    const isMatch = claim => claim.claim_id === pendingClaim.claim_id;
-    const isEdit = myClaims.some(isMatch);
-    const myNewClaims = isEdit ? myClaims.map(claim => isMatch(claim) ? pendingClaim : claim) : myClaims.concat(pendingClaim);
-
-    actions.push({
-      type: FETCH_CLAIM_LIST_MINE_COMPLETED,
-      data: {
-        claims: myNewClaims
-      }
-    });
-
-    dispatch(batchActions(...actions));
-  };
-
-  const failure = error => {
-    dispatch({ type: PUBLISH_FAIL });
-    dispatch(doError(error.message));
-  };
-
-  return lbryProxy.publish(publishPayload).then(success, failure);
+  return lbryProxy.publish(publishPayload).then(success, fail);
 };
 
 // Calls claim_list_mine until any pending publishes are confirmed
@@ -3116,21 +3173,22 @@ const doCheckPendingPublishes = () => (dispatch, getState) => {
 
   const checkFileList = () => {
     lbryProxy.claim_list().then(claims => {
+      // $FlowFixMe
       claims.forEach(claim => {
         // If it's confirmed, check if it was pending previously
         if (claim.confirmations > 0 && pendingById[claim.claim_id]) {
           delete pendingById[claim.claim_id];
-
+          // TODO fix notifications - pass as param as well?
           // If it's confirmed, check if we should notify the user
-          if (selectosNotificationsEnabled(getState())) {
-            const notif = new window.Notification('LBRY Publish Complete', {
-              body: `${claim.value.title} has been published to lbry://${claim.name}. Click here to view it`,
-              silent: false
-            });
-            notif.onclick = () => {
-              dispatch(push(formatLbryUriForWeb(claim.permanent_url)));
-            };
-          }
+          // if (selectosNotificationsEnabled(getState())) {
+          //   const notif = new window.Notification('LBRY Publish Complete', {
+          //     body: `${claim.value.title} has been published to lbry://${claim.name}. Click here to view it`,
+          //     silent: false,
+          //   });
+          //   notif.onclick = () => {
+          //     dispatch(push(formatLbryUriForWeb(claim.permanent_url)));
+          //   };
+          // }
         }
       });
 
@@ -4170,7 +4228,7 @@ const notificationsReducer = handleActions({
 
 var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+function _objectWithoutProperties$1(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 const defaultState$6 = {
   editingURI: undefined,
@@ -4196,6 +4254,7 @@ const defaultState$6 = {
   licenseType: 'None',
   otherLicenseDescription: 'All rights reserved',
   licenseUrl: '',
+  tags: [],
   publishing: false,
   publishSuccess: false,
   publishError: undefined
@@ -4219,7 +4278,7 @@ const publishReducer = handleActions({
     publishSuccess: true
   }),
   [DO_PREPARE_EDIT]: (state, action) => {
-    const publishData = _objectWithoutProperties(action.data, []);
+    const publishData = _objectWithoutProperties$1(action.data, []);
     const { channel, name, uri } = publishData;
 
     // The short uri is what is presented to the user
@@ -4620,9 +4679,9 @@ const walletReducer = handleActions({
   })
 }, defaultState$9);
 
-const selectState$5 = state => state.content || {};
+const selectState$6 = state => state.content || {};
 
-const makeSelectContentPositionForUri = uri => reselect.createSelector(selectState$5, makeSelectClaimForUri(uri), (state, claim) => {
+const makeSelectContentPositionForUri = uri => reselect.createSelector(selectState$6, makeSelectClaimForUri(uri), (state, claim) => {
   if (!claim) {
     return null;
   }
@@ -4633,9 +4692,9 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
 
 var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const selectState$6 = state => state.notifications || {};
+const selectState$7 = state => state.notifications || {};
 
-const selectToast = reselect.createSelector(selectState$6, state => {
+const selectToast = reselect.createSelector(selectState$7, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
     return _extends$f({
@@ -4646,7 +4705,7 @@ const selectToast = reselect.createSelector(selectState$6, state => {
   return null;
 });
 
-const selectError = reselect.createSelector(selectState$6, state => {
+const selectError = reselect.createSelector(selectState$7, state => {
   if (state.errors.length) {
     const { error } = state.errors[0];
     return {
@@ -4659,11 +4718,11 @@ const selectError = reselect.createSelector(selectState$6, state => {
 
 //      
 
-const selectState$7 = state => state.comments || {};
+const selectState$8 = state => state.comments || {};
 
-const selectCommentsById = reselect.createSelector(selectState$7, state => state.byId || {});
+const selectCommentsById = reselect.createSelector(selectState$8, state => state.byId || {});
 
-const selectCommentsByUri = reselect.createSelector(selectState$7, state => {
+const selectCommentsByUri = reselect.createSelector(selectState$8, state => {
   const byUri = state.commentsByUri || {};
   const comments = {};
   Object.keys(byUri).forEach(uri => {
@@ -4680,78 +4739,6 @@ const selectCommentsByUri = reselect.createSelector(selectState$7, state => {
 const makeSelectCommentsForUri = uri => reselect.createSelector(selectCommentsById, selectCommentsByUri, (byId, byUri) => {
   const claimId = byUri[uri];
   return byId && byId[claimId];
-});
-
-function _objectWithoutProperties$1(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-const selectState$8 = state => state.publish || {};
-
-const selectPublishFormValues = reselect.createSelector(selectState$8, state => {
-  const formValues = _objectWithoutProperties$1(state, ['pendingPublish']);
-  return formValues;
-});
-const selectIsStillEditing = reselect.createSelector(selectPublishFormValues, publishState => {
-  const { editingURI, uri } = publishState;
-
-  if (!editingURI || !uri) {
-    return false;
-  }
-
-  const { isChannel: currentIsChannel, claimName: currentClaimName, contentName: currentContentName } = parseURI(uri);
-  const { isChannel: editIsChannel, claimName: editClaimName, contentName: editContentName } = parseURI(editingURI);
-
-  // Depending on the previous/current use of a channel, we need to compare different things
-  // ex: going from a channel to anonymous, the new uri won't return contentName, so we need to use claimName
-  const currentName = currentIsChannel ? currentContentName : currentClaimName;
-  const editName = editIsChannel ? editContentName : editClaimName;
-  return currentName === editName;
-});
-
-const selectMyClaimForUri = reselect.createSelector(selectPublishFormValues, selectIsStillEditing, selectClaimsById, selectMyClaimsWithoutChannels, ({ editingURI, uri }, isStillEditing, claimsById, myClaims) => {
-  const { contentName, claimName } = parseURI(uri);
-  const { claimId: editClaimId } = parseURI(editingURI);
-
-  // If isStillEditing
-  // They clicked "edit" from the file page
-  // They haven't changed the channel/name after clicking edit
-  // Get the claim so they can edit without re-uploading a new file
-  return isStillEditing ? claimsById[editClaimId] : myClaims.find(claim => !contentName ? claim.name === claimName : claim.name === contentName || claim.name === claimName);
-});
-
-const selectIsResolvingPublishUris = reselect.createSelector(selectState$8, selectResolvingUris, ({ uri, name }, resolvingUris) => {
-  if (uri) {
-    const isResolvingUri = resolvingUris.includes(uri);
-    const { isChannel } = parseURI(uri);
-
-    let isResolvingShortUri;
-    if (isChannel) {
-      const shortUri = buildURI({ contentName: name });
-      isResolvingShortUri = resolvingUris.includes(shortUri);
-    }
-
-    return isResolvingUri || isResolvingShortUri;
-  }
-
-  return false;
-});
-
-const selectTakeOverAmount = reselect.createSelector(selectState$8, selectMyClaimForUri, selectClaimsByUri, ({ name }, myClaimForUri, claimsByUri) => {
-  // We only care about the winning claim for the short uri
-  const shortUri = buildURI({ contentName: name });
-  const claimForShortUri = claimsByUri[shortUri];
-
-  if (!myClaimForUri && claimForShortUri) {
-    return claimForShortUri.effective_amount;
-  } else if (myClaimForUri && claimForShortUri) {
-    // https://github.com/lbryio/lbry/issues/1476
-    // We should check the current effective_amount on my claim to see how much additional lbc
-    // is needed to win the claim. Currently this is not possible during a takeover.
-    // With this, we could say something like, "You have x lbc in support, if you bid y additional LBC you will control the claim"
-    // For now just ignore supports. We will just show the winning claim's bid amount
-    return claimForShortUri.effective_amount || claimForShortUri.amount;
-  }
-
-  return null;
 });
 
 //      
@@ -4888,6 +4875,7 @@ exports.makeSelectMetadataItemForUri = makeSelectMetadataItemForUri;
 exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
 exports.makeSelectPendingByUri = makeSelectPendingByUri;
+exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
 exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
 exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
 exports.makeSelectSearchUris = makeSelectSearchUris;
