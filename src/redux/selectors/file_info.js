@@ -190,31 +190,31 @@ export const selectSearchDownloadUris = query =>
 
       return downloadResultsFromQuery.length
         ? downloadResultsFromQuery.map(fileInfo => {
-          const {
-            channel_name: channelName,
-            claim_id: claimId,
-            claim_name: claimName,
-          } = fileInfo;
+            const {
+              channel_name: channelName,
+              claim_id: claimId,
+              claim_name: claimName,
+            } = fileInfo;
 
-          const uriParams = {};
+            const uriParams = {};
 
-          if (channelName) {
-            const claim = claimsById[claimId];
-            if (claim && claim.signing_channel) {
-              uriParams.claimId = claim.signing_channel.claim_id;
+            if (channelName) {
+              const claim = claimsById[claimId];
+              if (claim && claim.signing_channel) {
+                uriParams.claimId = claim.signing_channel.claim_id;
+              } else {
+                uriParams.claimId = claimId;
+              }
+              uriParams.channelName = channelName;
+              uriParams.contentName = claimName;
             } else {
               uriParams.claimId = claimId;
+              uriParams.claimName = claimName;
             }
-            uriParams.channelName = channelName;
-            uriParams.contentName = claimName;
-          } else {
-            uriParams.claimId = claimId;
-            uriParams.claimName = claimName;
-          }
 
-          const uri = buildURI(uriParams);
-          return uri;
-        })
+            const uri = buildURI(uriParams);
+            return uri;
+          })
         : null;
     }
   );
@@ -236,5 +236,5 @@ export const selectDownloadedUris = createSelector(
     info
       .slice()
       .reverse()
-      .map(claim => console.log(claim) || `lbry://${claim.claim_name}#${claim.claim_id}`)
+      .map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`)
 );

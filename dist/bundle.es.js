@@ -2491,7 +2491,7 @@ const selectFileListDownloadedSort = reselect.createSelector(selectState$3, stat
 
 const selectDownloadedUris = reselect.createSelector(selectFileInfosDownloaded,
 // We should use permament_url but it doesn't exist in file_list
-info => info.slice().reverse().map(claim => console.log(claim) || `lbry://${claim.claim_name}#${claim.claim_id}`));
+info => info.slice().reverse().map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`));
 
 //      
 
