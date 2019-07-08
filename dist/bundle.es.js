@@ -1501,7 +1501,7 @@ const selectFetchingClaimSearch = reselect.createSelector(selectState$1, state =
 
 const selectLastClaimSearchUris = reselect.createSelector(selectState$1, state => state.lastClaimSearchUris);
 
-const makeSelectShortUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => console.log(claim) || claim && claim.short_url);
+const makeSelectShortUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.short_url);
 
 const selectState$2 = state => state.wallet || {};
 

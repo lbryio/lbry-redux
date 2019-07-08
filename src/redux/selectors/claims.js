@@ -474,5 +474,5 @@ export const selectLastClaimSearchUris = createSelector(
 export const makeSelectShortUrlForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
-    claim => console.log(claim) || (claim && claim.short_url)
+    claim => claim && claim.short_url
   );
