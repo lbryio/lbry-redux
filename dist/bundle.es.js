@@ -1501,6 +1501,8 @@ const selectFetchingClaimSearch = reselect.createSelector(selectState$1, state =
 
 const selectLastClaimSearchUris = reselect.createSelector(selectState$1, state => state.lastClaimSearchUris);
 
+const makeSelectShortUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => console.log(claim) || claim && claim.short_url);
+
 const selectState$2 = state => state.wallet || {};
 
 const selectWalletState = selectState$2;
@@ -4736,6 +4738,7 @@ exports.makeSelectPendingByUri = makeSelectPendingByUri;
 exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
 exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
 exports.makeSelectSearchUris = makeSelectSearchUris;
+exports.makeSelectShortUrlForUri = makeSelectShortUrlForUri;
 exports.makeSelectStreamingUrlForUri = makeSelectStreamingUrlForUri;
 exports.makeSelectTagsForUri = makeSelectTagsForUri;
 exports.makeSelectThumbnailForUri = makeSelectThumbnailForUri;
