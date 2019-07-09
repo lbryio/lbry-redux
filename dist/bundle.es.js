@@ -1380,7 +1380,15 @@ const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaim
 
 const selectMyClaimsWithoutChannels = reselect.createSelector(selectMyClaims, myClaims => myClaims.filter(claim => !claim.name.match(/^@/)).sort((a, b) => a.timestamp - b.timestamp));
 
-const selectMyClaimUrisWithoutChannels = reselect.createSelector(selectMyClaimsWithoutChannels, myClaims => myClaims.sort((a, b) => b.timestamp - a.timestamp).map(claim => `lbry://${claim.name}#${claim.claim_id}`));
+const selectMyClaimUrisWithoutChannels = reselect.createSelector(selectMyClaimsWithoutChannels, myClaims => myClaims.sort((a, b) => {
+  if (!a.timestamp) {
+    return -1;
+  } else if (!b.timestamp) {
+    return 1;
+  } else {
+    return b.timestamp - a.timestamp;
+  }
+}).map(claim => `lbry://${claim.name}#${claim.claim_id}`));
 
 const selectAllMyClaimsByOutpoint = reselect.createSelector(selectMyClaimsRaw, claims => new Set(claims && claims.length ? claims.map(claim => `${claim.txid}:${claim.nout}`) : null));
 
