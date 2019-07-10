@@ -629,7 +629,8 @@ var transaction_types = /*#__PURE__*/Object.freeze({
 const SEARCH_TYPES = {
   FILE: 'file',
   CHANNEL: 'channel',
-  SEARCH: 'search'
+  SEARCH: 'search',
+  TAG: 'tag'
 };
 
 const SEARCH_OPTIONS = {
@@ -1137,6 +1138,11 @@ const selectSearchSuggestions = reselect.createSelector(selectSearchValue, selec
       type: SEARCH_TYPES.SEARCH
     });
   }
+
+  searchSuggestions.push({
+    value: query,
+    type: SEARCH_TYPES.TAG
+  });
 
   const apiSuggestions = suggestions[query] || [];
   if (apiSuggestions.length) {
