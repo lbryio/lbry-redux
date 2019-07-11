@@ -1277,8 +1277,14 @@ const selectPendingById = reselect.createSelector(selectState$1, state => state.
 const selectPendingClaims = reselect.createSelector(selectState$1, state => Object.values(state.pendingById || []));
 
 const makeSelectClaimIsPending = uri => reselect.createSelector(selectPendingById, pendingById => {
-  const { claimId } = parseURI(uri);
-  return Boolean(pendingById[claimId]);
+  let claimId;
+  try {
+    ({ claimId } = parseURI(uri));
+  } catch (e) {}
+
+  if (claimId) {
+    return Boolean(pendingById[claimId]);
+  }
 });
 
 const makeSelectPendingByUri = uri => reselect.createSelector(selectPendingById, pendingById => {
@@ -1289,13 +1295,21 @@ const makeSelectPendingByUri = uri => reselect.createSelector(selectPendingById,
 const makeSelectClaimForUri = uri => reselect.createSelector(selectClaimsByUri, selectPendingById, (byUri, pendingById) => {
   // Check if a claim is pending first
   // It won't be in claimsByUri because resolving it will return nothing
-  const { claimId } = parseURI(uri);
-  const pendingClaim = pendingById[claimId];
-  if (pendingClaim) {
-    return pendingClaim;
-  }
 
-  return byUri && byUri[normalizeURI(uri)];
+  let claimId;
+  try {
+    ({ claimId } = parseURI(uri));
+  } catch (e) {}
+
+  if (claimId) {
+    const pendingClaim = pendingById[claimId];
+
+    if (pendingClaim) {
+      return pendingClaim;
+    }
+
+    return byUri && byUri[normalizeURI(uri)];
+  }
 });
 
 const selectMyClaimsRaw = reselect.createSelector(selectState$1, state => state.myClaims);
@@ -1305,8 +1319,20 @@ const selectAbandoningIds = reselect.createSelector(selectState$1, state => Obje
 const selectMyActiveClaims = reselect.createSelector(selectMyClaimsRaw, selectAbandoningIds, (claims, abandoningIds) => new Set(claims && claims.map(claim => claim.claim_id).filter(claimId => Object.keys(abandoningIds).indexOf(claimId) === -1)));
 
 const makeSelectClaimIsMine = rawUri => {
-  const uri = normalizeURI(rawUri);
-  return reselect.createSelector(selectClaimsByUri, selectMyActiveClaims, (claims, myClaims) => claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id));
+  let uri;
+  try {
+    uri = normalizeURI(rawUri);
+  } catch (e) {}
+
+  return reselect.createSelector(selectClaimsByUri, selectMyActiveClaims, (claims, myClaims) => {
+    try {
+      parseURI(uri);
+    } catch (e) {
+      return false;
+    }
+
+    claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id);
+  });
 };
 
 const selectAllFetchingChannelClaims = reselect.createSelector(selectState$1, state => state.fetchingChannelClaims || {});
