@@ -2309,7 +2309,7 @@ function doFetchChannelListMine() {
   };
 }
 
-function doClaimSearch(amount = 20, options = {}) {
+function doClaimSearch(options = {}) {
   return dispatch => {
     dispatch({
       type: CLAIM_SEARCH_STARTED
@@ -2336,9 +2336,7 @@ function doClaimSearch(amount = 20, options = {}) {
       });
     };
 
-    lbryProxy.claim_search(_extends$3({
-      page_size: amount
-    }, options)).then(success, failure);
+    lbryProxy.claim_search(_extends$3({}, options)).then(success, failure);
   };
 }
 

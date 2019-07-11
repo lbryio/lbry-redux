@@ -299,7 +299,7 @@ export function doFetchChannelListMine() {
   };
 }
 
-export function doClaimSearch(amount: number = 20, options: { page?: number } = {}) {
+export function doClaimSearch(options: { page_size?: number, page?: number } = {}) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
@@ -327,7 +327,6 @@ export function doClaimSearch(amount: number = 20, options: { page?: number } = 
     };
 
     Lbry.claim_search({
-      page_size: amount,
       ...options,
     }).then(success, failure);
   };
