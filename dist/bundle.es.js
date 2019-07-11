@@ -1331,7 +1331,7 @@ const makeSelectClaimIsMine = rawUri => {
       return false;
     }
 
-    claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id);
+    return claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id);
   });
 };
 
