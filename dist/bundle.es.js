@@ -3161,7 +3161,7 @@ const doPublish = (success, fail) => (dispatch, getState) => {
 };
 
 // Calls claim_list_mine until any pending publishes are confirmed
-const doCheckPendingPublishes = () => (dispatch, getState) => {
+const doCheckPendingPublishes = onConfirmed => (dispatch, getState) => {
   const state = getState();
   const pendingById = selectPendingById(state);
 
@@ -3179,16 +3179,9 @@ const doCheckPendingPublishes = () => (dispatch, getState) => {
         if (claim.confirmations > 0 && pendingById[claim.claim_id]) {
           delete pendingById[claim.claim_id];
           // TODO fix notifications - pass as param as well?
-          // If it's confirmed, check if we should notify the user
-          // if (selectosNotificationsEnabled(getState())) {
-          //   const notif = new window.Notification('LBRY Publish Complete', {
-          //     body: `${claim.value.title} has been published to lbry://${claim.name}. Click here to view it`,
-          //     silent: false,
-          //   });
-          //   notif.onclick = () => {
-          //     dispatch(push(formatLbryUriForWeb(claim.permanent_url)));
-          //   };
-          // }
+          if (onConfirmed) {
+            onConfirmed(claim);
+          }
         }
       });
 

@@ -12,10 +12,7 @@ import {
   selectPendingById,
   selectMyClaimsWithoutChannels,
 } from 'redux/selectors/claims';
-import {
-  selectPublishFormValues,
-  selectMyClaimForUri,
-} from 'redux/selectors/publish';
+import { selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/publish';
 // @if TARGET='app'
 import fs from 'fs';
 import path from 'path';
@@ -62,13 +59,19 @@ export const doClearPublish = () => (dispatch: Dispatch) => {
   return dispatch(doResetThumbnailStatus());
 };
 
-export const doUpdatePublishForm = (publishFormValue: UpdatePublishFormData) => (dispatch: Dispatch) =>
+export const doUpdatePublishForm = (publishFormValue: UpdatePublishFormData) => (
+  dispatch: Dispatch
+) =>
   dispatch({
     type: ACTIONS.UPDATE_PUBLISH_FORM,
     data: { ...publishFormValue },
   });
 
-export const doUploadThumbnail = (filePath: string, thumbnailBuffer: Uint8Array, fsAdapter: any) => (dispatch: Dispatch) => {
+export const doUploadThumbnail = (
+  filePath: string,
+  thumbnailBuffer: Uint8Array,
+  fsAdapter: any
+) => (dispatch: Dispatch) => {
   let thumbnail, fileExt, fileName, fileType;
 
   const makeid = () => {
@@ -114,16 +117,18 @@ export const doUploadThumbnail = (filePath: string, thumbnailBuffer: Uint8Array,
       return fetch('https://spee.ch/api/claim/publish', {
         method: 'POST',
         body: data,
-      }).then(response => response.json())
-        .then(json => json.success
-          ? dispatch({
-            type: ACTIONS.UPDATE_PUBLISH_FORM,
-            data: {
-              uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-              thumbnail: `${json.data.url}${fileExt}`,
-            },
-          })
-          : uploadError(json.message)
+      })
+        .then(response => response.json())
+        .then(json =>
+          json.success
+            ? dispatch({
+                type: ACTIONS.UPDATE_PUBLISH_FORM,
+                data: {
+                  uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+                  thumbnail: `${json.data.url}${fileExt}`,
+                },
+              })
+            : uploadError(json.message)
         )
         .catch(err => uploadError(err.message));
     });
@@ -156,21 +161,24 @@ export const doUploadThumbnail = (filePath: string, thumbnailBuffer: Uint8Array,
       .then(json =>
         json.success
           ? dispatch({
-            type: ACTIONS.UPDATE_PUBLISH_FORM,
-            data: {
-              uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-              thumbnail: `${json.data.url}${fileExt}`,
-            },
-          })
+              type: ACTIONS.UPDATE_PUBLISH_FORM,
+              data: {
+                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+                thumbnail: `${json.data.url}${fileExt}`,
+              },
+            })
           : uploadError(json.message)
       )
       .catch(err => uploadError(err.message));
   }
 };
 
-export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileListItem) => (dispatch: Dispatch) => {
+export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileListItem) => (
+  dispatch: Dispatch
+) => {
   const { name, amount, value } = claim;
-  const channelName = (claim && claim.signing_channel && claim.signing_channel.normalized_name) || null;
+  const channelName =
+    (claim && claim.signing_channel && claim.signing_channel.normalized_name) || null;
   const {
     author,
     description,
@@ -234,7 +242,10 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
   dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
 };
 
-export const doPublish = (success: Function, fail: Function) => (dispatch: Dispatch, getState: () => {}) => {
+export const doPublish = (success: Function, fail: Function) => (
+  dispatch: Dispatch,
+  getState: () => {}
+) => {
   dispatch({ type: ACTIONS.PUBLISH_START });
 
   const state = getState();
@@ -306,7 +317,6 @@ export const doPublish = (success: Function, fail: Function) => (dispatch: Dispa
     languages: [language],
     tags: tags && tags.map(tag => tag.name),
     thumbnail_url: thumbnail,
-
   };
   // Temporary solution to keep the same publish flow with the new tags api
   // Eventually we will allow users to enter their own tags on publish
@@ -356,7 +366,10 @@ export const doPublish = (success: Function, fail: Function) => (dispatch: Dispa
 };
 
 // Calls claim_list_mine until any pending publishes are confirmed
-export const doCheckPendingPublishes = () => (dispatch: Dispatch, getState: GetState) => {
+export const doCheckPendingPublishes = (onConfirmed: Function) => (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
   const state = getState();
   const pendingById = selectPendingById(state);
 
@@ -374,16 +387,9 @@ export const doCheckPendingPublishes = () => (dispatch: Dispatch, getState: GetS
         if (claim.confirmations > 0 && pendingById[claim.claim_id]) {
           delete pendingById[claim.claim_id];
           // TODO fix notifications - pass as param as well?
-          // If it's confirmed, check if we should notify the user
-          // if (selectosNotificationsEnabled(getState())) {
-          //   const notif = new window.Notification('LBRY Publish Complete', {
-          //     body: `${claim.value.title} has been published to lbry://${claim.name}. Click here to view it`,
-          //     silent: false,
-          //   });
-          //   notif.onclick = () => {
-          //     dispatch(push(formatLbryUriForWeb(claim.permanent_url)));
-          //   };
-          // }
+          if (onConfirmed) {
+            onConfirmed(claim);
+          }
         }
       });
 
