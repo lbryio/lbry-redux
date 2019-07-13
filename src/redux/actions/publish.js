@@ -13,12 +13,8 @@ import {
   selectMyClaimsWithoutChannels,
 } from 'redux/selectors/claims';
 import { selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/publish';
-// @if TARGET='app'
 import fs from 'fs';
 import path from 'path';
-// @endif
-
-import { formatLbryUriForWeb } from 'util/uri';
 
 export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
   dispatch({
@@ -211,7 +207,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
     nsfw: isClaimNsfw(claim),
   };
 
-  // Make sure custom liscence's are mapped properly
+  // Make sure custom licenses are mapped properly
   // If the license isn't one of the standard licenses, map the custom license and description/url
   if (!CC_LICENSES.some(({ value }) => value === license)) {
     if (!license || license === NONE || license === PUBLIC_DOMAIN) {
@@ -273,7 +269,6 @@ export const doPublish = (success: Function, fail: Function) => (
     fee,
     uri,
     nsfw,
-    // claim,
     tags,
     locations,
   } = publishData;
@@ -386,7 +381,6 @@ export const doCheckPendingPublishes = (onConfirmed: Function) => (
         // If it's confirmed, check if it was pending previously
         if (claim.confirmations > 0 && pendingById[claim.claim_id]) {
           delete pendingById[claim.claim_id];
-          // TODO fix notifications - pass as param as well?
           if (onConfirmed) {
             onConfirmed(claim);
           }
