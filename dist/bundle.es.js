@@ -117,6 +117,9 @@ const CLEAR_CONTENT_HISTORY_ALL = 'CLEAR_CONTENT_HISTORY_ALL';
 const CLAIM_SEARCH_STARTED = 'CLAIM_SEARCH_STARTED';
 const CLAIM_SEARCH_COMPLETED = 'CLAIM_SEARCH_COMPLETED';
 const CLAIM_SEARCH_FAILED = 'CLAIM_SEARCH_FAILED';
+const CLAIM_SEARCH_BY_TAGS_STARTED = 'CLAIM_SEARCH_BY_TAGS_STARTED';
+const CLAIM_SEARCH_BY_TAGS_COMPLETED = 'CLAIM_SEARCH_BY_TAGS_COMPLETED';
+const CLAIM_SEARCH_BY_TAGS_FAILED = 'CLAIM_SEARCH_BY_TAGS_FAILED';
 
 // Comments
 const COMMENT_LIST_STARTED = 'COMMENT_LIST_STARTED';
@@ -345,6 +348,9 @@ var action_types = /*#__PURE__*/Object.freeze({
   CLAIM_SEARCH_STARTED: CLAIM_SEARCH_STARTED,
   CLAIM_SEARCH_COMPLETED: CLAIM_SEARCH_COMPLETED,
   CLAIM_SEARCH_FAILED: CLAIM_SEARCH_FAILED,
+  CLAIM_SEARCH_BY_TAGS_STARTED: CLAIM_SEARCH_BY_TAGS_STARTED,
+  CLAIM_SEARCH_BY_TAGS_COMPLETED: CLAIM_SEARCH_BY_TAGS_COMPLETED,
+  CLAIM_SEARCH_BY_TAGS_FAILED: CLAIM_SEARCH_BY_TAGS_FAILED,
   COMMENT_LIST_STARTED: COMMENT_LIST_STARTED,
   COMMENT_LIST_COMPLETED: COMMENT_LIST_COMPLETED,
   COMMENT_LIST_FAILED: COMMENT_LIST_FAILED,
@@ -1511,6 +1517,14 @@ const selectLastClaimSearchUris = reselect.createSelector(selectState$1, state =
 
 const makeSelectShortUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.short_url);
 
+const selectFetchingClaimSearchByTags = reselect.createSelector(selectState$1, state => state.fetchingClaimSearchByTags);
+
+const selectClaimSearchUrisByTags = reselect.createSelector(selectState$1, state => state.claimSearchUrisByTags);
+
+const makeSelectFetchingClaimSearchForTags = tags => reselect.createSelector(selectFetchingClaimSearchByTags, byTags => byTags[tags]);
+
+const makeSelectClaimSearchUrisForTags = tags => reselect.createSelector(selectClaimSearchUrisByTags, byTags => byTags[tags]);
+
 const selectState$2 = state => state.wallet || {};
 
 const selectWalletState = selectState$2;
@@ -2326,6 +2340,43 @@ function doClaimSearch(amount = 20, options = {}) {
     const failure = err => {
       dispatch({
         type: CLAIM_SEARCH_FAILED,
+        error: err
+      });
+    };
+
+    lbryProxy.claim_search(_extends$3({
+      page_size: amount
+    }, options)).then(success, failure);
+  };
+}
+
+// tags can be one or many (comma separated)
+function doClaimSearchByTags(tags, amount = 10, options = {}) {
+  return dispatch => {
+    const tagList = tags.join(',');
+    dispatch({
+      type: CLAIM_SEARCH_BY_TAGS_STARTED,
+      data: { tags: tagList }
+    });
+
+    const success = data => {
+      const resolveInfo = {};
+      const uris = [];
+      data.items.forEach(stream => {
+        resolveInfo[stream.permanent_url] = { stream };
+        uris.push(stream.permanent_url);
+      });
+
+      dispatch({
+        type: CLAIM_SEARCH_BY_TAGS_COMPLETED,
+        data: { tags: tagList, resolveInfo, uris, append: options.page && options.page !== 1 }
+      });
+    };
+
+    const failure = err => {
+      dispatch({
+        type: CLAIM_SEARCH_BY_TAGS_FAILED,
+        data: { tags: tagList },
         error: err
       });
     };
@@ -3332,6 +3383,8 @@ const defaultState = {
   abandoningById: {},
   pendingById: {},
   fetchingClaimSearch: false,
+  claimSearchUrisByTags: [],
+  fetchingClaimSearchByTags: [],
   lastClaimSearchUris: []
 };
 
@@ -3584,6 +3637,37 @@ reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
 reducers[CLAIM_SEARCH_FAILED] = state => {
   return Object.assign({}, state, {
     fetchingClaimSearch: false
+  });
+};
+
+reducers[CLAIM_SEARCH_BY_TAGS_STARTED] = (state, action) => {
+  const fetchingClaimSearchByTags = Object.assign({}, state.fetchingClaimSearchByTags);
+  fetchingClaimSearchByTags[action.data.tags] = true;
+
+  return Object.assign({}, state, {
+    fetchingClaimSearchByTags
+  });
+};
+reducers[CLAIM_SEARCH_BY_TAGS_COMPLETED] = (state, action) => {
+  const fetchingClaimSearchByTags = Object.assign({}, state.fetchingClaimSearchByTags);
+  const claimSearchUrisByTags = Object.assign({}, state.claimSearchUrisByTags);
+  const { tags, uris } = action.data;
+
+  // TODO: append?
+  claimSearchUrisByTags[tags] = uris;
+  fetchingClaimSearchByTags[tags] = false; // or delete the key instead?
+
+  return Object.assign({}, state, {
+    claimSearchUrisByTags,
+    fetchingClaimSearchByTags
+  });
+};
+reducers[CLAIM_SEARCH_BY_TAGS_FAILED] = (state, action) => {
+  const fetchingClaimSearchByTags = Object.assign({}, state.fetchingClaimSearchByTags);
+  fetchingClaimSearchByTags[action.data.tags] = false;
+
+  return Object.assign({}, state, {
+    fetchingClaimSearchByTags
   });
 };
 
@@ -4664,6 +4748,7 @@ exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
 exports.doCheckPendingPublishes = doCheckPendingPublishes;
 exports.doClaimSearch = doClaimSearch;
+exports.doClaimSearchByTags = doClaimSearchByTags;
 exports.doClearPublish = doClearPublish;
 exports.doCommentCreate = doCommentCreate;
 exports.doCommentList = doCommentList;
@@ -4725,6 +4810,7 @@ exports.makeSelectClaimForUri = makeSelectClaimForUri;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;
 exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
 exports.makeSelectClaimIsPending = makeSelectClaimIsPending;
+exports.makeSelectClaimSearchUrisForTags = makeSelectClaimSearchUrisForTags;
 exports.makeSelectClaimsInChannelForCurrentPageState = makeSelectClaimsInChannelForCurrentPageState;
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
 exports.makeSelectCommentsForUri = makeSelectCommentsForUri;
@@ -4734,6 +4820,7 @@ exports.makeSelectCoverForUri = makeSelectCoverForUri;
 exports.makeSelectDateForUri = makeSelectDateForUri;
 exports.makeSelectDownloadingForUri = makeSelectDownloadingForUri;
 exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
+exports.makeSelectFetchingClaimSearchForTags = makeSelectFetchingClaimSearchForTags;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
 exports.makeSelectFirstRecommendedFileForUri = makeSelectFirstRecommendedFileForUri;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
@@ -4769,6 +4856,7 @@ exports.selectAllMyClaimsByOutpoint = selectAllMyClaimsByOutpoint;
 exports.selectBalance = selectBalance;
 exports.selectBlocks = selectBlocks;
 exports.selectChannelClaimCounts = selectChannelClaimCounts;
+exports.selectClaimSearchUrisByTags = selectClaimSearchUrisByTags;
 exports.selectClaimsById = selectClaimsById;
 exports.selectClaimsByUri = selectClaimsByUri;
 exports.selectCurrentChannelPage = selectCurrentChannelPage;
@@ -4782,6 +4870,7 @@ exports.selectDraftTransactionError = selectDraftTransactionError;
 exports.selectError = selectError;
 exports.selectFailedPurchaseUris = selectFailedPurchaseUris;
 exports.selectFetchingClaimSearch = selectFetchingClaimSearch;
+exports.selectFetchingClaimSearchByTags = selectFetchingClaimSearchByTags;
 exports.selectFetchingMyChannels = selectFetchingMyChannels;
 exports.selectFileInfosByOutpoint = selectFileInfosByOutpoint;
 exports.selectFileInfosDownloaded = selectFileInfosDownloaded;

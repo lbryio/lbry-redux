@@ -484,3 +484,25 @@ export const makeSelectShortUrlForUri = (uri: string) =>
     makeSelectClaimForUri(uri),
     claim => claim && claim.short_url
   );
+
+export const selectFetchingClaimSearchByTags = createSelector(
+  selectState,
+  state => state.fetchingClaimSearchByTags
+);
+
+export const selectClaimSearchUrisByTags = createSelector(
+  selectState,
+  state => state.claimSearchUrisByTags
+);
+
+export const makeSelectFetchingClaimSearchForTags = (tags: string) =>
+  createSelector(
+    selectFetchingClaimSearchByTags,
+    byTags => byTags[tags]
+  );
+
+export const makeSelectClaimSearchUrisForTags = (tags: string) =>
+  createSelector(
+    selectClaimSearchUrisByTags,
+    byTags => byTags[tags]
+  );

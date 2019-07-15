@@ -22,6 +22,8 @@ type State = {
   fetchingChannelClaims: { [string]: number },
   fetchingMyChannels: boolean,
   lastClaimSearchUris: Array<string>,
+  fetchingClaimSearchByTags: { [string]: boolean },
+  claimSearchUrisByTags: { [string]: { all: Array<string> } },
   claimsByChannel: {
     [string]: {
       all: Array<string>,
@@ -45,6 +47,8 @@ const defaultState = {
   abandoningById: {},
   pendingById: {},
   fetchingClaimSearch: false,
+  claimSearchUrisByTags: [],
+  fetchingClaimSearchByTags: [],
   lastClaimSearchUris: [],
 };
 
@@ -309,6 +313,37 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State =>
 reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State): State => {
   return Object.assign({}, state, {
     fetchingClaimSearch: false,
+  });
+};
+
+reducers[ACTIONS.CLAIM_SEARCH_BY_TAGS_STARTED] = (state: State, action: any): State => {
+  const fetchingClaimSearchByTags = Object.assign({}, state.fetchingClaimSearchByTags);
+  fetchingClaimSearchByTags[action.data.tags] = true;
+
+  return Object.assign({}, state, {
+    fetchingClaimSearchByTags
+  });
+};
+reducers[ACTIONS.CLAIM_SEARCH_BY_TAGS_COMPLETED] = (state: State, action: any): State => {
+  const fetchingClaimSearchByTags = Object.assign({}, state.fetchingClaimSearchByTags);
+  const claimSearchUrisByTags = Object.assign({}, state.claimSearchUrisByTags);
+  const { tags, uris } = action.data;
+
+  // TODO: append?
+  claimSearchUrisByTags[tags] = uris;
+  fetchingClaimSearchByTags[tags] = false; // or delete the key instead?
+
+  return Object.assign({}, state, {
+    claimSearchUrisByTags,
+    fetchingClaimSearchByTags,
+  });
+};
+reducers[ACTIONS.CLAIM_SEARCH_BY_TAGS_FAILED] = (state: State, action: any): State => {
+  const fetchingClaimSearchByTags = Object.assign({}, state.fetchingClaimSearchByTags);
+  fetchingClaimSearchByTags[action.data.tags] = false;
+
+  return Object.assign({}, state, {
+    fetchingClaimSearchByTags,
   });
 };
 
