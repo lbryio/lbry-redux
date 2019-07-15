@@ -2382,7 +2382,8 @@ function doClaimSearchByTags(tags, amount = 10, options = {}) {
     };
 
     lbryProxy.claim_search(_extends$3({
-      page_size: amount
+      page_size: amount,
+      any_tags: tags
     }, options)).then(success, failure);
   };
 }

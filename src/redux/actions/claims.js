@@ -366,6 +366,7 @@ export function doClaimSearchByTags(tags: Array<string>, amount: number = 10, op
 
     Lbry.claim_search({
       page_size: amount,
+      any_tags: tags,
       ...options,
     }).then(success, failure);
   };
