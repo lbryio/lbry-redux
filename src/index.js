@@ -112,10 +112,11 @@ export { doToggleTagFollow, doAddTag, doDeleteTag } from 'redux/actions/tags';
 export { doCommentList, doCommentCreate } from 'redux/actions/comments';
 
 // utils
-export { batchActions } from 'util/batchActions';
-export { parseQueryParams, toQueryString } from 'util/query_params';
-export { formatCredits, formatFullPrice, creditsToString } from 'util/formatCredits';
+export { batchActions } from 'util/batch-actions';
+export { parseQueryParams, toQueryString } from 'util/query-params';
+export { formatCredits, formatFullPrice, creditsToString } from 'util/format-credits';
 export { isClaimNsfw } from 'util/claim';
+export { buildClaimSearchCacheQuery } from 'util/claim-search';
 
 // reducers
 export { claimsReducer } from 'redux/reducers/claims';
@@ -192,7 +193,7 @@ export {
   selectChannelClaimCounts,
   selectCurrentChannelPage,
   selectFetchingClaimSearch,
-  selectLastClaimSearchUris,
+  selectClaimSearchByQuery,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';

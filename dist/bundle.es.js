@@ -1296,12 +1296,14 @@ const makeSelectClaimForUri = uri => reselect.createSelector(selectClaimsByUri, 
   // Check if a claim is pending first
   // It won't be in claimsByUri because resolving it will return nothing
 
+  let valid;
   let claimId;
   try {
     ({ claimId } = parseURI(uri));
+    valid = true;
   } catch (e) {}
 
-  if (claimId) {
+  if (valid) {
     const pendingClaim = pendingById[claimId];
 
     if (pendingClaim) {
@@ -1539,7 +1541,7 @@ const makeSelectTagsForUri = uri => reselect.createSelector(makeSelectMetadataFo
 
 const selectFetchingClaimSearch = reselect.createSelector(selectState$1, state => state.fetchingClaimSearch);
 
-const selectLastClaimSearchUris = reselect.createSelector(selectState$1, state => state.lastClaimSearchUris);
+const selectClaimSearchByQuery = reselect.createSelector(selectState$1, state => state.claimSearchSearchByQuery || {});
 
 const makeSelectShortUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.short_url);
 
@@ -2072,6 +2074,17 @@ function batchActions(...actions) {
   };
 }
 
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+//      
+function buildClaimSearchCacheQuery(options) {
+  // Ignore page because we don't care what the last page searched was, we want everything
+  // Ignore release_time because that will change depending on when you call claim_search ex: release_time: ">12344567"
+  const rest = _objectWithoutProperties(options, ["page", "release_time"]);
+  const query = JSON.stringify(rest);
+  return query;
+}
+
 var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function doResolveUris(uris, returnCachedClaims = false) {
@@ -2355,6 +2368,8 @@ function doFetchChannelListMine() {
 }
 
 function doClaimSearch(options = {}) {
+  const query = buildClaimSearchCacheQuery(options);
+
   return dispatch => {
     dispatch({
       type: CLAIM_SEARCH_STARTED
@@ -2370,7 +2385,7 @@ function doClaimSearch(options = {}) {
 
       dispatch({
         type: CLAIM_SEARCH_COMPLETED,
-        data: { resolveInfo, uris, append: options.page && options.page !== 1 }
+        data: { resolveInfo, uris, query, append: options.page && options.page !== 1 }
       });
     };
 
@@ -3380,8 +3395,9 @@ const defaultState = {
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
+  claimSearchError: undefined,
   fetchingClaimSearch: false,
-  lastClaimSearchUris: []
+  claimSearchSearchByQuery: {}
 };
 
 function handleClaimAction(state, action) {
@@ -3612,27 +3628,34 @@ reducers[RESOLVE_URIS_STARTED] = (state, action) => {
 
 reducers[CLAIM_SEARCH_STARTED] = state => {
   return Object.assign({}, state, {
-    fetchingClaimSearch: true
+    fetchingClaimSearch: true,
+    claimSearchError: false
   });
 };
-reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
-  const { lastClaimSearchUris } = state;
 
-  let newClaimSearchUris = [];
-  if (action.data.append) {
-    newClaimSearchUris = lastClaimSearchUris.concat(action.data.uris);
+reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
+  const { claimSearchSearchByQuery } = state;
+  const { uris, query, append } = action.data;
+
+  let newClaimSearch = _extends$5({}, claimSearchSearchByQuery);
+  if (!uris) {
+    newClaimSearch[query] = null;
+  } else if (append && newClaimSearch[query]) {
+    newClaimSearch[query] = newClaimSearch[query].concat(uris);
   } else {
-    newClaimSearchUris = action.data.uris;
+    newClaimSearch[query] = uris;
   }
 
   return _extends$5({}, handleClaimAction(state, action), {
     fetchingClaimSearch: false,
-    lastClaimSearchUris: newClaimSearchUris
+    claimSearchSearchByQuery: newClaimSearch
   });
 };
+
 reducers[CLAIM_SEARCH_FAILED] = state => {
   return Object.assign({}, state, {
-    fetchingClaimSearch: false
+    fetchingClaimSearch: false,
+    claimSearchError: true
   });
 };
 
@@ -4077,7 +4100,7 @@ const notificationsReducer = handleActions({
 
 var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+function _objectWithoutProperties$1(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 const defaultState$6 = {
   editingURI: undefined,
@@ -4126,7 +4149,7 @@ const publishReducer = handleActions({
     publishSuccess: true
   }),
   [DO_PREPARE_EDIT]: (state, action) => {
-    const publishData = _objectWithoutProperties(action.data, []);
+    const publishData = _objectWithoutProperties$1(action.data, []);
     const { channel, name, uri } = publishData;
 
     // The short uri is what is presented to the user
@@ -4589,12 +4612,12 @@ const makeSelectCommentsForUri = uri => reselect.createSelector(selectCommentsBy
   return byId && byId[claimId];
 });
 
-function _objectWithoutProperties$1(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+function _objectWithoutProperties$2(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 const selectState$8 = state => state.publish || {};
 
 const selectPublishFormValues = reselect.createSelector(selectState$8, state => {
-  const formValues = _objectWithoutProperties$1(state, ['pendingPublish']);
+  const formValues = _objectWithoutProperties$2(state, ['pendingPublish']);
   return formValues;
 });
 const selectIsStillEditing = reselect.createSelector(selectPublishFormValues, publishState => {
@@ -4700,6 +4723,7 @@ exports.SORT_OPTIONS = sort_options;
 exports.THUMBNAIL_STATUSES = thumbnail_upload_statuses;
 exports.TRANSACTIONS = transaction_types;
 exports.batchActions = batchActions;
+exports.buildClaimSearchCacheQuery = buildClaimSearchCacheQuery;
 exports.buildURI = buildURI;
 exports.claimsReducer = claimsReducer;
 exports.commentReducer = commentReducer;
@@ -4818,6 +4842,7 @@ exports.selectAllMyClaimsByOutpoint = selectAllMyClaimsByOutpoint;
 exports.selectBalance = selectBalance;
 exports.selectBlocks = selectBlocks;
 exports.selectChannelClaimCounts = selectChannelClaimCounts;
+exports.selectClaimSearchByQuery = selectClaimSearchByQuery;
 exports.selectClaimsById = selectClaimsById;
 exports.selectClaimsByUri = selectClaimsByUri;
 exports.selectCurrentChannelPage = selectCurrentChannelPage;
@@ -4847,7 +4872,6 @@ exports.selectIsResolvingPublishUris = selectIsResolvingPublishUris;
 exports.selectIsSearching = selectIsSearching;
 exports.selectIsSendingSupport = selectIsSendingSupport;
 exports.selectIsStillEditing = selectIsStillEditing;
-exports.selectLastClaimSearchUris = selectLastClaimSearchUris;
 exports.selectLastPurchasedUri = selectLastPurchasedUri;
 exports.selectMyActiveClaims = selectMyActiveClaims;
 exports.selectMyChannelClaims = selectMyChannelClaims;

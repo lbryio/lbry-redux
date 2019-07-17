@@ -1,6 +1,6 @@
 // @flow
 import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
-import { getSearchQueryString } from 'util/query_params';
+import { getSearchQueryString } from 'util/query-params';
 import { normalizeURI, parseURI } from 'lbryURI';
 import { createSelector } from 'reselect';
 

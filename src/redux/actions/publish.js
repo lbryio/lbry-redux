@@ -4,8 +4,8 @@ import * as ACTIONS from 'constants/action_types';
 //import * as MODALS from 'constants/modal_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Lbry from 'lbry';
-import { batchActions } from 'util/batchActions';
-import { creditsToString } from 'util/formatCredits';
+import { batchActions } from 'util/batch-actions';
+import { creditsToString } from 'util/format-credits';
 import { doError } from 'redux/actions/notifications';
 import { isClaimNsfw } from 'util/claim';
 import {
@@ -54,13 +54,19 @@ export const doClearPublish = () => (dispatch: Dispatch) => {
   return dispatch(doResetThumbnailStatus());
 };
 
-export const doUpdatePublishForm = (publishFormValue: UpdatePublishFormData) => (dispatch: Dispatch) =>
+export const doUpdatePublishForm = (publishFormValue: UpdatePublishFormData) => (
+  dispatch: Dispatch
+) =>
   dispatch({
     type: ACTIONS.UPDATE_PUBLISH_FORM,
     data: { ...publishFormValue },
   });
 
-export const doUploadThumbnail = (filePath: string, thumbnailBuffer: Uint8Array, fsAdapter: any) => (dispatch: Dispatch) => {
+export const doUploadThumbnail = (
+  filePath: string,
+  thumbnailBuffer: Uint8Array,
+  fsAdapter: any
+) => (dispatch: Dispatch) => {
   let thumbnail, fileExt, fileName, fileType;
 
   const makeid = () => {
@@ -84,7 +90,7 @@ export const doUploadThumbnail = (filePath: string, thumbnailBuffer: Uint8Array,
         doError(error)
       )
     );
-  }
+  };
 
   dispatch({
     type: ACTIONS.UPDATE_PUBLISH_FORM,
@@ -104,9 +110,11 @@ export const doUploadThumbnail = (filePath: string, thumbnailBuffer: Uint8Array,
 
       return fetch('https://spee.ch/api/claim/publish', {
         method: 'POST',
-        body: data
-      }).then(response => response.json())
-        .then(json => json.success
+        body: data,
+      })
+        .then(response => response.json())
+        .then(json =>
+          json.success
             ? dispatch({
                 type: ACTIONS.UPDATE_PUBLISH_FORM,
                 data: {
@@ -159,7 +167,9 @@ export const doUploadThumbnail = (filePath: string, thumbnailBuffer: Uint8Array,
   }
 };
 
-export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileListItem) => (dispatch: Dispatch) => {
+export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileListItem) => (
+  dispatch: Dispatch
+) => {
   const { name, amount, channel_name: channelName, value } = claim;
 
   const {
@@ -375,7 +385,9 @@ export const doCheckPendingPublishes = () => (dispatch: Dispatch, getState: GetS
           // If it's confirmed, check if we should notify the user
           if (selectosNotificationsEnabled(getState())) {
             const notif = new window.Notification('LBRY Publish Complete', {
-              body: `${claim.value.title} has been published to lbry://${claim.name}. Click here to view it`,
+              body: `${claim.value.title} has been published to lbry://${
+                claim.name
+              }. Click here to view it`,
               silent: false,
             });
             notif.onclick = () => {
