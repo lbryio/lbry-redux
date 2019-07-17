@@ -46,7 +46,7 @@ const defaultState = {
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
-  claimSearchError: undefined,
+  claimSearchError: false,
   fetchingClaimSearch: false,
   claimSearchUrisByTags: {},
   fetchingClaimSearchByTags: {},
