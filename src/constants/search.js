@@ -2,6 +2,7 @@ export const SEARCH_TYPES = {
   FILE: 'file',
   CHANNEL: 'channel',
   SEARCH: 'search',
+  TAG: 'tag',
 };
 
 export const SEARCH_OPTIONS = {

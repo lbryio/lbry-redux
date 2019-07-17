@@ -60,8 +60,14 @@ export const makeSelectClaimIsPending = (uri: string) =>
   createSelector(
     selectPendingById,
     pendingById => {
-      const { claimId } = parseURI(uri);
-      return Boolean(pendingById[claimId]);
+      let claimId;
+      try {
+        ({ claimId } = parseURI(uri));
+      } catch (e) {}
+
+      if (claimId) {
+        return Boolean(pendingById[claimId]);
+      }
     }
   );
 
@@ -81,13 +87,21 @@ export const makeSelectClaimForUri = (uri: string) =>
     (byUri, pendingById) => {
       // Check if a claim is pending first
       // It won't be in claimsByUri because resolving it will return nothing
-      const { claimId } = parseURI(uri);
-      const pendingClaim = pendingById[claimId];
-      if (pendingClaim) {
-        return pendingClaim;
-      }
 
-      return byUri && byUri[normalizeURI(uri)];
+      let claimId;
+      try {
+        ({ claimId } = parseURI(uri));
+      } catch (e) {}
+
+      if (claimId) {
+        const pendingClaim = pendingById[claimId];
+
+        if (pendingClaim) {
+          return pendingClaim;
+        }
+
+        return byUri && byUri[normalizeURI(uri)];
+      }
     }
   );
 
@@ -114,12 +128,23 @@ export const selectMyActiveClaims = createSelector(
 );
 
 export const makeSelectClaimIsMine = (rawUri: string) => {
-  const uri = normalizeURI(rawUri);
+  let uri;
+  try {
+    uri = normalizeURI(rawUri);
+  } catch (e) {}
+
   return createSelector(
     selectClaimsByUri,
     selectMyActiveClaims,
-    (claims, myClaims) =>
-      claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id)
+    (claims, myClaims) => {
+      try {
+        parseURI(uri);
+      } catch (e) {
+        return false;
+      }
+
+      return claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id);
+    }
   );
 };
 

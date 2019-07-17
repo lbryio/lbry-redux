@@ -629,7 +629,8 @@ var transaction_types = /*#__PURE__*/Object.freeze({
 const SEARCH_TYPES = {
   FILE: 'file',
   CHANNEL: 'channel',
-  SEARCH: 'search'
+  SEARCH: 'search',
+  TAG: 'tag'
 };
 
 const SEARCH_OPTIONS = {
@@ -893,7 +894,7 @@ const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
-const regexInvalidURI = exports.regexInvalidURI = /[=&#:$@%?\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/gu;
+const regexInvalidURI = /[ =&#:$@%?\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/gu;
 const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 
 /**
@@ -1138,6 +1139,11 @@ const selectSearchSuggestions = reselect.createSelector(selectSearchValue, selec
     });
   }
 
+  searchSuggestions.push({
+    value: query,
+    type: SEARCH_TYPES.TAG
+  });
+
   const apiSuggestions = suggestions[query] || [];
   if (apiSuggestions.length) {
     searchSuggestions = searchSuggestions.concat(apiSuggestions.filter(suggestion => suggestion !== query).map(suggestion => {
@@ -1271,8 +1277,14 @@ const selectPendingById = reselect.createSelector(selectState$1, state => state.
 const selectPendingClaims = reselect.createSelector(selectState$1, state => Object.values(state.pendingById || []));
 
 const makeSelectClaimIsPending = uri => reselect.createSelector(selectPendingById, pendingById => {
-  const { claimId } = parseURI(uri);
-  return Boolean(pendingById[claimId]);
+  let claimId;
+  try {
+    ({ claimId } = parseURI(uri));
+  } catch (e) {}
+
+  if (claimId) {
+    return Boolean(pendingById[claimId]);
+  }
 });
 
 const makeSelectPendingByUri = uri => reselect.createSelector(selectPendingById, pendingById => {
@@ -1283,13 +1295,21 @@ const makeSelectPendingByUri = uri => reselect.createSelector(selectPendingById,
 const makeSelectClaimForUri = uri => reselect.createSelector(selectClaimsByUri, selectPendingById, (byUri, pendingById) => {
   // Check if a claim is pending first
   // It won't be in claimsByUri because resolving it will return nothing
-  const { claimId } = parseURI(uri);
-  const pendingClaim = pendingById[claimId];
-  if (pendingClaim) {
-    return pendingClaim;
-  }
 
-  return byUri && byUri[normalizeURI(uri)];
+  let claimId;
+  try {
+    ({ claimId } = parseURI(uri));
+  } catch (e) {}
+
+  if (claimId) {
+    const pendingClaim = pendingById[claimId];
+
+    if (pendingClaim) {
+      return pendingClaim;
+    }
+
+    return byUri && byUri[normalizeURI(uri)];
+  }
 });
 
 const selectMyClaimsRaw = reselect.createSelector(selectState$1, state => state.myClaims);
@@ -1299,8 +1319,20 @@ const selectAbandoningIds = reselect.createSelector(selectState$1, state => Obje
 const selectMyActiveClaims = reselect.createSelector(selectMyClaimsRaw, selectAbandoningIds, (claims, abandoningIds) => new Set(claims && claims.map(claim => claim.claim_id).filter(claimId => Object.keys(abandoningIds).indexOf(claimId) === -1)));
 
 const makeSelectClaimIsMine = rawUri => {
-  const uri = normalizeURI(rawUri);
-  return reselect.createSelector(selectClaimsByUri, selectMyActiveClaims, (claims, myClaims) => claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id));
+  let uri;
+  try {
+    uri = normalizeURI(rawUri);
+  } catch (e) {}
+
+  return reselect.createSelector(selectClaimsByUri, selectMyActiveClaims, (claims, myClaims) => {
+    try {
+      parseURI(uri);
+    } catch (e) {
+      return false;
+    }
+
+    return claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id);
+  });
 };
 
 const selectAllFetchingChannelClaims = reselect.createSelector(selectState$1, state => state.fetchingChannelClaims || {});
@@ -2303,7 +2335,7 @@ function doFetchChannelListMine() {
   };
 }
 
-function doClaimSearch(amount = 20, options = {}) {
+function doClaimSearch(options = {}) {
   return dispatch => {
     dispatch({
       type: CLAIM_SEARCH_STARTED
@@ -2330,9 +2362,7 @@ function doClaimSearch(amount = 20, options = {}) {
       });
     };
 
-    lbryProxy.claim_search(_extends$3({
-      page_size: amount
-    }, options)).then(success, failure);
+    lbryProxy.claim_search(_extends$3({}, options)).then(success, failure);
   };
 }
 

@@ -96,6 +96,11 @@ export const selectSearchSuggestions: Array<SearchSuggestion> = createSelector(
       });
     }
 
+    searchSuggestions.push({
+      value: query,
+      type: SEARCH_TYPES.TAG,
+    });
+
     const apiSuggestions = suggestions[query] || [];
     if (apiSuggestions.length) {
       searchSuggestions = searchSuggestions.concat(
