@@ -1,5 +1,6 @@
 declare type Comment = {
-  author: string,
+  author?: string,
+  author_url?: string,
   claim_index?: number,
   comment_id?: number,
   downvotes?: number,
