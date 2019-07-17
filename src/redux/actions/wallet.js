@@ -230,7 +230,9 @@ export function doSendTip(amount, claimId, successCallback, errorCallback) {
     const success = () => {
       dispatch(
         doToast({
-          message: isSupport ? __(`You deposited ${amount} LBC as a support!`) : __(`You sent ${amount} LBC as a tip, Mahalo!`),
+          message: isSupport
+            ? __(`You deposited ${amount} LBC as a support!`)
+            : __(`You sent ${amount} LBC as a tip, Mahalo!`),
           linkText: __('History'),
           linkTarget: __('/wallet'),
         })

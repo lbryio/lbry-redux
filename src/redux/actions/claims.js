@@ -9,6 +9,7 @@ import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/formatCredits';
 import { batchActions } from 'util/batchActions';
 import { createNormalizedTagKey } from 'util/claim';
+import { buildClaimSearchCacheQuery } from 'util/claim-search';
 
 export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean = false) {
   return (dispatch: Dispatch, getState: GetState) => {
@@ -314,7 +315,9 @@ export function doFetchChannelListMine() {
   };
 }
 
-export function doClaimSearch(options: { page_size?: number, page?: number } = {}) {
+export function doClaimSearch(options: { page?: number, release_time?: string } = {}) {
+  const query = buildClaimSearchCacheQuery(options);
+
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
@@ -330,7 +333,7 @@ export function doClaimSearch(options: { page_size?: number, page?: number } = {
 
       dispatch({
         type: ACTIONS.CLAIM_SEARCH_COMPLETED,
-        data: { resolveInfo, uris, append: options.page && options.page !== 1 },
+        data: { resolveInfo, uris, query, append: options.page && options.page !== 1 },
       });
     };
 

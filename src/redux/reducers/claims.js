@@ -46,6 +46,7 @@ const defaultState = {
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
+  claimSearchError: undefined,
   fetchingClaimSearch: false,
   claimSearchUrisByTags: {},
   fetchingClaimSearchByTags: {},
@@ -292,27 +293,34 @@ reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state: State, action: any): State => {
 reducers[ACTIONS.CLAIM_SEARCH_STARTED] = (state: State): State => {
   return Object.assign({}, state, {
     fetchingClaimSearch: true,
+    claimSearchError: false,
   });
 };
-reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State => {
-  const { lastClaimSearchUris } = state;
 
-  let newClaimSearchUris = [];
-  if (action.data.append) {
-    newClaimSearchUris = lastClaimSearchUris.concat(action.data.uris);
+reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State => {
+  const { claimSearchSearchByQuery } = state;
+  const { uris, query, append } = action.data;
+
+  let newClaimSearch = { ...claimSearchSearchByQuery };
+  if (!uris) {
+    newClaimSearch[query] = null;
+  } else if (append && newClaimSearch[query]) {
+    newClaimSearch[query] = newClaimSearch[query].concat(uris);
   } else {
-    newClaimSearchUris = action.data.uris;
+    newClaimSearch[query] = uris;
   }
 
   return {
     ...handleClaimAction(state, action),
     fetchingClaimSearch: false,
-    lastClaimSearchUris: newClaimSearchUris,
+    claimSearchSearchByQuery: newClaimSearch,
   };
 };
+
 reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State): State => {
   return Object.assign({}, state, {
     fetchingClaimSearch: false,
+    claimSearchError: true,
   });
 };
 
@@ -321,7 +329,7 @@ reducers[ACTIONS.CLAIM_SEARCH_BY_TAGS_STARTED] = (state: State, action: any): St
   fetchingClaimSearchByTags[action.data.tags] = true;
 
   return Object.assign({}, state, {
-    fetchingClaimSearchByTags
+    fetchingClaimSearchByTags,
   });
 };
 reducers[ACTIONS.CLAIM_SEARCH_BY_TAGS_COMPLETED] = (state: State, action: any): State => {
@@ -331,8 +339,10 @@ reducers[ACTIONS.CLAIM_SEARCH_BY_TAGS_COMPLETED] = (state: State, action: any): 
 
   if (action.data.append) {
     // todo: check for duplicate uris when concatenating?
-    claimSearchUrisByTags[tags] = claimSearchUrisByTags[tags] && claimSearchUrisByTags[tags].length ?
-      claimSearchUrisByTags[tags].concat(uris) : uris;
+    claimSearchUrisByTags[tags] =
+      claimSearchUrisByTags[tags] && claimSearchUrisByTags[tags].length
+        ? claimSearchUrisByTags[tags].concat(uris)
+        : uris;
   } else {
     claimSearchUrisByTags[tags] = uris;
   }
