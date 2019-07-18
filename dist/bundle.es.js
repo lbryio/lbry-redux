@@ -2300,8 +2300,15 @@ function doUpdateChannel(params) {
       description: params.description,
       website_url: params.website,
       email: params.email,
-      replace: true
+      replace: true,
+      tags: []
     };
+
+    if (params.tags) {
+      updateParams.tags = params.tags.map(tag => tag.name);
+    }
+
+    // TODO add languages and locations as above
 
     return lbryProxy.channel_update(updateParams).then(result => {
       const channelClaim = result.outputs[0];

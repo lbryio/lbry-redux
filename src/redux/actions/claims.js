@@ -263,7 +263,14 @@ export function doUpdateChannel(params: any) {
       website_url: params.website,
       email: params.email,
       replace: true,
+      tags: [],
     };
+
+    if (params.tags) {
+      updateParams.tags = params.tags.map(tag => tag.name);
+    }
+
+    // TODO add languages and locations as above
 
     return Lbry.channel_update(updateParams)
       .then((result: ChannelUpdateResponse) => {
