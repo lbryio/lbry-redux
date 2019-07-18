@@ -329,17 +329,17 @@ reducers[ACTIONS.CLAIM_SEARCH_BY_TAGS_COMPLETED] = (state: State, action: any): 
   const claimSearchUrisByTags = Object.assign({}, state.claimSearchUrisByTags);
   const { append, tags, uris } = action.data;
 
-  let newClaimSearchUrisByTags = [];
   if (action.data.append) {
     // todo: check for duplicate uris when concatenating?
-    newClaimSearchUrisByTags = claimSearchUrisByTags.concat(uris);
+    claimSearchUrisByTags[tags] = claimSearchUrisByTags[tags] && claimSearchUrisByTags[tags].length ?
+      claimSearchUrisByTags[tags].concat(uris) : uris;
   } else {
-    newClaimSearchUrisByTags = uris;
+    claimSearchUrisByTags[tags] = uris;
   }
   fetchingClaimSearchByTags[tags] = false; // or delete the key instead?
 
   return Object.assign({}, state, {
-    claimSearchUrisByTags: newClaimSearchUrisByTags,
+    claimSearchUrisByTags,
     fetchingClaimSearchByTags,
   });
 };
