@@ -1901,10 +1901,13 @@ function doSetDraftTransactionAddress(address) {
   };
 }
 
-function doSendTip(amount, claimId, uri, successCallback, errorCallback) {
+function doSendTip(amount, claimId, successCallback, errorCallback) {
   return (dispatch, getState) => {
     const state = getState();
     const balance = selectBalance(state);
+    const myClaims = selectMyClaimsRaw(state);
+
+    const isSupport = myClaims.find(claim => claim.claim_id === claimId);
 
     if (balance - amount <= 0) {
       dispatch(doToast({
@@ -1916,7 +1919,7 @@ function doSendTip(amount, claimId, uri, successCallback, errorCallback) {
 
     const success = () => {
       dispatch(doToast({
-        message: __(`You sent ${amount} LBC as a tip, Mahalo!`),
+        message: isSupport ? __(`You sent ${amount} LBC as a support!`) : __(`You sent ${amount} LBC as a tip, Mahalo!`),
         linkText: __('History'),
         linkTarget: __('/wallet')
       }));
@@ -1955,7 +1958,7 @@ function doSendTip(amount, claimId, uri, successCallback, errorCallback) {
     lbryProxy.support_create({
       claim_id: claimId,
       amount: creditsToString(amount),
-      tip: true
+      tip: isSupport ? false : true
     }).then(success, error);
   };
 }
@@ -2188,7 +2191,7 @@ function doAbandonClaim(txid, nout) {
 
     const errorCallback = () => {
       dispatch(doToast({
-        message: isClaim ? 'Error abandoning your claim' : 'Error unlocking your tip',
+        message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
         isError: true
       }));
     };
@@ -2199,13 +2202,22 @@ function doAbandonClaim(txid, nout) {
         data
       });
 
+      let abandonMessage;
+      if (isClaim) {
+        abandonMessage = 'Successfully abandoned your claim.';
+      } else if (supportToAbandon) {
+        abandonMessage = 'Successfully abandoned your support.';
+      } else {
+        abandonMessage = 'Successfully unlocked your tip!';
+      }
+
       dispatch(doToast({
-        message: isClaim ? 'Successfully abandoned your claim' : 'Successfully unlocked your tip!'
+        message: abandonMessage
       }));
 
       // After abandoning, call claim_list to show the claim as abandoned
       // Also fetch transactions to show the new abandon transaction
-      dispatch(doFetchClaimListMine());
+      if (isClaim) dispatch(doFetchClaimListMine());
       dispatch(doFetchTransactions());
     };
 

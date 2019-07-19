@@ -3,6 +3,7 @@ import Lbry from 'lbry';
 import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/formatCredits';
+import { selectMyClaimsRaw } from 'redux/selectors/claims';
 
 export function doUpdateBalance() {
   return (dispatch, getState) => {
@@ -208,10 +209,13 @@ export function doSetDraftTransactionAddress(address) {
   };
 }
 
-export function doSendTip(amount, claimId, uri, successCallback, errorCallback) {
+export function doSendTip(amount, claimId, successCallback, errorCallback) {
   return (dispatch, getState) => {
     const state = getState();
     const balance = selectBalance(state);
+    const myClaims: Array<Claim> = selectMyClaimsRaw(state);
+
+    const isSupport = myClaims.find(claim => claim.claim_id === claimId);
 
     if (balance - amount <= 0) {
       dispatch(
@@ -226,7 +230,7 @@ export function doSendTip(amount, claimId, uri, successCallback, errorCallback) 
     const success = () => {
       dispatch(
         doToast({
-          message: __(`You sent ${amount} LBC as a tip, Mahalo!`),
+          message: isSupport ? __(`You sent ${amount} LBC as a support!`) : __(`You sent ${amount} LBC as a tip, Mahalo!`),
           linkText: __('History'),
           linkTarget: __('/wallet'),
         })
@@ -268,7 +272,7 @@ export function doSendTip(amount, claimId, uri, successCallback, errorCallback) 
     Lbry.support_create({
       claim_id: claimId,
       amount: creditsToString(amount),
-      tip: true,
+      tip: isSupport ? false : true,
     }).then(success, error);
   };
 }
