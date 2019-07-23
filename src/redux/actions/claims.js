@@ -142,7 +142,7 @@ export function doAbandonClaim(txid: string, nout: number) {
     const errorCallback = () => {
       dispatch(
         doToast({
-          message: isClaim ? 'Error abandoning your claim' : 'Error unlocking your tip',
+          message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
           isError: true,
         })
       );
@@ -154,17 +154,24 @@ export function doAbandonClaim(txid: string, nout: number) {
         data,
       });
 
+      let abandonMessage;
+      if (isClaim) {
+        abandonMessage = 'Successfully abandoned your claim.';
+      } else if (supportToAbandon) {
+        abandonMessage = 'Successfully abandoned your support.';
+      } else {
+        abandonMessage = 'Successfully unlocked your tip!';
+      }
+
       dispatch(
         doToast({
-          message: isClaim
-            ? 'Successfully abandoned your claim'
-            : 'Successfully unlocked your tip!',
+          message: abandonMessage,
         })
       );
 
       // After abandoning, call claim_list to show the claim as abandoned
       // Also fetch transactions to show the new abandon transaction
-      dispatch(doFetchClaimListMine());
+      if (isClaim) dispatch(doFetchClaimListMine());
       dispatch(doFetchTransactions());
     };
 
