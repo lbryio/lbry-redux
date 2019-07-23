@@ -411,7 +411,6 @@ export const DEFAULT_KNOWN_TAGS = [
   'rda',
   '5859dfec-026f-46ba-bea0-02bf43aa1a6f',
   'gun',
-  100,
   'secret',
   'far cry 5',
   'auto',
