@@ -193,6 +193,7 @@ export {
   selectCurrentChannelPage,
   selectFetchingClaimSearch,
   selectLastClaimSearchUris,
+  selectMyChannelUris,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';

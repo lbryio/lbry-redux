@@ -351,6 +351,22 @@ export const selectMyChannelClaims = createSelector(
   }
 );
 
+export const selectMyChannelUris = createSelector(
+  selectMyChannelClaims,
+  myClaims =>
+    myClaims
+      .sort((a, b) => {
+        if (!a.timestamp) {
+          return -1;
+        } else if (!b.timestamp) {
+          return 1;
+        } else {
+          return b.timestamp - a.timestamp;
+        }
+      })
+      .map(claim => `lbry://${claim.name}#${claim.claim_id}`)
+);
+
 export const selectResolvingUris = createSelector(
   selectState,
   state => state.resolvingUris || []

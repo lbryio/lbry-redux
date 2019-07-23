@@ -1448,6 +1448,16 @@ const selectMyChannelClaims = reselect.createSelector(selectState$1, selectClaim
   return claims;
 });
 
+const selectMyChannelUris = reselect.createSelector(selectMyChannelClaims, myClaims => myClaims.sort((a, b) => {
+  if (!a.timestamp) {
+    return -1;
+  } else if (!b.timestamp) {
+    return 1;
+  } else {
+    return b.timestamp - a.timestamp;
+  }
+}).map(claim => `lbry://${claim.name}#${claim.claim_id}`));
+
 const selectResolvingUris = reselect.createSelector(selectState$1, state => state.resolvingUris || []);
 
 const makeSelectIsUriResolving = uri => reselect.createSelector(selectResolvingUris, resolvingUris => resolvingUris && resolvingUris.indexOf(uri) !== -1);
@@ -4839,6 +4849,7 @@ exports.selectLastClaimSearchUris = selectLastClaimSearchUris;
 exports.selectLastPurchasedUri = selectLastPurchasedUri;
 exports.selectMyActiveClaims = selectMyActiveClaims;
 exports.selectMyChannelClaims = selectMyChannelClaims;
+exports.selectMyChannelUris = selectMyChannelUris;
 exports.selectMyClaimForUri = selectMyClaimForUri;
 exports.selectMyClaimUrisWithoutChannels = selectMyClaimUrisWithoutChannels;
 exports.selectMyClaims = selectMyClaims;
