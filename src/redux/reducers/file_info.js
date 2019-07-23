@@ -91,13 +91,15 @@ reducers[ACTIONS.DOWNLOADING_PROGRESSED] = (state, action) => {
 };
 
 reducers[ACTIONS.DOWNLOADING_CANCELED] = (state, action) => {
-  const { outpoint } = action.data;
+  const { uri, outpoint } = action.data;
 
   const newDownloading = Object.assign({}, state.downloadingByOutpoint);
   delete newDownloading[outpoint];
+  delete newLoading[uri];
 
   return Object.assign({}, state, {
     downloadingByOutpoint: newDownloading,
+    urisLoading: newLoading,
   });
 };
 

@@ -72,7 +72,7 @@ export const selectFileInfosDownloaded = createSelector(
       return (
         fileInfo &&
         myClaimIds.indexOf(fileInfo.claim_id) === -1 &&
-        (fileInfo.completed || fileInfo.written_bytes)
+        (fileInfo.completed || fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0 )
       );
     })
 );

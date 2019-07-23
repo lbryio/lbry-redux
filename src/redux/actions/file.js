@@ -55,7 +55,7 @@ export function doFileGet(uri: string, saveFile: boolean = true) {
 
         dispatch(
           doToast({
-            message: `Failed to download ${uri}, please try again. If this problem persists, visit https://lbry.com/faq/support for support.`,
+            message: `Failed to view ${uri}, please try again. If this problem persists, visit https://lbry.com/faq/support for support.`,
             isError: true,
           })
         );
