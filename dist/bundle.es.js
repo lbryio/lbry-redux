@@ -1366,7 +1366,7 @@ const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectCla
 
 const makeSelectThumbnailForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const thumbnail = claim && claim.value && claim.value.thumbnail;
-  return thumbnail ? thumbnail.url : undefined;
+  return thumbnail && thumbnail.url && thumbnail.url.trim().length() > 0 ? thumbnail.url : undefined;
 });
 
 const makeSelectCoverForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {

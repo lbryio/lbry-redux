@@ -228,7 +228,7 @@ export const makeSelectThumbnailForUri = (uri: string) =>
     makeSelectClaimForUri(uri),
     claim => {
       const thumbnail = claim && claim.value && claim.value.thumbnail;
-      return thumbnail ? thumbnail.url : undefined;
+      return thumbnail && thumbnail.url && thumbnail.url.trim().length() > 0 ? thumbnail.url : undefined;
     }
   );
 
