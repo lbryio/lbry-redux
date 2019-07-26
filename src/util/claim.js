@@ -24,5 +24,5 @@ export const isClaimNsfw = (claim: Claim): boolean => {
 };
 
 export const createNormalizedTagKey = (tags: Array<string>): string => {
-  return tags.sort().join(',');
+  return tags ? tags.sort().join(',') : '';
 };

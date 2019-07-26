@@ -1243,7 +1243,7 @@ const isClaimNsfw = claim => {
 };
 
 const createNormalizedTagKey = tags => {
-  return tags.sort().join(',');
+  return tags ? tags.sort().join(',') : '';
 };
 
 //      
