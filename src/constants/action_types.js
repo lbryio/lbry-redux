@@ -235,3 +235,5 @@ export const FETCH_COST_INFO_FAILED = 'FETCH_COST_INFO_FAILED';
 export const TOGGLE_TAG_FOLLOW = 'TOGGLE_TAG_FOLLOW';
 export const TAG_ADD = 'TAG_ADD';
 export const TAG_DELETE = 'TAG_DELETE';
+// Blocked Channels
+export const TOGGLE_BLOCK_CHANNEL = 'TOGGLE_BLOCK_CHANNEL';
