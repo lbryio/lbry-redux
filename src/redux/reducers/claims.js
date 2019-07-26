@@ -47,8 +47,8 @@ const defaultState = {
   abandoningById: {},
   pendingById: {},
   fetchingClaimSearch: false,
-  claimSearchUrisByTags: [],
-  fetchingClaimSearchByTags: [],
+  claimSearchUrisByTags: {},
+  fetchingClaimSearchByTags: {},
   lastClaimSearchUris: [],
 };
 

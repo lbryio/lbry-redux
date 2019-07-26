@@ -2,7 +2,7 @@
 import { normalizeURI, buildURI, parseURI } from 'lbryURI';
 import { selectSearchUrisByQuery } from 'redux/selectors/search';
 import { createSelector } from 'reselect';
-import { isClaimNsfw } from 'util/claim';
+import { isClaimNsfw, createNormalizedTagKey } from 'util/claim';
 import { getSearchQueryString } from 'util/query_params';
 
 const selectState = state => state.claims || {};
@@ -495,14 +495,14 @@ export const selectClaimSearchUrisByTags = createSelector(
   state => state.claimSearchUrisByTags
 );
 
-export const makeSelectFetchingClaimSearchForTags = (tags: string) =>
+export const makeSelectFetchingClaimSearchForTags = (tags: Array<string>) =>
   createSelector(
     selectFetchingClaimSearchByTags,
-    byTags => byTags[tags]
+    byTags => byTags[createNormalizedTagKey(tags)]
   );
 
-export const makeSelectClaimSearchUrisForTags = (tags: string) =>
+export const makeSelectClaimSearchUrisForTags = (tags: Array<string>) =>
   createSelector(
     selectClaimSearchUrisByTags,
-    byTags => byTags[tags]
+    byTags => byTags[createNormalizedTagKey(tags)]
   );

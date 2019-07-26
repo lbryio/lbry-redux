@@ -8,6 +8,7 @@ import { doFetchTransactions } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/formatCredits';
 import { batchActions } from 'util/batchActions';
+import { createNormalizedTagKey } from 'util/claim';
 
 export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean = false) {
   return (dispatch: Dispatch, getState: GetState) => {
@@ -336,7 +337,7 @@ export function doClaimSearch(amount: number = 20, options: { page?: number } = 
 // tags can be one or many (comma separated)
 export function doClaimSearchByTags(tags: Array<string>, amount: number = 10, options: { page?: number } = {}) {
   return (dispatch: Dispatch) => {
-    const tagList = tags.join(',');
+    const tagList = createNormalizedTagKey(tags);
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_BY_TAGS_STARTED,
       data: { tags: tagList },

@@ -1242,6 +1242,10 @@ const isClaimNsfw = claim => {
   return false;
 };
 
+const createNormalizedTagKey = tags => {
+  return tags.sort().join(',');
+};
+
 //      
 
 const selectState$1 = state => state.claims || {};
@@ -1521,9 +1525,9 @@ const selectFetchingClaimSearchByTags = reselect.createSelector(selectState$1, s
 
 const selectClaimSearchUrisByTags = reselect.createSelector(selectState$1, state => state.claimSearchUrisByTags);
 
-const makeSelectFetchingClaimSearchForTags = tags => reselect.createSelector(selectFetchingClaimSearchByTags, byTags => byTags[tags]);
+const makeSelectFetchingClaimSearchForTags = tags => reselect.createSelector(selectFetchingClaimSearchByTags, byTags => byTags[createNormalizedTagKey(tags)]);
 
-const makeSelectClaimSearchUrisForTags = tags => reselect.createSelector(selectClaimSearchUrisByTags, byTags => byTags[tags]);
+const makeSelectClaimSearchUrisForTags = tags => reselect.createSelector(selectClaimSearchUrisByTags, byTags => byTags[createNormalizedTagKey(tags)]);
 
 const selectState$2 = state => state.wallet || {};
 
@@ -2353,7 +2357,7 @@ function doClaimSearch(amount = 20, options = {}) {
 // tags can be one or many (comma separated)
 function doClaimSearchByTags(tags, amount = 10, options = {}) {
   return dispatch => {
-    const tagList = tags.join(',');
+    const tagList = createNormalizedTagKey(tags);
     dispatch({
       type: CLAIM_SEARCH_BY_TAGS_STARTED,
       data: { tags: tagList }
@@ -3384,8 +3388,8 @@ const defaultState = {
   abandoningById: {},
   pendingById: {},
   fetchingClaimSearch: false,
-  claimSearchUrisByTags: [],
-  fetchingClaimSearchByTags: [],
+  claimSearchUrisByTags: {},
+  fetchingClaimSearchByTags: {},
   lastClaimSearchUris: []
 };
 

@@ -22,3 +22,7 @@ export const isClaimNsfw = (claim: Claim): boolean => {
 
   return false;
 };
+
+export const createNormalizedTagKey = (tags: Array<string>): string => {
+  return tags.sort().join(',');
+};
