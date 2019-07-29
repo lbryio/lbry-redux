@@ -221,6 +221,7 @@ export {
 } from 'redux/selectors/file_info';
 
 export {
+  makeSelectPublishFormValue,
   selectPublishFormValues,
   selectIsStillEditing,
   selectMyClaimForUri,

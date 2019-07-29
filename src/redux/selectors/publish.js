@@ -17,6 +17,12 @@ export const selectPublishFormValues = createSelector(
   }
 );
 
+export const makeSelectPublishFormValue = item =>
+  createSelector(
+    selectState,
+    state => state[item]
+  );
+
 // Is the current uri the same as the uri they clicked "edit" on
 export const selectIsStillEditing = createSelector(
   selectPublishFormValues,
@@ -54,8 +60,8 @@ export const selectMyClaimForUri = createSelector(
     return isStillEditing
       ? claimsById[editClaimId]
       : myClaims.find(claim =>
-          !contentName ? claim.name === claimName : claim.name === contentName || claim.name === claimName
-        );
+        !contentName ? claim.name === claimName : claim.name === contentName || claim.name === claimName
+      );
   }
 );
 
