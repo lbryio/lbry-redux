@@ -260,6 +260,8 @@ const FETCH_COST_INFO_FAILED = 'FETCH_COST_INFO_FAILED';
 const TOGGLE_TAG_FOLLOW = 'TOGGLE_TAG_FOLLOW';
 const TAG_ADD = 'TAG_ADD';
 const TAG_DELETE = 'TAG_DELETE';
+// Blocked Channels
+const TOGGLE_BLOCK_CHANNEL = 'TOGGLE_BLOCK_CHANNEL';
 
 var action_types = /*#__PURE__*/Object.freeze({
   WINDOW_FOCUSED: WINDOW_FOCUSED,
@@ -466,7 +468,8 @@ var action_types = /*#__PURE__*/Object.freeze({
   FETCH_COST_INFO_FAILED: FETCH_COST_INFO_FAILED,
   TOGGLE_TAG_FOLLOW: TOGGLE_TAG_FOLLOW,
   TAG_ADD: TAG_ADD,
-  TAG_DELETE: TAG_DELETE
+  TAG_DELETE: TAG_DELETE,
+  TOGGLE_BLOCK_CHANNEL: TOGGLE_BLOCK_CHANNEL
 });
 
 const CC_LICENSES = [{
@@ -2084,6 +2087,14 @@ function doUpdateBlockHeight() {
   });
 }
 
+// https://github.com/reactjs/redux/issues/911
+function batchActions(...actions) {
+  return {
+    type: 'BATCH_ACTIONS',
+    actions
+  };
+}
+
 var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function doResolveUris(uris, returnCachedClaims = false) {
@@ -2780,14 +2791,6 @@ function doSetFileListSort(page, value) {
   };
 }
 
-// https://github.com/reactjs/redux/issues/911
-function batchActions(...actions) {
-  return {
-    type: 'BATCH_ACTIONS',
-    actions
-  };
-}
-
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 const selectState$5 = state => state.publish || {};
@@ -3458,6 +3461,15 @@ function doCommentCreate(comment = '', claim_id = '', channel, parent_id) {
     });
   };
 }
+
+//      
+
+const doToggleBlockChannel = uri => ({
+  type: TOGGLE_BLOCK_CHANNEL,
+  data: {
+    uri
+  }
+});
 
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -4404,6 +4416,30 @@ const tagsReducer = handleActions({
   }
 }, defaultState$8);
 
+//      
+
+const defaultState$9 = {
+  blockedChannels: []
+};
+
+const blockChannelReducer = handleActions({
+  [TOGGLE_BLOCK_CHANNEL]: (state, action) => {
+    const { blockedChannels } = state;
+    const { uri } = action.data;
+    let newBlockedChannels = blockedChannels.slice();
+
+    if (newBlockedChannels.includes(uri)) {
+      newBlockedChannels = newBlockedChannels.filter(id => id !== uri);
+    } else {
+      newBlockedChannels.push(uri);
+    }
+
+    return {
+      blockedChannels: newBlockedChannels
+    };
+  }
+}, defaultState$9);
+
 var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const buildDraftTransaction = () => ({
@@ -4415,7 +4451,7 @@ const buildDraftTransaction = () => ({
 // See details in https://github.com/lbryio/lbry/issues/1307
 
 
-const defaultState$9 = {
+const defaultState$a = {
   balance: undefined,
   totalBalance: undefined,
   latestBlock: undefined,
@@ -4658,7 +4694,7 @@ const walletReducer = handleActions({
   [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$e({}, state, {
     latestBlock: action.data
   })
-}, defaultState$9);
+}, defaultState$a);
 
 const selectState$6 = state => state.content || {};
 
@@ -4746,6 +4782,18 @@ const selectUnfollowedTags = reselect.createSelector(selectKnownTagsByName, sele
   return tagsToReturn;
 });
 
+//      
+
+const selectState$a = state => state.blockedChannels || {};
+
+const selectBlockedChannels = reselect.createSelector(selectState$a, state => state.blockedChannels);
+
+const selectBlockedChannelsCount = reselect.createSelector(selectState$a, state => state.blockedChannels.length);
+
+const selectChannelIsBlocked = uri => reselect.createSelector(selectState$a, state => {
+  return state.blockedChannels.includes(uri);
+});
+
 exports.ACTIONS = action_types;
 exports.CLAIM_VALUES = claim;
 exports.DEFAULT_FOLLOWED_TAGS = DEFAULT_FOLLOWED_TAGS;
@@ -4761,6 +4809,7 @@ exports.SORT_OPTIONS = sort_options;
 exports.THUMBNAIL_STATUSES = thumbnail_upload_statuses;
 exports.TRANSACTIONS = transaction_types;
 exports.batchActions = batchActions;
+exports.blockChannelReducer = blockChannelReducer;
 exports.buildURI = buildURI;
 exports.claimsReducer = claimsReducer;
 exports.commentReducer = commentReducer;
@@ -4808,6 +4857,7 @@ exports.doSetDraftTransactionAmount = doSetDraftTransactionAmount;
 exports.doSetFileListSort = doSetFileListSort;
 exports.doSetTransactionListFilter = doSetTransactionListFilter;
 exports.doToast = doToast;
+exports.doToggleBlockChannel = doToggleBlockChannel;
 exports.doToggleTagFollow = doToggleTagFollow;
 exports.doTotalBalanceSubscribe = doTotalBalanceSubscribe;
 exports.doUpdateBalance = doUpdateBalance;
@@ -4881,8 +4931,11 @@ exports.selectAllClaimsByChannel = selectAllClaimsByChannel;
 exports.selectAllFetchingChannelClaims = selectAllFetchingChannelClaims;
 exports.selectAllMyClaimsByOutpoint = selectAllMyClaimsByOutpoint;
 exports.selectBalance = selectBalance;
+exports.selectBlockedChannels = selectBlockedChannels;
+exports.selectBlockedChannelsCount = selectBlockedChannelsCount;
 exports.selectBlocks = selectBlocks;
 exports.selectChannelClaimCounts = selectChannelClaimCounts;
+exports.selectChannelIsBlocked = selectChannelIsBlocked;
 exports.selectClaimSearchUrisByTags = selectClaimSearchUrisByTags;
 exports.selectClaimsById = selectClaimsById;
 exports.selectClaimsByUri = selectClaimsByUri;

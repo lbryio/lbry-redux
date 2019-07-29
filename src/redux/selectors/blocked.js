@@ -5,7 +5,12 @@ const selectState = (state: { blockedChannels: BlocklistState }) => state.blocke
 
 export const selectBlockedChannels = createSelector(
   selectState,
-  (state: BlocklistState) => state
+  (state: BlocklistState) => state.blockedChannels
+);
+
+export const selectBlockedChannelsCount = createSelector(
+  selectState,
+  (state: BlocklistState) => state.blockedChannels.length
 );
 
 export const selectChannelIsBlocked = (uri: string) => createSelector(
