@@ -55,6 +55,7 @@ export {
   doCreateChannel,
   doUpdateChannel,
   doClaimSearch,
+  doClaimSearchByTags,
 } from 'redux/actions/claims';
 
 export { doDeletePurchasedUri, doPurchaseUri, doFileGet } from 'redux/actions/file';
@@ -193,6 +194,10 @@ export {
   selectCurrentChannelPage,
   selectFetchingClaimSearch,
   selectLastClaimSearchUris,
+  selectFetchingClaimSearchByTags,
+  selectClaimSearchUrisByTags,
+  makeSelectFetchingClaimSearchForTags,
+  makeSelectClaimSearchUrisForTags,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';

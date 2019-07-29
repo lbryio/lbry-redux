@@ -2,7 +2,7 @@
 import { normalizeURI, buildURI, parseURI } from 'lbryURI';
 import { selectSearchUrisByQuery } from 'redux/selectors/search';
 import { createSelector } from 'reselect';
-import { isClaimNsfw } from 'util/claim';
+import { isClaimNsfw, createNormalizedTagKey } from 'util/claim';
 import { getSearchQueryString } from 'util/query_params';
 
 const selectState = state => state.claims || {};
@@ -253,7 +253,7 @@ export const makeSelectThumbnailForUri = (uri: string) =>
     makeSelectClaimForUri(uri),
     claim => {
       const thumbnail = claim && claim.value && claim.value.thumbnail;
-      return thumbnail ? thumbnail.url : undefined;
+      return thumbnail && thumbnail.url && thumbnail.url.trim().length > 0 ? thumbnail.url : undefined;
     }
   );
 
@@ -508,4 +508,26 @@ export const makeSelectShortUrlForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
     claim => claim && claim.short_url
+  );
+
+export const selectFetchingClaimSearchByTags = createSelector(
+  selectState,
+  state => state.fetchingClaimSearchByTags
+);
+
+export const selectClaimSearchUrisByTags = createSelector(
+  selectState,
+  state => state.claimSearchUrisByTags
+);
+
+export const makeSelectFetchingClaimSearchForTags = (tags: Array<string>) =>
+  createSelector(
+    selectFetchingClaimSearchByTags,
+    byTags => byTags[createNormalizedTagKey(tags)]
+  );
+
+export const makeSelectClaimSearchUrisForTags = (tags: Array<string>) =>
+  createSelector(
+    selectClaimSearchUrisByTags,
+    byTags => byTags[createNormalizedTagKey(tags)]
   );
