@@ -273,4 +273,4 @@ export {
 
 export { selectFollowedTags, selectUnfollowedTags } from 'redux/selectors/tags';
 
-export { selectBlockedChannels, selectChannelIsBlocked } from 'redux/selectors/blocked';
+export { selectBlockedChannels, selectChannelIsBlocked, selectBlockedChannelsCount } from 'redux/selectors/blocked';
