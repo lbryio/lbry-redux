@@ -3009,10 +3009,10 @@ const doPrepareEdit = (claim, uri, fileInfo) => dispatch => {
   const publishData = {
     name,
     bid: amount,
-    contentIsFree: !fee.amount,
+    contentIsFree: fee.amount === '0',
     author,
     description,
-    fee: { amount: fee.amount, currency: fee.currency },
+    fee,
     languages,
     thumbnail: thumbnail ? thumbnail.url : null,
     title,
@@ -3080,7 +3080,6 @@ const doPublish = (success, fail) => (dispatch, getState) => {
     contentIsFree,
     fee,
     uri,
-    nsfw,
     tags,
     locations
   } = publishData;
@@ -3125,19 +3124,13 @@ const doPublish = (success, fail) => (dispatch, getState) => {
     publishPayload.thumbnail_url = thumbnail;
   }
 
+  // Set release time to curret date. On edits, keep original release/transaction time as release_time
   if (myClaimForUri && myClaimForUri.value.release_time) {
     publishPayload.release_time = Number(myClaimForUri.value.release_time);
-  }
-
-  if (nsfw) {
-    if (!publishPayload.tags.includes('mature')) {
-      publishPayload.tags.push('mature');
-    }
+  } else if (myClaimForUri && myClaimForUri.timestamp) {
+    publishPayload.release_time = Number(myClaimForUri.timestamp);
   } else {
-    const indexToRemove = publishPayload.tags.indexOf('mature');
-    if (indexToRemove > -1) {
-      publishPayload.tags.splice(indexToRemove, 1);
-    }
+    publishPayload.release_time = Number(Math.round(Date.now() / 1000));
   }
 
   if (channelId) {

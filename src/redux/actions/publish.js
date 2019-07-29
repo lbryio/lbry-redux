@@ -118,12 +118,12 @@ export const doUploadThumbnail = (
         .then(json =>
           json.success
             ? dispatch({
-                type: ACTIONS.UPDATE_PUBLISH_FORM,
-                data: {
-                  uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-                  thumbnail: `${json.data.url}${fileExt}`,
-                },
-              })
+              type: ACTIONS.UPDATE_PUBLISH_FORM,
+              data: {
+                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+                thumbnail: `${json.data.url}${fileExt}`,
+              },
+            })
             : uploadError(json.message)
         )
         .catch(err => uploadError(err.message));
@@ -157,12 +157,12 @@ export const doUploadThumbnail = (
       .then(json =>
         json.success
           ? dispatch({
-              type: ACTIONS.UPDATE_PUBLISH_FORM,
-              data: {
-                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-                thumbnail: `${json.data.url}${fileExt}`,
-              },
-            })
+            type: ACTIONS.UPDATE_PUBLISH_FORM,
+            data: {
+              uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+              thumbnail: `${json.data.url}${fileExt}`,
+            },
+          })
           : uploadError(json.message)
       )
       .catch(err => uploadError(err.message));
@@ -194,10 +194,10 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
   const publishData: UpdatePublishFormData = {
     name,
     bid: amount,
-    contentIsFree: !fee.amount,
+    contentIsFree: fee.amount === '0',
     author,
     description,
-    fee: { amount: fee.amount, currency: fee.currency },
+    fee,
     languages,
     thumbnail: thumbnail ? thumbnail.url : null,
     title,
@@ -268,7 +268,6 @@ export const doPublish = (success: Function, fail: Function) => (
     contentIsFree,
     fee,
     uri,
-    nsfw,
     tags,
     locations,
   } = publishData;
@@ -329,19 +328,13 @@ export const doPublish = (success: Function, fail: Function) => (
     publishPayload.thumbnail_url = thumbnail;
   }
 
+  // Set release time to curret date. On edits, keep original release/transaction time as release_time
   if (myClaimForUri && myClaimForUri.value.release_time) {
     publishPayload.release_time = Number(myClaimForUri.value.release_time);
-  }
-
-  if (nsfw) {
-    if (!publishPayload.tags.includes('mature')) {
-      publishPayload.tags.push('mature');
-    }
+  } else if (myClaimForUri && myClaimForUri.timestamp) {
+    publishPayload.release_time = Number(myClaimForUri.timestamp);
   } else {
-    const indexToRemove = publishPayload.tags.indexOf('mature');
-    if (indexToRemove > -1) {
-      publishPayload.tags.splice(indexToRemove, 1);
-    }
+    publishPayload.release_time = Number(Math.round(Date.now() / 1000));
   }
 
   if (channelId) {

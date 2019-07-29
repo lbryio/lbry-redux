@@ -25,27 +25,3 @@ declare type UpdatePublishFormData = {
   uri?: string,
   nsfw: boolean,
 };
-// This was only used when we were passing params instead of selecting them
-declare type PublishParams = {
-  name: ?string,
-  bid: ?number,
-  filePath?: string,
-  description: ?string,
-  language: string,
-  publishingLicense?: string,
-  publishingLicenseUrl?: string,
-  thumbnail: ?string,
-  channel: string,
-  channelId?: string,
-  title: string,
-  contentIsFree: boolean,
-  uri?: string,
-  license: ?string,
-  licenseUrl: ?string,
-  fee?: {
-    amount: string,
-    currency: string,
-  },
-  claim: StreamClaim,
-  nsfw: boolean,
-};
