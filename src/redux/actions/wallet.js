@@ -2,7 +2,7 @@ import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
-import { creditsToString } from 'util/formatCredits';
+import { creditsToString } from 'util/format-credits';
 import { selectMyClaimsRaw } from 'redux/selectors/claims';
 
 export function doUpdateBalance() {

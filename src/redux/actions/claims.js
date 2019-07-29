@@ -6,8 +6,8 @@ import { doToast } from 'redux/actions/notifications';
 import { selectMyClaimsRaw, selectResolvingUris, selectClaimsByUri } from 'redux/selectors/claims';
 import { doFetchTransactions } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
-import { creditsToString } from 'util/formatCredits';
-import { batchActions } from 'util/batchActions';
+import { creditsToString } from 'util/format-credits';
+import { batchActions } from 'util/batch-actions';
 import { createNormalizedTagKey } from 'util/claim';
 import { buildClaimSearchCacheQuery } from 'util/claim-search';
 

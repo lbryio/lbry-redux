@@ -7,8 +7,6 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('proxy-polyfill');
 var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
-var formatCredits$1 = require('util/formatCredits');
-require('util/batchActions');
 var fs = _interopDefault(require('fs'));
 var path = _interopDefault(require('path'));
 
@@ -1706,6 +1704,34 @@ const selectCurrentHeight = reselect.createSelector(selectState$2, state => stat
 
 const selectTransactionListFilter = reselect.createSelector(selectState$2, state => state.transactionListFilter || '');
 
+function formatCredits(amount, precision) {
+  if (Number.isNaN(parseFloat(amount))) return '0';
+  return parseFloat(amount).toFixed(precision || 1).replace(/\.?0+$/, '');
+}
+
+function formatFullPrice(amount, precision = 1) {
+  let formated = '';
+
+  const quantity = amount.toString().split('.');
+  const fraction = quantity[1];
+
+  if (fraction) {
+    const decimals = fraction.split('');
+    const first = decimals.filter(number => number !== '0')[0];
+    const index = decimals.indexOf(first);
+
+    // Set format fraction
+    formated = `.${fraction.substring(0, index + precision)}`;
+  }
+
+  return parseFloat(quantity[0] + formated);
+}
+
+function creditsToString(amount) {
+  const creditString = parseFloat(amount).toFixed(8);
+  return creditString;
+}
+
 function doUpdateBalance() {
   return (dispatch, getState) => {
     const {
@@ -1878,7 +1904,7 @@ function doSendDraftTransaction(address, amount) {
 
     lbryProxy.account_send({
       addresses: [address],
-      amount: formatCredits$1.creditsToString(amount)
+      amount: creditsToString(amount)
     }).then(successCallback, errorCallback);
   };
 }
@@ -1953,7 +1979,7 @@ function doSendTip(amount, claimId, successCallback, errorCallback) {
 
     lbryProxy.support_create({
       claim_id: claimId,
-      amount: formatCredits$1.creditsToString(amount),
+      amount: creditsToString(amount),
       tip: isSupport ? false : true
     }).then(success, error);
   };
@@ -2058,6 +2084,14 @@ function doUpdateBlockHeight() {
       });
     }
   });
+}
+
+// https://github.com/reactjs/redux/issues/911
+function batchActions(...actions) {
+  return {
+    type: 'BATCH_ACTIONS',
+    actions
+  };
 }
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
@@ -2278,7 +2312,7 @@ function doCreateChannel(name, amount) {
 
     return lbryProxy.channel_create({
       name,
-      bid: formatCredits$1.creditsToString(amount)
+      bid: creditsToString(amount)
     })
     // outputs[0] is the certificate
     // outputs[1] is the change from the tx, not in the app currently
@@ -2304,7 +2338,7 @@ function doUpdateChannel(params) {
     });
     const updateParams = {
       claim_id: params.claim_id,
-      bid: formatCredits$1.creditsToString(params.amount),
+      bid: creditsToString(params.amount),
       title: params.title,
       cover_url: params.cover,
       thumbnail_url: params.thumbnail,
@@ -2767,42 +2801,6 @@ function doSetFileListSort(page, value) {
     type: SET_FILE_LIST_SORT,
     data: { page, value }
   };
-}
-
-// https://github.com/reactjs/redux/issues/911
-function batchActions(...actions) {
-  return {
-    type: 'BATCH_ACTIONS',
-    actions
-  };
-}
-
-function formatCredits(amount, precision) {
-  if (Number.isNaN(parseFloat(amount))) return '0';
-  return parseFloat(amount).toFixed(precision || 1).replace(/\.?0+$/, '');
-}
-
-function formatFullPrice(amount, precision = 1) {
-  let formated = '';
-
-  const quantity = amount.toString().split('.');
-  const fraction = quantity[1];
-
-  if (fraction) {
-    const decimals = fraction.split('');
-    const first = decimals.filter(number => number !== '0')[0];
-    const index = decimals.indexOf(first);
-
-    // Set format fraction
-    formated = `.${fraction.substring(0, index + precision)}`;
-  }
-
-  return parseFloat(quantity[0] + formated);
-}
-
-function creditsToString(amount) {
-  const creditString = parseFloat(amount).toFixed(8);
-  return creditString;
 }
 
 function _objectWithoutProperties$1(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
