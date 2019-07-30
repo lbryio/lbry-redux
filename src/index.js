@@ -194,8 +194,6 @@ export {
   selectFetchingClaimSearch,
   selectfetchingClaimSearchByQuery,
   selectClaimSearchByQuery,
-  makeSelectFetchingClaimSearchForTags,
-  makeSelectClaimSearchUrisForTags,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';

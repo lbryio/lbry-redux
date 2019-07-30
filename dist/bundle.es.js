@@ -1408,7 +1408,11 @@ const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectCla
 
 const makeSelectThumbnailForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const thumbnail = claim && claim.value && claim.value.thumbnail;
-  return thumbnail && thumbnail.url && thumbnail.url.trim().length > 0 ? thumbnail.url : undefined;
+  if (!thumbnail || !thumbnail.url) {
+    return undefined;
+  }
+
+  return thumbnail.url.trim();
 });
 
 const makeSelectCoverForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
@@ -1564,10 +1568,6 @@ const selectFetchingClaimSearch = reselect.createSelector(selectfetchingClaimSea
 const selectClaimSearchByQuery = reselect.createSelector(selectState$1, state => state.claimSearchByQuery || {});
 
 const makeSelectShortUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.short_url);
-
-const makeSelectFetchingClaimSearchForTags = tags => reselect.createSelector(selectfetchingClaimSearchByQuery, byQuery => byQuery[createNormalizedClaimSearchKey({ any_tags: tags })]);
-
-const makeSelectClaimSearchUrisForTags = tags => reselect.createSelector(selectClaimSearchByQuery, byQuery => byQuery[createNormalizedClaimSearchKey({ any_tags: tags })]);
 
 const selectState$2 = state => state.wallet || {};
 
@@ -4785,7 +4785,6 @@ exports.makeSelectClaimForUri = makeSelectClaimForUri;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;
 exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
 exports.makeSelectClaimIsPending = makeSelectClaimIsPending;
-exports.makeSelectClaimSearchUrisForTags = makeSelectClaimSearchUrisForTags;
 exports.makeSelectClaimsInChannelForCurrentPageState = makeSelectClaimsInChannelForCurrentPageState;
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
 exports.makeSelectCommentsForUri = makeSelectCommentsForUri;
@@ -4795,7 +4794,6 @@ exports.makeSelectCoverForUri = makeSelectCoverForUri;
 exports.makeSelectDateForUri = makeSelectDateForUri;
 exports.makeSelectDownloadingForUri = makeSelectDownloadingForUri;
 exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
-exports.makeSelectFetchingClaimSearchForTags = makeSelectFetchingClaimSearchForTags;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
 exports.makeSelectFirstRecommendedFileForUri = makeSelectFirstRecommendedFileForUri;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
