@@ -8,8 +8,7 @@ import { doFetchTransactions } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { batchActions } from 'util/batch-actions';
-import { createNormalizedTagKey } from 'util/claim';
-import { buildClaimSearchCacheQuery } from 'util/claim-search';
+import { createNormalizedClaimSearchKey } from 'util/claim';
 
 export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean = false) {
   return (dispatch: Dispatch, getState: GetState) => {
@@ -315,12 +314,16 @@ export function doFetchChannelListMine() {
   };
 }
 
-export function doClaimSearch(options: { page?: number, release_time?: string } = {}) {
-  const query = buildClaimSearchCacheQuery(options);
-
+export function doClaimSearch(
+  options: { tags?: Array<string>, page?: number, page_size?: number, release_time?: string } = {
+    page_size: 10,
+  }
+) {
+  const query = createNormalizedClaimSearchKey(options);
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
+      data: { query: query },
     });
 
     const success = (data: ClaimSearchResponse) => {
@@ -333,62 +336,18 @@ export function doClaimSearch(options: { page?: number, release_time?: string } 
 
       dispatch({
         type: ACTIONS.CLAIM_SEARCH_COMPLETED,
-        data: { resolveInfo, uris, query, append: options.page && options.page !== 1 },
+        data: { query, resolveInfo, uris, append: options.page && options.page !== 1 },
       });
     };
 
     const failure = err => {
       dispatch({
         type: ACTIONS.CLAIM_SEARCH_FAILED,
+        data: { query },
         error: err,
       });
     };
 
-    Lbry.claim_search({
-      ...options,
-    }).then(success, failure);
-  };
-}
-
-// tags can be one or many (comma separated)
-export function doClaimSearchByTags(
-  tags: Array<string>,
-  amount: number = 10,
-  options: { page?: number } = {}
-) {
-  return (dispatch: Dispatch) => {
-    const tagList = createNormalizedTagKey(tags);
-    dispatch({
-      type: ACTIONS.CLAIM_SEARCH_BY_TAGS_STARTED,
-      data: { tags: tagList },
-    });
-
-    const success = (data: ClaimSearchResponse) => {
-      const resolveInfo = {};
-      const uris = [];
-      data.items.forEach((stream: Claim) => {
-        resolveInfo[stream.permanent_url] = { stream };
-        uris.push(stream.permanent_url);
-      });
-
-      dispatch({
-        type: ACTIONS.CLAIM_SEARCH_BY_TAGS_COMPLETED,
-        data: { tags: tagList, resolveInfo, uris, append: options.page && options.page !== 1 },
-      });
-    };
-
-    const failure = err => {
-      dispatch({
-        type: ACTIONS.CLAIM_SEARCH_BY_TAGS_FAILED,
-        data: { tags: tagList },
-        error: err,
-      });
-    };
-
-    Lbry.claim_search({
-      page_size: amount,
-      any_tags: tags,
-      ...options,
-    }).then(success, failure);
+    Lbry.claim_search(options).then(success, failure);
   };
 }
