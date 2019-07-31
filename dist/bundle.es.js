@@ -1409,7 +1409,7 @@ const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectCla
 const makeSelectThumbnailForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const thumbnail = claim && claim.value && claim.value.thumbnail;
   if (!thumbnail || !thumbnail.url) {
-    return undefined;
+    return null;
   }
 
   return thumbnail.url.trim();

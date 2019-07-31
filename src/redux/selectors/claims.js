@@ -256,7 +256,7 @@ export const makeSelectThumbnailForUri = (uri: string) =>
     claim => {
       const thumbnail = claim && claim.value && claim.value.thumbnail;
       if (!thumbnail || !thumbnail.url) {
-        return undefined;
+        return null;
       }
 
       return thumbnail.url.trim();
