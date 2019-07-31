@@ -8,7 +8,7 @@ import {
   makeSelectQueryWithOptions,
   selectSearchValue,
 } from 'redux/selectors/search';
-import { batchActions } from 'util/batchActions';
+import { batchActions } from 'util/batch-actions';
 import debounce from 'util/debounce';
 import handleFetchResponse from 'util/handle-fetch';
 

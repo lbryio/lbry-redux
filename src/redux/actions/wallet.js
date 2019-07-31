@@ -2,7 +2,7 @@ import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
-import { creditsToString } from 'util/formatCredits';
+import { creditsToString } from 'util/format-credits';
 import { selectMyClaimsRaw } from 'redux/selectors/claims';
 
 export function doUpdateBalance() {
@@ -230,7 +230,9 @@ export function doSendTip(amount, claimId, successCallback, errorCallback) {
     const success = () => {
       dispatch(
         doToast({
-          message: isSupport ? __(`You deposited ${amount} LBC as a support!`) : __(`You sent ${amount} LBC as a tip, Mahalo!`),
+          message: isSupport
+            ? __(`You deposited ${amount} LBC as a support!`)
+            : __(`You sent ${amount} LBC as a tip, Mahalo!`),
           linkText: __('History'),
           linkTarget: __('/wallet'),
         })

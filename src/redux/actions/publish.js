@@ -3,8 +3,8 @@ import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/li
 import * as ACTIONS from 'constants/action_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Lbry from 'lbry';
-import { batchActions } from 'util/batchActions';
-import { creditsToString } from 'util/formatCredits';
+import { batchActions } from 'util/batch-actions';
+import { creditsToString } from 'util/format-credits';
 import { doError } from 'redux/actions/notifications';
 import { isClaimNsfw } from 'util/claim';
 import {
@@ -118,12 +118,12 @@ export const doUploadThumbnail = (
         .then(json =>
           json.success
             ? dispatch({
-              type: ACTIONS.UPDATE_PUBLISH_FORM,
-              data: {
-                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-                thumbnail: `${json.data.url}${fileExt}`,
-              },
-            })
+                type: ACTIONS.UPDATE_PUBLISH_FORM,
+                data: {
+                  uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+                  thumbnail: `${json.data.url}${fileExt}`,
+                },
+              })
             : uploadError(json.message)
         )
         .catch(err => uploadError(err.message));
@@ -157,12 +157,12 @@ export const doUploadThumbnail = (
       .then(json =>
         json.success
           ? dispatch({
-            type: ACTIONS.UPDATE_PUBLISH_FORM,
-            data: {
-              uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-              thumbnail: `${json.data.url}${fileExt}`,
-            },
-          })
+              type: ACTIONS.UPDATE_PUBLISH_FORM,
+              data: {
+                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+                thumbnail: `${json.data.url}${fileExt}`,
+              },
+            })
           : uploadError(json.message)
       )
       .catch(err => uploadError(err.message));

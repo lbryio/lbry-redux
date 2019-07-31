@@ -2,8 +2,8 @@
 import { normalizeURI, buildURI, parseURI } from 'lbryURI';
 import { selectSearchUrisByQuery } from 'redux/selectors/search';
 import { createSelector } from 'reselect';
-import { isClaimNsfw, createNormalizedTagKey } from 'util/claim';
-import { getSearchQueryString } from 'util/query_params';
+import { isClaimNsfw, createNormalizedClaimSearchKey } from 'util/claim';
+import { getSearchQueryString } from 'util/query-params';
 
 const selectState = state => state.claims || {};
 
@@ -88,12 +88,14 @@ export const makeSelectClaimForUri = (uri: string) =>
       // Check if a claim is pending first
       // It won't be in claimsByUri because resolving it will return nothing
 
+      let valid;
       let claimId;
       try {
         ({ claimId } = parseURI(uri));
+        valid = true;
       } catch (e) {}
 
-      if (claimId) {
+      if (valid) {
         const pendingClaim = pendingById[claimId];
 
         if (pendingClaim) {
@@ -221,8 +223,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta.creation_timestamp
-          ? claim.meta.creation_timestamp * 1000
-          : null);
+            ? claim.meta.creation_timestamp * 1000
+            : null);
       if (!timestamp) {
         return undefined;
       }
@@ -253,7 +255,11 @@ export const makeSelectThumbnailForUri = (uri: string) =>
     makeSelectClaimForUri(uri),
     claim => {
       const thumbnail = claim && claim.value && claim.value.thumbnail;
-      return thumbnail && thumbnail.url && thumbnail.url.trim().length > 0 ? thumbnail.url : undefined;
+      if (!thumbnail || !thumbnail.url) {
+        return null;
+      }
+
+      return thumbnail.url.trim();
     }
   );
 
@@ -494,40 +500,34 @@ export const makeSelectTagsForUri = (uri: string) =>
     }
   );
 
-export const selectFetchingClaimSearch = createSelector(
+export const selectfetchingClaimSearchByQuery = createSelector(
   selectState,
-  state => state.fetchingClaimSearch
+  state => state.fetchingClaimSearchByQuery || {}
 );
 
-export const selectLastClaimSearchUris = createSelector(
-  selectState,
-  state => state.lastClaimSearchUris
+export const selectFetchingClaimSearch = createSelector(
+  selectfetchingClaimSearchByQuery,
+  fetchingClaimSearchByQuery => Boolean(Object.keys(fetchingClaimSearchByQuery).length)
 );
+
+export const selectClaimSearchByQuery = createSelector(
+  selectState,
+  state => state.claimSearchByQuery || {}
+);
+
+export const makeSelectClaimSearchUrisByOptions = (options: {}) =>
+  createSelector(
+    selectClaimSearchByQuery,
+    byQuery => {
+      // We don't care what options are passed to this selector. Just forward them.
+      // $FlowFixMe
+      const query = createNormalizedClaimSearchKey(options);
+      return byQuery[query];
+    }
+  );
 
 export const makeSelectShortUrlForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
     claim => claim && claim.short_url
-  );
-
-export const selectFetchingClaimSearchByTags = createSelector(
-  selectState,
-  state => state.fetchingClaimSearchByTags
-);
-
-export const selectClaimSearchUrisByTags = createSelector(
-  selectState,
-  state => state.claimSearchUrisByTags
-);
-
-export const makeSelectFetchingClaimSearchForTags = (tags: Array<string>) =>
-  createSelector(
-    selectFetchingClaimSearchByTags,
-    byTags => byTags[createNormalizedTagKey(tags)]
-  );
-
-export const makeSelectClaimSearchUrisForTags = (tags: Array<string>) =>
-  createSelector(
-    selectClaimSearchUrisByTags,
-    byTags => byTags[createNormalizedTagKey(tags)]
   );

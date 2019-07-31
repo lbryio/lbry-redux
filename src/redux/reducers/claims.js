@@ -21,9 +21,8 @@ type State = {
   abandoningById: { [string]: boolean },
   fetchingChannelClaims: { [string]: number },
   fetchingMyChannels: boolean,
-  lastClaimSearchUris: Array<string>,
-  fetchingClaimSearchByTags: { [string]: boolean },
-  claimSearchUrisByTags: { [string]: { all: Array<string> } },
+  fetchingClaimSearchByQuery: { [string]: boolean },
+  claimSearchByQuery: { [string]: Array<string> },
   claimsByChannel: {
     [string]: {
       all: Array<string>,
@@ -46,10 +45,9 @@ const defaultState = {
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
-  fetchingClaimSearch: false,
-  claimSearchUrisByTags: {},
-  fetchingClaimSearchByTags: {},
-  lastClaimSearchUris: [],
+  claimSearchError: false,
+  claimSearchByQuery: {},
+  fetchingClaimSearchByQuery: {},
 };
 
 function handleClaimAction(state: State, action: any): State {
@@ -289,66 +287,45 @@ reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state: State, action: any): State => {
   });
 };
 
-reducers[ACTIONS.CLAIM_SEARCH_STARTED] = (state: State): State => {
+reducers[ACTIONS.CLAIM_SEARCH_STARTED] = (state: State, action: any): State => {
+  const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
+  fetchingClaimSearchByQuery[action.data.query] = true;
+
   return Object.assign({}, state, {
-    fetchingClaimSearch: true,
+    fetchingClaimSearchByQuery,
   });
 };
+
 reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State => {
-  const { lastClaimSearchUris } = state;
+  const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
+  const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);
+  const { append, query, uris } = action.data;
 
-  let newClaimSearchUris = [];
-  if (action.data.append) {
-    newClaimSearchUris = lastClaimSearchUris.concat(action.data.uris);
-  } else {
-    newClaimSearchUris = action.data.uris;
-  }
-
-  return {
-    ...handleClaimAction(state, action),
-    fetchingClaimSearch: false,
-    lastClaimSearchUris: newClaimSearchUris,
-  };
-};
-reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State): State => {
-  return Object.assign({}, state, {
-    fetchingClaimSearch: false,
-  });
-};
-
-reducers[ACTIONS.CLAIM_SEARCH_BY_TAGS_STARTED] = (state: State, action: any): State => {
-  const fetchingClaimSearchByTags = Object.assign({}, state.fetchingClaimSearchByTags);
-  fetchingClaimSearchByTags[action.data.tags] = true;
-
-  return Object.assign({}, state, {
-    fetchingClaimSearchByTags
-  });
-};
-reducers[ACTIONS.CLAIM_SEARCH_BY_TAGS_COMPLETED] = (state: State, action: any): State => {
-  const fetchingClaimSearchByTags = Object.assign({}, state.fetchingClaimSearchByTags);
-  const claimSearchUrisByTags = Object.assign({}, state.claimSearchUrisByTags);
-  const { append, tags, uris } = action.data;
-
-  if (action.data.append) {
+  if (append) {
     // todo: check for duplicate uris when concatenating?
-    claimSearchUrisByTags[tags] = claimSearchUrisByTags[tags] && claimSearchUrisByTags[tags].length ?
-      claimSearchUrisByTags[tags].concat(uris) : uris;
+    claimSearchByQuery[query] =
+      claimSearchByQuery[query] && claimSearchByQuery[query].length
+        ? claimSearchByQuery[query].concat(uris)
+        : uris;
   } else {
-    claimSearchUrisByTags[tags] = uris;
+    claimSearchByQuery[query] = uris;
   }
-  fetchingClaimSearchByTags[tags] = false; // or delete the key instead?
+
+  delete fetchingClaimSearchByQuery[query];
 
   return Object.assign({}, state, {
-    claimSearchUrisByTags,
-    fetchingClaimSearchByTags,
+    ...handleClaimAction(state, action),
+    claimSearchByQuery,
+    fetchingClaimSearchByQuery,
   });
 };
-reducers[ACTIONS.CLAIM_SEARCH_BY_TAGS_FAILED] = (state: State, action: any): State => {
-  const fetchingClaimSearchByTags = Object.assign({}, state.fetchingClaimSearchByTags);
-  fetchingClaimSearchByTags[action.data.tags] = false;
+
+reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State, action: any): State => {
+  const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
+  fetchingClaimSearchByQuery[action.data.tags] = false;
 
   return Object.assign({}, state, {
-    fetchingClaimSearchByTags,
+    fetchingClaimSearchByQuery,
   });
 };
 
