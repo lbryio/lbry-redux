@@ -192,7 +192,7 @@ export {
   selectChannelClaimCounts,
   selectCurrentChannelPage,
   selectFetchingClaimSearch,
-  selectfetchingClaimSearchByQuery,
+  selectFetchingClaimSearchByQuery,
   selectClaimSearchByQuery,
 } from 'redux/selectors/claims';
 

@@ -500,13 +500,13 @@ export const makeSelectTagsForUri = (uri: string) =>
     }
   );
 
-export const selectfetchingClaimSearchByQuery = createSelector(
+export const selectFetchingClaimSearchByQuery = createSelector(
   selectState,
   state => state.fetchingClaimSearchByQuery || {}
 );
 
 export const selectFetchingClaimSearch = createSelector(
-  selectfetchingClaimSearchByQuery,
+  selectFetchingClaimSearchByQuery,
   fetchingClaimSearchByQuery => Boolean(Object.keys(fetchingClaimSearchByQuery).length)
 );
 
