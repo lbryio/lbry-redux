@@ -5,6 +5,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 require('proxy-polyfill');
+var mime = _interopDefault(require('mime'));
 var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
 var fs = _interopDefault(require('fs'));
@@ -696,23 +697,30 @@ const Lbry = {
   },
 
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
-  getMediaType: (contentType, extname) => {
-    if (extname) {
-      const formats = [[/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'], [/^(stl|obj|fbx|gcode)$/i, '3D-file']];
+  getMediaType: (contentType, fileName) => {
+    const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book']];
+
+    const extName = mime.getExtension(contentType);
+    const fileExt = extName ? `.${extName}` : null;
+    const testString = fileName || fileExt;
+
+    // Get mediaType from file extension
+    if (testString) {
       const res = formats.reduce((ret, testpair) => {
-        switch (testpair[0].test(ret)) {
-          case true:
-            return testpair[1];
-          default:
-            return ret;
-        }
-      }, extname);
-      return res === extname ? 'unknown' : res;
-    } else if (contentType) {
-      // $FlowFixMe
+        const [regex, mediaType] = testpair;
+
+        return regex.test(ret) ? mediaType : ret;
+      }, testString);
+
+      if (res !== testString) return res;
+    }
+
+    // Get mediaType from contentType
+    if (contentType) {
       return (/^[^/]+/.exec(contentType)[0]
       );
     }
+
     return 'unknown';
   },
 
@@ -2447,7 +2455,7 @@ const makeSelectLoadingForUri = uri => reselect.createSelector(selectUrisLoading
 const selectFileInfosDownloaded = reselect.createSelector(selectFileInfosByOutpoint, selectMyClaims, (byOutpoint, myClaims) => Object.values(byOutpoint).filter(fileInfo => {
   const myClaimIds = myClaims.map(claim => claim.claim_id);
 
-  return fileInfo && myClaimIds.indexOf(fileInfo.claim_id) === -1 && (fileInfo.completed || fileInfo.written_bytes);
+  return fileInfo && myClaimIds.indexOf(fileInfo.claim_id) === -1 && (fileInfo.completed || fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0);
 }));
 
 // export const selectFileInfoForUri = (state, props) => {
@@ -2586,6 +2594,27 @@ const selectDownloadedUris = reselect.createSelector(selectFileInfosDownloaded,
 // We should use permament_url but it doesn't exist in file_list
 info => info.slice().reverse().map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`));
 
+const makeSelectMediaTypeForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), makeSelectContentTypeForUri(uri), (fileInfo, contentType) => {
+  if (!fileInfo && !contentType) {
+    return undefined;
+  }
+
+  const fileName = fileInfo && fileInfo.file_name;
+  return lbryProxy.getMediaType(contentType, fileName);
+});
+
+const makeSelectUriIsStreamable = uri => reselect.createSelector(makeSelectMediaTypeForUri(uri), mediaType => {
+  const isStreamable = ['audio', 'video', 'image'].indexOf(mediaType) !== -1;
+  return isStreamable;
+});
+
+const makeSelectDownloadPathForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), fileInfo => {
+  return fileInfo && fileInfo.download_path;
+});
+const makeSelectFileNameForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), fileInfo => {
+  return fileInfo && fileInfo.file_name;
+});
+
 //      
 
 const selectState$4 = state => state.file || {};
@@ -2600,11 +2629,13 @@ const selectPurchasedStreamingUrls = reselect.createSelector(selectState$4, stat
 
 const selectLastPurchasedUri = reselect.createSelector(selectState$4, state => state.purchasedUris.length > 0 ? state.purchasedUris[state.purchasedUris.length - 1] : null);
 
-const makeSelectStreamingUrlForUri = uri => reselect.createSelector(selectPurchasedStreamingUrls, streamingUrls => streamingUrls && streamingUrls[uri]);
+const makeSelectStreamingUrlForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), fileInfo => {
+  return fileInfo && fileInfo.streaming_url;
+});
 
 //      
 
-function doFileGet(uri, saveFile = true) {
+function doFileGet(uri, saveFile = true, onSuccess) {
   return dispatch => {
     dispatch({
       type: LOADING_FILE_STARTED,
@@ -2615,7 +2646,7 @@ function doFileGet(uri, saveFile = true) {
 
     // set save_file argument to True to save the file (old behaviour)
     lbryProxy.get({ uri, save_file: saveFile }).then(streamInfo => {
-      const timeout = streamInfo === null || typeof streamInfo !== 'object';
+      const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
 
       if (timeout) {
         dispatch({
@@ -2633,8 +2664,19 @@ function doFileGet(uri, saveFile = true) {
         const { streaming_url: streamingUrl } = streamInfo;
         dispatch({
           type: PURCHASE_URI_COMPLETED,
-          data: { uri, streamingUrl: !saveFile && streamingUrl ? streamingUrl : null }
+          data: { uri, streamingUrl }
         });
+        dispatch({
+          type: FETCH_FILE_INFO_COMPLETED,
+          data: {
+            fileInfo: streamInfo,
+            outpoint: streamInfo.outpoint
+          }
+        });
+
+        if (onSuccess) {
+          onSuccess(streamInfo);
+        }
       }
     }).catch(() => {
       dispatch({
@@ -2647,14 +2689,14 @@ function doFileGet(uri, saveFile = true) {
       });
 
       dispatch(doToast({
-        message: `Failed to download ${uri}, please try again. If this problem persists, visit https://lbry.com/faq/support for support.`,
+        message: `Failed to view ${uri}, please try again. If this problem persists, visit https://lbry.com/faq/support for support.`,
         isError: true
       }));
     });
   };
 }
 
-function doPurchaseUri(uri, costInfo, saveFile = true) {
+function doPurchaseUri(uri, costInfo, saveFile = true, onSuccess) {
   return (dispatch, getState) => {
     dispatch({
       type: PURCHASE_URI_STARTED,
@@ -2685,7 +2727,7 @@ function doPurchaseUri(uri, costInfo, saveFile = true) {
       return;
     }
 
-    dispatch(doFileGet(uri, saveFile));
+    dispatch(doFileGet(uri, saveFile, onSuccess));
   };
 }
 
@@ -3921,13 +3963,15 @@ reducers$2[DOWNLOADING_PROGRESSED] = (state, action) => {
 };
 
 reducers$2[DOWNLOADING_CANCELED] = (state, action) => {
-  const { outpoint } = action.data;
+  const { uri, outpoint } = action.data;
 
   const newDownloading = Object.assign({}, state.downloadingByOutpoint);
   delete newDownloading[outpoint];
+  delete newLoading[uri];
 
   return Object.assign({}, state, {
-    downloadingByOutpoint: newDownloading
+    downloadingByOutpoint: newDownloading,
+    urisLoading: newLoading
   });
 };
 
@@ -4842,12 +4886,15 @@ exports.makeSelectContentPositionForUri = makeSelectContentPositionForUri;
 exports.makeSelectContentTypeForUri = makeSelectContentTypeForUri;
 exports.makeSelectCoverForUri = makeSelectCoverForUri;
 exports.makeSelectDateForUri = makeSelectDateForUri;
+exports.makeSelectDownloadPathForUri = makeSelectDownloadPathForUri;
 exports.makeSelectDownloadingForUri = makeSelectDownloadingForUri;
 exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
+exports.makeSelectFileNameForUri = makeSelectFileNameForUri;
 exports.makeSelectFirstRecommendedFileForUri = makeSelectFirstRecommendedFileForUri;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
 exports.makeSelectLoadingForUri = makeSelectLoadingForUri;
+exports.makeSelectMediaTypeForUri = makeSelectMediaTypeForUri;
 exports.makeSelectMetadataForUri = makeSelectMetadataForUri;
 exports.makeSelectMetadataItemForUri = makeSelectMetadataItemForUri;
 exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
@@ -4864,6 +4911,7 @@ exports.makeSelectThumbnailForUri = makeSelectThumbnailForUri;
 exports.makeSelectTitleForUri = makeSelectTitleForUri;
 exports.makeSelectTotalItemsForChannel = makeSelectTotalItemsForChannel;
 exports.makeSelectTotalPagesForChannel = makeSelectTotalPagesForChannel;
+exports.makeSelectUriIsStreamable = makeSelectUriIsStreamable;
 exports.normalizeURI = normalizeURI;
 exports.notificationsReducer = notificationsReducer;
 exports.parseQueryParams = parseQueryParams;

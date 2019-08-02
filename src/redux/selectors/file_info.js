@@ -3,9 +3,11 @@ import {
   selectIsFetchingClaimListMine,
   selectMyClaims,
   selectClaimsById,
+  makeSelectContentTypeForUri,
 } from 'redux/selectors/claims';
 import { createSelector } from 'reselect';
 import { buildURI } from 'lbryURI';
+import Lbry from 'lbry';
 
 export const selectState = state => state.fileInfo || {};
 
@@ -72,7 +74,7 @@ export const selectFileInfosDownloaded = createSelector(
       return (
         fileInfo &&
         myClaimIds.indexOf(fileInfo.claim_id) === -1 &&
-        (fileInfo.completed || fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0 )
+        (fileInfo.completed || fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0)
       );
     })
 );
@@ -238,3 +240,41 @@ export const selectDownloadedUris = createSelector(
       .reverse()
       .map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`)
 );
+
+export const makeSelectMediaTypeForUri = (uri: string) =>
+  createSelector(
+    makeSelectFileInfoForUri(uri),
+    makeSelectContentTypeForUri(uri),
+    (fileInfo, contentType) => {
+      if (!fileInfo && !contentType) {
+        return undefined;
+      }
+
+      const fileName = fileInfo && fileInfo.file_name;
+      return Lbry.getMediaType(contentType, fileName);
+    }
+  );
+
+export const makeSelectUriIsStreamable = (uri: string) =>
+  createSelector(
+    makeSelectMediaTypeForUri(uri),
+    mediaType => {
+      const isStreamable = ['audio', 'video', 'image'].indexOf(mediaType) !== -1;
+      return isStreamable;
+    }
+  );
+
+export const makeSelectDownloadPathForUri = (uri: string) =>
+  createSelector(
+    makeSelectFileInfoForUri(uri),
+    fileInfo => {
+      return fileInfo && fileInfo.download_path;
+    }
+  );
+export const makeSelectFileNameForUri = (uri: string) =>
+  createSelector(
+    makeSelectFileInfoForUri(uri),
+    fileInfo => {
+      return fileInfo && fileInfo.file_name;
+    }
+  );

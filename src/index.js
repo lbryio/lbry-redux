@@ -217,6 +217,10 @@ export {
   selectFileListDownloadedSort,
   selectFileListPublishedSort,
   selectDownloadedUris,
+  makeSelectMediaTypeForUri,
+  makeSelectUriIsStreamable,
+  makeSelectDownloadPathForUri,
+  makeSelectFileNameForUri,
 } from 'redux/selectors/file_info';
 
 export {

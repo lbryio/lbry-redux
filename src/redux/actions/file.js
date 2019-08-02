@@ -9,7 +9,7 @@ import { makeSelectStreamingUrlForUri } from 'redux/selectors/file';
 type Dispatch = (action: any) => any;
 type GetState = () => { file: FileState };
 
-export function doFileGet(uri: string, saveFile: boolean = true) {
+export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: GetResponse => any) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.LOADING_FILE_STARTED,
@@ -21,7 +21,8 @@ export function doFileGet(uri: string, saveFile: boolean = true) {
     // set save_file argument to True to save the file (old behaviour)
     Lbry.get({ uri, save_file: saveFile })
       .then((streamInfo: GetResponse) => {
-        const timeout = streamInfo === null || typeof streamInfo !== 'object';
+        const timeout =
+          streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
 
         if (timeout) {
           dispatch({
@@ -39,8 +40,19 @@ export function doFileGet(uri: string, saveFile: boolean = true) {
           const { streaming_url: streamingUrl } = streamInfo;
           dispatch({
             type: ACTIONS.PURCHASE_URI_COMPLETED,
-            data: { uri, streamingUrl: !saveFile && streamingUrl ? streamingUrl : null },
+            data: { uri, streamingUrl },
           });
+          dispatch({
+            type: ACTIONS.FETCH_FILE_INFO_COMPLETED,
+            data: {
+              fileInfo: streamInfo,
+              outpoint: streamInfo.outpoint,
+            },
+          });
+
+          if (onSuccess) {
+            onSuccess(streamInfo);
+          }
         }
       })
       .catch(() => {
@@ -63,7 +75,12 @@ export function doFileGet(uri: string, saveFile: boolean = true) {
   };
 }
 
-export function doPurchaseUri(uri: string, costInfo: { cost: number }, saveFile: boolean = true) {
+export function doPurchaseUri(
+  uri: string,
+  costInfo: { cost: number },
+  saveFile: boolean = true,
+  onSuccess?: GetResponse => any
+) {
   return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
       type: ACTIONS.PURCHASE_URI_STARTED,
@@ -98,7 +115,7 @@ export function doPurchaseUri(uri: string, costInfo: { cost: number }, saveFile:
       return;
     }
 
-    dispatch(doFileGet(uri, saveFile));
+    dispatch(doFileGet(uri, saveFile, onSuccess));
   };
 }
 
