@@ -129,7 +129,7 @@ export { notificationsReducer } from 'redux/reducers/notifications';
 export { publishReducer } from 'redux/reducers/publish';
 export { searchReducer } from 'redux/reducers/search';
 export { tagsReducer } from 'redux/reducers/tags';
-export { blockChannelReducer } from 'redux/reducers/blocked';
+export { blockedReducer } from 'redux/reducers/blocked';
 export { walletReducer } from 'redux/reducers/wallet';
 
 // selectors
@@ -273,4 +273,8 @@ export {
 
 export { selectFollowedTags, selectUnfollowedTags } from 'redux/selectors/tags';
 
-export { selectBlockedChannels, selectChannelIsBlocked, selectBlockedChannelsCount } from 'redux/selectors/blocked';
+export {
+  selectBlockedChannels,
+  selectChannelIsBlocked,
+  selectBlockedChannelsCount,
+} from 'redux/selectors/blocked';

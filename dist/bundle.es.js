@@ -4371,7 +4371,7 @@ const defaultState$9 = {
   blockedChannels: []
 };
 
-const blockChannelReducer = handleActions({
+const blockedReducer = handleActions({
   [TOGGLE_BLOCK_CHANNEL]: (state, action) => {
     const { blockedChannels } = state;
     const { uri } = action.data;
@@ -4733,14 +4733,14 @@ const selectUnfollowedTags = reselect.createSelector(selectKnownTagsByName, sele
 
 //      
 
-const selectState$a = state => state.blockedChannels || {};
+const selectState$a = state => state.blocked || {};
 
 const selectBlockedChannels = reselect.createSelector(selectState$a, state => state.blockedChannels);
 
-const selectBlockedChannelsCount = reselect.createSelector(selectState$a, state => state.blockedChannels.length);
+const selectBlockedChannelsCount = reselect.createSelector(selectBlockedChannels, state => state.length);
 
-const selectChannelIsBlocked = uri => reselect.createSelector(selectState$a, state => {
-  return state.blockedChannels.includes(uri);
+const selectChannelIsBlocked = uri => reselect.createSelector(selectBlockedChannels, state => {
+  return state.includes(uri);
 });
 
 exports.ACTIONS = action_types;
@@ -4758,7 +4758,7 @@ exports.SORT_OPTIONS = sort_options;
 exports.THUMBNAIL_STATUSES = thumbnail_upload_statuses;
 exports.TRANSACTIONS = transaction_types;
 exports.batchActions = batchActions;
-exports.blockChannelReducer = blockChannelReducer;
+exports.blockedReducer = blockedReducer;
 exports.buildURI = buildURI;
 exports.claimsReducer = claimsReducer;
 exports.commentReducer = commentReducer;

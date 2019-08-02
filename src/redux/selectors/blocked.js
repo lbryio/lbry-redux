@@ -1,7 +1,7 @@
 // @flow
 import { createSelector } from 'reselect';
 
-const selectState = (state: { blockedChannels: BlocklistState }) => state.blockedChannels || {};
+const selectState = (state: { blocked: BlocklistState }) => state.blocked || {};
 
 export const selectBlockedChannels = createSelector(
   selectState,
@@ -9,11 +9,14 @@ export const selectBlockedChannels = createSelector(
 );
 
 export const selectBlockedChannelsCount = createSelector(
-  selectState,
-  (state: BlocklistState) => state.blockedChannels.length
+  selectBlockedChannels,
+  (state: Array<string>) => state.length
 );
 
-export const selectChannelIsBlocked = (uri: string) => createSelector(
-  selectState,
-  (state: BlocklistState) => { return state.blockedChannels.includes(uri) }
-);
+export const selectChannelIsBlocked = (uri: string) =>
+  createSelector(
+    selectBlockedChannels,
+    (state: Array<string>) => {
+      return state.includes(uri);
+    }
+  );

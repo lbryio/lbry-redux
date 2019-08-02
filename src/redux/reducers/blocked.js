@@ -4,11 +4,14 @@ import { handleActions } from 'util/redux-utils';
 
 const defaultState: BlocklistState = {
   blockedChannels: [],
-}
+};
 
-export const blockChannelReducer = handleActions(
+export const blockedReducer = handleActions(
   {
-    [ACTIONS.TOGGLE_BLOCK_CHANNEL]: (state: BlocklistState, action: BlocklistAction): BlocklistState => {
+    [ACTIONS.TOGGLE_BLOCK_CHANNEL]: (
+      state: BlocklistState,
+      action: BlocklistAction
+    ): BlocklistState => {
       const { blockedChannels } = state;
       const { uri } = action.data;
       let newBlockedChannels = blockedChannels.slice();
