@@ -223,8 +223,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta.creation_timestamp
-            ? claim.meta.creation_timestamp * 1000
-            : null);
+          ? claim.meta.creation_timestamp * 1000
+          : null);
       if (!timestamp) {
         return undefined;
       }
@@ -456,7 +456,7 @@ export const makeSelectRecommendedContentForUri = (uri: string) =>
 
         const { title } = claim.value;
 
-        const searchQuery = getSearchQueryString(title.replace(/\//, ' '));
+        const searchQuery = getSearchQueryString(title ? title.replace(/\//, ' ') : '');
 
         let searchUris = searchUrisByQuery[searchQuery];
         if (searchUris) {
