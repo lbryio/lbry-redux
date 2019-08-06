@@ -12,7 +12,7 @@ type GetState = () => { file: FileState };
 export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: GetResponse => any) {
   return (dispatch: Dispatch) => {
     dispatch({
-      type: ACTIONS.LOADING_FILE_STARTED,
+      type: ACTIONS.PURCHASE_URI_STARTED,
       data: {
         uri,
       },
@@ -26,10 +26,6 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: Get
 
         if (timeout) {
           dispatch({
-            type: ACTIONS.LOADING_FILE_FAILED,
-            data: { uri },
-          });
-          dispatch({
             type: ACTIONS.PURCHASE_URI_FAILED,
             data: { uri },
           });
@@ -37,10 +33,9 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: Get
           dispatch(doToast({ message: `File timeout for uri ${uri}`, isError: true }));
         } else {
           // purchase was completed successfully
-          const { streaming_url: streamingUrl } = streamInfo;
           dispatch({
             type: ACTIONS.PURCHASE_URI_COMPLETED,
-            data: { uri, streamingUrl },
+            data: { uri },
           });
           dispatch({
             type: ACTIONS.FETCH_FILE_INFO_COMPLETED,
@@ -56,10 +51,6 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: Get
         }
       })
       .catch(() => {
-        dispatch({
-          type: ACTIONS.LOADING_FILE_FAILED,
-          data: { uri },
-        });
         dispatch({
           type: ACTIONS.PURCHASE_URI_FAILED,
           data: { uri },

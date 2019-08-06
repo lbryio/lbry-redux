@@ -153,9 +153,6 @@ const PURCHASE_URI_STARTED = 'PURCHASE_URI_STARTED';
 const PURCHASE_URI_COMPLETED = 'PURCHASE_URI_COMPLETED';
 const PURCHASE_URI_FAILED = 'PURCHASE_URI_FAILED';
 const DELETE_PURCHASED_URI = 'DELETE_PURCHASED_URI';
-const LOADING_FILE_STARTED = 'LOADING_FILE_STARTED';
-const LOADING_FILE_COMPLETED = 'LOADING_FILE_COMPLETED';
-const LOADING_FILE_FAILED = 'LOADING_FILE_FAILED';
 
 // Search
 const SEARCH_START = 'SEARCH_START';
@@ -382,9 +379,6 @@ var action_types = /*#__PURE__*/Object.freeze({
   PURCHASE_URI_COMPLETED: PURCHASE_URI_COMPLETED,
   PURCHASE_URI_FAILED: PURCHASE_URI_FAILED,
   DELETE_PURCHASED_URI: DELETE_PURCHASED_URI,
-  LOADING_FILE_STARTED: LOADING_FILE_STARTED,
-  LOADING_FILE_COMPLETED: LOADING_FILE_COMPLETED,
-  LOADING_FILE_FAILED: LOADING_FILE_FAILED,
   SEARCH_START: SEARCH_START,
   SEARCH_SUCCESS: SEARCH_SUCCESS,
   SEARCH_FAIL: SEARCH_FAIL,
@@ -717,8 +711,10 @@ const Lbry = {
 
     // Get mediaType from contentType
     if (contentType) {
-      return (/^[^/]+/.exec(contentType)[0]
-      );
+      const matches = /^[^/]+/.exec(contentType);
+      if (matches) {
+        return matches[0];
+      }
     }
 
     return 'unknown';
@@ -2625,8 +2621,6 @@ const selectFailedPurchaseUris = reselect.createSelector(selectState$4, state =>
 
 const selectPurchasedUris = reselect.createSelector(selectState$4, state => state.purchasedUris);
 
-const selectPurchasedStreamingUrls = reselect.createSelector(selectState$4, state => state.purchasedStreamingUrls);
-
 const selectLastPurchasedUri = reselect.createSelector(selectState$4, state => state.purchasedUris.length > 0 ? state.purchasedUris[state.purchasedUris.length - 1] : null);
 
 const makeSelectStreamingUrlForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), fileInfo => {
@@ -2638,7 +2632,7 @@ const makeSelectStreamingUrlForUri = uri => reselect.createSelector(makeSelectFi
 function doFileGet(uri, saveFile = true, onSuccess) {
   return dispatch => {
     dispatch({
-      type: LOADING_FILE_STARTED,
+      type: PURCHASE_URI_STARTED,
       data: {
         uri
       }
@@ -2650,10 +2644,6 @@ function doFileGet(uri, saveFile = true, onSuccess) {
 
       if (timeout) {
         dispatch({
-          type: LOADING_FILE_FAILED,
-          data: { uri }
-        });
-        dispatch({
           type: PURCHASE_URI_FAILED,
           data: { uri }
         });
@@ -2661,10 +2651,9 @@ function doFileGet(uri, saveFile = true, onSuccess) {
         dispatch(doToast({ message: `File timeout for uri ${uri}`, isError: true }));
       } else {
         // purchase was completed successfully
-        const { streaming_url: streamingUrl } = streamInfo;
         dispatch({
           type: PURCHASE_URI_COMPLETED,
-          data: { uri, streamingUrl }
+          data: { uri }
         });
         dispatch({
           type: FETCH_FILE_INFO_COMPLETED,
@@ -2679,10 +2668,6 @@ function doFileGet(uri, saveFile = true, onSuccess) {
         }
       }
     }).catch(() => {
-      dispatch({
-        type: LOADING_FILE_FAILED,
-        data: { uri }
-      });
       dispatch({
         type: PURCHASE_URI_FAILED,
         data: { uri }
@@ -4060,7 +4045,6 @@ const reducers$3 = {};
 const defaultState$4 = {
   failedPurchaseUris: [],
   purchasedUris: [],
-  purchasedStreamingUrls: {},
   purchaseUriErrorMessage: ''
 };
 
@@ -4078,10 +4062,9 @@ reducers$3[PURCHASE_URI_STARTED] = (state, action) => {
 };
 
 reducers$3[PURCHASE_URI_COMPLETED] = (state, action) => {
-  const { uri, streamingUrl } = action.data;
+  const { uri } = action.data;
   const newPurchasedUris = state.purchasedUris.slice();
   const newFailedPurchaseUris = state.failedPurchaseUris.slice();
-  const newPurchasedStreamingUrls = Object.assign({}, state.purchasedStreamingUrls);
 
   if (!newPurchasedUris.includes(uri)) {
     newPurchasedUris.push(uri);
@@ -4089,14 +4072,10 @@ reducers$3[PURCHASE_URI_COMPLETED] = (state, action) => {
   if (newFailedPurchaseUris.includes(uri)) {
     newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
   }
-  if (streamingUrl) {
-    newPurchasedStreamingUrls[uri] = streamingUrl;
-  }
 
   return _extends$9({}, state, {
     failedPurchaseUris: newFailedPurchaseUris,
     purchasedUris: newPurchasedUris,
-    purchasedStreamingUrls: newPurchasedStreamingUrls,
     purchaseUriErrorMessage: ''
   });
 };
@@ -4976,7 +4955,6 @@ exports.selectPendingClaims = selectPendingClaims;
 exports.selectPlayingUri = selectPlayingUri;
 exports.selectPublishFormValues = selectPublishFormValues;
 exports.selectPurchaseUriErrorMessage = selectPurchaseUriErrorMessage;
-exports.selectPurchasedStreamingUrls = selectPurchasedStreamingUrls;
 exports.selectPurchasedUris = selectPurchasedUris;
 exports.selectReceiveAddress = selectReceiveAddress;
 exports.selectRecentTransactions = selectRecentTransactions;

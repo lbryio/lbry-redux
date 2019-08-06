@@ -140,7 +140,6 @@ export { selectToast, selectError } from 'redux/selectors/notifications';
 export {
   selectFailedPurchaseUris,
   selectPurchasedUris,
-  selectPurchasedStreamingUrls,
   selectPurchaseUriErrorMessage,
   selectLastPurchasedUri,
   makeSelectStreamingUrlForUri,

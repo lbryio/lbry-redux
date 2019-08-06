@@ -21,11 +21,6 @@ export const selectPurchasedUris: (state: State) => Array<string> = createSelect
   state => state.purchasedUris
 );
 
-export const selectPurchasedStreamingUrls: (state: State) => {} = createSelector(
-  selectState,
-  state => state.purchasedStreamingUrls
-);
-
 export const selectLastPurchasedUri: (state: State) => string = createSelector(
   selectState,
   state =>

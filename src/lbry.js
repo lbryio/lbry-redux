@@ -61,7 +61,10 @@ const Lbry: LbryTypes = {
 
     // Get mediaType from contentType
     if (contentType) {
-      return /^[^/]+/.exec(contentType)[0];
+      const matches = /^[^/]+/.exec(contentType);
+      if (matches) {
+        return matches[0];
+      }
     }
 
     return 'unknown';
