@@ -1533,7 +1533,7 @@ const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSe
 
     const { title } = claim.value;
 
-    const searchQuery = getSearchQueryString(title.replace(/\//, ' '));
+    const searchQuery = getSearchQueryString(title ? title.replace(/\//, ' ') : '');
 
     let searchUris = searchUrisByQuery[searchQuery];
     if (searchUris) {
