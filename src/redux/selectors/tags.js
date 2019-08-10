@@ -29,7 +29,7 @@ export const selectUnfollowedTags = createSelector(
     Object.keys(tagsByName).forEach(key => {
       if (!followedTagsSet.has(key)) {
         const { name } = tagsByName[key];
-        tagsToReturn.push({ name });
+        tagsToReturn.push({ name: name.toLowerCase() });
       }
     });
 
