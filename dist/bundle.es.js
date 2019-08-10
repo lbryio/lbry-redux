@@ -2925,7 +2925,7 @@ const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter) => dispatch => 
         type: UPDATE_PUBLISH_FORM,
         data: {
           uploadThumbnailStatus: COMPLETE,
-          thumbnail: `${json.data.url}${fileExt}`
+          thumbnail: `${json.data.url}.${fileExt}`
         }
       }) : uploadError(json.message)).catch(err => uploadError(err.message));
     });
