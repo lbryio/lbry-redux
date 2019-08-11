@@ -90,6 +90,21 @@ export const selectSupportsByOutpoint = createSelector(
   state => state.supports || {}
 );
 
+export const selectTotalSupports = createSelector(
+  selectSupportsByOutpoint,
+  byOutpoint => {
+    let total = parseFloat("0.0");
+    //let total = 0.0;
+
+    Object.values(byOutpoint).forEach(support => {
+      const { amount } = support;
+      total = amount ? total + parseFloat(amount) : total;
+    });
+
+    return total;
+  }
+);
+
 export const selectTransactionItems = createSelector(
   selectTransactionsById,
   byId => {
