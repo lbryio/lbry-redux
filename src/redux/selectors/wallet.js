@@ -94,7 +94,6 @@ export const selectTotalSupports = createSelector(
   selectSupportsByOutpoint,
   byOutpoint => {
     let total = parseFloat("0.0");
-    //let total = 0.0;
 
     Object.values(byOutpoint).forEach(support => {
       const { amount } = support;
