@@ -1,6 +1,7 @@
 // @flow
 import { normalizeURI, buildURI, parseURI } from 'lbryURI';
 import { selectSearchUrisByQuery } from 'redux/selectors/search';
+import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
 import { isClaimNsfw, createNormalizedClaimSearchKey } from 'util/claim';
 import { getSearchQueryString } from 'util/query-params';
@@ -530,4 +531,25 @@ export const makeSelectShortUrlForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
     claim => claim && claim.short_url
+  );
+
+export const makeSelectSupportsForUri = (uri: string) =>
+  createSelector(
+    selectSupportsByOutpoint,
+    makeSelectClaimForUri(uri),
+    (byOutpoint, claim: ?StreamClaim) => {
+      if (!claim || !claim.is_mine) {
+        return null;
+      }
+
+      const { claim_id: claimId } = claim;
+      let total = parseFloat("0.0");
+
+      Object.values(byOutpoint).forEach(support => {
+        const { claim_id, amount } = support
+        total = (claim_id === claimId && amount) ? total + parseFloat(amount) : total;
+      });
+
+      return total;
+    }
   );
