@@ -7,8 +7,6 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('proxy-polyfill');
 var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
-var fs = _interopDefault(require('fs'));
-var path = _interopDefault(require('path'));
 
 const MINIMUM_PUBLISH_BID = 0.00000001;
 
@@ -1570,6 +1568,8 @@ const selectFetchingClaimSearch = reselect.createSelector(selectFetchingClaimSea
 
 const selectClaimSearchByQuery = reselect.createSelector(selectState$1, state => state.claimSearchByQuery || {});
 
+const selectClaimSearchByQueryLastPageReached = reselect.createSelector(selectState$1, state => state.claimSearchByQueryLastPageReached || {});
+
 const makeSelectShortUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.short_url);
 
 const selectState$2 = state => state.wallet || {};
@@ -2403,7 +2403,7 @@ function doClaimSearch(options = {
 
       dispatch({
         type: CLAIM_SEARCH_COMPLETED,
-        data: { query, resolveInfo, uris, append: options.page && options.page !== 1 }
+        data: { query, resolveInfo, uris, append: options.page && options.page !== 1, pageSize: options.page_size }
       });
     };
 
@@ -2880,7 +2880,7 @@ const doUpdatePublishForm = publishFormValue => dispatch => dispatch({
   data: _extends$4({}, publishFormValue)
 });
 
-const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter) => dispatch => {
+const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter, fs, path) => dispatch => {
   let thumbnail, fileExt, fileName, fileType;
 
   const makeid = () => {
@@ -2963,7 +2963,7 @@ const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter) => dispatch => 
   }
 };
 
-const doPrepareEdit = (claim, uri, fileInfo) => dispatch => {
+const doPrepareEdit = (claim, uri, fileInfo, fs) => dispatch => {
   const { name, amount, value } = claim;
   const channelName = claim && claim.signing_channel && claim.signing_channel.normalized_name || null;
   const {
@@ -3017,7 +3017,7 @@ const doPrepareEdit = (claim, uri, fileInfo) => dispatch => {
     publishData['channel'] = channelName;
   }
 
-  if (fileInfo && fileInfo.download_path) {
+  if (fs && fileInfo && fileInfo.download_path) {
     try {
       fs.accessSync(fileInfo.download_path, fs.constants.R_OK);
       publishData.filePath = fileInfo.download_path;
@@ -3462,6 +3462,7 @@ const defaultState = {
   pendingById: {},
   claimSearchError: false,
   claimSearchByQuery: {},
+  claimSearchByQueryLastPageReached: {},
   fetchingClaimSearchByQuery: {}
 };
 
@@ -3703,7 +3704,8 @@ reducers[CLAIM_SEARCH_STARTED] = (state, action) => {
 reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
   const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);
-  const { append, query, uris } = action.data;
+  const claimSearchByQueryLastPageReached = Object.assign({}, state.claimSearchByQueryLastPageReached);
+  const { append, query, uris, pageSize } = action.data;
 
   if (append) {
     // todo: check for duplicate uris when concatenating?
@@ -3712,10 +3714,14 @@ reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
     claimSearchByQuery[query] = uris;
   }
 
+  // the returned number of uris is less than the page size, so we're on the last page
+  claimSearchByQueryLastPageReached[query] = uris.length < pageSize;
+
   delete fetchingClaimSearchByQuery[query];
 
   return Object.assign({}, state, _extends$5({}, handleClaimAction(state, action), {
     claimSearchByQuery,
+    claimSearchByQueryLastPageReached,
     fetchingClaimSearchByQuery
   }));
 };
@@ -4884,6 +4890,7 @@ exports.selectBlocks = selectBlocks;
 exports.selectChannelClaimCounts = selectChannelClaimCounts;
 exports.selectChannelIsBlocked = selectChannelIsBlocked;
 exports.selectClaimSearchByQuery = selectClaimSearchByQuery;
+exports.selectClaimSearchByQueryLastPageReached = selectClaimSearchByQueryLastPageReached;
 exports.selectClaimsById = selectClaimsById;
 exports.selectClaimsByUri = selectClaimsByUri;
 exports.selectCurrentChannelPage = selectCurrentChannelPage;

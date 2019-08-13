@@ -336,7 +336,13 @@ export function doClaimSearch(
 
       dispatch({
         type: ACTIONS.CLAIM_SEARCH_COMPLETED,
-        data: { query, resolveInfo, uris, append: options.page && options.page !== 1 },
+        data: {
+          query,
+          resolveInfo,
+          uris,
+          append: options.page && options.page !== 1,
+          pageSize: options.page_size,
+        },
       });
     };
 

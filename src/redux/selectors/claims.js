@@ -515,6 +515,11 @@ export const selectClaimSearchByQuery = createSelector(
   state => state.claimSearchByQuery || {}
 );
 
+export const selectClaimSearchByQueryLastPageReached = createSelector(
+  selectState,
+  state => state.claimSearchByQueryLastPageReached || {}
+);
+
 export const makeSelectClaimSearchUrisByOptions = (options: {}) =>
   createSelector(
     selectClaimSearchByQuery,

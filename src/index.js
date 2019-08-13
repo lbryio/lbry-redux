@@ -197,6 +197,7 @@ export {
   selectFetchingClaimSearch,
   selectFetchingClaimSearchByQuery,
   selectClaimSearchByQuery,
+  selectClaimSearchByQueryLastPageReached,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';

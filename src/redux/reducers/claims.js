@@ -23,6 +23,7 @@ type State = {
   fetchingMyChannels: boolean,
   fetchingClaimSearchByQuery: { [string]: boolean },
   claimSearchByQuery: { [string]: Array<string> },
+  claimSearchByQueryLastPageReached: { [string]: Array<boolean> },
   claimsByChannel: {
     [string]: {
       all: Array<string>,
@@ -47,6 +48,7 @@ const defaultState = {
   pendingById: {},
   claimSearchError: false,
   claimSearchByQuery: {},
+  claimSearchByQueryLastPageReached: {},
   fetchingClaimSearchByQuery: {},
 };
 
@@ -299,7 +301,11 @@ reducers[ACTIONS.CLAIM_SEARCH_STARTED] = (state: State, action: any): State => {
 reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State => {
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
   const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);
-  const { append, query, uris } = action.data;
+  const claimSearchByQueryLastPageReached = Object.assign(
+    {},
+    state.claimSearchByQueryLastPageReached
+  );
+  const { append, query, uris, pageSize } = action.data;
 
   if (append) {
     // todo: check for duplicate uris when concatenating?
@@ -311,11 +317,15 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State =>
     claimSearchByQuery[query] = uris;
   }
 
+  // the returned number of uris is less than the page size, so we're on the last page
+  claimSearchByQueryLastPageReached[query] = uris.length < pageSize;
+
   delete fetchingClaimSearchByQuery[query];
 
   return Object.assign({}, state, {
     ...handleClaimAction(state, action),
     claimSearchByQuery,
+    claimSearchByQueryLastPageReached,
     fetchingClaimSearchByQuery,
   });
 };
