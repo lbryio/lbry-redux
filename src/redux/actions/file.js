@@ -5,16 +5,21 @@ import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
 import { makeSelectFileInfoForUri, selectDownloadingByOutpoint } from 'redux/selectors/file_info';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file';
+import { makeSelectClaimForUri } from 'redux/selectors/claims';
 
 type Dispatch = (action: any) => any;
 type GetState = () => { file: FileState };
 
 export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: GetResponse => any) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: () => any) => {
+    const state = getState();
+    const { nout, txid } = makeSelectClaimForUri(uri)(state);
+    const outpoint = `${txid}:${nout}`;
+
     dispatch({
-      type: ACTIONS.PURCHASE_URI_STARTED,
+      type: ACTIONS.FETCH_FILE_INFO_STARTED,
       data: {
-        uri,
+        outpoint,
       },
     });
 
@@ -26,8 +31,8 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: Get
 
         if (timeout) {
           dispatch({
-            type: ACTIONS.PURCHASE_URI_FAILED,
-            data: { uri },
+            type: ACTIONS.FETCH_FILE_INFO_FAILED,
+            data: { outpoint },
           });
 
           dispatch(doToast({ message: `File timeout for uri ${uri}`, isError: true }));
@@ -54,6 +59,11 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: Get
         dispatch({
           type: ACTIONS.PURCHASE_URI_FAILED,
           data: { uri },
+        });
+
+        dispatch({
+          type: ACTIONS.FETCH_FILE_INFO_FAILED,
+          data: { outpoint },
         });
 
         dispatch(

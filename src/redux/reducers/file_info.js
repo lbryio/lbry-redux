@@ -57,20 +57,27 @@ reducers[ACTIONS.FETCH_FILE_INFO_COMPLETED] = (state, action) => {
   });
 };
 
+reducers[ACTIONS.FETCH_FILE_INFO_FAILED] = (state, action) => {
+  const { outpoint } = action.data;
+  const newFetching = Object.assign({}, state.fetching);
+  delete newFetching[outpoint];
+
+  return Object.assign({}, state, {
+    fetching: newFetching,
+  });
+};
+
 reducers[ACTIONS.DOWNLOADING_STARTED] = (state, action) => {
   const { uri, outpoint, fileInfo } = action.data;
 
   const newByOutpoint = Object.assign({}, state.byOutpoint);
   const newDownloading = Object.assign({}, state.downloadingByOutpoint);
-  const newLoading = Object.assign({}, state.urisLoading);
 
   newDownloading[outpoint] = true;
   newByOutpoint[outpoint] = fileInfo;
-  delete newLoading[uri];
 
   return Object.assign({}, state, {
     downloadingByOutpoint: newDownloading,
-    urisLoading: newLoading,
     byOutpoint: newByOutpoint,
   });
 };
@@ -95,11 +102,9 @@ reducers[ACTIONS.DOWNLOADING_CANCELED] = (state, action) => {
 
   const newDownloading = Object.assign({}, state.downloadingByOutpoint);
   delete newDownloading[outpoint];
-  delete newLoading[uri];
 
   return Object.assign({}, state, {
     downloadingByOutpoint: newDownloading,
-    urisLoading: newLoading,
   });
 };
 
@@ -130,36 +135,6 @@ reducers[ACTIONS.FILE_DELETE] = (state, action) => {
   return Object.assign({}, state, {
     byOutpoint: newByOutpoint,
     downloadingByOutpoint,
-  });
-};
-
-reducers[ACTIONS.LOADING_VIDEO_STARTED] = (state, action) => {
-  const { uri } = action.data;
-
-  const newLoading = Object.assign({}, state.urisLoading);
-  newLoading[uri] = true;
-
-  const newErrors = { ...state.errors };
-  if (uri in newErrors) delete newErrors[uri];
-
-  return Object.assign({}, state, {
-    urisLoading: newLoading,
-    errors: { ...newErrors },
-  });
-};
-
-reducers[ACTIONS.LOADING_VIDEO_FAILED] = (state, action) => {
-  const { uri } = action.data;
-
-  const newLoading = Object.assign({}, state.urisLoading);
-  delete newLoading[uri];
-
-  const newErrors = { ...state.errors };
-  newErrors[uri] = true;
-
-  return Object.assign({}, state, {
-    urisLoading: newLoading,
-    errors: { ...newErrors },
   });
 };
 
