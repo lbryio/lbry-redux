@@ -13,8 +13,6 @@ import {
   selectMyClaimsWithoutChannels,
 } from 'redux/selectors/claims';
 import { selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/publish';
-import fs from 'fs';
-import path from 'path';
 
 export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
   dispatch({
@@ -66,7 +64,9 @@ export const doUpdatePublishForm = (publishFormValue: UpdatePublishFormData) => 
 export const doUploadThumbnail = (
   filePath: string,
   thumbnailBuffer: Uint8Array,
-  fsAdapter: any
+  fsAdapter: any,
+  fs: any,
+  path: any
 ) => (dispatch: Dispatch) => {
   let thumbnail, fileExt, fileName, fileType;
 
@@ -118,12 +118,12 @@ export const doUploadThumbnail = (
         .then(json =>
           json.success
             ? dispatch({
-                type: ACTIONS.UPDATE_PUBLISH_FORM,
-                data: {
-                  uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-                  thumbnail: `${json.data.url}${fileExt}`,
-                },
-              })
+              type: ACTIONS.UPDATE_PUBLISH_FORM,
+              data: {
+                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+                thumbnail: `${json.data.url}.${fileExt}`,
+              },
+            })
             : uploadError(json.message)
         )
         .catch(err => uploadError(err.message));
@@ -157,19 +157,19 @@ export const doUploadThumbnail = (
       .then(json =>
         json.success
           ? dispatch({
-              type: ACTIONS.UPDATE_PUBLISH_FORM,
-              data: {
-                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-                thumbnail: `${json.data.url}${fileExt}`,
-              },
-            })
+            type: ACTIONS.UPDATE_PUBLISH_FORM,
+            data: {
+              uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+              thumbnail: `${json.data.url}${fileExt}`,
+            },
+          })
           : uploadError(json.message)
       )
       .catch(err => uploadError(err.message));
   }
 };
 
-export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileListItem) => (
+export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileListItem, fs: any) => (
   dispatch: Dispatch
 ) => {
   const { name, amount, value } = claim;
@@ -226,7 +226,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
     publishData['channel'] = channelName;
   }
 
-  if (fileInfo && fileInfo.download_path) {
+  if (fs && fileInfo && fileInfo.download_path) {
     try {
       fs.accessSync(fileInfo.download_path, fs.constants.R_OK);
       publishData.filePath = fileInfo.download_path;
