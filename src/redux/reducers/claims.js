@@ -332,7 +332,7 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State =>
 
 reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State, action: any): State => {
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
-  fetchingClaimSearchByQuery[action.data.tags] = false;
+  delete fetchingClaimSearchByQuery[action.data.query];
 
   return Object.assign({}, state, {
     fetchingClaimSearchByQuery,

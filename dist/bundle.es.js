@@ -2403,7 +2403,13 @@ function doClaimSearch(options = {
 
       dispatch({
         type: CLAIM_SEARCH_COMPLETED,
-        data: { query, resolveInfo, uris, append: options.page && options.page !== 1, pageSize: options.page_size }
+        data: {
+          query,
+          resolveInfo,
+          uris,
+          append: options.page && options.page !== 1,
+          pageSize: options.page_size
+        }
       });
     };
 
@@ -3728,7 +3734,7 @@ reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
 
 reducers[CLAIM_SEARCH_FAILED] = (state, action) => {
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
-  fetchingClaimSearchByQuery[action.data.tags] = false;
+  delete fetchingClaimSearchByQuery[action.data.query];
 
   return Object.assign({}, state, {
     fetchingClaimSearchByQuery
