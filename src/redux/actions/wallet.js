@@ -1,3 +1,4 @@
+// @flow
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import { doToast } from 'redux/actions/notifications';
@@ -10,7 +11,8 @@ export function doUpdateBalance() {
     const {
       wallet: { balance: balanceInStore },
     } = getState();
-    Lbry.account_balance().then(({ available }) => {
+    Lbry.account_balance().then((response: BalanceResponse) => {
+      const { available } = response;
       const balance = parseFloat(available);
       if (balanceInStore !== balance) {
         dispatch({

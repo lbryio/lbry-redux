@@ -741,7 +741,7 @@ const Lbry = {
   blob_list: (params = {}) => daemonCallWithResult('blob_list', params),
 
   // Wallet utilities
-  account_balance: (params = {}) => daemonCallWithResult('account_balance', params),
+  account_balance: () => daemonCallWithResult('account_balance'),
   account_decrypt: () => daemonCallWithResult('account_decrypt', {}),
   account_encrypt: (params = {}) => daemonCallWithResult('account_encrypt', params),
   account_unlock: (params = {}) => daemonCallWithResult('account_unlock', params),
@@ -1777,12 +1777,15 @@ function creditsToString(amount) {
   return creditString;
 }
 
+//      
+
 function doUpdateBalance() {
   return (dispatch, getState) => {
     const {
       wallet: { balance: balanceInStore }
     } = getState();
-    lbryProxy.account_balance().then(({ available }) => {
+    lbryProxy.account_balance().then(response => {
+      const { available } = response;
       const balance = parseFloat(available);
       if (balanceInStore !== balance) {
         dispatch({
