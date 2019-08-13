@@ -1,5 +1,6 @@
 // @flow
 import { createSelector } from 'reselect';
+import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 
 type State = { file: FileState };
 
@@ -20,19 +21,16 @@ export const selectPurchasedUris: (state: State) => Array<string> = createSelect
   state => state.purchasedUris
 );
 
-export const selectPurchasedStreamingUrls: (state: State) => {} = createSelector(
-  selectState,
-  state => state.purchasedStreamingUrls
-);
-
 export const selectLastPurchasedUri: (state: State) => string = createSelector(
   selectState,
   state =>
     state.purchasedUris.length > 0 ? state.purchasedUris[state.purchasedUris.length - 1] : null
 );
 
-export const makeSelectStreamingUrlForUri = (uri: string): ((state: State) => {}) =>
+export const makeSelectStreamingUrlForUri = (uri: string) =>
   createSelector(
-    selectPurchasedStreamingUrls,
-    streamingUrls => streamingUrls && streamingUrls[uri]
+    makeSelectFileInfoForUri(uri),
+    fileInfo => {
+      return fileInfo && fileInfo.streaming_url;
+    }
   );

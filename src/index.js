@@ -140,7 +140,6 @@ export { selectToast, selectError } from 'redux/selectors/notifications';
 export {
   selectFailedPurchaseUris,
   selectPurchasedUris,
-  selectPurchasedStreamingUrls,
   selectPurchaseUriErrorMessage,
   selectLastPurchasedUri,
   makeSelectStreamingUrlForUri,
@@ -218,6 +217,10 @@ export {
   selectFileListDownloadedSort,
   selectFileListPublishedSort,
   selectDownloadedUris,
+  makeSelectMediaTypeForUri,
+  makeSelectUriIsStreamable,
+  makeSelectDownloadPathForUri,
+  makeSelectFileNameForUri,
 } from 'redux/selectors/file_info';
 
 export {
