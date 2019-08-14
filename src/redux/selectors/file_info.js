@@ -56,13 +56,23 @@ export const makeSelectDownloadingForUri = uri =>
 
 export const selectUrisLoading = createSelector(
   selectState,
-  state => state.urisLoading || {}
+  state => state.fetching || {}
 );
 
 export const makeSelectLoadingForUri = uri =>
   createSelector(
     selectUrisLoading,
-    byUri => byUri && byUri[uri]
+    makeSelectClaimForUri(uri),
+    (fetchingByOutpoint, claim) => {
+      if (!claim) {
+        return false;
+      }
+
+      const { txid, nout } = claim;
+      const outpoint = `${txid}:${nout}`;
+      const isFetching = fetchingByOutpoint[outpoint];
+      return isFetching;
+    }
   );
 
 export const selectFileInfosDownloaded = createSelector(

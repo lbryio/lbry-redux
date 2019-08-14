@@ -2452,9 +2452,18 @@ const makeSelectDownloadingForUri = uri => reselect.createSelector(selectDownloa
   return byOutpoint[fileInfo.outpoint];
 });
 
-const selectUrisLoading = reselect.createSelector(selectState$3, state => state.urisLoading || {});
+const selectUrisLoading = reselect.createSelector(selectState$3, state => state.fetching || {});
 
-const makeSelectLoadingForUri = uri => reselect.createSelector(selectUrisLoading, byUri => byUri && byUri[uri]);
+const makeSelectLoadingForUri = uri => reselect.createSelector(selectUrisLoading, makeSelectClaimForUri(uri), (fetchingByOutpoint, claim) => {
+  if (!claim) {
+    return false;
+  }
+
+  const { txid, nout } = claim;
+  const outpoint = `${txid}:${nout}`;
+  const isFetching = fetchingByOutpoint[outpoint];
+  return isFetching;
+});
 
 const selectFileInfosDownloaded = reselect.createSelector(selectFileInfosByOutpoint, selectMyClaims, (byOutpoint, myClaims) => Object.values(byOutpoint).filter(fileInfo => {
   const myClaimIds = myClaims.map(claim => claim.claim_id);
