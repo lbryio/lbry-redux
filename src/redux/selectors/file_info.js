@@ -285,17 +285,13 @@ export const makeSelectDownloadPathForUri = uri =>
 
 export const makeSelectFilePartlyDownloaded = uri =>
   createSelector(
-    selectFileInfosByOutpoint,
-    makeSelectClaimForUri(uri),
-    (downloadsByOutpoint, claim) => {
-      if (!claim) {
+    makeSelectFileInfoForUri(uri),
+    fileInfo => {
+      if (!fileInfo) {
         return false;
       }
 
-      const { txid, nout } = claim;
-      const outpoint = `${txid}:${nout}`;
-      const isDownloaded = downloadsByOutpoint[outpoint];
-      return isDownloaded;
+      return fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0;
     }
   );
 

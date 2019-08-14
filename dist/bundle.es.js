@@ -2625,15 +2625,12 @@ const makeSelectDownloadPathForUri = uri => reselect.createSelector(makeSelectFi
   return fileInfo && fileInfo.download_path;
 });
 
-const makeSelectFilePartlyDownloaded = uri => reselect.createSelector(selectFileInfosByOutpoint, makeSelectClaimForUri(uri), (downloadsByOutpoint, claim) => {
-  if (!claim) {
+const makeSelectFilePartlyDownloaded = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), fileInfo => {
+  if (!fileInfo) {
     return false;
   }
 
-  const { txid, nout } = claim;
-  const outpoint = `${txid}:${nout}`;
-  const isDownloaded = downloadsByOutpoint[outpoint];
-  return isDownloaded;
+  return fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0;
 });
 
 const makeSelectFileNameForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), fileInfo => {
