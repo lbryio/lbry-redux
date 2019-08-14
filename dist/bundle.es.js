@@ -2615,6 +2615,18 @@ const makeSelectUriIsStreamable = uri => reselect.createSelector(makeSelectMedia
 const makeSelectDownloadPathForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), fileInfo => {
   return fileInfo && fileInfo.download_path;
 });
+
+const makeSelectFilePartlyDownloaded = uri => reselect.createSelector(selectFileInfosByOutpoint, makeSelectClaimForUri(uri), (downloadsByOutpoint, claim) => {
+  if (!claim) {
+    return false;
+  }
+
+  const { txid, nout } = claim;
+  const outpoint = `${txid}:${nout}`;
+  const isDownloaded = downloadsByOutpoint[outpoint];
+  return isDownloaded;
+});
+
 const makeSelectFileNameForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), fileInfo => {
   return fileInfo && fileInfo.file_name;
 });
@@ -4866,6 +4878,7 @@ exports.makeSelectDownloadingForUri = makeSelectDownloadingForUri;
 exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
 exports.makeSelectFileNameForUri = makeSelectFileNameForUri;
+exports.makeSelectFilePartlyDownloaded = makeSelectFilePartlyDownloaded;
 exports.makeSelectFirstRecommendedFileForUri = makeSelectFirstRecommendedFileForUri;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
 exports.makeSelectLoadingForUri = makeSelectLoadingForUri;

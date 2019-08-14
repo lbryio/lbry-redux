@@ -4,6 +4,7 @@ import {
   selectMyClaims,
   selectClaimsById,
   makeSelectContentTypeForUri,
+  makeSelectClaimForUri,
 } from 'redux/selectors/claims';
 import { createSelector } from 'reselect';
 import { buildURI } from 'lbryURI';
@@ -241,7 +242,7 @@ export const selectDownloadedUris = createSelector(
       .map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`)
 );
 
-export const makeSelectMediaTypeForUri = (uri: string) =>
+export const makeSelectMediaTypeForUri = uri =>
   createSelector(
     makeSelectFileInfoForUri(uri),
     makeSelectContentTypeForUri(uri),
@@ -255,7 +256,7 @@ export const makeSelectMediaTypeForUri = (uri: string) =>
     }
   );
 
-export const makeSelectUriIsStreamable = (uri: string) =>
+export const makeSelectUriIsStreamable = uri =>
   createSelector(
     makeSelectMediaTypeForUri(uri),
     mediaType => {
@@ -264,14 +265,31 @@ export const makeSelectUriIsStreamable = (uri: string) =>
     }
   );
 
-export const makeSelectDownloadPathForUri = (uri: string) =>
+export const makeSelectDownloadPathForUri = uri =>
   createSelector(
     makeSelectFileInfoForUri(uri),
     fileInfo => {
       return fileInfo && fileInfo.download_path;
     }
   );
-export const makeSelectFileNameForUri = (uri: string) =>
+
+export const makeSelectFilePartlyDownloaded = uri =>
+  createSelector(
+    selectFileInfosByOutpoint,
+    makeSelectClaimForUri(uri),
+    (downloadsByOutpoint, claim) => {
+      if (!claim) {
+        return false;
+      }
+
+      const { txid, nout } = claim;
+      const outpoint = `${txid}:${nout}`;
+      const isDownloaded = downloadsByOutpoint[outpoint];
+      return isDownloaded;
+    }
+  );
+
+export const makeSelectFileNameForUri = uri =>
   createSelector(
     makeSelectFileInfoForUri(uri),
     fileInfo => {

@@ -221,6 +221,7 @@ export {
   makeSelectUriIsStreamable,
   makeSelectDownloadPathForUri,
   makeSelectFileNameForUri,
+  makeSelectFilePartlyDownloaded,
 } from 'redux/selectors/file_info';
 
 export {
