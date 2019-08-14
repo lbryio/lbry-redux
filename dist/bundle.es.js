@@ -3008,7 +3008,7 @@ const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter, fs, path) => di
 };
 
 const doPrepareEdit = (claim, uri, fileInfo, fs) => dispatch => {
-  const { name, amount, value } = claim;
+  const { name, amount, value = {} } = claim;
   const channelName = claim && claim.signing_channel && claim.signing_channel.normalized_name || null;
   const {
     author,

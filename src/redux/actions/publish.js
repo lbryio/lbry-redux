@@ -172,7 +172,7 @@ export const doUploadThumbnail = (
 export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileListItem, fs: any) => (
   dispatch: Dispatch
 ) => {
-  const { name, amount, value } = claim;
+  const { name, amount, value = {} } = claim;
   const channelName =
     (claim && claim.signing_channel && claim.signing_channel.normalized_name) || null;
   const {
