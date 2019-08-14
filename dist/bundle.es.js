@@ -1936,13 +1936,13 @@ function doSetDraftTransactionAddress(address) {
   };
 }
 
-function doSendTip(amount, claimId, successCallback, errorCallback) {
+function doSendTip(amount, claimId, isSupport, successCallback, errorCallback) {
   return (dispatch, getState) => {
     const state = getState();
     const balance = selectBalance(state);
     const myClaims = selectMyClaimsRaw(state);
 
-    const isSupport = myClaims.find(claim => claim.claim_id === claimId);
+    const shouldSupport = isSupport || myClaims.find(claim => claim.claim_id === claimId);
 
     if (balance - amount <= 0) {
       dispatch(doToast({
@@ -1954,7 +1954,7 @@ function doSendTip(amount, claimId, successCallback, errorCallback) {
 
     const success = () => {
       dispatch(doToast({
-        message: isSupport ? __(`You deposited ${amount} LBC as a support!`) : __(`You sent ${amount} LBC as a tip, Mahalo!`),
+        message: shouldSupport ? __(`You deposited ${amount} LBC as a support!`) : __(`You sent ${amount} LBC as a tip, Mahalo!`),
         linkText: __('History'),
         linkTarget: __('/wallet')
       }));
@@ -1993,7 +1993,7 @@ function doSendTip(amount, claimId, successCallback, errorCallback) {
     lbryProxy.support_create({
       claim_id: claimId,
       amount: creditsToString(amount),
-      tip: isSupport ? false : true
+      tip: !shouldSupport
     }).then(success, error);
   };
 }
