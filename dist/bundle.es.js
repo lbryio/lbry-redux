@@ -1716,6 +1716,21 @@ function formatCredits(amount, precision) {
   return parseFloat(amount).toFixed(precision || 1).replace(/\.?0+$/, '');
 }
 
+function formatBigNumberCredits(amount, precision) {
+  const actualAmount = parseFloat(amount);
+  if (Number.isNaN(actualAmount) || actualAmount < 1000) {
+    return formatCredits(amount, precision);
+  }
+
+  if (actualAmount > 1000000) {
+    return formatCredits(actualAmount / 1000000, precision) + 'M';
+  }
+
+  if (actualAmount > 1000) {
+    return formatCredits(actualAmount / 1000, precision) + 'K';
+  }
+}
+
 function formatFullPrice(amount, precision = 1) {
   let formated = '';
 
@@ -4835,6 +4850,7 @@ exports.doWalletStatus = doWalletStatus;
 exports.doWalletUnlock = doWalletUnlock;
 exports.fileInfoReducer = fileInfoReducer;
 exports.fileReducer = fileReducer;
+exports.formatBigNumberCredits = formatBigNumberCredits;
 exports.formatCredits = formatCredits;
 exports.formatFullPrice = formatFullPrice;
 exports.isClaimNsfw = isClaimNsfw;

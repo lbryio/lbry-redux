@@ -5,6 +5,21 @@ export function formatCredits(amount, precision) {
     .replace(/\.?0+$/, '');
 }
 
+export function formatBigNumberCredits(amount, precision) {
+  const actualAmount = parseFloat(amount);
+  if (Number.isNaN(actualAmount) || actualAmount < 1000) {
+    return formatCredits(amount, precision);
+  }
+
+  if (actualAmount > 1000000) {
+    return formatCredits(actualAmount / 1000000, precision) + 'M';
+  }
+
+  if (actualAmount > 1000) {
+    return formatCredits(actualAmount / 1000, precision) + 'K';
+  }
+}
+
 export function formatFullPrice(amount, precision = 1) {
   let formated = '';
 
@@ -13,7 +28,7 @@ export function formatFullPrice(amount, precision = 1) {
 
   if (fraction) {
     const decimals = fraction.split('');
-    const first = decimals.filter((number) => number !== '0')[0];
+    const first = decimals.filter(number => number !== '0')[0];
     const index = decimals.indexOf(first);
 
     // Set format fraction
