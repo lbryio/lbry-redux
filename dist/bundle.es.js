@@ -1750,8 +1750,8 @@ function doUpdateBalance() {
     const {
       wallet: { balance: balanceInStore }
     } = getState();
-    lbryProxy.account_balance().then(balanceAsString => {
-      const balance = parseFloat(balanceAsString);
+    lbryProxy.account_balance().then(({ available }) => {
+      const balance = parseFloat(available);
       if (balanceInStore !== balance) {
         dispatch({
           type: UPDATE_BALANCE,
