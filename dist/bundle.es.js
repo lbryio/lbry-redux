@@ -1229,6 +1229,156 @@ function doDismissError() {
   };
 }
 
+const selectState$1 = state => state.wallet || {};
+
+const selectWalletState = selectState$1;
+
+const selectWalletIsEncrypted = reselect.createSelector(selectState$1, state => state.walletIsEncrypted);
+
+const selectWalletEncryptPending = reselect.createSelector(selectState$1, state => state.walletEncryptPending);
+
+const selectWalletEncryptSucceeded = reselect.createSelector(selectState$1, state => state.walletEncryptSucceded);
+
+const selectWalletEncryptResult = reselect.createSelector(selectState$1, state => state.walletEncryptResult);
+
+const selectWalletDecryptPending = reselect.createSelector(selectState$1, state => state.walletDecryptPending);
+
+const selectWalletDecryptSucceeded = reselect.createSelector(selectState$1, state => state.walletDecryptSucceded);
+
+const selectWalletDecryptResult = reselect.createSelector(selectState$1, state => state.walletDecryptResult);
+
+const selectWalletUnlockPending = reselect.createSelector(selectState$1, state => state.walletUnlockPending);
+
+const selectWalletUnlockSucceeded = reselect.createSelector(selectState$1, state => state.walletUnlockSucceded);
+
+const selectWalletUnlockResult = reselect.createSelector(selectState$1, state => state.walletUnlockResult);
+
+const selectWalletLockPending = reselect.createSelector(selectState$1, state => state.walletLockPending);
+
+const selectWalletLockSucceeded = reselect.createSelector(selectState$1, state => state.walletLockSucceded);
+
+const selectWalletLockResult = reselect.createSelector(selectState$1, state => state.walletLockResult);
+
+const selectBalance = reselect.createSelector(selectState$1, state => state.balance);
+
+const selectTotalBalance = reselect.createSelector(selectState$1, state => state.totalBalance);
+
+const selectTransactionsById = reselect.createSelector(selectState$1, state => state.transactions || {});
+
+const selectSupportsByOutpoint = reselect.createSelector(selectState$1, state => state.supports || {});
+
+const selectTotalSupports = reselect.createSelector(selectSupportsByOutpoint, byOutpoint => {
+  let total = parseFloat("0.0");
+
+  Object.values(byOutpoint).forEach(support => {
+    const { amount } = support;
+    total = amount ? total + parseFloat(amount) : total;
+  });
+
+  return total;
+});
+
+const selectTransactionItems = reselect.createSelector(selectTransactionsById, byId => {
+  const items = [];
+
+  Object.keys(byId).forEach(txid => {
+    const tx = byId[txid];
+
+    // ignore dust/fees
+    // it is fee only txn if all infos are also empty
+    if (Math.abs(tx.value) === Math.abs(tx.fee) && tx.claim_info.length === 0 && tx.support_info.length === 0 && tx.update_info.length === 0 && tx.abandon_info.length === 0) {
+      return;
+    }
+
+    const append = [];
+
+    append.push(...tx.claim_info.map(item => Object.assign({}, tx, item, {
+      type: item.claim_name[0] === '@' ? CHANNEL$1 : PUBLISH$1
+    })));
+    append.push(...tx.support_info.map(item => Object.assign({}, tx, item, {
+      type: !item.is_tip ? SUPPORT : TIP
+    })));
+    append.push(...tx.update_info.map(item => Object.assign({}, tx, item, { type: UPDATE })));
+    append.push(...tx.abandon_info.map(item => Object.assign({}, tx, item, { type: ABANDON })));
+
+    if (!append.length) {
+      append.push(Object.assign({}, tx, {
+        type: tx.value < 0 ? SPEND : RECEIVE
+      }));
+    }
+
+    items.push(...append.map(item => {
+      // value on transaction, amount on outpoint
+      // amount is always positive, but should match sign of value
+      const balanceDelta = parseFloat(item.balance_delta);
+      const value = parseFloat(item.value);
+      const amount = balanceDelta || value;
+      const fee = parseFloat(tx.fee);
+
+      return {
+        txid,
+        timestamp: tx.timestamp,
+        date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
+        amount,
+        fee,
+        claim_id: item.claim_id,
+        claim_name: item.claim_name,
+        type: item.type || SPEND,
+        nout: item.nout,
+        confirmations: tx.confirmations
+      };
+    }));
+  });
+
+  return items.sort((tx1, tx2) => {
+    if (!tx1.timestamp && !tx2.timestamp) {
+      return 0;
+    } else if (!tx1.timestamp && tx2.timestamp) {
+      return -1;
+    } else if (tx1.timestamp && !tx2.timestamp) {
+      return 1;
+    }
+
+    return tx2.timestamp - tx1.timestamp;
+  });
+});
+
+const selectRecentTransactions = reselect.createSelector(selectTransactionItems, transactions => {
+  const threshold = new Date();
+  threshold.setDate(threshold.getDate() - 7);
+  return transactions.filter(transaction => {
+    if (!transaction.date) {
+      return true; // pending transaction
+    }
+
+    return transaction.date > threshold;
+  });
+});
+
+const selectHasTransactions = reselect.createSelector(selectTransactionItems, transactions => transactions && transactions.length > 0);
+
+const selectIsFetchingTransactions = reselect.createSelector(selectState$1, state => state.fetchingTransactions);
+
+const selectIsSendingSupport = reselect.createSelector(selectState$1, state => state.sendingSupport);
+
+const selectReceiveAddress = reselect.createSelector(selectState$1, state => state.receiveAddress);
+
+const selectGettingNewAddress = reselect.createSelector(selectState$1, state => state.gettingNewAddress);
+
+const selectDraftTransaction = reselect.createSelector(selectState$1, state => state.draftTransaction || {});
+
+const selectDraftTransactionAmount = reselect.createSelector(selectDraftTransaction, draft => draft.amount);
+
+const selectDraftTransactionAddress = reselect.createSelector(selectDraftTransaction, draft => draft.address);
+
+const selectDraftTransactionError = reselect.createSelector(selectDraftTransaction, draft => draft.error);
+
+const selectBlocks = reselect.createSelector(selectState$1, state => state.blocks);
+
+const selectCurrentHeight = reselect.createSelector(selectState$1, state => state.latestBlock);
+
+const selectTransactionListFilter = reselect.createSelector(selectState$1, state => state.transactionListFilter || '');
+
 var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
@@ -1265,13 +1415,13 @@ function createNormalizedClaimSearchKey(options) {
 
 //      
 
-const selectState$1 = state => state.claims || {};
+const selectState$2 = state => state.claims || {};
 
-const selectClaimsById = reselect.createSelector(selectState$1, state => state.byId || {});
+const selectClaimsById = reselect.createSelector(selectState$2, state => state.byId || {});
 
-const selectCurrentChannelPage = reselect.createSelector(selectState$1, state => state.currentChannelPage || 1);
+const selectCurrentChannelPage = reselect.createSelector(selectState$2, state => state.currentChannelPage || 1);
 
-const selectClaimsByUri = reselect.createSelector(selectState$1, selectClaimsById, (state, byId) => {
+const selectClaimsByUri = reselect.createSelector(selectState$2, selectClaimsById, (state, byId) => {
   const byUri = state.claimsByUri || {};
   const claims = {};
 
@@ -1291,11 +1441,11 @@ const selectClaimsByUri = reselect.createSelector(selectState$1, selectClaimsByI
   return claims;
 });
 
-const selectAllClaimsByChannel = reselect.createSelector(selectState$1, state => state.claimsByChannel || {});
+const selectAllClaimsByChannel = reselect.createSelector(selectState$2, state => state.claimsByChannel || {});
 
-const selectPendingById = reselect.createSelector(selectState$1, state => state.pendingById || {});
+const selectPendingById = reselect.createSelector(selectState$2, state => state.pendingById || {});
 
-const selectPendingClaims = reselect.createSelector(selectState$1, state => Object.values(state.pendingById || []));
+const selectPendingClaims = reselect.createSelector(selectState$2, state => Object.values(state.pendingById || []));
 
 const makeSelectClaimIsPending = uri => reselect.createSelector(selectPendingById, pendingById => {
   let claimId;
@@ -1335,9 +1485,9 @@ const makeSelectClaimForUri = uri => reselect.createSelector(selectClaimsByUri, 
   }
 });
 
-const selectMyClaimsRaw = reselect.createSelector(selectState$1, state => state.myClaims);
+const selectMyClaimsRaw = reselect.createSelector(selectState$2, state => state.myClaims);
 
-const selectAbandoningIds = reselect.createSelector(selectState$1, state => Object.keys(state.abandoningById || {}));
+const selectAbandoningIds = reselect.createSelector(selectState$2, state => Object.keys(state.abandoningById || {}));
 
 const selectMyActiveClaims = reselect.createSelector(selectMyClaimsRaw, selectAbandoningIds, (claims, abandoningIds) => new Set(claims && claims.map(claim => claim.claim_id).filter(claimId => Object.keys(abandoningIds).indexOf(claimId) === -1)));
 
@@ -1358,7 +1508,7 @@ const makeSelectClaimIsMine = rawUri => {
   });
 };
 
-const selectAllFetchingChannelClaims = reselect.createSelector(selectState$1, state => state.fetchingChannelClaims || {});
+const selectAllFetchingChannelClaims = reselect.createSelector(selectState$2, state => state.fetchingChannelClaims || {});
 
 const makeSelectFetchingChannelClaims = uri => reselect.createSelector(selectAllFetchingChannelClaims, fetching => fetching && fetching[uri]);
 
@@ -1423,7 +1573,7 @@ const makeSelectCoverForUri = uri => reselect.createSelector(makeSelectClaimForU
   return cover ? cover.url : undefined;
 });
 
-const selectIsFetchingClaimListMine = reselect.createSelector(selectState$1, state => state.isFetchingClaimListMine);
+const selectIsFetchingClaimListMine = reselect.createSelector(selectState$2, state => state.isFetchingClaimListMine);
 
 const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaimsById, selectAbandoningIds, selectPendingClaims, (myClaimIds, byId, abandoningIds, pendingClaims) => {
   const claims = [];
@@ -1459,9 +1609,9 @@ const selectMyClaimsOutpoints = reselect.createSelector(selectMyClaims, myClaims
   return outpoints;
 });
 
-const selectFetchingMyChannels = reselect.createSelector(selectState$1, state => state.fetchingMyChannels);
+const selectFetchingMyChannels = reselect.createSelector(selectState$2, state => state.fetchingMyChannels);
 
-const selectMyChannelClaims = reselect.createSelector(selectState$1, selectClaimsById, (state, byId) => {
+const selectMyChannelClaims = reselect.createSelector(selectState$2, selectClaimsById, (state, byId) => {
   const ids = state.myChannelClaims || [];
   const claims = [];
 
@@ -1475,13 +1625,13 @@ const selectMyChannelClaims = reselect.createSelector(selectState$1, selectClaim
   return claims;
 });
 
-const selectResolvingUris = reselect.createSelector(selectState$1, state => state.resolvingUris || []);
+const selectResolvingUris = reselect.createSelector(selectState$2, state => state.resolvingUris || []);
 
 const makeSelectIsUriResolving = uri => reselect.createSelector(selectResolvingUris, resolvingUris => resolvingUris && resolvingUris.indexOf(uri) !== -1);
 
-const selectPlayingUri = reselect.createSelector(selectState$1, state => state.playingUri);
+const selectPlayingUri = reselect.createSelector(selectState$2, state => state.playingUri);
 
-const selectChannelClaimCounts = reselect.createSelector(selectState$1, state => state.channelClaimCounts || {});
+const selectChannelClaimCounts = reselect.createSelector(selectState$2, state => state.channelClaimCounts || {});
 
 const makeSelectTotalItemsForChannel = uri => reselect.createSelector(selectChannelClaimCounts, byUri => byUri && byUri[uri]);
 
@@ -1564,152 +1714,29 @@ const makeSelectTagsForUri = uri => reselect.createSelector(makeSelectMetadataFo
   return metadata && metadata.tags || [];
 });
 
-const selectFetchingClaimSearchByQuery = reselect.createSelector(selectState$1, state => state.fetchingClaimSearchByQuery || {});
+const selectFetchingClaimSearchByQuery = reselect.createSelector(selectState$2, state => state.fetchingClaimSearchByQuery || {});
 
 const selectFetchingClaimSearch = reselect.createSelector(selectFetchingClaimSearchByQuery, fetchingClaimSearchByQuery => Boolean(Object.keys(fetchingClaimSearchByQuery).length));
 
-const selectClaimSearchByQuery = reselect.createSelector(selectState$1, state => state.claimSearchByQuery || {});
+const selectClaimSearchByQuery = reselect.createSelector(selectState$2, state => state.claimSearchByQuery || {});
 
 const makeSelectShortUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.short_url);
 
-const selectState$2 = state => state.wallet || {};
+const makeSelectSupportsForUri = uri => reselect.createSelector(selectSupportsByOutpoint, makeSelectClaimForUri(uri), (byOutpoint, claim) => {
+  if (!claim || !claim.is_mine) {
+    return null;
+  }
 
-const selectWalletState = selectState$2;
+  const { claim_id: claimId } = claim;
+  let total = parseFloat("0.0");
 
-const selectWalletIsEncrypted = reselect.createSelector(selectState$2, state => state.walletIsEncrypted);
-
-const selectWalletEncryptPending = reselect.createSelector(selectState$2, state => state.walletEncryptPending);
-
-const selectWalletEncryptSucceeded = reselect.createSelector(selectState$2, state => state.walletEncryptSucceded);
-
-const selectWalletEncryptResult = reselect.createSelector(selectState$2, state => state.walletEncryptResult);
-
-const selectWalletDecryptPending = reselect.createSelector(selectState$2, state => state.walletDecryptPending);
-
-const selectWalletDecryptSucceeded = reselect.createSelector(selectState$2, state => state.walletDecryptSucceded);
-
-const selectWalletDecryptResult = reselect.createSelector(selectState$2, state => state.walletDecryptResult);
-
-const selectWalletUnlockPending = reselect.createSelector(selectState$2, state => state.walletUnlockPending);
-
-const selectWalletUnlockSucceeded = reselect.createSelector(selectState$2, state => state.walletUnlockSucceded);
-
-const selectWalletUnlockResult = reselect.createSelector(selectState$2, state => state.walletUnlockResult);
-
-const selectWalletLockPending = reselect.createSelector(selectState$2, state => state.walletLockPending);
-
-const selectWalletLockSucceeded = reselect.createSelector(selectState$2, state => state.walletLockSucceded);
-
-const selectWalletLockResult = reselect.createSelector(selectState$2, state => state.walletLockResult);
-
-const selectBalance = reselect.createSelector(selectState$2, state => state.balance);
-
-const selectTotalBalance = reselect.createSelector(selectState$2, state => state.totalBalance);
-
-const selectTransactionsById = reselect.createSelector(selectState$2, state => state.transactions || {});
-
-const selectSupportsByOutpoint = reselect.createSelector(selectState$2, state => state.supports || {});
-
-const selectTransactionItems = reselect.createSelector(selectTransactionsById, byId => {
-  const items = [];
-
-  Object.keys(byId).forEach(txid => {
-    const tx = byId[txid];
-
-    // ignore dust/fees
-    // it is fee only txn if all infos are also empty
-    if (Math.abs(tx.value) === Math.abs(tx.fee) && tx.claim_info.length === 0 && tx.support_info.length === 0 && tx.update_info.length === 0 && tx.abandon_info.length === 0) {
-      return;
-    }
-
-    const append = [];
-
-    append.push(...tx.claim_info.map(item => Object.assign({}, tx, item, {
-      type: item.claim_name[0] === '@' ? CHANNEL$1 : PUBLISH$1
-    })));
-    append.push(...tx.support_info.map(item => Object.assign({}, tx, item, {
-      type: !item.is_tip ? SUPPORT : TIP
-    })));
-    append.push(...tx.update_info.map(item => Object.assign({}, tx, item, { type: UPDATE })));
-    append.push(...tx.abandon_info.map(item => Object.assign({}, tx, item, { type: ABANDON })));
-
-    if (!append.length) {
-      append.push(Object.assign({}, tx, {
-        type: tx.value < 0 ? SPEND : RECEIVE
-      }));
-    }
-
-    items.push(...append.map(item => {
-      // value on transaction, amount on outpoint
-      // amount is always positive, but should match sign of value
-      const balanceDelta = parseFloat(item.balance_delta);
-      const value = parseFloat(item.value);
-      const amount = balanceDelta || value;
-      const fee = parseFloat(tx.fee);
-
-      return {
-        txid,
-        timestamp: tx.timestamp,
-        date: tx.timestamp ? new Date(Number(tx.timestamp) * 1000) : null,
-        amount,
-        fee,
-        claim_id: item.claim_id,
-        claim_name: item.claim_name,
-        type: item.type || SPEND,
-        nout: item.nout,
-        confirmations: tx.confirmations
-      };
-    }));
+  Object.values(byOutpoint).forEach(support => {
+    const { claim_id, amount } = support;
+    total = claim_id === claimId && amount ? total + parseFloat(amount) : total;
   });
 
-  return items.sort((tx1, tx2) => {
-    if (!tx1.timestamp && !tx2.timestamp) {
-      return 0;
-    } else if (!tx1.timestamp && tx2.timestamp) {
-      return -1;
-    } else if (tx1.timestamp && !tx2.timestamp) {
-      return 1;
-    }
-
-    return tx2.timestamp - tx1.timestamp;
-  });
+  return total;
 });
-
-const selectRecentTransactions = reselect.createSelector(selectTransactionItems, transactions => {
-  const threshold = new Date();
-  threshold.setDate(threshold.getDate() - 7);
-  return transactions.filter(transaction => {
-    if (!transaction.date) {
-      return true; // pending transaction
-    }
-
-    return transaction.date > threshold;
-  });
-});
-
-const selectHasTransactions = reselect.createSelector(selectTransactionItems, transactions => transactions && transactions.length > 0);
-
-const selectIsFetchingTransactions = reselect.createSelector(selectState$2, state => state.fetchingTransactions);
-
-const selectIsSendingSupport = reselect.createSelector(selectState$2, state => state.sendingSupport);
-
-const selectReceiveAddress = reselect.createSelector(selectState$2, state => state.receiveAddress);
-
-const selectGettingNewAddress = reselect.createSelector(selectState$2, state => state.gettingNewAddress);
-
-const selectDraftTransaction = reselect.createSelector(selectState$2, state => state.draftTransaction || {});
-
-const selectDraftTransactionAmount = reselect.createSelector(selectDraftTransaction, draft => draft.amount);
-
-const selectDraftTransactionAddress = reselect.createSelector(selectDraftTransaction, draft => draft.address);
-
-const selectDraftTransactionError = reselect.createSelector(selectDraftTransaction, draft => draft.error);
-
-const selectBlocks = reselect.createSelector(selectState$2, state => state.blocks);
-
-const selectCurrentHeight = reselect.createSelector(selectState$2, state => state.latestBlock);
-
-const selectTransactionListFilter = reselect.createSelector(selectState$2, state => state.transactionListFilter || '');
 
 function formatCredits(amount, precision) {
   if (Number.isNaN(parseFloat(amount))) return '0';
@@ -4859,6 +4886,7 @@ exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
 exports.makeSelectSearchUris = makeSelectSearchUris;
 exports.makeSelectShortUrlForUri = makeSelectShortUrlForUri;
 exports.makeSelectStreamingUrlForUri = makeSelectStreamingUrlForUri;
+exports.makeSelectSupportsForUri = makeSelectSupportsForUri;
 exports.makeSelectTagsForUri = makeSelectTagsForUri;
 exports.makeSelectThumbnailForUri = makeSelectThumbnailForUri;
 exports.makeSelectTitleForUri = makeSelectTitleForUri;
@@ -4945,6 +4973,7 @@ exports.selectTakeOverAmount = selectTakeOverAmount;
 exports.selectToast = selectToast;
 exports.selectTotalBalance = selectTotalBalance;
 exports.selectTotalDownloadProgress = selectTotalDownloadProgress;
+exports.selectTotalSupports = selectTotalSupports;
 exports.selectTransactionItems = selectTransactionItems;
 exports.selectTransactionListFilter = selectTransactionListFilter;
 exports.selectTransactionsById = selectTransactionsById;
