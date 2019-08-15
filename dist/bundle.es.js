@@ -3041,7 +3041,8 @@ const doPrepareEdit = (claim, uri, fileInfo, fs) => dispatch => {
     license,
     license_url: licenseUrl,
     thumbnail,
-    title
+    title,
+    tags
   } = value;
 
   const publishData = {
@@ -3057,7 +3058,8 @@ const doPrepareEdit = (claim, uri, fileInfo, fs) => dispatch => {
     uri,
     uploadThumbnailStatus: thumbnail ? MANUAL : undefined,
     licenseUrl,
-    nsfw: isClaimNsfw(claim)
+    nsfw: isClaimNsfw(claim),
+    tags: tags ? tags.map(tag => ({ name: tag })) : []
   };
 
   // Make sure custom licenses are mapped properly
@@ -3077,15 +3079,6 @@ const doPrepareEdit = (claim, uri, fileInfo, fs) => dispatch => {
   }
   if (channelName) {
     publishData['channel'] = channelName;
-  }
-
-  if (fs && fileInfo && fileInfo.download_path) {
-    try {
-      fs.accessSync(fileInfo.download_path, fs.constants.R_OK);
-      publishData.filePath = fileInfo.download_path;
-    } catch (e) {
-      console.error(e.name, e.message);
-    }
   }
 
   dispatch({ type: DO_PREPARE_EDIT, data: publishData });

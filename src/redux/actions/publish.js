@@ -189,6 +189,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
     license_url: licenseUrl,
     thumbnail,
     title,
+    tags,
   } = value;
 
   const publishData: UpdatePublishFormData = {
@@ -205,6 +206,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
     uploadThumbnailStatus: thumbnail ? THUMBNAIL_STATUSES.MANUAL : undefined,
     licenseUrl,
     nsfw: isClaimNsfw(claim),
+    tags: tags ? tags.map(tag => ({ name: tag })) : [],
   };
 
   // Make sure custom licenses are mapped properly
@@ -224,15 +226,6 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
   }
   if (channelName) {
     publishData['channel'] = channelName;
-  }
-
-  if (fs && fileInfo && fileInfo.download_path) {
-    try {
-      fs.accessSync(fileInfo.download_path, fs.constants.R_OK);
-      publishData.filePath = fileInfo.download_path;
-    } catch (e) {
-      console.error(e.name, e.message);
-    }
   }
 
   dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
