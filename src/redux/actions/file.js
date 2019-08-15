@@ -95,7 +95,7 @@ export function doPurchaseUri(
     const alreadyDownloading = fileInfo && !!downloadingByOutpoint[fileInfo.outpoint];
     const alreadyStreaming = makeSelectStreamingUrlForUri(uri)(state);
 
-    if (alreadyDownloading || alreadyStreaming) {
+    if (!saveFile && (alreadyDownloading || alreadyStreaming)) {
       dispatch({
         type: ACTIONS.PURCHASE_URI_FAILED,
         data: { uri, error: `Already fetching uri: ${uri}` },

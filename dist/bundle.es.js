@@ -2730,7 +2730,7 @@ function doPurchaseUri(uri, costInfo, saveFile = true, onSuccess) {
     const alreadyDownloading = fileInfo && !!downloadingByOutpoint[fileInfo.outpoint];
     const alreadyStreaming = makeSelectStreamingUrlForUri(uri)(state);
 
-    if (alreadyDownloading || alreadyStreaming) {
+    if (!saveFile && (alreadyDownloading || alreadyStreaming)) {
       dispatch({
         type: PURCHASE_URI_FAILED,
         data: { uri, error: `Already fetching uri: ${uri}` }
