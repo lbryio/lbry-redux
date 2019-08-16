@@ -1724,7 +1724,7 @@ const selectFetchingClaimSearch = reselect.createSelector(selectFetchingClaimSea
 
 const selectClaimSearchByQuery = reselect.createSelector(selectState$2, state => state.claimSearchByQuery || {});
 
-const selectClaimSearchByQueryLastPageReached = reselect.createSelector(selectState$1, state => state.claimSearchByQueryLastPageReached || {});
+const selectClaimSearchByQueryLastPageReached = reselect.createSelector(selectState$2, state => state.claimSearchByQueryLastPageReached || {});
 
 const makeSelectShortUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.short_url);
 
@@ -1744,9 +1744,22 @@ const makeSelectSupportsForUri = uri => reselect.createSelector(selectSupportsBy
   return total;
 });
 
-function formatCredits(amount, precision) {
-  if (Number.isNaN(parseFloat(amount))) return '0';
-  return parseFloat(amount).toFixed(precision || 1).replace(/\.?0+$/, '');
+function formatCredits(amount, precision, shortFormat = false) {
+  let actualAmount = parseFloat(amount),
+      suffix = '';
+  if (Number.isNaN(actualAmount)) return '0';
+
+  if (shortFormat) {
+    if (actualAmount >= 1000000) {
+      actualAmount = actualAmount / 1000000;
+      suffix = 'M';
+    } else if (actualAmount >= 1000) {
+      actualAmount = actualAmount / 1000;
+      suffix = 'K';
+    }
+  }
+
+  return actualAmount.toFixed(precision || 1).replace(/\.?0+$/, '') + suffix;
 }
 
 function formatFullPrice(amount, precision = 1) {
