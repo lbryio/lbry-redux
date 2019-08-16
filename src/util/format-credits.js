@@ -7,8 +7,7 @@ export function formatCredits(amount, precision, shortFormat = false) {
     if (actualAmount >= 1000000) {
       actualAmount = actualAmount / 1000000;
       suffix = 'M';
-    }
-    if (actualAmount >= 1000) {
+    } else if (actualAmount >= 1000) {
       actualAmount = actualAmount / 1000;
       suffix = 'K';
     }
