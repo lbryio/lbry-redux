@@ -5,7 +5,6 @@ Object.defineProperty(exports, '__esModule', { value: true });
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 require('proxy-polyfill');
-var mime = _interopDefault(require('mime'));
 var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
 
@@ -692,29 +691,22 @@ const Lbry = {
 
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
   getMediaType: (contentType, fileName) => {
-    const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book']];
+    if (fileName) {
+      const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book']];
 
-    const extName = mime.getExtension(contentType);
-    const fileExt = extName ? `.${extName}` : null;
-    const testString = fileName || fileExt;
-
-    // Get mediaType from file extension
-    if (testString) {
       const res = formats.reduce((ret, testpair) => {
-        const [regex, mediaType] = testpair;
-
-        return regex.test(ret) ? mediaType : ret;
-      }, testString);
-
-      if (res !== testString) return res;
-    }
-
-    // Get mediaType from contentType
-    if (contentType) {
-      const matches = /^[^/]+/.exec(contentType);
-      if (matches) {
-        return matches[0];
-      }
+        switch (testpair[0].test(ret)) {
+          case true:
+            return testpair[1];
+          default:
+            return ret;
+        }
+      }, fileName);
+      return res === fileName ? 'unknown' : res;
+    } else if (contentType) {
+      // $FlowFixMe
+      return (/^[^/]+/.exec(contentType)[0]
+      );
     }
 
     return 'unknown';

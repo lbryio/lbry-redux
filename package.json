@@ -28,7 +28,6 @@
     "format": "prettier 'src/**/*.{js,json}' --write"
   },
   "dependencies": {
-    "mime": "^2.4.4",
     "proxy-polyfill": "0.1.6",
     "reselect": "^3.0.0",
     "uuid": "^3.3.2"
