@@ -1,23 +1,20 @@
-export function formatCredits(amount, precision) {
-  if (Number.isNaN(parseFloat(amount))) return '0';
-  return parseFloat(amount)
-    .toFixed(precision || 1)
-    .replace(/\.?0+$/, '');
-}
+export function formatCredits(amount, precision, shortFormat = false) {
+  let actualAmount = parseFloat(amount),
+    suffix = '';
+  if (Number.isNaN(actualAmount)) return '0';
 
-export function formatBigNumberCredits(amount, precision) {
-  const actualAmount = parseFloat(amount);
-  if (Number.isNaN(actualAmount) || actualAmount < 1000) {
-    return formatCredits(amount, precision);
+  if (shortFormat) {
+    if (actualAmount >= 1000000) {
+      actualAmount = actualAmount / 1000000;
+      suffix = 'M';
+    }
+    if (actualAmount >= 1000) {
+      actualAmount = actualAmount / 1000;
+      suffix = 'K';
+    }
   }
 
-  if (actualAmount > 1000000) {
-    return formatCredits(actualAmount / 1000000, precision) + 'M';
-  }
-
-  if (actualAmount > 1000) {
-    return formatCredits(actualAmount / 1000, precision) + 'K';
-  }
+  return actualAmount.toFixed(precision || 1).replace(/\.?0+$/, '') + suffix;
 }
 
 export function formatFullPrice(amount, precision = 1) {

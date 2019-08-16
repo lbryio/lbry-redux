@@ -116,12 +116,7 @@ export { doToggleBlockChannel } from 'redux/actions/blocked';
 // utils
 export { batchActions } from 'util/batch-actions';
 export { parseQueryParams, toQueryString } from 'util/query-params';
-export {
-  formatCredits,
-  formatBigNumberCredits,
-  formatFullPrice,
-  creditsToString,
-} from 'util/format-credits';
+export { formatCredits, formatFullPrice, creditsToString } from 'util/format-credits';
 export { isClaimNsfw, createNormalizedClaimSearchKey } from 'util/claim';
 
 // reducers
