@@ -38,7 +38,6 @@ declare type FileListItem = {
 declare type FileState = {
   failedPurchaseUris: Array<string>,
   purchasedUris: Array<string>,
-  purchasedStreamingUrls: {},
 };
 
 declare type PurchaseUriCompleted = {
@@ -53,7 +52,7 @@ declare type PurchaseUriFailed = {
   type: ACTIONS.PURCHASE_URI_FAILED,
   data: {
     uri: string,
-    error: any
+    error: any,
   },
 };
 
@@ -68,6 +67,6 @@ declare type PurchaseUriStarted = {
 declare type DeletePurchasedUri = {
   type: ACTIONS.DELETE_PURCHASED_URI,
   data: {
-    uri: string
+    uri: string,
   },
 };

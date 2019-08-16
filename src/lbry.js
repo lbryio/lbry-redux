@@ -1,5 +1,6 @@
 // @flow
 import 'proxy-polyfill';
+import mime from 'mime';
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 //
@@ -32,27 +33,40 @@ const Lbry: LbryTypes = {
   },
 
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
-  getMediaType: (contentType: string, extname: ?string) => {
-    if (extname) {
-      const formats = [
-        [/^(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
-        [/^(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
-        [/^(html|htm|xml|pdf|odf|doc|docx|md|markdown|txt|epub|org)$/i, 'document'],
-        [/^(stl|obj|fbx|gcode)$/i, '3D-file'],
-      ];
+  getMediaType: (contentType?: string, fileName: ?string) => {
+    const formats = [
+      [/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
+      [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
+      [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'],
+      [/\.(json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'],
+      [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'],
+      [/\.(stl|obj|fbx|gcode)$/i, '3D-file'],
+      [/\.(cbr|cbt|cbz)$/i, 'comic-book'],
+    ];
+
+    const extName = mime.getExtension(contentType);
+    const fileExt = extName ? `.${extName}` : null;
+    const testString = fileName || fileExt;
+
+    // Get mediaType from file extension
+    if (testString) {
       const res = formats.reduce((ret, testpair) => {
-        switch (testpair[0].test(ret)) {
-          case true:
-            return testpair[1];
-          default:
-            return ret;
-        }
-      }, extname);
-      return res === extname ? 'unknown' : res;
-    } else if (contentType) {
-      // $FlowFixMe
-      return /^[^/]+/.exec(contentType)[0];
+        const [regex, mediaType] = testpair;
+
+        return regex.test(ret) ? mediaType : ret;
+      }, testString);
+
+      if (res !== testString) return res;
     }
+
+    // Get mediaType from contentType
+    if (contentType) {
+      const matches = /^[^/]+/.exec(contentType);
+      if (matches) {
+        return matches[0];
+      }
+    }
+
     return 'unknown';
   },
 

@@ -3,9 +3,12 @@ import {
   selectIsFetchingClaimListMine,
   selectMyClaims,
   selectClaimsById,
+  makeSelectContentTypeForUri,
+  makeSelectClaimForUri,
 } from 'redux/selectors/claims';
 import { createSelector } from 'reselect';
 import { buildURI } from 'lbryURI';
+import Lbry from 'lbry';
 
 export const selectState = state => state.fileInfo || {};
 
@@ -53,13 +56,23 @@ export const makeSelectDownloadingForUri = uri =>
 
 export const selectUrisLoading = createSelector(
   selectState,
-  state => state.urisLoading || {}
+  state => state.fetching || {}
 );
 
 export const makeSelectLoadingForUri = uri =>
   createSelector(
     selectUrisLoading,
-    byUri => byUri && byUri[uri]
+    makeSelectClaimForUri(uri),
+    (fetchingByOutpoint, claim) => {
+      if (!claim) {
+        return false;
+      }
+
+      const { txid, nout } = claim;
+      const outpoint = `${txid}:${nout}`;
+      const isFetching = fetchingByOutpoint[outpoint];
+      return isFetching;
+    }
   );
 
 export const selectFileInfosDownloaded = createSelector(
@@ -72,7 +85,7 @@ export const selectFileInfosDownloaded = createSelector(
       return (
         fileInfo &&
         myClaimIds.indexOf(fileInfo.claim_id) === -1 &&
-        (fileInfo.completed || fileInfo.written_bytes)
+        (fileInfo.completed || fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0)
       );
     })
 );
@@ -238,3 +251,54 @@ export const selectDownloadedUris = createSelector(
       .reverse()
       .map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`)
 );
+
+export const makeSelectMediaTypeForUri = uri =>
+  createSelector(
+    makeSelectFileInfoForUri(uri),
+    makeSelectContentTypeForUri(uri),
+    (fileInfo, contentType) => {
+      if (!fileInfo && !contentType) {
+        return undefined;
+      }
+
+      const fileName = fileInfo && fileInfo.file_name;
+      return Lbry.getMediaType(contentType, fileName);
+    }
+  );
+
+export const makeSelectUriIsStreamable = uri =>
+  createSelector(
+    makeSelectMediaTypeForUri(uri),
+    mediaType => {
+      const isStreamable = ['audio', 'video', 'image'].indexOf(mediaType) !== -1;
+      return isStreamable;
+    }
+  );
+
+export const makeSelectDownloadPathForUri = uri =>
+  createSelector(
+    makeSelectFileInfoForUri(uri),
+    fileInfo => {
+      return fileInfo && fileInfo.download_path;
+    }
+  );
+
+export const makeSelectFilePartlyDownloaded = uri =>
+  createSelector(
+    makeSelectFileInfoForUri(uri),
+    fileInfo => {
+      if (!fileInfo) {
+        return false;
+      }
+
+      return fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0;
+    }
+  );
+
+export const makeSelectFileNameForUri = uri =>
+  createSelector(
+    makeSelectFileInfoForUri(uri),
+    fileInfo => {
+      return fileInfo && fileInfo.file_name;
+    }
+  );

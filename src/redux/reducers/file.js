@@ -5,7 +5,6 @@ const reducers = {};
 const defaultState = {
   failedPurchaseUris: [],
   purchasedUris: [],
-  purchasedStreamingUrls: {},
   purchaseUriErrorMessage: '',
 };
 
@@ -30,10 +29,9 @@ reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (
   state: FileState,
   action: PurchaseUriCompleted
 ): FileState => {
-  const { uri, streamingUrl } = action.data;
+  const { uri } = action.data;
   const newPurchasedUris = state.purchasedUris.slice();
   const newFailedPurchaseUris = state.failedPurchaseUris.slice();
-  const newPurchasedStreamingUrls = Object.assign({}, state.purchasedStreamingUrls);
 
   if (!newPurchasedUris.includes(uri)) {
     newPurchasedUris.push(uri);
@@ -41,15 +39,11 @@ reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (
   if (newFailedPurchaseUris.includes(uri)) {
     newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
   }
-  if (streamingUrl) {
-    newPurchasedStreamingUrls[uri] = streamingUrl;
-  }
 
   return {
     ...state,
     failedPurchaseUris: newFailedPurchaseUris,
     purchasedUris: newPurchasedUris,
-    purchasedStreamingUrls: newPurchasedStreamingUrls,
     purchaseUriErrorMessage: '',
   };
 };

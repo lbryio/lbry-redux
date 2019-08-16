@@ -68,7 +68,7 @@ declare type ResolveResponse = {
   [string]: Claim | { error?: {} },
 };
 
-declare type GetResponse = FileListItem;
+declare type GetResponse = FileListItem & { error?: string };
 
 declare type GenericTxResponse = {
   height: number,
