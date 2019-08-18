@@ -12,6 +12,7 @@ export const INSTANT_PURCHASE_MAX = 'instantPurchaseMax';
 export const THEME = 'theme';
 export const THEMES = 'themes';
 export const AUTOMATIC_DARK_MODE_ENABLED = 'automaticDarkModeEnabled';
+export const DARK_MODE_TIMES = 'darkModeTimes'
 
 // mobile settings
 export const BACKGROUND_PLAY_ENABLED = 'backgroundPlayEnabled';
