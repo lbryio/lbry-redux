@@ -63,6 +63,17 @@ declare type VersionResponse = {
   python_version: string,
 };
 
+declare type BalanceResponse = {
+  available: string,
+  reserved: string,
+  reserved_subtotals: ? {
+    claims: string,
+    supports: string,
+    tips: string,
+  },
+  total: string,
+};
+
 declare type ResolveResponse = {
   // Keys are the url(s) passed to resolve
   [string]: Claim | { error?: {} },
