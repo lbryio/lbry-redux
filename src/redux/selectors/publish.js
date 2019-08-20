@@ -33,8 +33,16 @@ export const selectIsStillEditing = createSelector(
       return false;
     }
 
-    const { isChannel: currentIsChannel, claimName: currentClaimName, contentName: currentContentName } = parseURI(uri);
-    const { isChannel: editIsChannel, claimName: editClaimName, contentName: editContentName } = parseURI(editingURI);
+    const {
+      isChannel: currentIsChannel,
+      claimName: currentClaimName,
+      contentName: currentContentName,
+    } = parseURI(uri);
+    const {
+      isChannel: editIsChannel,
+      claimName: editClaimName,
+      contentName: editContentName,
+    } = parseURI(editingURI);
 
     // Depending on the previous/current use of a channel, we need to compare different things
     // ex: going from a channel to anonymous, the new uri won't return contentName, so we need to use claimName
@@ -60,7 +68,9 @@ export const selectMyClaimForUri = createSelector(
     return isStillEditing
       ? claimsById[editClaimId]
       : myClaims.find(claim =>
-        !contentName ? claim.name === claimName : claim.name === contentName || claim.name === claimName
+        !contentName
+          ? claim.name === claimName
+          : claim.name === contentName || claim.name === claimName
       );
   }
 );
@@ -75,7 +85,7 @@ export const selectIsResolvingPublishUris = createSelector(
 
       let isResolvingShortUri;
       if (isChannel) {
-        const shortUri = buildURI({ contentName: name });
+        const shortUri = buildURI({ streamName: name });
         isResolvingShortUri = resolvingUris.includes(shortUri);
       }
 

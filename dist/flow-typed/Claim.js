@@ -23,6 +23,7 @@ declare type GenericClaim = {
   decoded_claim: boolean, // Not available currently https://github.com/lbryio/lbry/issues/2044
   timestamp?: number, // date of last transaction
   height: number, // block height the tx was confirmed
+  is_mine: boolean,
   name: string,
   normalized_name: string, // `name` normalized via unicode NFD spec,
   nout: number, // index number for an output of a tx

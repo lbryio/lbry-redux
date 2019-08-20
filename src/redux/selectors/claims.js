@@ -62,8 +62,10 @@ export const makeSelectClaimIsPending = (uri: string) =>
     selectPendingById,
     pendingById => {
       let claimId;
+
       try {
-        ({ claimId } = parseURI(uri));
+        const { isChannel, channelClaimId, streamClaimId } = parseURI(uri);
+        claimId = isChannel ? channelClaimId : streamClaimId;
       } catch (e) {}
 
       if (claimId) {
@@ -76,7 +78,8 @@ export const makeSelectPendingByUri = (uri: string) =>
   createSelector(
     selectPendingById,
     pendingById => {
-      const { claimId } = parseURI(uri);
+      const { isChannel, channelClaimId, streamClaimId } = parseURI(uri);
+      const claimId = isChannel ? channelClaimId : streamClaimId;
       return pendingById[claimId];
     }
   );
@@ -90,13 +93,16 @@ export const makeSelectClaimForUri = (uri: string) =>
       // It won't be in claimsByUri because resolving it will return nothing
 
       let valid;
-      let claimId;
+      let channelClaimId;
+      let streamClaimId;
+      let isChannel;
       try {
-        ({ claimId } = parseURI(uri));
+        ({ isChannel, channelClaimId, streamClaimId } = parseURI(uri));
         valid = true;
       } catch (e) {}
 
       if (valid) {
+        const claimId = isChannel ? channelClaimId : streamClaimId;
         const pendingClaim = pendingById[claimId];
 
         if (pendingClaim) {
@@ -521,21 +527,16 @@ export const selectClaimSearchByQueryLastPageReached = createSelector(
   state => state.claimSearchByQueryLastPageReached || {}
 );
 
-export const makeSelectClaimSearchUrisByOptions = (options: {}) =>
-  createSelector(
-    selectClaimSearchByQuery,
-    byQuery => {
-      // We don't care what options are passed to this selector. Just forward them.
-      // $FlowFixMe
-      const query = createNormalizedClaimSearchKey(options);
-      return byQuery[query];
-    }
-  );
-
 export const makeSelectShortUrlForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
     claim => claim && claim.short_url
+  );
+
+export const makeSelectCanonicalUrlForUri = (uri: string) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    claim => claim && claim.canonical_url
   );
 
 export const makeSelectSupportsForUri = (uri: string) =>
@@ -548,11 +549,12 @@ export const makeSelectSupportsForUri = (uri: string) =>
       }
 
       const { claim_id: claimId } = claim;
-      let total = parseFloat("0.0");
+      let total = 0;
 
       Object.values(byOutpoint).forEach(support => {
-        const { claim_id, amount } = support
-        total = (claim_id === claimId && amount) ? total + parseFloat(amount) : total;
+        // $FlowFixMe
+        const { claim_id, amount } = support;
+        total = claim_id === claimId && amount ? total + parseFloat(amount) : total;
       });
 
       return total;

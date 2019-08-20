@@ -66,26 +66,25 @@ function handleClaimAction(state: State, action: any): State {
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
-  Object.entries(resolveInfo).forEach(([uri: string, resolveResponse: Claim]) => {
+  Object.entries(resolveInfo).forEach(([url: string, resolveResponse: ResolveResponse]) => {
     // $FlowFixMe
-    if (resolveResponse.claimsInChannel) {
-      // $FlowFixMe
-      channelClaimCounts[uri] = resolveResponse.claimsInChannel;
+    const { claimsInChannel, stream, channel } = resolveResponse;
+    if (claimsInChannel) {
+      channelClaimCounts[url] = claimsInChannel;
     }
-  });
 
-  // $FlowFixMe
-  Object.entries(resolveInfo).forEach(([uri, { channel, stream }]) => {
     if (stream) {
       byId[stream.claim_id] = stream;
-      byUri[uri] = stream.claim_id;
+      byUri[url] = stream.claim_id;
     }
+
     if (channel) {
       byId[channel.claim_id] = channel;
-      byUri[stream ? channel.permanent_url : uri] = channel.claim_id;
+      byUri[stream ? channel.canonical_url : url] = channel.claim_id;
     }
+
     if (!stream && !channel) {
-      byUri[uri] = null;
+      byUri[url] = null;
     }
   });
 
@@ -305,20 +304,20 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State =>
     {},
     state.claimSearchByQueryLastPageReached
   );
-  const { append, query, uris, pageSize } = action.data;
+  const { append, query, urls, pageSize } = action.data;
 
   if (append) {
-    // todo: check for duplicate uris when concatenating?
+    // todo: check for duplicate urls when concatenating?
     claimSearchByQuery[query] =
       claimSearchByQuery[query] && claimSearchByQuery[query].length
-        ? claimSearchByQuery[query].concat(uris)
-        : uris;
+        ? claimSearchByQuery[query].concat(urls)
+        : urls;
   } else {
-    claimSearchByQuery[query] = uris;
+    claimSearchByQuery[query] = urls;
   }
 
-  // the returned number of uris is less than the page size, so we're on the last page
-  claimSearchByQueryLastPageReached[query] = uris.length < pageSize;
+  // the returned number of urls is less than the page size, so we're on the last page
+  claimSearchByQueryLastPageReached[query] = urls.length < pageSize;
 
   delete fetchingClaimSearchByQuery[query];
 

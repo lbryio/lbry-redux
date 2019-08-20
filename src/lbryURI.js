@@ -1,46 +1,77 @@
+// @flow
+const isProduction = process.env.NODE_ENV === 'production';
 const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
 export const regexInvalidURI = /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
 export const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
+const regexPartProtocol = '^((?:lbry://)?)';
+const regexPartStreamOrChannelName = '([^:$#/]*)';
+const regexPartModifierSeparator = '([:$#]?)([^/]*)';
 
 /**
  * Parses a LBRY name into its component parts. Throws errors with user-friendly
  * messages for invalid names.
  *
- * N.B. that "name" indicates the value in the name position of the URI. For
- * claims for channel content, this will actually be the channel name, and
- * the content name is in the path (e.g. lbry://@channel/content)
- *
- * In most situations, you'll want to use the contentName and channelName keys
- * and ignore the name key.
- *
  * Returns a dictionary with keys:
- *   - name (string): The value in the "name" position in the URI. Note that this
- *                    could be either content name or channel name; see above.
- *   - path (string, if persent)
- *   - claimSequence (int, if present)
- *   - bidPosition (int, if present)
- *   - claimId (string, if present)
+ *   - path (string)
  *   - isChannel (boolean)
- *   - contentName (string): For anon claims, the name; for channel claims, the path
- *   - channelName (string, if present): Channel name without @
+ *   - streamName (string, if present)
+ *   - streamClaimId (string, if present)
+ *   - channelName (string, if present)
+ *   - channelClaimId (string, if present)
+ *   - primaryClaimSequence (int, if present)
+ *   - secondaryClaimSequence (int, if present)
+ *   - primaryBidPosition (int, if present)
+ *   - secondaryBidPosition (int, if present)
  */
-export function parseURI(URI, requireProto = false) {
+
+type ChannelUrlObj = {};
+
+type LbryUrlObj = {
+  // Path and channel will always exist when calling parseURI
+  // But they may not exist when code calls buildURI
+  isChannel?: boolean,
+  path?: string,
+  streamName?: string,
+  streamClaimId?: string,
+  channelName?: string,
+  channelClaimId?: string,
+  primaryClaimSequence?: number,
+  secondaryClaimSequence?: number,
+  primaryBidPosition?: number,
+  secondaryBidPosition?: number,
+
+  // Below are considered deprecated and should not be used due to unreliableness with claim.canonical_url
+  claimName?: string,
+  claimId?: string,
+  contentName?: string,
+};
+
+export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj {
   // Break into components. Empty sub-matches are converted to null
   const componentsRegex = new RegExp(
-    '^((?:lbry://)?)' + // protocol
-    '([^:$#/]*)' + // claim name (stops at the first separator or end)
-    '([:$#]?)([^/]*)' + // modifier separator, modifier (stops at the first path separator or end)
-      '(/?)(.*)' // path separator, path
+    regexPartProtocol + // protocol
+    regexPartStreamOrChannelName + // stream or channel name (stops at the first separator or end)
+    regexPartModifierSeparator + // modifier separator, modifier (stops at the first path separator or end)
+    '(/?)' + // path separator, there should only be one (optional) slash to separate the stream and channel parts
+      regexPartStreamOrChannelName +
+      regexPartModifierSeparator
   );
-  const [proto, claimName, modSep, modVal, pathSep, path] = componentsRegex
-    .exec(URI)
-    .slice(1)
-    .map(match => match || null);
 
-  let contentName;
+  const regexMatch = componentsRegex.exec(URL) || [];
+  const [proto, ...rest] = regexMatch.slice(1).map(match => match || null);
+  const path = rest.join('');
+  const [
+    streamNameOrChannelName,
+    primaryModSeparator,
+    primaryModValue,
+    pathSep,
+    possibleStreamName,
+    secondaryModSeparator,
+    secondaryModValue,
+  ] = rest;
 
   // Validate protocol
   if (requireProto && !proto) {
@@ -48,14 +79,15 @@ export function parseURI(URI, requireProto = false) {
   }
 
   // Validate and process name
-  if (!claimName) {
+  if (!streamNameOrChannelName) {
     throw new Error(__('URI does not include name.'));
   }
 
-  const isChannel = claimName.startsWith('@');
-  const channelName = isChannel ? claimName.slice(1) : claimName;
+  const includesChannel = streamNameOrChannelName.startsWith('@');
+  const isChannel = streamNameOrChannelName.startsWith('@') && !possibleStreamName;
+  const channelName = includesChannel && streamNameOrChannelName.slice(1);
 
-  if (isChannel) {
+  if (includesChannel) {
     if (!channelName) {
       throw new Error(__('No channel name after @.'));
     }
@@ -63,36 +95,58 @@ export function parseURI(URI, requireProto = false) {
     if (channelName.length < channelNameMinLength) {
       throw new Error(__(`Channel names must be at least %s characters.`, channelNameMinLength));
     }
-
-    contentName = path;
   }
 
-  const nameBadChars = (channelName || claimName).match(regexInvalidURI);
-  if (nameBadChars) {
-    throw new Error(
-      __(
-        `Invalid character %s in name: %s.`,
-        nameBadChars.length === 1 ? '' : 's',
-        nameBadChars.join(', ')
-      )
-    );
-  }
+  // Validate and process modifier
+  const [primaryClaimId, primaryClaimSequence, primaryBidPosition] = parseURIModifier(
+    primaryModSeparator,
+    primaryModValue
+  );
+  const [secondaryClaimId, secondaryClaimSequence, secondaryBidPosition] = parseURIModifier(
+    secondaryModSeparator,
+    secondaryModValue
+  );
+  const streamName = includesChannel ? possibleStreamName : streamNameOrChannelName;
+  const streamClaimId = includesChannel ? secondaryClaimId : primaryClaimId;
+  const channelClaimId = includesChannel && primaryClaimId;
 
-  // Validate and process modifier (claim ID, bid position or claim sequence)
+  return {
+    isChannel,
+    path,
+    ...(streamName ? { streamName } : {}),
+    ...(streamClaimId ? { streamClaimId } : {}),
+    ...(channelName ? { channelName } : {}),
+    ...(channelClaimId ? { channelClaimId } : {}),
+    ...(primaryClaimSequence ? { primaryClaimSequence: parseInt(primaryClaimSequence, 10) } : {}),
+    ...(secondaryClaimSequence
+      ? { secondaryClaimSequence: parseInt(secondaryClaimSequence, 10) }
+      : {}),
+    ...(primaryBidPosition ? { primaryBidPosition: parseInt(primaryBidPosition, 10) } : {}),
+    ...(secondaryBidPosition ? { secondaryBidPosition: parseInt(secondaryBidPosition, 10) } : {}),
+
+    // The values below should not be used for new uses of parseURI
+    // They will not work properly with canonical_urls
+    claimName: streamNameOrChannelName,
+    claimId: primaryClaimId,
+    ...(streamName ? { contentName: streamName } : {}),
+  };
+}
+
+function parseURIModifier(modSeperator: ?string, modValue: ?string) {
   let claimId;
   let claimSequence;
   let bidPosition;
-  if (modSep) {
-    if (!modVal) {
-      throw new Error(__(`No modifier provided after separator %s.`, modSep));
+  if (modSeperator) {
+    if (!modValue) {
+      throw new Error(__(`No modifier provided after separator %s.`, modSeperator));
     }
 
-    if (modSep === '#') {
-      claimId = modVal;
-    } else if (modSep === ':') {
-      claimSequence = modVal;
-    } else if (modSep === '$') {
-      bidPosition = modVal;
+    if (modSeperator === '#') {
+      claimId = modValue;
+    } else if (modSeperator === ':') {
+      claimSequence = modValue;
+    } else if (modSeperator === '$') {
+      bidPosition = modValue;
     }
   }
 
@@ -108,33 +162,7 @@ export function parseURI(URI, requireProto = false) {
     throw new Error(__('Bid position must be a number.'));
   }
 
-  // Validate and process path
-  if (path) {
-    if (!isChannel) {
-      throw new Error(__('Only channel URIs may have a path.'));
-    }
-
-    const pathBadChars = path.match(regexInvalidURI);
-    if (pathBadChars) {
-      throw new Error(__(`Invalid character in path: %s`, pathBadChars.join(', ')));
-    }
-
-    contentName = path;
-  } else if (pathSep) {
-    throw new Error(__('No path provided after /'));
-  }
-
-  return {
-    claimName,
-    path,
-    isChannel,
-    ...(contentName ? { contentName } : {}),
-    ...(channelName ? { channelName } : {}),
-    ...(claimSequence ? { claimSequence: parseInt(claimSequence, 10) } : {}),
-    ...(bidPosition ? { bidPosition: parseInt(bidPosition, 10) } : {}),
-    ...(claimId ? { claimId } : {}),
-    ...(path ? { path } : {}),
-  };
+  return [claimId, claimSequence, bidPosition];
 }
 
 /**
@@ -142,91 +170,144 @@ export function parseURI(URI, requireProto = false) {
  *
  * The channelName key will accept names with or without the @ prefix.
  */
-export function buildURI(URIObj, includeProto = true, protoDefault = 'lbry://') {
-  const { claimId, claimSequence, bidPosition, contentName, channelName } = URIObj;
+export function buildURI(
+  UrlObj: LbryUrlObj,
+  includeProto: boolean = true,
+  protoDefault: string = 'lbry://'
+): string {
+  const {
+    streamName,
+    streamClaimId,
+    channelName,
+    channelClaimId,
+    primaryClaimSequence,
+    primaryBidPosition,
+    secondaryClaimSequence,
+    secondaryBidPosition,
+    ...deprecatedParts
+  } = UrlObj;
+  const { claimId, claimName, contentName } = deprecatedParts;
 
-  let { claimName, path } = URIObj;
-
-  if (channelName) {
-    const channelNameFormatted = channelName.startsWith('@') ? channelName : `@${channelName}`;
-    if (!claimName) {
-      claimName = channelNameFormatted;
-    } else if (claimName !== channelNameFormatted) {
-      throw new Error(
+  if (!isProduction) {
+    if (claimId) {
+      console.error(
+        __("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead")
+      );
+    }
+    if (claimName) {
+      console.error(
         __(
-          'Received a channel content URI, but claim name and channelName do not match. "name" represents the value in the name position of the URI (lbry://name...), which for channel content will be the channel name. In most cases, to construct a channel URI you should just pass channelName and contentName.'
+          "'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"
         )
       );
     }
+    if (contentName) {
+      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
+    }
   }
 
-  if (contentName) {
-    if (!claimName) {
-      claimName = contentName;
-    } else if (!path) {
-      path = contentName;
-    }
-    if (path && path !== contentName) {
-      throw new Error(
-        __(
-          'Path and contentName do not match. Only one is required; most likely you wanted contentName.'
-        )
-      );
-    }
+  if (!claimName && !channelName && !streamName) {
+    throw new Error(
+      __(
+        "'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."
+      )
+    );
   }
+
+  const formattedChannelName =
+    channelName && (channelName.startsWith('@') ? channelName : `@${channelName}`);
+  const primaryClaimName = claimName || formattedChannelName || streamName;
+  const primaryClaimId = claimId || (formattedChannelName ? channelClaimId : streamClaimId);
+  const secondaryClaimName = !claimName && (formattedChannelName ? streamName : null);
+  const secondaryClaimId = secondaryClaimName && streamClaimId;
 
   return (
     (includeProto ? protoDefault : '') +
-    claimName +
-    (claimId ? `#${claimId}` : '') +
-    (claimSequence ? `:${claimSequence}` : '') +
-    (bidPosition ? `${bidPosition}` : '') +
-    (path ? `/${path}` : '')
+    // primaryClaimName will always exist here because we throw above if there is no "name" value passed in
+    // $FlowFixMe
+    primaryClaimName +
+    (primaryClaimId ? `#${primaryClaimId}` : '') +
+    (primaryClaimSequence ? `:${primaryClaimSequence}` : '') +
+    (primaryBidPosition ? `${primaryBidPosition}` : '') +
+    (secondaryClaimName ? `/${secondaryClaimName}` : '') +
+    (secondaryClaimId ? `#${secondaryClaimId}` : '') +
+    (secondaryClaimSequence ? `:${secondaryClaimSequence}` : '') +
+    (secondaryBidPosition ? `${secondaryBidPosition}` : '')
   );
 }
 
-/* Takes a parseable LBRY URI and converts it to standard, canonical format */
-export function normalizeURI(URI) {
-  const { claimName, path, bidPosition, claimSequence, claimId } = parseURI(URI);
-  return buildURI({ claimName, path, claimSequence, bidPosition, claimId });
+/* Takes a parseable LBRY URL and converts it to standard, canonical format */
+export function normalizeURI(URL: string) {
+  const {
+    streamName,
+    streamClaimId,
+    channelName,
+    channelClaimId,
+    primaryClaimSequence,
+    primaryBidPosition,
+    secondaryClaimSequence,
+    secondaryBidPosition,
+  } = parseURI(URL);
+
+  return buildURI({
+    streamName,
+    streamClaimId,
+    channelName,
+    channelClaimId,
+    primaryClaimSequence,
+    primaryBidPosition,
+    secondaryClaimSequence,
+    secondaryBidPosition,
+  });
 }
 
-export function isURIValid(URI) {
-  let parts;
+export function isURIValid(URL: string): boolean {
   try {
-    parts = parseURI(normalizeURI(URI));
+    parseURI(normalizeURI(URL));
   } catch (error) {
     return false;
   }
-  return parts && parts.claimName;
+
+  return true;
 }
 
-export function isNameValid(claimName) {
+export function isNameValid(claimName: string) {
   return !regexInvalidURI.test(claimName);
 }
 
-export function isURIClaimable(URI) {
+export function isURIClaimable(URL: string) {
   let parts;
   try {
-    parts = parseURI(normalizeURI(URI));
+    parts = parseURI(normalizeURI(URL));
   } catch (error) {
     return false;
   }
-  return (
-    parts &&
-    parts.claimName &&
-    !parts.claimId &&
-    !parts.bidPosition &&
-    !parts.claimSequence &&
-    !parts.isChannel &&
-    !parts.path
-  );
+
+  return parts && parts.streamName && !parts.streamClaimId && !parts.isChannel;
 }
 
-export function convertToShareLink(URI) {
-  const { claimName, path, bidPosition, claimSequence, claimId } = parseURI(URI);
+export function convertToShareLink(URL: string) {
+  const {
+    streamName,
+    streamClaimId,
+    channelName,
+    channelClaimId,
+    primaryBidPosition,
+    primaryClaimSequence,
+    secondaryBidPosition,
+    secondaryClaimSequence,
+  } = parseURI(URL);
   return buildURI(
-    { claimName, path, claimSequence, bidPosition, claimId },
+    {
+      streamName,
+      streamClaimId,
+      channelName,
+      channelClaimId,
+      primaryBidPosition,
+      primaryClaimSequence,
+      secondaryBidPosition,
+      secondaryClaimSequence,
+    },
     true,
     'https://open.lbry.com/'
   );

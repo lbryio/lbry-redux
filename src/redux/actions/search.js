@@ -112,18 +112,26 @@ export const doSearch = (
 
   fetch(`${CONNECTION_STRING}search?${queryWithOptions}`)
     .then(handleFetchResponse)
-    .then((data: Array<{ name: String, claimId: string }>) => {
+    .then((data: Array<{ name: string, claimId: string }>) => {
       const uris = [];
       const actions = [];
 
       data.forEach(result => {
-        if (result.name) {
-          const uri = buildURI({
-            claimName: result.name,
-            claimId: result.claimId,
-          });
-          actions.push(doResolveUri(uri));
-          uris.push(uri);
+        if (result) {
+          const { name, claimId } = result;
+          const urlObj = {};
+
+          if (name.startsWith('@')) {
+            urlObj.channelName = name;
+            urlObj.channelClaimId = claimId;
+          } else {
+            urlObj.streamName = name;
+            urlObj.streamClaimId = claimId;
+          }
+
+          const url = buildURI(urlObj);
+          actions.push(doResolveUri(url));
+          uris.push(url);
         }
       });
 

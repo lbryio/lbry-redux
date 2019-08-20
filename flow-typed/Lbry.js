@@ -65,7 +65,7 @@ declare type VersionResponse = {
 
 declare type ResolveResponse = {
   // Keys are the url(s) passed to resolve
-  [string]: Claim | { error?: {} },
+  [string]: { error?: {}, stream?: StreamClaim, channel?: ChannelClaim, claimsInChannel?: number },
 };
 
 declare type GetResponse = FileListItem & { error?: string };

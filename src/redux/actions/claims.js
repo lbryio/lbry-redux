@@ -328,10 +328,10 @@ export function doClaimSearch(
 
     const success = (data: ClaimSearchResponse) => {
       const resolveInfo = {};
-      const uris = [];
+      const urls = [];
       data.items.forEach((stream: Claim) => {
-        resolveInfo[stream.permanent_url] = { stream };
-        uris.push(stream.permanent_url);
+        resolveInfo[stream.canonical_url] = { stream };
+        urls.push(stream.canonical_url);
       });
 
       dispatch({
@@ -339,7 +339,7 @@ export function doClaimSearch(
         data: {
           query,
           resolveInfo,
-          uris,
+          urls,
           append: options.page && options.page !== 1,
           pageSize: options.page_size,
         },
