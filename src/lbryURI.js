@@ -27,28 +27,6 @@ const regexPartModifierSeparator = '([:$#]?)([^/]*)';
  *   - secondaryBidPosition (int, if present)
  */
 
-type ChannelUrlObj = {};
-
-type LbryUrlObj = {
-  // Path and channel will always exist when calling parseURI
-  // But they may not exist when code calls buildURI
-  isChannel?: boolean,
-  path?: string,
-  streamName?: string,
-  streamClaimId?: string,
-  channelName?: string,
-  channelClaimId?: string,
-  primaryClaimSequence?: number,
-  secondaryClaimSequence?: number,
-  primaryBidPosition?: number,
-  secondaryBidPosition?: number,
-
-  // Below are considered deprecated and should not be used due to unreliableness with claim.canonical_url
-  claimName?: string,
-  claimId?: string,
-  contentName?: string,
-};
-
 export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj {
   // Break into components. Empty sub-matches are converted to null
   const componentsRegex = new RegExp(
@@ -216,9 +194,10 @@ export function buildURI(
 
   const formattedChannelName =
     channelName && (channelName.startsWith('@') ? channelName : `@${channelName}`);
-  const primaryClaimName = claimName || formattedChannelName || streamName;
+  const primaryClaimName = claimName || contentName || formattedChannelName || streamName;
   const primaryClaimId = claimId || (formattedChannelName ? channelClaimId : streamClaimId);
-  const secondaryClaimName = !claimName && (formattedChannelName ? streamName : null);
+  const secondaryClaimName =
+    (!claimName && contentName) || (formattedChannelName ? streamName : null);
   const secondaryClaimId = secondaryClaimName && streamClaimId;
 
   return (

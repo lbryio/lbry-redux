@@ -119,7 +119,7 @@ export const doSearch = (
       data.forEach(result => {
         if (result) {
           const { name, claimId } = result;
-          const urlObj = {};
+          const urlObj: LbryUrlObj = {};
 
           if (name.startsWith('@')) {
             urlObj.channelName = name;

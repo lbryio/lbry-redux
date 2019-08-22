@@ -898,9 +898,6 @@ const getSearchQueryString = (query, options = {}, includeUserOptions = false) =
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-//      
-const isProduction = process.env.NODE_ENV === 'production';
 const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
@@ -1036,26 +1033,14 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
   const { claimId, claimName, contentName } = deprecatedParts;
 
-  if (!isProduction) {
-    if (claimId) {
-      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
-    }
-    if (claimName) {
-      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
-    }
-    if (contentName) {
-      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
-    }
-  }
-
   if (!claimName && !channelName && !streamName) {
     throw new Error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
   }
 
   const formattedChannelName = channelName && (channelName.startsWith('@') ? channelName : `@${channelName}`);
-  const primaryClaimName = claimName || formattedChannelName || streamName;
+  const primaryClaimName = claimName || contentName || formattedChannelName || streamName;
   const primaryClaimId = claimId || (formattedChannelName ? channelClaimId : streamClaimId);
-  const secondaryClaimName = !claimName && (formattedChannelName ? streamName : null);
+  const secondaryClaimName = !claimName && contentName || (formattedChannelName ? streamName : null);
   const secondaryClaimId = secondaryClaimName && streamClaimId;
 
   return (includeProto ? protoDefault : '') +
