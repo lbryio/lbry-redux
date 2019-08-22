@@ -77,15 +77,15 @@ export const selectSearchSuggestions: Array<SearchSuggestion> = createSelector(
     let searchSuggestions = [];
     try {
       const uri = normalizeURI(query);
-      const { claimName, isChannel } = parseURI(uri);
+      const { channelName, streamName, isChannel } = parseURI(uri);
       searchSuggestions.push(
         {
-          value: claimName,
+          value: streamName,
           type: SEARCH_TYPES.SEARCH,
         },
         {
           value: uri,
-          shorthand: isChannel ? claimName.slice(1) : claimName,
+          shorthand: isChannel ? channelName : streamName,
           type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE,
         }
       );
@@ -110,11 +110,11 @@ export const selectSearchSuggestions: Array<SearchSuggestion> = createSelector(
             // determine if it's a channel
             try {
               const uri = normalizeURI(suggestion);
-              const { claimName, isChannel } = parseURI(uri);
+              const { channelName, streamName, isChannel } = parseURI(uri);
 
               return {
                 value: uri,
-                shorthand: isChannel ? claimName.slice(1) : claimName,
+                shorthand: isChannel ? channelName : streamName,
                 type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE,
               };
             } catch (e) {

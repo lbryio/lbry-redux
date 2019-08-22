@@ -897,45 +897,46 @@ const getSearchQueryString = (query, options = {}, includeUserOptions = false) =
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
 const regexInvalidURI = /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
 const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
+const regexPartProtocol = '^((?:lbry://)?)';
+const regexPartStreamOrChannelName = '([^:$#/]*)';
+const regexPartModifierSeparator = '([:$#]?)([^/]*)';
 
 /**
  * Parses a LBRY name into its component parts. Throws errors with user-friendly
  * messages for invalid names.
  *
- * N.B. that "name" indicates the value in the name position of the URI. For
- * claims for channel content, this will actually be the channel name, and
- * the content name is in the path (e.g. lbry://@channel/content)
- *
- * In most situations, you'll want to use the contentName and channelName keys
- * and ignore the name key.
- *
  * Returns a dictionary with keys:
- *   - name (string): The value in the "name" position in the URI. Note that this
- *                    could be either content name or channel name; see above.
- *   - path (string, if persent)
- *   - claimSequence (int, if present)
- *   - bidPosition (int, if present)
- *   - claimId (string, if present)
+ *   - path (string)
  *   - isChannel (boolean)
- *   - contentName (string): For anon claims, the name; for channel claims, the path
- *   - channelName (string, if present): Channel name without @
+ *   - streamName (string, if present)
+ *   - streamClaimId (string, if present)
+ *   - channelName (string, if present)
+ *   - channelClaimId (string, if present)
+ *   - primaryClaimSequence (int, if present)
+ *   - secondaryClaimSequence (int, if present)
+ *   - primaryBidPosition (int, if present)
+ *   - secondaryBidPosition (int, if present)
  */
-function parseURI(URI, requireProto = false) {
-  // Break into components. Empty sub-matches are converted to null
-  const componentsRegex = new RegExp('^((?:lbry://)?)' + // protocol
-  '([^:$#/]*)' + // claim name (stops at the first separator or end)
-  '([:$#]?)([^/]*)' + // modifier separator, modifier (stops at the first path separator or end)
-  '(/?)(.*)' // path separator, path
-  );
-  const [proto, claimName, modSep, modVal, pathSep, path] = componentsRegex.exec(URI).slice(1).map(match => match || null);
 
-  let contentName;
+function parseURI(URL, requireProto = false) {
+  // Break into components. Empty sub-matches are converted to null
+  const componentsRegex = new RegExp(regexPartProtocol + // protocol
+  regexPartStreamOrChannelName + // stream or channel name (stops at the first separator or end)
+  regexPartModifierSeparator + // modifier separator, modifier (stops at the first path separator or end)
+  '(/?)' + // path separator, there should only be one (optional) slash to separate the stream and channel parts
+  regexPartStreamOrChannelName + regexPartModifierSeparator);
+
+  const regexMatch = componentsRegex.exec(URL) || [];
+  const [proto, ...rest] = regexMatch.slice(1).map(match => match || null);
+  const path = rest.join('');
+  const [streamNameOrChannelName, primaryModSeparator, primaryModValue, pathSep, possibleStreamName, secondaryModSeparator, secondaryModValue] = rest;
 
   // Validate protocol
   if (requireProto && !proto) {
@@ -943,14 +944,15 @@ function parseURI(URI, requireProto = false) {
   }
 
   // Validate and process name
-  if (!claimName) {
+  if (!streamNameOrChannelName) {
     throw new Error(__('URI does not include name.'));
   }
 
-  const isChannel = claimName.startsWith('@');
-  const channelName = isChannel ? claimName.slice(1) : claimName;
+  const includesChannel = streamNameOrChannelName.startsWith('@');
+  const isChannel = streamNameOrChannelName.startsWith('@') && !possibleStreamName;
+  const channelName = includesChannel && streamNameOrChannelName.slice(1);
 
-  if (isChannel) {
+  if (includesChannel) {
     if (!channelName) {
       throw new Error(__('No channel name after @.'));
     }
@@ -958,30 +960,42 @@ function parseURI(URI, requireProto = false) {
     if (channelName.length < channelNameMinLength) {
       throw new Error(__(`Channel names must be at least %s characters.`, channelNameMinLength));
     }
-
-    contentName = path;
   }
 
-  const nameBadChars = (channelName || claimName).match(regexInvalidURI);
-  if (nameBadChars) {
-    throw new Error(__(`Invalid character %s in name: %s.`, nameBadChars.length === 1 ? '' : 's', nameBadChars.join(', ')));
-  }
+  // Validate and process modifier
+  const [primaryClaimId, primaryClaimSequence, primaryBidPosition] = parseURIModifier(primaryModSeparator, primaryModValue);
+  const [secondaryClaimId, secondaryClaimSequence, secondaryBidPosition] = parseURIModifier(secondaryModSeparator, secondaryModValue);
+  const streamName = includesChannel ? possibleStreamName : streamNameOrChannelName;
+  const streamClaimId = includesChannel ? secondaryClaimId : primaryClaimId;
+  const channelClaimId = includesChannel && primaryClaimId;
 
-  // Validate and process modifier (claim ID, bid position or claim sequence)
+  return _extends({
+    isChannel,
+    path
+  }, streamName ? { streamName } : {}, streamClaimId ? { streamClaimId } : {}, channelName ? { channelName } : {}, channelClaimId ? { channelClaimId } : {}, primaryClaimSequence ? { primaryClaimSequence: parseInt(primaryClaimSequence, 10) } : {}, secondaryClaimSequence ? { secondaryClaimSequence: parseInt(secondaryClaimSequence, 10) } : {}, primaryBidPosition ? { primaryBidPosition: parseInt(primaryBidPosition, 10) } : {}, secondaryBidPosition ? { secondaryBidPosition: parseInt(secondaryBidPosition, 10) } : {}, {
+
+    // The values below should not be used for new uses of parseURI
+    // They will not work properly with canonical_urls
+    claimName: streamNameOrChannelName,
+    claimId: primaryClaimId
+  }, streamName ? { contentName: streamName } : {});
+}
+
+function parseURIModifier(modSeperator, modValue) {
   let claimId;
   let claimSequence;
   let bidPosition;
-  if (modSep) {
-    if (!modVal) {
-      throw new Error(__(`No modifier provided after separator %s.`, modSep));
+  if (modSeperator) {
+    if (!modValue) {
+      throw new Error(__(`No modifier provided after separator %s.`, modSeperator));
     }
 
-    if (modSep === '#') {
-      claimId = modVal;
-    } else if (modSep === ':') {
-      claimSequence = modVal;
-    } else if (modSep === '$') {
-      bidPosition = modVal;
+    if (modSeperator === '#') {
+      claimId = modValue;
+    } else if (modSeperator === ':') {
+      claimSequence = modValue;
+    } else if (modSeperator === '$') {
+      bidPosition = modValue;
     }
   }
 
@@ -997,27 +1011,7 @@ function parseURI(URI, requireProto = false) {
     throw new Error(__('Bid position must be a number.'));
   }
 
-  // Validate and process path
-  if (path) {
-    if (!isChannel) {
-      throw new Error(__('Only channel URIs may have a path.'));
-    }
-
-    const pathBadChars = path.match(regexInvalidURI);
-    if (pathBadChars) {
-      throw new Error(__(`Invalid character in path: %s`, pathBadChars.join(', ')));
-    }
-
-    contentName = path;
-  } else if (pathSep) {
-    throw new Error(__('No path provided after /'));
-  }
-
-  return _extends({
-    claimName,
-    path,
-    isChannel
-  }, contentName ? { contentName } : {}, channelName ? { channelName } : {}, claimSequence ? { claimSequence: parseInt(claimSequence, 10) } : {}, bidPosition ? { bidPosition: parseInt(bidPosition, 10) } : {}, claimId ? { claimId } : {}, path ? { path } : {});
+  return [claimId, claimSequence, bidPosition];
 }
 
 /**
@@ -1025,67 +1019,107 @@ function parseURI(URI, requireProto = false) {
  *
  * The channelName key will accept names with or without the @ prefix.
  */
-function buildURI(URIObj, includeProto = true, protoDefault = 'lbry://') {
-  const { claimId, claimSequence, bidPosition, contentName, channelName } = URIObj;
+function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
+  const {
+    streamName,
+    streamClaimId,
+    channelName,
+    channelClaimId,
+    primaryClaimSequence,
+    primaryBidPosition,
+    secondaryClaimSequence,
+    secondaryBidPosition
+  } = UrlObj,
+        deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
+  const { claimId, claimName, contentName } = deprecatedParts;
 
-  let { claimName, path } = URIObj;
-
-  if (channelName) {
-    const channelNameFormatted = channelName.startsWith('@') ? channelName : `@${channelName}`;
-    if (!claimName) {
-      claimName = channelNameFormatted;
-    } else if (claimName !== channelNameFormatted) {
-      throw new Error(__('Received a channel content URI, but claim name and channelName do not match. "name" represents the value in the name position of the URI (lbry://name...), which for channel content will be the channel name. In most cases, to construct a channel URI you should just pass channelName and contentName.'));
-    }
+  if (!claimName && !channelName && !streamName) {
+    throw new Error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
   }
 
-  if (contentName) {
-    if (!claimName) {
-      claimName = contentName;
-    } else if (!path) {
-      path = contentName;
-    }
-    if (path && path !== contentName) {
-      throw new Error(__('Path and contentName do not match. Only one is required; most likely you wanted contentName.'));
-    }
-  }
+  const formattedChannelName = channelName && (channelName.startsWith('@') ? channelName : `@${channelName}`);
+  const primaryClaimName = claimName || contentName || formattedChannelName || streamName;
+  const primaryClaimId = claimId || (formattedChannelName ? channelClaimId : streamClaimId);
+  const secondaryClaimName = !claimName && contentName || (formattedChannelName ? streamName : null);
+  const secondaryClaimId = secondaryClaimName && streamClaimId;
 
-  return (includeProto ? protoDefault : '') + claimName + (claimId ? `#${claimId}` : '') + (claimSequence ? `:${claimSequence}` : '') + (bidPosition ? `${bidPosition}` : '') + (path ? `/${path}` : '');
+  return (includeProto ? protoDefault : '') +
+  // primaryClaimName will always exist here because we throw above if there is no "name" value passed in
+  // $FlowFixMe
+  primaryClaimName + (primaryClaimId ? `#${primaryClaimId}` : '') + (primaryClaimSequence ? `:${primaryClaimSequence}` : '') + (primaryBidPosition ? `${primaryBidPosition}` : '') + (secondaryClaimName ? `/${secondaryClaimName}` : '') + (secondaryClaimId ? `#${secondaryClaimId}` : '') + (secondaryClaimSequence ? `:${secondaryClaimSequence}` : '') + (secondaryBidPosition ? `${secondaryBidPosition}` : '');
 }
 
-/* Takes a parseable LBRY URI and converts it to standard, canonical format */
-function normalizeURI(URI) {
-  const { claimName, path, bidPosition, claimSequence, claimId } = parseURI(URI);
-  return buildURI({ claimName, path, claimSequence, bidPosition, claimId });
+/* Takes a parseable LBRY URL and converts it to standard, canonical format */
+function normalizeURI(URL) {
+  const {
+    streamName,
+    streamClaimId,
+    channelName,
+    channelClaimId,
+    primaryClaimSequence,
+    primaryBidPosition,
+    secondaryClaimSequence,
+    secondaryBidPosition
+  } = parseURI(URL);
+
+  return buildURI({
+    streamName,
+    streamClaimId,
+    channelName,
+    channelClaimId,
+    primaryClaimSequence,
+    primaryBidPosition,
+    secondaryClaimSequence,
+    secondaryBidPosition
+  });
 }
 
-function isURIValid(URI) {
-  let parts;
+function isURIValid(URL) {
   try {
-    parts = parseURI(normalizeURI(URI));
+    parseURI(normalizeURI(URL));
   } catch (error) {
     return false;
   }
-  return parts && parts.claimName;
+
+  return true;
 }
 
 function isNameValid(claimName) {
   return !regexInvalidURI.test(claimName);
 }
 
-function isURIClaimable(URI) {
+function isURIClaimable(URL) {
   let parts;
   try {
-    parts = parseURI(normalizeURI(URI));
+    parts = parseURI(normalizeURI(URL));
   } catch (error) {
     return false;
   }
-  return parts && parts.claimName && !parts.claimId && !parts.bidPosition && !parts.claimSequence && !parts.isChannel && !parts.path;
+
+  return parts && parts.streamName && !parts.streamClaimId && !parts.isChannel;
 }
 
-function convertToShareLink(URI) {
-  const { claimName, path, bidPosition, claimSequence, claimId } = parseURI(URI);
-  return buildURI({ claimName, path, claimSequence, bidPosition, claimId }, true, 'https://open.lbry.com/');
+function convertToShareLink(URL) {
+  const {
+    streamName,
+    streamClaimId,
+    channelName,
+    channelClaimId,
+    primaryBidPosition,
+    primaryClaimSequence,
+    secondaryBidPosition,
+    secondaryClaimSequence
+  } = parseURI(URL);
+  return buildURI({
+    streamName,
+    streamClaimId,
+    channelName,
+    channelClaimId,
+    primaryBidPosition,
+    primaryClaimSequence,
+    secondaryBidPosition,
+    secondaryClaimSequence
+  }, true, 'https://open.lbry.com/');
 }
 
 var _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1130,13 +1164,13 @@ const selectSearchSuggestions = reselect.createSelector(selectSearchValue, selec
   let searchSuggestions = [];
   try {
     const uri = normalizeURI(query);
-    const { claimName, isChannel } = parseURI(uri);
+    const { channelName, streamName, isChannel } = parseURI(uri);
     searchSuggestions.push({
-      value: claimName,
+      value: streamName,
       type: SEARCH_TYPES.SEARCH
     }, {
       value: uri,
-      shorthand: isChannel ? claimName.slice(1) : claimName,
+      shorthand: isChannel ? channelName : streamName,
       type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE
     });
   } catch (e) {
@@ -1157,11 +1191,11 @@ const selectSearchSuggestions = reselect.createSelector(selectSearchValue, selec
       // determine if it's a channel
       try {
         const uri = normalizeURI(suggestion);
-        const { claimName, isChannel } = parseURI(uri);
+        const { channelName, streamName, isChannel } = parseURI(uri);
 
         return {
           value: uri,
-          shorthand: isChannel ? claimName.slice(1) : claimName,
+          shorthand: isChannel ? channelName : streamName,
           type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE
         };
       } catch (e) {
@@ -1377,7 +1411,7 @@ const selectTransactionListFilter = reselect.createSelector(selectState$1, state
 
 var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+function _objectWithoutProperties$1(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 const matureTagMap = MATURE_TAGS.reduce((acc, tag) => _extends$2({}, acc, { [tag]: true }), {});
 
@@ -1404,7 +1438,7 @@ const isClaimNsfw = claim => {
 function createNormalizedClaimSearchKey(options) {
   // Ignore page because we don't care what the last page searched was, we want everything
   // Ignore release_time because that will change depending on when you call claim_search ex: release_time: ">12344567"
-  const rest = _objectWithoutProperties(options, ['page', 'release_time']);
+  const rest = _objectWithoutProperties$1(options, ['page', 'release_time']);
   const query = JSON.stringify(rest);
   return query;
 }
@@ -1445,8 +1479,10 @@ const selectPendingClaims = reselect.createSelector(selectState$2, state => Obje
 
 const makeSelectClaimIsPending = uri => reselect.createSelector(selectPendingById, pendingById => {
   let claimId;
+
   try {
-    ({ claimId } = parseURI(uri));
+    const { isChannel, channelClaimId, streamClaimId } = parseURI(uri);
+    claimId = isChannel ? channelClaimId : streamClaimId;
   } catch (e) {}
 
   if (claimId) {
@@ -1455,7 +1491,8 @@ const makeSelectClaimIsPending = uri => reselect.createSelector(selectPendingByI
 });
 
 const makeSelectPendingByUri = uri => reselect.createSelector(selectPendingById, pendingById => {
-  const { claimId } = parseURI(uri);
+  const { isChannel, channelClaimId, streamClaimId } = parseURI(uri);
+  const claimId = isChannel ? channelClaimId : streamClaimId;
   return pendingById[claimId];
 });
 
@@ -1464,13 +1501,16 @@ const makeSelectClaimForUri = uri => reselect.createSelector(selectClaimsByUri, 
   // It won't be in claimsByUri because resolving it will return nothing
 
   let valid;
-  let claimId;
+  let channelClaimId;
+  let streamClaimId;
+  let isChannel;
   try {
-    ({ claimId } = parseURI(uri));
+    ({ isChannel, channelClaimId, streamClaimId } = parseURI(uri));
     valid = true;
   } catch (e) {}
 
   if (valid) {
+    const claimId = isChannel ? channelClaimId : streamClaimId;
     const pendingClaim = pendingById[claimId];
 
     if (pendingClaim) {
@@ -1720,15 +1760,18 @@ const selectClaimSearchByQueryLastPageReached = reselect.createSelector(selectSt
 
 const makeSelectShortUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.short_url);
 
+const makeSelectCanonicalUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.canonical_url);
+
 const makeSelectSupportsForUri = uri => reselect.createSelector(selectSupportsByOutpoint, makeSelectClaimForUri(uri), (byOutpoint, claim) => {
   if (!claim || !claim.is_mine) {
     return null;
   }
 
   const { claim_id: claimId } = claim;
-  let total = parseFloat("0.0");
+  let total = 0;
 
   Object.values(byOutpoint).forEach(support => {
+    // $FlowFixMe
     const { claim_id, amount } = support;
     total = claim_id === claimId && amount ? total + parseFloat(amount) : total;
   });
@@ -2436,10 +2479,10 @@ function doClaimSearch(options = {
 
     const success = data => {
       const resolveInfo = {};
-      const uris = [];
+      const urls = [];
       data.items.forEach(stream => {
-        resolveInfo[stream.permanent_url] = { stream };
-        uris.push(stream.permanent_url);
+        resolveInfo[stream.canonical_url] = { stream };
+        urls.push(stream.canonical_url);
       });
 
       dispatch({
@@ -2447,7 +2490,7 @@ function doClaimSearch(options = {
         data: {
           query,
           resolveInfo,
-          uris,
+          urls,
           append: options.page && options.page !== 1,
           pageSize: options.page_size
         }
@@ -2861,12 +2904,12 @@ function doSetFileListSort(page, value) {
   };
 }
 
-function _objectWithoutProperties$1(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+function _objectWithoutProperties$2(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 const selectState$5 = state => state.publish || {};
 
 const selectPublishFormValues = reselect.createSelector(selectState$5, state => {
-  const formValues = _objectWithoutProperties$1(state, ['pendingPublish']);
+  const formValues = _objectWithoutProperties$2(state, ['pendingPublish']);
   return formValues;
 });
 const makeSelectPublishFormValue = item => reselect.createSelector(selectState$5, state => state[item]);
@@ -2879,8 +2922,16 @@ const selectIsStillEditing = reselect.createSelector(selectPublishFormValues, pu
     return false;
   }
 
-  const { isChannel: currentIsChannel, claimName: currentClaimName, contentName: currentContentName } = parseURI(uri);
-  const { isChannel: editIsChannel, claimName: editClaimName, contentName: editContentName } = parseURI(editingURI);
+  const {
+    isChannel: currentIsChannel,
+    claimName: currentClaimName,
+    contentName: currentContentName
+  } = parseURI(uri);
+  const {
+    isChannel: editIsChannel,
+    claimName: editClaimName,
+    contentName: editContentName
+  } = parseURI(editingURI);
 
   // Depending on the previous/current use of a channel, we need to compare different things
   // ex: going from a channel to anonymous, the new uri won't return contentName, so we need to use claimName
@@ -2907,7 +2958,7 @@ const selectIsResolvingPublishUris = reselect.createSelector(selectState$5, sele
 
     let isResolvingShortUri;
     if (isChannel) {
-      const shortUri = buildURI({ contentName: name });
+      const shortUri = buildURI({ streamName: name });
       isResolvingShortUri = resolvingUris.includes(shortUri);
     }
 
@@ -3379,13 +3430,21 @@ from, isBackgroundSearch = false) => (dispatch, getState) => {
     const actions = [];
 
     data.forEach(result => {
-      if (result.name) {
-        const uri = buildURI({
-          claimName: result.name,
-          claimId: result.claimId
-        });
-        actions.push(doResolveUri(uri));
-        uris.push(uri);
+      if (result) {
+        const { name, claimId } = result;
+        const urlObj = {};
+
+        if (name.startsWith('@')) {
+          urlObj.channelName = name;
+          urlObj.channelClaimId = claimId;
+        } else {
+          urlObj.streamName = name;
+          urlObj.streamClaimId = claimId;
+        }
+
+        const url = buildURI(urlObj);
+        actions.push(doResolveUri(url));
+        uris.push(url);
       }
     });
 
@@ -3564,26 +3623,25 @@ function handleClaimAction(state, action) {
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
-  Object.entries(resolveInfo).forEach(([uri, resolveResponse]) => {
+  Object.entries(resolveInfo).forEach(([url, resolveResponse]) => {
     // $FlowFixMe
-    if (resolveResponse.claimsInChannel) {
-      // $FlowFixMe
-      channelClaimCounts[uri] = resolveResponse.claimsInChannel;
+    const { claimsInChannel, stream, channel } = resolveResponse;
+    if (claimsInChannel) {
+      channelClaimCounts[url] = claimsInChannel;
     }
-  });
 
-  // $FlowFixMe
-  Object.entries(resolveInfo).forEach(([uri, { channel, stream }]) => {
     if (stream) {
       byId[stream.claim_id] = stream;
-      byUri[uri] = stream.claim_id;
+      byUri[url] = stream.claim_id;
     }
+
     if (channel) {
       byId[channel.claim_id] = channel;
-      byUri[stream ? channel.permanent_url : uri] = channel.claim_id;
+      byUri[stream ? channel.canonical_url : url] = channel.claim_id;
     }
+
     if (!stream && !channel) {
-      byUri[uri] = null;
+      byUri[url] = null;
     }
   });
 
@@ -3795,17 +3853,17 @@ reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
   const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);
   const claimSearchByQueryLastPageReached = Object.assign({}, state.claimSearchByQueryLastPageReached);
-  const { append, query, uris, pageSize } = action.data;
+  const { append, query, urls, pageSize } = action.data;
 
   if (append) {
-    // todo: check for duplicate uris when concatenating?
-    claimSearchByQuery[query] = claimSearchByQuery[query] && claimSearchByQuery[query].length ? claimSearchByQuery[query].concat(uris) : uris;
+    // todo: check for duplicate urls when concatenating?
+    claimSearchByQuery[query] = claimSearchByQuery[query] && claimSearchByQuery[query].length ? claimSearchByQuery[query].concat(urls) : urls;
   } else {
-    claimSearchByQuery[query] = uris;
+    claimSearchByQuery[query] = urls;
   }
 
-  // the returned number of uris is less than the page size, so we're on the last page
-  claimSearchByQueryLastPageReached[query] = uris.length < pageSize;
+  // the returned number of urls is less than the page size, so we're on the last page
+  claimSearchByQueryLastPageReached[query] = urls.length < pageSize;
 
   delete fetchingClaimSearchByQuery[query];
 
@@ -4235,7 +4293,7 @@ const notificationsReducer = handleActions({
 
 var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _objectWithoutProperties$2(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+function _objectWithoutProperties$3(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 const defaultState$6 = {
   editingURI: undefined,
@@ -4285,7 +4343,7 @@ const publishReducer = handleActions({
     publishSuccess: true
   }),
   [DO_PREPARE_EDIT]: (state, action) => {
-    const publishData = _objectWithoutProperties$2(action.data, []);
+    const publishData = _objectWithoutProperties$3(action.data, []);
     const { channel, name, uri } = publishData;
 
     // The short uri is what is presented to the user
@@ -4895,6 +4953,7 @@ exports.isNameValid = isNameValid;
 exports.isURIClaimable = isURIClaimable;
 exports.isURIValid = isURIValid;
 exports.makeSelectAmountForUri = makeSelectAmountForUri;
+exports.makeSelectCanonicalUrlForUri = makeSelectCanonicalUrlForUri;
 exports.makeSelectChannelForClaimUri = makeSelectChannelForClaimUri;
 exports.makeSelectClaimForUri = makeSelectClaimForUri;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;

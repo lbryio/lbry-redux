@@ -172,6 +172,7 @@ export {
   makeSelectPendingByUri,
   makeSelectClaimsInChannelForCurrentPageState,
   makeSelectShortUrlForUri,
+  makeSelectCanonicalUrlForUri,
   makeSelectSupportsForUri,
   selectPendingById,
   selectClaimsById,
