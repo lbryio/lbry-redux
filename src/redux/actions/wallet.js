@@ -217,7 +217,7 @@ export function doSendTip(amount, claimId, isSupport, successCallback, errorCall
     const balance = selectBalance(state);
     const myClaims = selectMyClaimsRaw(state);
 
-    const shouldSupport = isSupport || myClaims.find(claim => claim.claim_id === claimId);
+    const shouldSupport = isSupport || (myClaims ? myClaims.find(claim => claim.claim_id === claimId) : false);
 
     if (balance - amount <= 0) {
       dispatch(
