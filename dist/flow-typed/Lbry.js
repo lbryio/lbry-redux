@@ -66,7 +66,7 @@ declare type VersionResponse = {
 declare type BalanceResponse = {
   available: string,
   reserved: string,
-  reserved_subtotals: ? {
+  reserved_subtotals: ?{
     claims: string,
     supports: string,
     tips: string,
@@ -205,7 +205,7 @@ declare type LbryTypes = {
   comment_list: (params: {}) => Promise<CommentListResponse>,
   comment_create: (params: {}) => Promise<CommentCreateResponse>,
   // Wallet utilities
-  account_balance: (params: {}) => Promise<string>,
+  account_balance: (params: {}) => Promise<BalanceResponse>,
   account_decrypt: (prams: {}) => Promise<boolean>,
   account_encrypt: (params: {}) => Promise<boolean>,
   account_unlock: (params: {}) => Promise<boolean>,
