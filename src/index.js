@@ -202,6 +202,7 @@ export {
   selectClaimSearchByQueryLastPageReached,
   selectUpdatingChannel,
   selectUpdateChannelError,
+  selectCreatingChannel,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';

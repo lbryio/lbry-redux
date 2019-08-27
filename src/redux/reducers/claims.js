@@ -24,6 +24,7 @@ type State = {
   fetchingClaimSearchByQuery: { [string]: boolean },
   claimSearchByQuery: { [string]: Array<string> },
   claimSearchByQueryLastPageReached: { [string]: Array<boolean> },
+  creatingChannel: boolean,
   claimsByChannel: {
     [string]: {
       all: Array<string>,
@@ -54,6 +55,7 @@ const defaultState = {
   fetchingClaimSearchByQuery: {},
   updateChannelError: '',
   updatingChannel: false,
+  creatingChannel: false,
 };
 
 function handleClaimAction(state: State, action: any): State {
@@ -282,6 +284,11 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
   });
 };
 
+reducers[ACTIONS.CREATE_CHANNEL_STARTED] = (state: State): State => ({
+  ...state,
+  creatingChannel: true,
+});
+
 reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State => {
   const channelClaim: ChannelClaim = action.data.channelClaim;
   const byId = Object.assign({}, state.byId);
@@ -293,6 +300,7 @@ reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State 
   return Object.assign({}, state, {
     byId,
     myChannelClaims,
+    creatingChannel: false,
   });
 };
 

@@ -1461,6 +1461,8 @@ const selectClaimsById = reselect.createSelector(selectState$2, state => state.b
 
 const selectCurrentChannelPage = reselect.createSelector(selectState$2, state => state.currentChannelPage || 1);
 
+const selectCreatingChannel = reselect.createSelector(selectState$2, state => state.creatingChannel);
+
 const selectClaimsByUri = reselect.createSelector(selectState$2, selectClaimsById, (state, byId) => {
   const byUri = state.claimsByUri || {};
   const claims = {};
@@ -3564,7 +3566,8 @@ const defaultState = {
   claimSearchByQueryLastPageReached: {},
   fetchingClaimSearchByQuery: {},
   updateChannelError: '',
-  updatingChannel: false
+  updatingChannel: false,
+  creatingChannel: false
 };
 
 function handleClaimAction(state, action) {
@@ -3782,6 +3785,10 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   });
 };
 
+reducers[CREATE_CHANNEL_STARTED] = state => _extends$5({}, state, {
+  creatingChannel: true
+});
+
 reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
   const channelClaim = action.data.channelClaim;
   const byId = Object.assign({}, state.byId);
@@ -3792,7 +3799,8 @@ reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
 
   return Object.assign({}, state, {
     byId,
-    myChannelClaims
+    myChannelClaims,
+    creatingChannel: false
   });
 };
 
@@ -5001,6 +5009,7 @@ exports.selectClaimSearchByQuery = selectClaimSearchByQuery;
 exports.selectClaimSearchByQueryLastPageReached = selectClaimSearchByQueryLastPageReached;
 exports.selectClaimsById = selectClaimsById;
 exports.selectClaimsByUri = selectClaimsByUri;
+exports.selectCreatingChannel = selectCreatingChannel;
 exports.selectCurrentChannelPage = selectCurrentChannelPage;
 exports.selectDownloadedUris = selectDownloadedUris;
 exports.selectDownloadingByOutpoint = selectDownloadingByOutpoint;
