@@ -56,7 +56,6 @@ export const selectSearchSuggestions: Array<SearchSuggestion> = createSelector(
     if (!query) {
       return [];
     }
-
     const queryIsPrefix =
       query === 'lbry:' || query === 'lbry:/' || query === 'lbry://' || query === 'lbry://@';
 
@@ -80,7 +79,7 @@ export const selectSearchSuggestions: Array<SearchSuggestion> = createSelector(
       const { channelName, streamName, isChannel } = parseURI(uri);
       searchSuggestions.push(
         {
-          value: streamName,
+          value: query,
           type: SEARCH_TYPES.SEARCH,
         },
         {

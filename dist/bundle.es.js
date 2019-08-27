@@ -1146,7 +1146,6 @@ const selectSearchSuggestions = reselect.createSelector(selectSearchValue, selec
   if (!query) {
     return [];
   }
-
   const queryIsPrefix = query === 'lbry:' || query === 'lbry:/' || query === 'lbry://' || query === 'lbry://@';
 
   if (queryIsPrefix) {
@@ -1166,7 +1165,7 @@ const selectSearchSuggestions = reselect.createSelector(selectSearchValue, selec
     const uri = normalizeURI(query);
     const { channelName, streamName, isChannel } = parseURI(uri);
     searchSuggestions.push({
-      value: streamName,
+      value: query,
       type: SEARCH_TYPES.SEARCH
     }, {
       value: uri,
