@@ -2923,13 +2923,13 @@ const selectIsStillEditing = reselect.createSelector(selectPublishFormValues, pu
 
   const {
     isChannel: currentIsChannel,
-    claimName: currentClaimName,
-    contentName: currentContentName
+    channelName: currentClaimName,
+    streamName: currentContentName
   } = parseURI(uri);
   const {
     isChannel: editIsChannel,
-    claimName: editClaimName,
-    contentName: editContentName
+    channelName: editClaimName,
+    streamName: editContentName
   } = parseURI(editingURI);
 
   // Depending on the previous/current use of a channel, we need to compare different things
@@ -2968,8 +2968,12 @@ const selectIsResolvingPublishUris = reselect.createSelector(selectState$5, sele
 });
 
 const selectTakeOverAmount = reselect.createSelector(selectState$5, selectMyClaimForUri, selectClaimsByUri, ({ name }, myClaimForUri, claimsByUri) => {
+  if (!name) {
+    return null;
+  }
+
   // We only care about the winning claim for the short uri
-  const shortUri = buildURI({ contentName: name });
+  const shortUri = buildURI({ streamName: name });
   const claimForShortUri = claimsByUri[shortUri];
 
   if (!myClaimForUri && claimForShortUri) {
@@ -4349,7 +4353,7 @@ const publishReducer = handleActions({
     // The editingUri is the full uri with claim id
     const shortUri = buildURI({
       channelName: channel,
-      contentName: name
+      streamName: name
     });
 
     return _extends$a({}, defaultState$6, publishData, {

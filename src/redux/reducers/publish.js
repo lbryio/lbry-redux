@@ -27,7 +27,7 @@ type PublishState = {
   bidError: ?string,
   otherLicenseDescription: string,
   licenseUrl: string,
-  tags: Array<string>
+  tags: Array<string>,
 };
 
 const defaultState: PublishState = {
@@ -94,7 +94,7 @@ export const publishReducer = handleActions(
       // The editingUri is the full uri with claim id
       const shortUri = buildURI({
         channelName: channel,
-        contentName: name,
+        streamName: name,
       });
 
       return {
