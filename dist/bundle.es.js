@@ -1044,18 +1044,6 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
   const { claimId, claimName, contentName } = deprecatedParts;
 
-  {
-    if (claimId) {
-      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
-    }
-    if (claimName) {
-      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
-    }
-    if (contentName) {
-      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
-    }
-  }
-
   if (!claimName && !channelName && !streamName) {
     throw new Error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
   }
