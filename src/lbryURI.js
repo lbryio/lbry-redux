@@ -119,6 +119,7 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
     claimName: streamNameOrChannelName,
     claimId: primaryClaimId,
     ...(streamName ? { contentName: streamName } : {}),
+    ...(qs ? { queryString: qs} : {}),
   };
 }
 
