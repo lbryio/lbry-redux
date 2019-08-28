@@ -76,9 +76,7 @@ function handleClaimAction(state: State, action: any): State {
     if (stream) {
       byId[stream.claim_id] = stream;
       byUri[url] = stream.claim_id;
-    }
-
-    if (channel) {
+    } else if (channel) {
       byId[channel.claim_id] = channel;
       byUri[stream ? channel.canonical_url : url] = channel.claim_id;
     }
