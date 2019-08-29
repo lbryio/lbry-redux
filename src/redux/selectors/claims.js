@@ -458,7 +458,7 @@ export const makeSelectRecommendedContentForUri = (uri: string) =>
       if (claim) {
         // If we are at a vanity uri, build the full uri so we can properly filter
         const currentUri = atVanityURI
-          ? buildURI({ claimId: claim.claim_id, claimName: claim.name })
+          ? buildURI({ streamClaimId: claim.claim_id, streamName: claim.name })
           : uri;
 
         const { title } = claim.value;

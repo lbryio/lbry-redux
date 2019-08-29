@@ -112,7 +112,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
   const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
 
   claims.forEach((claim: Claim) => {
-    const uri = buildURI({ claimName: claim.name, claimId: claim.claim_id });
+    const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
 
     if (claim.type && claim.type.match(/claim|update/)) {
       if (claim.confirmations < 1) {

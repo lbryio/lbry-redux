@@ -1,6 +1,6 @@
 // @flow
 const isProduction = process.env.NODE_ENV === 'production';
-const channelNameMinLength = 1;
+const channelNameMinLength = 2;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
@@ -75,7 +75,7 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
 
   const includesChannel = streamNameOrChannelName.startsWith('@');
   const isChannel = streamNameOrChannelName.startsWith('@') && !possibleStreamName;
-  const channelName = includesChannel && streamNameOrChannelName.slice(1);
+  const channelName = includesChannel && streamNameOrChannelName;
 
   if (includesChannel) {
     if (!channelName) {

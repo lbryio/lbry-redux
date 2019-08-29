@@ -215,7 +215,6 @@ export {
   selectFileInfosDownloaded,
   selectDownloadingFileInfos,
   selectTotalDownloadProgress,
-  selectSearchDownloadUris,
   selectFileListDownloadedSort,
   selectFileListPublishedSort,
   selectDownloadedUris,
