@@ -9,6 +9,10 @@ export const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
 const regexPartModifierSeparator = '([:$#]?)([^/]*)';
+const queryStringBreaker = '^([\\S]+)([?][\\S]*)';
+const separateQuerystring = new RegExp(
+  queryStringBreaker
+);
 
 /**
  * Parses a LBRY name into its component parts. Throws errors with user-friendly
@@ -29,6 +33,7 @@ const regexPartModifierSeparator = '([:$#]?)([^/]*)';
 
 export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj {
   // Break into components. Empty sub-matches are converted to null
+
   const componentsRegex = new RegExp(
     regexPartProtocol + // protocol
     regexPartStreamOrChannelName + // stream or channel name (stops at the first separator or end)
@@ -37,8 +42,15 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
       regexPartStreamOrChannelName +
       regexPartModifierSeparator
   );
+  // chop off the querystring first
+  let QSStrippedURL, qs;
+  const qsRegexResult = separateQuerystring.exec(URL)
+  if (qsRegexResult) {
+    [QSStrippedURL, qs] = qsRegexResult.slice(1).map(match => match || null);
+  }
 
-  const regexMatch = componentsRegex.exec(URL) || [];
+  const cleanURL = QSStrippedURL || URL;
+  const regexMatch = componentsRegex.exec(cleanURL) || [];
   const [proto, ...rest] = regexMatch.slice(1).map(match => match || null);
   const path = rest.join('');
   const [
@@ -107,6 +119,7 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
     claimName: streamNameOrChannelName,
     claimId: primaryClaimId,
     ...(streamName ? { contentName: streamName } : {}),
+    ...(qs ? { queryString: qs} : {}),
   };
 }
 
@@ -114,6 +127,7 @@ function parseURIModifier(modSeperator: ?string, modValue: ?string) {
   let claimId;
   let claimSequence;
   let bidPosition;
+
   if (modSeperator) {
     if (!modValue) {
       throw new Error(__(`No modifier provided after separator %s.`, modSeperator));
