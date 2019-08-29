@@ -35,13 +35,13 @@ export const selectIsStillEditing = createSelector(
 
     const {
       isChannel: currentIsChannel,
-      channelName: currentClaimName,
-      streamName: currentContentName,
+      streamName: currentClaimName,
+      channelName: currentContentName,
     } = parseURI(uri);
     const {
       isChannel: editIsChannel,
-      channelName: editClaimName,
-      streamName: editContentName,
+      streamName: editClaimName,
+      channelName: editContentName,
     } = parseURI(editingURI);
 
     // Depending on the previous/current use of a channel, we need to compare different things
@@ -58,8 +58,8 @@ export const selectMyClaimForUri = createSelector(
   selectClaimsById,
   selectMyClaimsWithoutChannels,
   ({ editingURI, uri }, isStillEditing, claimsById, myClaims) => {
-    const { contentName, claimName } = parseURI(uri);
-    const { claimId: editClaimId } = parseURI(editingURI);
+    const { channelName: contentName, streamName: claimName } = parseURI(uri);
+    const { streamClaimId: editClaimId } = parseURI(editingURI);
 
     // If isStillEditing
     // They clicked "edit" from the file page
@@ -110,14 +110,14 @@ export const selectTakeOverAmount = createSelector(
     const claimForShortUri = claimsByUri[shortUri];
 
     if (!myClaimForUri && claimForShortUri) {
-      return claimForShortUri.effective_amount;
+      return claimForShortUri.meta.effective_amount;
     } else if (myClaimForUri && claimForShortUri) {
       // https://github.com/lbryio/lbry/issues/1476
       // We should check the current effective_amount on my claim to see how much additional lbc
       // is needed to win the claim. Currently this is not possible during a takeover.
       // With this, we could say something like, "You have x lbc in support, if you bid y additional LBC you will control the claim"
       // For now just ignore supports. We will just show the winning claim's bid amount
-      return claimForShortUri.effective_amount || claimForShortUri.amount;
+      return claimForShortUri.meta.effective_amount || claimForShortUri.amount;
     }
 
     return null;

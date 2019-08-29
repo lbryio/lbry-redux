@@ -898,7 +898,7 @@ const getSearchQueryString = (query, options = {}, includeUserOptions = false) =
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-const channelNameMinLength = 1;
+const channelNameMinLength = 2;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
@@ -960,7 +960,7 @@ function parseURI(URL, requireProto = false) {
 
   const includesChannel = streamNameOrChannelName.startsWith('@');
   const isChannel = streamNameOrChannelName.startsWith('@') && !possibleStreamName;
-  const channelName = includesChannel && streamNameOrChannelName.slice(1);
+  const channelName = includesChannel && streamNameOrChannelName;
 
   if (includesChannel) {
     if (!channelName) {
@@ -1725,7 +1725,7 @@ const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSe
   let recommendedContent;
   if (claim) {
     // If we are at a vanity uri, build the full uri so we can properly filter
-    const currentUri = atVanityURI ? buildURI({ claimId: claim.claim_id, claimName: claim.name }) : uri;
+    const currentUri = atVanityURI ? buildURI({ streamClaimId: claim.claim_id, streamName: claim.name }) : uri;
 
     const { title } = claim.value;
 
@@ -2594,99 +2594,6 @@ const selectTotalDownloadProgress = reselect.createSelector(selectDownloadingFil
   return -1;
 });
 
-const selectSearchDownloadUris = query => reselect.createSelector(selectFileInfosDownloaded, selectClaimsById, (fileInfos, claimsById) => {
-  if (!query || !fileInfos.length) {
-    return null;
-  }
-
-  const queryParts = query.toLowerCase().split(' ');
-  const searchQueryDictionary = {};
-  queryParts.forEach(subQuery => {
-    searchQueryDictionary[subQuery] = subQuery;
-  });
-
-  const arrayContainsQueryPart = array => {
-    for (let i = 0; i < array.length; i += 1) {
-      const subQuery = array[i];
-      if (searchQueryDictionary[subQuery]) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  const downloadResultsFromQuery = [];
-  fileInfos.forEach(fileInfo => {
-    const { channel_name: channelName, claim_name: claimName, metadata } = fileInfo;
-    const { author, description, title } = metadata;
-
-    if (channelName) {
-      const lowerCaseChannel = channelName.toLowerCase();
-      const strippedOutChannelName = lowerCaseChannel.slice(1); // trim off the @
-      if (searchQueryDictionary[channelName] || searchQueryDictionary[strippedOutChannelName]) {
-        downloadResultsFromQuery.push(fileInfo);
-        return;
-      }
-    }
-
-    const nameParts = claimName.toLowerCase().split('-');
-    if (arrayContainsQueryPart(nameParts)) {
-      downloadResultsFromQuery.push(fileInfo);
-      return;
-    }
-
-    if (title) {
-      const titleParts = title.toLowerCase().split(' ');
-      if (arrayContainsQueryPart(titleParts)) {
-        downloadResultsFromQuery.push(fileInfo);
-        return;
-      }
-    }
-
-    if (author) {
-      const authorParts = author.toLowerCase().split(' ');
-      if (arrayContainsQueryPart(authorParts)) {
-        downloadResultsFromQuery.push(fileInfo);
-        return;
-      }
-    }
-
-    if (description) {
-      const descriptionParts = description.toLowerCase().split(' ');
-      if (arrayContainsQueryPart(descriptionParts)) {
-        downloadResultsFromQuery.push(fileInfo);
-      }
-    }
-  });
-
-  return downloadResultsFromQuery.length ? downloadResultsFromQuery.map(fileInfo => {
-    const {
-      channel_name: channelName,
-      claim_id: claimId,
-      claim_name: claimName
-    } = fileInfo;
-
-    const uriParams = {};
-
-    if (channelName) {
-      const claim = claimsById[claimId];
-      if (claim && claim.signing_channel) {
-        uriParams.claimId = claim.signing_channel.claim_id;
-      } else {
-        uriParams.claimId = claimId;
-      }
-      uriParams.channelName = channelName;
-      uriParams.contentName = claimName;
-    } else {
-      uriParams.claimId = claimId;
-      uriParams.claimName = claimName;
-    }
-
-    const uri = buildURI(uriParams);
-    return uri;
-  }) : null;
-});
-
 const selectFileListPublishedSort = reselect.createSelector(selectState$3, state => state.fileListPublishedSort);
 
 const selectFileListDownloadedSort = reselect.createSelector(selectState$3, state => state.fileListDownloadedSort);
@@ -2934,13 +2841,13 @@ const selectIsStillEditing = reselect.createSelector(selectPublishFormValues, pu
 
   const {
     isChannel: currentIsChannel,
-    channelName: currentClaimName,
-    streamName: currentContentName
+    streamName: currentClaimName,
+    channelName: currentContentName
   } = parseURI(uri);
   const {
     isChannel: editIsChannel,
-    channelName: editClaimName,
-    streamName: editContentName
+    streamName: editClaimName,
+    channelName: editContentName
   } = parseURI(editingURI);
 
   // Depending on the previous/current use of a channel, we need to compare different things
@@ -2951,8 +2858,8 @@ const selectIsStillEditing = reselect.createSelector(selectPublishFormValues, pu
 });
 
 const selectMyClaimForUri = reselect.createSelector(selectPublishFormValues, selectIsStillEditing, selectClaimsById, selectMyClaimsWithoutChannels, ({ editingURI, uri }, isStillEditing, claimsById, myClaims) => {
-  const { contentName, claimName } = parseURI(uri);
-  const { claimId: editClaimId } = parseURI(editingURI);
+  const { channelName: contentName, streamName: claimName } = parseURI(uri);
+  const { streamClaimId: editClaimId } = parseURI(editingURI);
 
   // If isStillEditing
   // They clicked "edit" from the file page
@@ -2988,14 +2895,14 @@ const selectTakeOverAmount = reselect.createSelector(selectState$5, selectMyClai
   const claimForShortUri = claimsByUri[shortUri];
 
   if (!myClaimForUri && claimForShortUri) {
-    return claimForShortUri.effective_amount;
+    return claimForShortUri.meta.effective_amount;
   } else if (myClaimForUri && claimForShortUri) {
     // https://github.com/lbryio/lbry/issues/1476
     // We should check the current effective_amount on my claim to see how much additional lbc
     // is needed to win the claim. Currently this is not possible during a takeover.
     // With this, we could say something like, "You have x lbc in support, if you bid y additional LBC you will control the claim"
     // For now just ignore supports. We will just show the winning claim's bid amount
-    return claimForShortUri.effective_amount || claimForShortUri.amount;
+    return claimForShortUri.meta.effective_amount || claimForShortUri.amount;
   }
 
   return null;
@@ -3680,7 +3587,7 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   const pendingById = Object.assign({}, state.pendingById);
 
   claims.forEach(claim => {
-    const uri = buildURI({ claimName: claim.name, claimId: claim.claim_id });
+    const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
 
     if (claim.type && claim.type.match(/claim|update/)) {
       if (claim.confirmations < 1) {
@@ -5076,7 +4983,6 @@ exports.selectReceiveAddress = selectReceiveAddress;
 exports.selectRecentTransactions = selectRecentTransactions;
 exports.selectResolvingUris = selectResolvingUris;
 exports.selectSearchBarFocused = selectSearchBarFocused;
-exports.selectSearchDownloadUris = selectSearchDownloadUris;
 exports.selectSearchOptions = selectSearchOptions;
 exports.selectSearchState = selectState;
 exports.selectSearchSuggestions = selectSearchSuggestions;
