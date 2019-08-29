@@ -898,7 +898,7 @@ const getSearchQueryString = (query, options = {}, includeUserOptions = false) =
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-const channelNameMinLength = 2;
+const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
@@ -960,7 +960,7 @@ function parseURI(URL, requireProto = false) {
 
   const includesChannel = streamNameOrChannelName.startsWith('@');
   const isChannel = streamNameOrChannelName.startsWith('@') && !possibleStreamName;
-  const channelName = includesChannel && streamNameOrChannelName;
+  const channelName = includesChannel && streamNameOrChannelName.slice(1);
 
   if (includesChannel) {
     if (!channelName) {
