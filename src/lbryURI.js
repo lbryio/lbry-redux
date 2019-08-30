@@ -199,7 +199,7 @@ export function buildURI(
   }
 
   if (!claimName && !channelName && !streamName) {
-    throw new Error(
+    console.error(
       __(
         "'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."
       )

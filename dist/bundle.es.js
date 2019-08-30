@@ -1045,7 +1045,7 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
   const { claimId, claimName, contentName } = deprecatedParts;
 
   if (!claimName && !channelName && !streamName) {
-    throw new Error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
+    console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
   }
 
   const formattedChannelName = channelName && (channelName.startsWith('@') ? channelName : `@${channelName}`);
@@ -1724,8 +1724,8 @@ const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSe
 
   let recommendedContent;
   if (claim) {
-    // If we are at a vanity uri, build the full uri so we can properly filter
-    const currentUri = atVanityURI ? buildURI({ streamClaimId: claim.claim_id, streamName: claim.name }) : uri;
+    // always grab full URL - this can change once search returns canonical
+    const currentUri = buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
 
     const { title } = claim.value;
 
@@ -2874,7 +2874,7 @@ const selectIsResolvingPublishUris = reselect.createSelector(selectState$5, sele
     const { isChannel } = parseURI(uri);
 
     let isResolvingShortUri;
-    if (isChannel) {
+    if (isChannel && name) {
       const shortUri = buildURI({ streamName: name });
       isResolvingShortUri = resolvingUris.includes(shortUri);
     }
