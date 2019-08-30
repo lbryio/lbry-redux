@@ -226,17 +226,41 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
   };
 }
 
-export function doCreateChannel(name: string, amount: number) {
+export function doCreateChannel(name: string, amount: number, optionalParams: any) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CREATE_CHANNEL_STARTED,
     });
-
+    
+    const createParams = {
+      name,
+      bid: creditsToString(amount),
+    };
+    
+    if (optionalParams.title) {
+      createParams.title = optionalParams.title;
+    }
+    if (optionalParams.cover) {
+      createParams.cover_url = optionalParams.cover;
+    }
+    if (optionalParams.thumbnail) {
+      createParams.thumbnail_url = optionalParams.thumbnail;
+    }
+    if (optionalParams.description) {
+      createParams.description = optionalParams.description;
+    }
+    if (optionalParams.website) {
+      createParams.website_url = optionalParams.website_url;
+    }
+    if (optionalParams.email) {
+      createParams.email = optionalParams.email;
+    }
+    if (optionalParams.tags) {
+      createParams.tags = optionalParams.tags;
+    }
+    
     return (
-      Lbry.channel_create({
-        name,
-        bid: creditsToString(amount),
-      })
+      Lbry.channel_create(createParams)
         // outputs[0] is the certificate
         // outputs[1] is the change from the tx, not in the app currently
         .then((result: ChannelCreateResponse) => {

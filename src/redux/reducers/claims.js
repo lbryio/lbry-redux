@@ -161,6 +161,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
     byId,
     fetchingMyChannels: false,
     myChannelClaims,
+    myClaims: claims,
   });
 };
 

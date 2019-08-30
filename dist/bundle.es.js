@@ -2394,16 +2394,40 @@ function doFetchClaimsByChannel(uri, page = 1) {
   };
 }
 
-function doCreateChannel(name, amount) {
+function doCreateChannel(name, amount, optionalParams) {
   return dispatch => {
     dispatch({
       type: CREATE_CHANNEL_STARTED
     });
 
-    return lbryProxy.channel_create({
+    const createParams = {
       name,
       bid: creditsToString(amount)
-    })
+    };
+
+    if (optionalParams.title) {
+      createParams.title = optionalParams.title;
+    }
+    if (optionalParams.cover) {
+      createParams.cover_url = optionalParams.cover;
+    }
+    if (optionalParams.thumbnail) {
+      createParams.thumbnail_url = optionalParams.thumbnail;
+    }
+    if (optionalParams.description) {
+      createParams.description = optionalParams.description;
+    }
+    if (optionalParams.website) {
+      createParams.website_url = optionalParams.website_url;
+    }
+    if (optionalParams.email) {
+      createParams.email = optionalParams.email;
+    }
+    if (optionalParams.tags) {
+      createParams.tags = optionalParams.tags;
+    }
+
+    return lbryProxy.channel_create(createParams)
     // outputs[0] is the certificate
     // outputs[1] is the change from the tx, not in the app currently
     .then(result => {
@@ -3633,7 +3657,8 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   return Object.assign({}, state, {
     byId,
     fetchingMyChannels: false,
-    myChannelClaims
+    myChannelClaims,
+    myClaims: claims
   });
 };
 
