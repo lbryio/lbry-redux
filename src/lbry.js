@@ -43,6 +43,7 @@ const Lbry: LbryTypes = {
         [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'],
         [/\.(stl|obj|fbx|gcode)$/i, '3D-file'],
         [/\.(cbr|cbt|cbz)$/i, 'comic-book'],
+        [/\.(lbry)$/i, 'application'],
       ];
 
       const res = formats.reduce((ret, testpair) => {
