@@ -2418,7 +2418,7 @@ function doCreateChannel(name, amount, optionalParams) {
       createParams.description = optionalParams.description;
     }
     if (optionalParams.website) {
-      createParams.website_url = optionalParams.website_url;
+      createParams.website_url = optionalParams.website;
     }
     if (optionalParams.email) {
       createParams.email = optionalParams.email;
