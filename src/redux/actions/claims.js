@@ -256,7 +256,7 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
       createParams.email = optionalParams.email;
     }
     if (optionalParams.tags) {
-      createParams.tags = optionalParams.tags;
+      createParams.tags = optionalParams.tags.map(tag => tag.name);
     }
     
     return (

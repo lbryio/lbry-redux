@@ -30,6 +30,8 @@ type State = {
       [number]: Array<string>,
     },
   },
+  updateChannelError: string,
+  updatingChannel: boolean,
 };
 
 const reducers = {};
@@ -50,6 +52,8 @@ const defaultState = {
   claimSearchByQuery: {},
   claimSearchByQueryLastPageReached: {},
   fetchingClaimSearchByQuery: {},
+  updateChannelError: '',
+  updatingChannel: false,
 };
 
 function handleClaimAction(state: State, action: any): State {
@@ -259,6 +263,13 @@ reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State 
   });
 };
 
+reducers[ACTIONS.UPDATE_CHANNEL_STARTED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    updateChannelError: '',
+    updatingChannel: true,
+  });
+};
+
 reducers[ACTIONS.UPDATE_CHANNEL_COMPLETED] = (state: State, action: any): State => {
   const channelClaim: ChannelClaim = action.data.channelClaim;
   const byId = Object.assign({}, state.byId);
@@ -267,6 +278,15 @@ reducers[ACTIONS.UPDATE_CHANNEL_COMPLETED] = (state: State, action: any): State 
 
   return Object.assign({}, state, {
     byId,
+    updateChannelError: '',
+    updatingChannel: false,
+  });
+};
+
+reducers[ACTIONS.UPDATE_CHANNEL_FAILED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    updateChannelError: action.data.message,
+    updatingChannel: false,
   });
 };
 

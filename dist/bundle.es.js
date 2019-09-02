@@ -1789,6 +1789,10 @@ const makeSelectSupportsForUri = uri => reselect.createSelector(selectSupportsBy
   return total;
 });
 
+const selectUpdatingChannel = reselect.createSelector(selectState$2, state => state.updatingChannel);
+
+const selectUpdateChannelError = reselect.createSelector(selectState$2, state => state.updateChannelError);
+
 function formatCredits(amount, precision, shortFormat = false) {
   let actualAmount = parseFloat(amount),
       suffix = '';
@@ -2424,7 +2428,7 @@ function doCreateChannel(name, amount, optionalParams) {
       createParams.email = optionalParams.email;
     }
     if (optionalParams.tags) {
-      createParams.tags = optionalParams.tags;
+      createParams.tags = optionalParams.tags.map(tag => tag.name);
     }
 
     return lbryProxy.channel_create(createParams)
@@ -3557,7 +3561,9 @@ const defaultState = {
   claimSearchError: false,
   claimSearchByQuery: {},
   claimSearchByQueryLastPageReached: {},
-  fetchingClaimSearchByQuery: {}
+  fetchingClaimSearchByQuery: {},
+  updateChannelError: '',
+  updatingChannel: false
 };
 
 function handleClaimAction(state, action) {
@@ -3756,6 +3762,13 @@ reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
   });
 };
 
+reducers[UPDATE_CHANNEL_STARTED] = (state, action) => {
+  return Object.assign({}, state, {
+    updateChannelError: '',
+    updatingChannel: true
+  });
+};
+
 reducers[UPDATE_CHANNEL_COMPLETED] = (state, action) => {
   const channelClaim = action.data.channelClaim;
   const byId = Object.assign({}, state.byId);
@@ -3763,7 +3776,16 @@ reducers[UPDATE_CHANNEL_COMPLETED] = (state, action) => {
   byId[channelClaim.claim_id] = channelClaim;
 
   return Object.assign({}, state, {
-    byId
+    byId,
+    updateChannelError: '',
+    updatingChannel: false
+  });
+};
+
+reducers[UPDATE_CHANNEL_FAILED] = (state, action) => {
+  return Object.assign({}, state, {
+    updateChannelError: action.data.message,
+    updatingChannel: false
   });
 };
 
@@ -5023,6 +5045,8 @@ exports.selectTransactionItems = selectTransactionItems;
 exports.selectTransactionListFilter = selectTransactionListFilter;
 exports.selectTransactionsById = selectTransactionsById;
 exports.selectUnfollowedTags = selectUnfollowedTags;
+exports.selectUpdateChannelError = selectUpdateChannelError;
+exports.selectUpdatingChannel = selectUpdatingChannel;
 exports.selectUrisLoading = selectUrisLoading;
 exports.selectWalletDecryptPending = selectWalletDecryptPending;
 exports.selectWalletDecryptResult = selectWalletDecryptResult;
