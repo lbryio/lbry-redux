@@ -457,7 +457,7 @@ export const makeSelectRecommendedContentForUri = (uri: string) =>
       let recommendedContent;
       if (claim) {
         // always grab full URL - this can change once search returns canonical
-        const currentUri =  buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
+        const currentUri = buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
 
         const { title } = claim.value;
 
@@ -486,14 +486,13 @@ export const makeSelectFirstRecommendedFileForUri = (uri: string) =>
 export const makeSelectChannelForClaimUri = (uri: string, includePrefix: boolean = false) =>
   createSelector(
     makeSelectClaimForUri(uri),
-    (claim: ?StreamClaim) => {
-      if (!claim || !claim.signing_channel) {
+    (claim: ?Claim) => {
+      if (!claim || !claim.signing_channel || !claim.canonical_url) {
         return null;
       }
 
-      const { claim_id: claimId, name } = claim.signing_channel;
-      let channel = `${name}#${claimId}`;
-      return includePrefix ? `lbry://${channel}` : channel;
+      const { canonical_url: canonicalUrl } = claim.signing_channel;
+      return includePrefix ? canonicalUrl : canonicalUrl.slice('lbry://'.length);
     }
   );
 
@@ -535,6 +534,12 @@ export const makeSelectCanonicalUrlForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
     claim => claim && claim.canonical_url
+  );
+
+export const makeSelectPermanentUrlForUri = (uri: string) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    claim => claim && claim.permanent_url
   );
 
 export const makeSelectSupportsForUri = (uri: string) =>
