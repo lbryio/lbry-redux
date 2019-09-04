@@ -487,7 +487,7 @@ export const makeSelectChannelForClaimUri = (uri: string, includePrefix: boolean
   createSelector(
     makeSelectClaimForUri(uri),
     (claim: ?Claim) => {
-      if (!claim || !claim.signing_channel || !claim.canonical_url) {
+      if (!claim || !claim.signing_channel || !claim.signing_channel.canonical_url) {
         return null;
       }
 
