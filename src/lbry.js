@@ -36,6 +36,7 @@ const Lbry: LbryTypes = {
     if (fileName) {
       const formats = [
         [/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
+        [/\.(jpg|jpeg|png|gif)$/i, 'image'],
         [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
         [/\.(jpeg|jpg|png|gif|svg)$/i, 'image'],
         [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'],
