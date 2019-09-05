@@ -173,8 +173,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
   dispatch: Dispatch
 ) => {
   const { name, amount, value = {} } = claim;
-  const channelName =
-    (claim && claim.signing_channel && claim.signing_channel.normalized_name) || null;
+  const channelName = (claim && claim.signing_channel && claim.signing_channel.name) || null;
   const {
     author,
     description,

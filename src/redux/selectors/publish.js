@@ -84,7 +84,7 @@ export const selectIsResolvingPublishUris = createSelector(
       const { isChannel } = parseURI(uri);
 
       let isResolvingShortUri;
-      if (isChannel) {
+      if (isChannel && name) {
         const shortUri = buildURI({ streamName: name });
         isResolvingShortUri = resolvingUris.includes(shortUri);
       }
