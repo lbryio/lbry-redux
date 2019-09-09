@@ -16,7 +16,9 @@ export const selectFollowedTagsList = createSelector(
 export const selectFollowedTags = createSelector(
   selectFollowedTagsList,
   (followedTags: Array<string>): Array<Tag> =>
-    followedTags.map(tag => ({ name: tag.toLowerCase() })).sort((a, b) => a.name.localeCompare(b.name))
+    followedTags
+      .map(tag => ({ name: tag.toLowerCase() }))
+      .sort((a, b) => a.name.localeCompare(b.name))
 );
 
 export const selectUnfollowedTags = createSelector(
@@ -36,3 +38,11 @@ export const selectUnfollowedTags = createSelector(
     return tagsToReturn;
   }
 );
+
+export const makeSelectIsFollowingTag = (tag: string) =>
+  createSelector(
+    selectFollowedTags,
+    followedTags => {
+      return followedTags.some(followedTag => followedTag.name === tag.toLowerCase());
+    }
+  );

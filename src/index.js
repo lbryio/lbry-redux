@@ -282,7 +282,11 @@ export {
   selectTransactionListFilter,
 } from 'redux/selectors/wallet';
 
-export { selectFollowedTags, selectUnfollowedTags } from 'redux/selectors/tags';
+export {
+  selectFollowedTags,
+  selectUnfollowedTags,
+  makeSelectIsFollowingTag,
+} from 'redux/selectors/tags';
 
 export {
   selectBlockedChannels,

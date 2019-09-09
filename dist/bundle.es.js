@@ -669,7 +669,9 @@ const Lbry = {
   isConnected: false,
   connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
-  apiRequestHeaders: { 'Content-Type': 'application/json-rpc' },
+  apiRequestHeaders: {
+    'Content-Type': 'application/json-rpc'
+  },
 
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
   setDaemonConnectionString: value => {
@@ -3803,6 +3805,11 @@ reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
     creatingChannel: false
   });
 };
+// reducers[ACTIONS.failedifeiowejiowfeiowef] = (state: State, action: any): State => {
+//   return Object.assign({}, state, {
+//     creatingChannel: false,
+//   });
+// };
 
 reducers[UPDATE_CHANNEL_STARTED] = (state, action) => {
   return Object.assign({}, state, {
@@ -4430,7 +4437,7 @@ function getDefaultKnownTags() {
 }
 
 const defaultState$8 = {
-  followedTags: DEFAULT_FOLLOWED_TAGS,
+  followedTags: [],
   knownTags: getDefaultKnownTags()
 };
 
@@ -4475,6 +4482,11 @@ const tagsReducer = handleActions({
     return _extends$c({}, state, {
       knownTags: newKnownTags,
       followedTags: newFollowedTags
+    });
+  },
+  USER_SETTINGS_POPULATE: (state, action) => {
+    return _extends$c({}, state, {
+      followedTags: action.data && action.data.app && action.data.app.tags || []
     });
   }
 }, defaultState$8);
@@ -4845,6 +4857,10 @@ const selectUnfollowedTags = reselect.createSelector(selectKnownTagsByName, sele
   return tagsToReturn;
 });
 
+const makeSelectIsFollowingTag = tag => reselect.createSelector(selectFollowedTags, followedTags => {
+  return followedTags.some(followedTag => followedTag.name === tag.toLowerCase());
+});
+
 //      
 
 const selectState$a = state => state.blocked || {};
@@ -4964,6 +4980,7 @@ exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
 exports.makeSelectFileNameForUri = makeSelectFileNameForUri;
 exports.makeSelectFilePartlyDownloaded = makeSelectFilePartlyDownloaded;
 exports.makeSelectFirstRecommendedFileForUri = makeSelectFirstRecommendedFileForUri;
+exports.makeSelectIsFollowingTag = makeSelectIsFollowingTag;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
 exports.makeSelectLoadingForUri = makeSelectLoadingForUri;
 exports.makeSelectMediaTypeForUri = makeSelectMediaTypeForUri;

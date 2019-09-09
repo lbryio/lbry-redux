@@ -303,6 +303,11 @@ reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State 
     creatingChannel: false,
   });
 };
+// reducers[ACTIONS.failedifeiowejiowfeiowef] = (state: State, action: any): State => {
+//   return Object.assign({}, state, {
+//     creatingChannel: false,
+//   });
+// };
 
 reducers[ACTIONS.UPDATE_CHANNEL_STARTED] = (state: State, action: any): State => {
   return Object.assign({}, state, {
