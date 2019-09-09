@@ -2411,11 +2411,11 @@ function doCreateChannel(name, amount, optionalParams) {
     if (optionalParams.title) {
       createParams.title = optionalParams.title;
     }
-    if (optionalParams.cover) {
-      createParams.cover_url = optionalParams.cover;
+    if (optionalParams.coverUrl) {
+      createParams.cover_url = optionalParams.coverUrl;
     }
-    if (optionalParams.thumbnail) {
-      createParams.thumbnail_url = optionalParams.thumbnail;
+    if (optionalParams.thumbnailUrl) {
+      createParams.thumbnail_url = optionalParams.thumbnailUrl;
     }
     if (optionalParams.description) {
       createParams.description = optionalParams.description;
@@ -2457,8 +2457,8 @@ function doUpdateChannel(params) {
       claim_id: params.claim_id,
       bid: creditsToString(params.amount),
       title: params.title,
-      cover_url: params.cover,
-      thumbnail_url: params.thumbnail,
+      cover_url: params.coverUrl,
+      thumbnail_url: params.thumbnailUrl,
       description: params.description,
       website_url: params.website,
       email: params.email,
