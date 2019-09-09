@@ -69,6 +69,7 @@ function handleClaimAction(state: State, action: any): State {
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
+  let newResolvingUrls = new Set(state.resolvingUris);
 
   Object.entries(resolveInfo).forEach(([url: string, resolveResponse: ResolveResponse]) => {
     // $FlowFixMe
@@ -80,11 +81,26 @@ function handleClaimAction(state: State, action: any): State {
     if (stream) {
       byId[stream.claim_id] = stream;
       byUri[url] = stream.claim_id;
-    } else if (channel) {
-      byId[channel.claim_id] = channel;
-      byUri[url] = channel.claim_id;
+      // Also add the permanent_url here until lighthouse returns canonical_url for search results
+      byUri[stream.permanent_url] = stream.claim_id;
+      newResolvingUrls.delete(stream.canonical_url);
+      newResolvingUrls.delete(stream.permanent_url);
     }
 
+    if (channel) {
+      if (!stream) {
+        byUri[url] = channel.claim_id;
+      }
+
+      byId[channel.claim_id] = channel;
+      // Also add the permanent_url here until lighthouse returns canonical_url for search results
+      byUri[channel.permanent_url] = channel.claim_id;
+      byUri[channel.canonical_url] = channel.claim_id;
+      newResolvingUrls.delete(channel.canonical_url);
+      newResolvingUrls.delete(channel.permanent_url);
+    }
+
+    newResolvingUrls.delete(url);
     if (!stream && !channel) {
       byUri[url] = null;
     }
@@ -94,9 +110,26 @@ function handleClaimAction(state: State, action: any): State {
     byId,
     claimsByUri: byUri,
     channelClaimCounts,
-    resolvingUris: (state.resolvingUris || []).filter(uri => !resolveInfo[uri]),
+    resolvingUris: Array.from(newResolvingUrls),
   });
 }
+
+reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state: State, action: any): State => {
+  const { uris }: { uris: Array<string> } = action.data;
+
+  const oldResolving = state.resolvingUris || [];
+  const newResolving = oldResolving.slice();
+
+  uris.forEach(uri => {
+    if (!newResolving.includes(uri)) {
+      newResolving.push(uri);
+    }
+  });
+
+  return Object.assign({}, state, {
+    resolvingUris: newResolving,
+  });
+};
 
 reducers[ACTIONS.RESOLVE_URIS_COMPLETED] = (state: State, action: any): State => {
   return {
@@ -201,7 +234,7 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: State, action: any): 
       allClaimIds.add(claim.claim_id);
       currentPageClaimIds.push(claim.claim_id);
       byId[claim.claim_id] = claim;
-      claimsByUri[`lbry://${claim.name}#${claim.claim_id}`] = claim.claim_id;
+      claimsByUri[claim.canonical_url] = claim.claim_id;
     });
   }
 
@@ -287,23 +320,6 @@ reducers[ACTIONS.UPDATE_CHANNEL_FAILED] = (state: State, action: any): State => 
   return Object.assign({}, state, {
     updateChannelError: action.data.message,
     updatingChannel: false,
-  });
-};
-
-reducers[ACTIONS.RESOLVE_URIS_STARTED] = (state: State, action: any): State => {
-  const { uris }: { uris: Array<string> } = action.data;
-
-  const oldResolving = state.resolvingUris || [];
-  const newResolving = oldResolving.slice();
-
-  uris.forEach(uri => {
-    if (!newResolving.includes(uri)) {
-      newResolving.push(uri);
-    }
-  });
-
-  return Object.assign({}, state, {
-    resolvingUris: newResolving,
   });
 };
 

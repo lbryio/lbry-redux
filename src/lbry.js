@@ -37,11 +37,13 @@ const Lbry: LbryTypes = {
       const formats = [
         [/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
         [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
+        [/\.(jpeg|jpg|png|gif|svg)$/i, 'image'],
         [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'],
         [/\.(json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'],
         [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'],
         [/\.(stl|obj|fbx|gcode)$/i, '3D-file'],
         [/\.(cbr|cbt|cbz)$/i, 'comic-book'],
+        [/\.(lbry)$/i, 'application'],
       ];
 
       const res = formats.reduce((ret, testpair) => {

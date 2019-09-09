@@ -692,7 +692,7 @@ const Lbry = {
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
   getMediaType: (contentType, fileName) => {
     if (fileName) {
-      const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book']];
+      const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(jpeg|jpg|png|gif|svg)$/i, 'image'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book'], [/\.(lbry)$/i, 'application']];
 
       const res = formats.reduce((ret, testpair) => {
         switch (testpair[0].test(ret)) {
@@ -1045,7 +1045,7 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
   const { claimId, claimName, contentName } = deprecatedParts;
 
   if (!claimName && !channelName && !streamName) {
-    throw new Error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
+    console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
   }
 
   const formattedChannelName = channelName && (channelName.startsWith('@') ? channelName : `@${channelName}`);
@@ -1724,8 +1724,8 @@ const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSe
 
   let recommendedContent;
   if (claim) {
-    // If we are at a vanity uri, build the full uri so we can properly filter
-    const currentUri = atVanityURI ? buildURI({ streamClaimId: claim.claim_id, streamName: claim.name }) : uri;
+    // always grab full URL - this can change once search returns canonical
+    const currentUri = buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
 
     const { title } = claim.value;
 
@@ -1747,13 +1747,12 @@ const makeSelectFirstRecommendedFileForUri = uri => reselect.createSelector(make
 // accepts a regular claim uri lbry://something
 // returns the channel uri that created this claim lbry://@channel
 const makeSelectChannelForClaimUri = (uri, includePrefix = false) => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
-  if (!claim || !claim.signing_channel) {
+  if (!claim || !claim.signing_channel || !claim.signing_channel.canonical_url) {
     return null;
   }
 
-  const { claim_id: claimId, name } = claim.signing_channel;
-  let channel = `${name}#${claimId}`;
-  return includePrefix ? `lbry://${channel}` : channel;
+  const { canonical_url: canonicalUrl } = claim.signing_channel;
+  return includePrefix ? canonicalUrl : canonicalUrl.slice('lbry://'.length);
 });
 
 const makeSelectTagsForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => {
@@ -1771,6 +1770,8 @@ const selectClaimSearchByQueryLastPageReached = reselect.createSelector(selectSt
 const makeSelectShortUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.short_url);
 
 const makeSelectCanonicalUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.canonical_url);
+
+const makeSelectPermanentUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.permanent_url);
 
 const makeSelectSupportsForUri = uri => reselect.createSelector(selectSupportsByOutpoint, makeSelectClaimForUri(uri), (byOutpoint, claim) => {
   if (!claim || !claim.is_mine) {
@@ -1833,8 +1834,6 @@ function creditsToString(amount) {
   const creditString = parseFloat(amount).toFixed(8);
   return creditString;
 }
-
-//      
 
 function doUpdateBalance() {
   return (dispatch, getState) => {
@@ -2902,7 +2901,7 @@ const selectIsResolvingPublishUris = reselect.createSelector(selectState$5, sele
     const { isChannel } = parseURI(uri);
 
     let isResolvingShortUri;
-    if (isChannel) {
+    if (isChannel && name) {
       const shortUri = buildURI({ streamName: name });
       isResolvingShortUri = resolvingUris.includes(shortUri);
     }
@@ -3062,7 +3061,7 @@ const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter, fs, path) => di
 
 const doPrepareEdit = (claim, uri, fileInfo, fs) => dispatch => {
   const { name, amount, value = {} } = claim;
-  const channelName = claim && claim.signing_channel && claim.signing_channel.normalized_name || null;
+  const channelName = claim && claim.signing_channel && claim.signing_channel.name || null;
   const {
     author,
     description,
@@ -3573,6 +3572,7 @@ function handleClaimAction(state, action) {
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
+  let newResolvingUrls = new Set(state.resolvingUris);
 
   Object.entries(resolveInfo).forEach(([url, resolveResponse]) => {
     // $FlowFixMe
@@ -3584,11 +3584,26 @@ function handleClaimAction(state, action) {
     if (stream) {
       byId[stream.claim_id] = stream;
       byUri[url] = stream.claim_id;
-    } else if (channel) {
-      byId[channel.claim_id] = channel;
-      byUri[url] = channel.claim_id;
+      // Also add the permanent_url here until lighthouse returns canonical_url for search results
+      byUri[stream.permanent_url] = stream.claim_id;
+      newResolvingUrls.delete(stream.canonical_url);
+      newResolvingUrls.delete(stream.permanent_url);
     }
 
+    if (channel) {
+      if (!stream) {
+        byUri[url] = channel.claim_id;
+      }
+
+      byId[channel.claim_id] = channel;
+      // Also add the permanent_url here until lighthouse returns canonical_url for search results
+      byUri[channel.permanent_url] = channel.claim_id;
+      byUri[channel.canonical_url] = channel.claim_id;
+      newResolvingUrls.delete(channel.canonical_url);
+      newResolvingUrls.delete(channel.permanent_url);
+    }
+
+    newResolvingUrls.delete(url);
     if (!stream && !channel) {
       byUri[url] = null;
     }
@@ -3598,9 +3613,26 @@ function handleClaimAction(state, action) {
     byId,
     claimsByUri: byUri,
     channelClaimCounts,
-    resolvingUris: (state.resolvingUris || []).filter(uri => !resolveInfo[uri])
+    resolvingUris: Array.from(newResolvingUrls)
   });
 }
+
+reducers[RESOLVE_URIS_STARTED] = (state, action) => {
+  const { uris } = action.data;
+
+  const oldResolving = state.resolvingUris || [];
+  const newResolving = oldResolving.slice();
+
+  uris.forEach(uri => {
+    if (!newResolving.includes(uri)) {
+      newResolving.push(uri);
+    }
+  });
+
+  return Object.assign({}, state, {
+    resolvingUris: newResolving
+  });
+};
 
 reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
   return _extends$5({}, handleClaimAction(state, action));
@@ -3700,7 +3732,7 @@ reducers[FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
       allClaimIds.add(claim.claim_id);
       currentPageClaimIds.push(claim.claim_id);
       byId[claim.claim_id] = claim;
-      claimsByUri[`lbry://${claim.name}#${claim.claim_id}`] = claim.claim_id;
+      claimsByUri[claim.canonical_url] = claim.claim_id;
     });
   }
 
@@ -3786,23 +3818,6 @@ reducers[UPDATE_CHANNEL_FAILED] = (state, action) => {
   return Object.assign({}, state, {
     updateChannelError: action.data.message,
     updatingChannel: false
-  });
-};
-
-reducers[RESOLVE_URIS_STARTED] = (state, action) => {
-  const { uris } = action.data;
-
-  const oldResolving = state.resolvingUris || [];
-  const newResolving = oldResolving.slice();
-
-  uris.forEach(uri => {
-    if (!newResolving.includes(uri)) {
-      newResolving.push(uri);
-    }
-  });
-
-  return Object.assign({}, state, {
-    resolvingUris: newResolving
   });
 };
 
@@ -4947,6 +4962,7 @@ exports.makeSelectMetadataItemForUri = makeSelectMetadataItemForUri;
 exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
 exports.makeSelectPendingByUri = makeSelectPendingByUri;
+exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
 exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
 exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
