@@ -4465,7 +4465,7 @@ function getDefaultKnownTags() {
 }
 
 const defaultState$8 = {
-  followedTags: DEFAULT_FOLLOWED_TAGS,
+  followedTags: [],
   knownTags: getDefaultKnownTags()
 };
 
@@ -4512,18 +4512,12 @@ const tagsReducer = handleActions({
       followedTags: newFollowedTags
     });
   },
-  USER_SETTINGS_POPULATE: (state, action) => {
-    // const tags = getValueFromSettingsSync('tags', action.data);
-    return _extends$d({}, state, {
-      followedTags: action.data && action.data.app && action.data.app.tags || []
-    });
-  },
   [USER_SETTINGS_POPULATE]: (state, action) => {
     const { tags } = action.data;
     let newTags;
 
     if (!tags) {
-      newTags = state.followedTags;
+      newTags = state.followedTags || DEFAULT_FOLLOWED_TAGS;
     } else {
       if (!state.followedTags || !state.followedTags.length) {
         newTags = tags;

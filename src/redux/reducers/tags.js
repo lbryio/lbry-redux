@@ -14,7 +14,7 @@ function getDefaultKnownTags() {
 }
 
 const defaultState: TagState = {
-  followedTags: DEFAULT_FOLLOWED_TAGS,
+  followedTags: [],
   knownTags: getDefaultKnownTags(),
 };
 
@@ -65,16 +65,6 @@ export const tagsReducer = handleActions(
         followedTags: newFollowedTags,
       };
     },
-    USER_SETTINGS_POPULATE: (
-      state: TagState,
-      action: { data: { app: { tags: Array<string> } } }
-    ) => {
-      // const tags = getValueFromSettingsSync('tags', action.data);
-      return {
-        ...state,
-        followedTags: (action.data && action.data.app && action.data.app.tags) || [],
-      };
-    },
     [ACTIONS.USER_SETTINGS_POPULATE]: (
       state: TagState,
       action: { data: { tags: ?Array<string> } }
@@ -83,7 +73,7 @@ export const tagsReducer = handleActions(
       let newTags;
 
       if (!tags) {
-        newTags = state.followedTags;
+        newTags = state.followedTags || DEFAULT_FOLLOWED_TAGS;
       } else {
         if (!state.followedTags || !state.followedTags.length) {
           newTags = tags;
