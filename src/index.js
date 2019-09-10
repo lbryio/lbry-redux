@@ -113,6 +113,8 @@ export { doCommentList, doCommentCreate } from 'redux/actions/comments';
 
 export { doToggleBlockChannel } from 'redux/actions/blocked';
 
+export { doPopulateUserSettings } from 'redux/actions/sync';
+
 // utils
 export { batchActions } from 'util/batch-actions';
 export { parseQueryParams, toQueryString } from 'util/query-params';
@@ -203,6 +205,7 @@ export {
   selectUpdatingChannel,
   selectUpdateChannelError,
   selectCreatingChannel,
+  createChannelError,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';

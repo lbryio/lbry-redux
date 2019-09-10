@@ -23,6 +23,11 @@ export const selectCreatingChannel = createSelector(
   state => state.creatingChannel
 );
 
+export const createChannelError = createSelector(
+  selectState,
+  state => state.createChannelError
+);
+
 export const selectClaimsByUri = createSelector(
   selectState,
   selectClaimsById,

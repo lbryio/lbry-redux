@@ -12,6 +12,7 @@ import * as ACTIONS from 'constants/action_types';
 import { buildURI, parseURI } from 'lbryURI';
 
 type State = {
+  createChannelError: ?string,
   channelClaimCounts: { [string]: number },
   claimsByUri: { [string]: string },
   byId: { [string]: Claim },
@@ -56,6 +57,7 @@ const defaultState = {
   updateChannelError: '',
   updatingChannel: false,
   creatingChannel: false,
+  createChannelError: undefined,
 };
 
 function handleClaimAction(state: State, action: any): State {
@@ -287,6 +289,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
 reducers[ACTIONS.CREATE_CHANNEL_STARTED] = (state: State): State => ({
   ...state,
   creatingChannel: true,
+  createChannelError: null,
 });
 
 reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State => {
@@ -303,11 +306,13 @@ reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State 
     creatingChannel: false,
   });
 };
-// reducers[ACTIONS.failedifeiowejiowfeiowef] = (state: State, action: any): State => {
-//   return Object.assign({}, state, {
-//     creatingChannel: false,
-//   });
-// };
+
+reducers[ACTIONS.CREATE_CHANNEL_FAILED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    creatingChannel: false,
+    createChannelError: action.data,
+  });
+};
 
 reducers[ACTIONS.UPDATE_CHANNEL_STARTED] = (state: State, action: any): State => {
   return Object.assign({}, state, {

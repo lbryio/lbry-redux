@@ -252,12 +252,17 @@ const FETCH_DATE = 'FETCH_DATE';
 const FETCH_COST_INFO_STARTED = 'FETCH_COST_INFO_STARTED';
 const FETCH_COST_INFO_COMPLETED = 'FETCH_COST_INFO_COMPLETED';
 const FETCH_COST_INFO_FAILED = 'FETCH_COST_INFO_FAILED';
+
 // Tags
 const TOGGLE_TAG_FOLLOW = 'TOGGLE_TAG_FOLLOW';
 const TAG_ADD = 'TAG_ADD';
 const TAG_DELETE = 'TAG_DELETE';
+
 // Blocked Channels
 const TOGGLE_BLOCK_CHANNEL = 'TOGGLE_BLOCK_CHANNEL';
+
+// Sync
+const USER_SETTINGS_POPULATE = 'USER_SETTINGS_POPULATE';
 
 var action_types = /*#__PURE__*/Object.freeze({
   WINDOW_FOCUSED: WINDOW_FOCUSED,
@@ -463,7 +468,8 @@ var action_types = /*#__PURE__*/Object.freeze({
   TOGGLE_TAG_FOLLOW: TOGGLE_TAG_FOLLOW,
   TAG_ADD: TAG_ADD,
   TAG_DELETE: TAG_DELETE,
-  TOGGLE_BLOCK_CHANNEL: TOGGLE_BLOCK_CHANNEL
+  TOGGLE_BLOCK_CHANNEL: TOGGLE_BLOCK_CHANNEL,
+  USER_SETTINGS_POPULATE: USER_SETTINGS_POPULATE
 });
 
 const CC_LICENSES = [{
@@ -669,9 +675,7 @@ const Lbry = {
   isConnected: false,
   connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
-  apiRequestHeaders: {
-    'Content-Type': 'application/json-rpc'
-  },
+  apiRequestHeaders: { 'Content-Type': 'application/json-rpc' },
 
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
   setDaemonConnectionString: value => {
@@ -1464,6 +1468,8 @@ const selectClaimsById = reselect.createSelector(selectState$2, state => state.b
 const selectCurrentChannelPage = reselect.createSelector(selectState$2, state => state.currentChannelPage || 1);
 
 const selectCreatingChannel = reselect.createSelector(selectState$2, state => state.creatingChannel);
+
+const createChannelError = reselect.createSelector(selectState$2, state => state.createChannelError);
 
 const selectClaimsByUri = reselect.createSelector(selectState$2, selectClaimsById, (state, byId) => {
   const byUri = state.claimsByUri || {};
@@ -3549,6 +3555,24 @@ const doToggleBlockChannel = uri => ({
 
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function extractSettings(rawObj) {
+  if (rawObj && rawObj.version && rawObj.app) {
+    const { subscriptions, tags } = rawObj.app;
+    return _extends$5({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {});
+  }
+
+  return {};
+}
+
+function doPopulateUserSettings(settings) {
+  return dispatch => {
+    const { subscriptions, tags } = extractSettings(settings);
+    dispatch({ type: USER_SETTINGS_POPULATE, data: { subscriptions, tags } });
+  };
+}
+
+var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 const reducers = {};
 const defaultState = {
   byId: {},
@@ -3569,7 +3593,8 @@ const defaultState = {
   fetchingClaimSearchByQuery: {},
   updateChannelError: '',
   updatingChannel: false,
-  creatingChannel: false
+  creatingChannel: false,
+  createChannelError: undefined
 };
 
 function handleClaimAction(state, action) {
@@ -3642,7 +3667,7 @@ reducers[RESOLVE_URIS_STARTED] = (state, action) => {
 };
 
 reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
-  return _extends$5({}, handleClaimAction(state, action));
+  return _extends$6({}, handleClaimAction(state, action));
 };
 
 reducers[FETCH_CLAIM_LIST_MINE_STARTED] = state => Object.assign({}, state, {
@@ -3787,8 +3812,9 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   });
 };
 
-reducers[CREATE_CHANNEL_STARTED] = state => _extends$5({}, state, {
-  creatingChannel: true
+reducers[CREATE_CHANNEL_STARTED] = state => _extends$6({}, state, {
+  creatingChannel: true,
+  createChannelError: null
 });
 
 reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
@@ -3805,11 +3831,13 @@ reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
     creatingChannel: false
   });
 };
-// reducers[ACTIONS.failedifeiowejiowfeiowef] = (state: State, action: any): State => {
-//   return Object.assign({}, state, {
-//     creatingChannel: false,
-//   });
-// };
+
+reducers[CREATE_CHANNEL_FAILED] = (state, action) => {
+  return Object.assign({}, state, {
+    creatingChannel: false,
+    createChannelError: action.data
+  });
+};
 
 reducers[UPDATE_CHANNEL_STARTED] = (state, action) => {
   return Object.assign({}, state, {
@@ -3865,7 +3893,7 @@ reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
 
   delete fetchingClaimSearchByQuery[query];
 
-  return Object.assign({}, state, _extends$5({}, handleClaimAction(state, action), {
+  return Object.assign({}, state, _extends$6({}, handleClaimAction(state, action), {
     claimSearchByQuery,
     claimSearchByQueryLastPageReached,
     fetchingClaimSearchByQuery
@@ -3905,7 +3933,7 @@ const handleActions = (actionMap, defaultState) => (state = defaultState, action
   return state;
 };
 
-var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$1 = {
   byId: {},
@@ -3914,11 +3942,11 @@ const defaultState$1 = {
 };
 
 const commentReducer = handleActions({
-  [COMMENT_CREATE_STARTED]: (state, action) => _extends$6({}, state, {
+  [COMMENT_CREATE_STARTED]: (state, action) => _extends$7({}, state, {
     isLoading: true
   }),
 
-  [COMMENT_CREATE_FAILED]: (state, action) => _extends$6({}, state, {
+  [COMMENT_CREATE_FAILED]: (state, action) => _extends$7({}, state, {
     isLoading: false
   }),
 
@@ -3931,12 +3959,12 @@ const commentReducer = handleActions({
     newComments.unshift(comment);
     byId[claimId] = newComments;
 
-    return _extends$6({}, state, {
+    return _extends$7({}, state, {
       byId
     });
   },
 
-  [COMMENT_LIST_STARTED]: state => _extends$6({}, state, { isLoading: true }),
+  [COMMENT_LIST_STARTED]: state => _extends$7({}, state, { isLoading: true }),
 
   [COMMENT_LIST_COMPLETED]: (state, action) => {
     const { comments, claimId, uri } = action.data;
@@ -3947,19 +3975,19 @@ const commentReducer = handleActions({
       byId[claimId] = comments['items'];
       commentsByUri[uri] = claimId;
     }
-    return _extends$6({}, state, {
+    return _extends$7({}, state, {
       byId,
       commentsByUri,
       isLoading: false
     });
   },
 
-  [COMMENT_LIST_FAILED]: (state, action) => _extends$6({}, state, {
+  [COMMENT_LIST_FAILED]: (state, action) => _extends$7({}, state, {
     isLoading: false
   })
 }, defaultState$1);
 
-var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$1 = {};
 const defaultState$2 = {
@@ -3968,9 +3996,9 @@ const defaultState$2 = {
 
 reducers$1[SET_CONTENT_POSITION] = (state, action) => {
   const { claimId, outpoint, position } = action.data;
-  return _extends$7({}, state, {
-    positions: _extends$7({}, state.positions, {
-      [claimId]: _extends$7({}, state.positions[claimId], {
+  return _extends$8({}, state, {
+    positions: _extends$8({}, state.positions, {
+      [claimId]: _extends$8({}, state.positions[claimId], {
         [outpoint]: position
       })
     })
@@ -4137,7 +4165,7 @@ function fileInfoReducer(state = defaultState$3, action) {
   return state;
 }
 
-var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$3 = {};
 const defaultState$4 = {
@@ -4153,7 +4181,7 @@ reducers$3[PURCHASE_URI_STARTED] = (state, action) => {
     newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
   }
 
-  return _extends$8({}, state, {
+  return _extends$9({}, state, {
     failedPurchaseUris: newFailedPurchaseUris,
     purchaseUriErrorMessage: ''
   });
@@ -4171,7 +4199,7 @@ reducers$3[PURCHASE_URI_COMPLETED] = (state, action) => {
     newFailedPurchaseUris.splice(newFailedPurchaseUris.indexOf(uri), 1);
   }
 
-  return _extends$8({}, state, {
+  return _extends$9({}, state, {
     failedPurchaseUris: newFailedPurchaseUris,
     purchasedUris: newPurchasedUris,
     purchaseUriErrorMessage: ''
@@ -4186,7 +4214,7 @@ reducers$3[PURCHASE_URI_FAILED] = (state, action) => {
     newFailedPurchaseUris.push(uri);
   }
 
-  return _extends$8({}, state, {
+  return _extends$9({}, state, {
     failedPurchaseUris: newFailedPurchaseUris,
     purchaseUriErrorMessage: error
   });
@@ -4199,7 +4227,7 @@ reducers$3[DELETE_PURCHASED_URI] = (state, action) => {
     newPurchasedUris.splice(newPurchasedUris.indexOf(uri), 1);
   }
 
-  return _extends$8({}, state, {
+  return _extends$9({}, state, {
     purchasedUris: newPurchasedUris
   });
 };
@@ -4210,7 +4238,7 @@ function fileReducer(state = defaultState$4, action) {
   return state;
 }
 
-var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$5 = {
   notifications: [],
@@ -4225,7 +4253,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.push(toast);
 
-    return _extends$9({}, state, {
+    return _extends$a({}, state, {
       toasts: newToasts
     });
   },
@@ -4233,7 +4261,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.shift();
 
-    return _extends$9({}, state, {
+    return _extends$a({}, state, {
       toasts: newToasts
     });
   },
@@ -4244,7 +4272,7 @@ const notificationsReducer = handleActions({
     const newNotifications = state.notifications.slice();
     newNotifications.push(notification);
 
-    return _extends$9({}, state, {
+    return _extends$a({}, state, {
       notifications: newNotifications
     });
   },
@@ -4255,7 +4283,7 @@ const notificationsReducer = handleActions({
 
     notifications = notifications.map(pastNotification => pastNotification.id === notification.id ? notification : pastNotification);
 
-    return _extends$9({}, state, {
+    return _extends$a({}, state, {
       notifications
     });
   },
@@ -4264,7 +4292,7 @@ const notificationsReducer = handleActions({
     let newNotifications = state.notifications.slice();
     newNotifications = newNotifications.filter(notification => notification.id !== id);
 
-    return _extends$9({}, state, {
+    return _extends$a({}, state, {
       notifications: newNotifications
     });
   },
@@ -4275,7 +4303,7 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.push(error);
 
-    return _extends$9({}, state, {
+    return _extends$a({}, state, {
       errors: newErrors
     });
   },
@@ -4283,13 +4311,13 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.shift();
 
-    return _extends$9({}, state, {
+    return _extends$a({}, state, {
       errors: newErrors
     });
   }
 }, defaultState$5);
 
-var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$3(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -4326,17 +4354,17 @@ const defaultState$6 = {
 const publishReducer = handleActions({
   [UPDATE_PUBLISH_FORM]: (state, action) => {
     const { data } = action;
-    return _extends$a({}, state, data);
+    return _extends$b({}, state, data);
   },
-  [CLEAR_PUBLISH]: () => _extends$a({}, defaultState$6),
-  [PUBLISH_START]: state => _extends$a({}, state, {
+  [CLEAR_PUBLISH]: () => _extends$b({}, defaultState$6),
+  [PUBLISH_START]: state => _extends$b({}, state, {
     publishing: true,
     publishSuccess: false
   }),
-  [PUBLISH_FAIL]: state => _extends$a({}, state, {
+  [PUBLISH_FAIL]: state => _extends$b({}, state, {
     publishing: false
   }),
-  [PUBLISH_SUCCESS]: state => _extends$a({}, state, {
+  [PUBLISH_SUCCESS]: state => _extends$b({}, state, {
     publishing: false,
     publishSuccess: true
   }),
@@ -4351,14 +4379,14 @@ const publishReducer = handleActions({
       streamName: name
     });
 
-    return _extends$a({}, defaultState$6, publishData, {
+    return _extends$b({}, defaultState$6, publishData, {
       editingURI: uri,
       uri: shortUri
     });
   }
 }, defaultState$6);
 
-var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$7 = {
   isActive: false, // does the user have any typed text in the search input
@@ -4378,29 +4406,29 @@ const defaultState$7 = {
 };
 
 const searchReducer = handleActions({
-  [SEARCH_START]: state => _extends$b({}, state, {
+  [SEARCH_START]: state => _extends$c({}, state, {
     searching: true
   }),
   [SEARCH_SUCCESS]: (state, action) => {
     const { query, uris } = action.data;
 
-    return _extends$b({}, state, {
+    return _extends$c({}, state, {
       searching: false,
       urisByQuery: Object.assign({}, state.urisByQuery, { [query]: uris })
     });
   },
 
-  [SEARCH_FAIL]: state => _extends$b({}, state, {
+  [SEARCH_FAIL]: state => _extends$c({}, state, {
     searching: false
   }),
 
-  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$b({}, state, {
+  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$c({}, state, {
     searchQuery: action.data.query,
     isActive: true
   }),
 
-  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$b({}, state, {
-    suggestions: _extends$b({}, state.suggestions, {
+  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$c({}, state, {
+    suggestions: _extends$c({}, state.suggestions, {
       [action.data.query]: action.data.suggestions
     })
   }),
@@ -4408,36 +4436,36 @@ const searchReducer = handleActions({
   // sets isActive to false so the uri will be populated correctly if the
   // user is on a file page. The search query will still be present on any
   // other page
-  [DISMISS_NOTIFICATION]: state => _extends$b({}, state, {
+  [DISMISS_NOTIFICATION]: state => _extends$c({}, state, {
     isActive: false
   }),
 
-  [SEARCH_FOCUS]: state => _extends$b({}, state, {
+  [SEARCH_FOCUS]: state => _extends$c({}, state, {
     focused: true
   }),
-  [SEARCH_BLUR]: state => _extends$b({}, state, {
+  [SEARCH_BLUR]: state => _extends$c({}, state, {
     focused: false
   }),
   [UPDATE_SEARCH_OPTIONS]: (state, action) => {
     const { options: oldOptions } = state;
     const newOptions = action.data;
-    const options = _extends$b({}, oldOptions, newOptions);
-    return _extends$b({}, state, {
+    const options = _extends$c({}, oldOptions, newOptions);
+    return _extends$c({}, state, {
       options
     });
   }
 }, defaultState$7);
 
-var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$d = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function getDefaultKnownTags() {
-  return DEFAULT_FOLLOWED_TAGS.concat(DEFAULT_KNOWN_TAGS).reduce((tagsMap, tag) => _extends$c({}, tagsMap, {
+  return DEFAULT_FOLLOWED_TAGS.concat(DEFAULT_KNOWN_TAGS).reduce((tagsMap, tag) => _extends$d({}, tagsMap, {
     [tag]: { name: tag }
   }), {});
 }
 
 const defaultState$8 = {
-  followedTags: [],
+  followedTags: DEFAULT_FOLLOWED_TAGS,
   knownTags: getDefaultKnownTags()
 };
 
@@ -4454,7 +4482,7 @@ const tagsReducer = handleActions({
       newFollowedTags.push(name);
     }
 
-    return _extends$c({}, state, {
+    return _extends$d({}, state, {
       followedTags: newFollowedTags
     });
   },
@@ -4463,10 +4491,10 @@ const tagsReducer = handleActions({
     const { knownTags } = state;
     const { name } = action.data;
 
-    let newKnownTags = _extends$c({}, knownTags);
+    let newKnownTags = _extends$d({}, knownTags);
     newKnownTags[name] = { name };
 
-    return _extends$c({}, state, {
+    return _extends$d({}, state, {
       knownTags: newKnownTags
     });
   },
@@ -4475,18 +4503,40 @@ const tagsReducer = handleActions({
     const { knownTags, followedTags } = state;
     const { name } = action.data;
 
-    let newKnownTags = _extends$c({}, knownTags);
+    let newKnownTags = _extends$d({}, knownTags);
     delete newKnownTags[name];
     const newFollowedTags = followedTags.filter(tag => tag !== name);
 
-    return _extends$c({}, state, {
+    return _extends$d({}, state, {
       knownTags: newKnownTags,
       followedTags: newFollowedTags
     });
   },
   USER_SETTINGS_POPULATE: (state, action) => {
-    return _extends$c({}, state, {
+    // const tags = getValueFromSettingsSync('tags', action.data);
+    return _extends$d({}, state, {
       followedTags: action.data && action.data.app && action.data.app.tags || []
+    });
+  },
+  [USER_SETTINGS_POPULATE]: (state, action) => {
+    const { tags } = action.data;
+    let newTags;
+
+    if (!tags) {
+      newTags = state.followedTags;
+    } else {
+      if (!state.followedTags || !state.followedTags.length) {
+        newTags = tags;
+      } else {
+        const map = {};
+        newTags = tags.concat(state.followedTags).filter(tag => {
+          return map[tag] ? false : map[tag] = true;
+        }, {});
+      }
+    }
+
+    return _extends$d({}, state, {
+      followedTags: newTags
     });
   }
 }, defaultState$8);
@@ -4515,7 +4565,7 @@ const blockedReducer = handleActions({
   }
 }, defaultState$9);
 
-var _extends$d = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const buildDraftTransaction = () => ({
   amount: undefined,
@@ -4555,25 +4605,25 @@ const defaultState$a = {
 };
 
 const walletReducer = handleActions({
-  [FETCH_TRANSACTIONS_STARTED]: state => _extends$d({}, state, {
+  [FETCH_TRANSACTIONS_STARTED]: state => _extends$e({}, state, {
     fetchingTransactions: true
   }),
 
   [FETCH_TRANSACTIONS_COMPLETED]: (state, action) => {
-    const byId = _extends$d({}, state.transactions);
+    const byId = _extends$e({}, state.transactions);
 
     const { transactions } = action.data;
     transactions.forEach(transaction => {
       byId[transaction.txid] = transaction;
     });
 
-    return _extends$d({}, state, {
+    return _extends$e({}, state, {
       transactions: byId,
       fetchingTransactions: false
     });
   },
 
-  [FETCH_SUPPORTS_STARTED]: state => _extends$d({}, state, {
+  [FETCH_SUPPORTS_STARTED]: state => _extends$e({}, state, {
     fetchingSupports: true
   }),
 
@@ -4586,7 +4636,7 @@ const walletReducer = handleActions({
       byOutpoint[`${txid}:${nout}`] = transaction;
     });
 
-    return _extends$d({}, state, { supports: byOutpoint, fetchingSupports: false });
+    return _extends$e({}, state, { supports: byOutpoint, fetchingSupports: false });
   },
 
   [ABANDON_SUPPORT_STARTED]: (state, action) => {
@@ -4595,7 +4645,7 @@ const walletReducer = handleActions({
 
     currentlyAbandoning[outpoint] = true;
 
-    return _extends$d({}, state, {
+    return _extends$e({}, state, {
       abandoningSupportsByOutpoint: currentlyAbandoning
     });
   },
@@ -4608,56 +4658,56 @@ const walletReducer = handleActions({
     delete currentlyAbandoning[outpoint];
     delete byOutpoint[outpoint];
 
-    return _extends$d({}, state, {
+    return _extends$e({}, state, {
       supports: byOutpoint,
       abandoningSupportsById: currentlyAbandoning
     });
   },
 
-  [GET_NEW_ADDRESS_STARTED]: state => _extends$d({}, state, {
+  [GET_NEW_ADDRESS_STARTED]: state => _extends$e({}, state, {
     gettingNewAddress: true
   }),
 
   [GET_NEW_ADDRESS_COMPLETED]: (state, action) => {
     const { address } = action.data;
 
-    return _extends$d({}, state, { gettingNewAddress: false, receiveAddress: address });
+    return _extends$e({}, state, { gettingNewAddress: false, receiveAddress: address });
   },
 
-  [UPDATE_BALANCE]: (state, action) => _extends$d({}, state, {
+  [UPDATE_BALANCE]: (state, action) => _extends$e({}, state, {
     balance: action.data.balance
   }),
 
-  [UPDATE_TOTAL_BALANCE]: (state, action) => _extends$d({}, state, {
+  [UPDATE_TOTAL_BALANCE]: (state, action) => _extends$e({}, state, {
     totalBalance: action.data.totalBalance
   }),
 
-  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$d({}, state, {
+  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$e({}, state, {
     checkingAddressOwnership: true
   }),
 
-  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$d({}, state, {
+  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$e({}, state, {
     checkingAddressOwnership: false
   }),
 
   [SET_DRAFT_TRANSACTION_AMOUNT]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$d({}, oldDraft, { amount: parseFloat(action.data.amount) });
+    const newDraft = _extends$e({}, oldDraft, { amount: parseFloat(action.data.amount) });
 
-    return _extends$d({}, state, { draftTransaction: newDraft });
+    return _extends$e({}, state, { draftTransaction: newDraft });
   },
 
   [SET_DRAFT_TRANSACTION_ADDRESS]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$d({}, oldDraft, { address: action.data.address });
+    const newDraft = _extends$e({}, oldDraft, { address: action.data.address });
 
-    return _extends$d({}, state, { draftTransaction: newDraft });
+    return _extends$e({}, state, { draftTransaction: newDraft });
   },
 
   [SEND_TRANSACTION_STARTED]: state => {
-    const newDraftTransaction = _extends$d({}, state.draftTransaction, { sending: true });
+    const newDraftTransaction = _extends$e({}, state.draftTransaction, { sending: true });
 
-    return _extends$d({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$e({}, state, { draftTransaction: newDraftTransaction });
   },
 
   [SEND_TRANSACTION_COMPLETED]: state => Object.assign({}, state, {
@@ -4670,103 +4720,103 @@ const walletReducer = handleActions({
       error: action.data.error
     });
 
-    return _extends$d({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$e({}, state, { draftTransaction: newDraftTransaction });
   },
 
-  [SUPPORT_TRANSACTION_STARTED]: state => _extends$d({}, state, {
+  [SUPPORT_TRANSACTION_STARTED]: state => _extends$e({}, state, {
     sendingSupport: true
   }),
 
-  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$d({}, state, {
+  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$e({}, state, {
     sendingSupport: false
   }),
 
-  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$d({}, state, {
+  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$e({}, state, {
     error: action.data.error,
     sendingSupport: false
   }),
 
-  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$d({}, state, {
+  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletIsEncrypted: action.result
   }),
 
-  [WALLET_ENCRYPT_START]: state => _extends$d({}, state, {
+  [WALLET_ENCRYPT_START]: state => _extends$e({}, state, {
     walletEncryptPending: true,
     walletEncryptSucceded: null,
     walletEncryptResult: null
   }),
 
-  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$d({}, state, {
+  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: true,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$d({}, state, {
+  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$e({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: false,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_START]: state => _extends$d({}, state, {
+  [WALLET_DECRYPT_START]: state => _extends$e({}, state, {
     walletDecryptPending: true,
     walletDecryptSucceded: null,
     walletDecryptResult: null
   }),
 
-  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$d({}, state, {
+  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: true,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$d({}, state, {
+  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$e({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: false,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_UNLOCK_START]: state => _extends$d({}, state, {
+  [WALLET_UNLOCK_START]: state => _extends$e({}, state, {
     walletUnlockPending: true,
     walletUnlockSucceded: null,
     walletUnlockResult: null
   }),
 
-  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$d({}, state, {
+  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: true,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$d({}, state, {
+  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$e({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: false,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_LOCK_START]: state => _extends$d({}, state, {
+  [WALLET_LOCK_START]: state => _extends$e({}, state, {
     walletLockPending: false,
     walletLockSucceded: null,
     walletLockResult: null
   }),
 
-  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$d({}, state, {
+  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletLockPending: false,
     walletLockSucceded: true,
     walletLockResult: action.result
   }),
 
-  [WALLET_LOCK_FAILED]: (state, action) => _extends$d({}, state, {
+  [WALLET_LOCK_FAILED]: (state, action) => _extends$e({}, state, {
     walletLockPending: false,
     walletLockSucceded: false,
     walletLockResult: action.result
   }),
 
-  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$d({}, state, {
+  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$e({}, state, {
     transactionListFilter: action.data
   }),
 
-  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$d({}, state, {
+  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$e({}, state, {
     latestBlock: action.data
   })
 }, defaultState$a);
@@ -4782,14 +4832,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$7 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$7, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$e({
+    return _extends$f({
       id
     }, params);
   }
@@ -4894,6 +4944,7 @@ exports.claimsReducer = claimsReducer;
 exports.commentReducer = commentReducer;
 exports.contentReducer = contentReducer;
 exports.convertToShareLink = convertToShareLink;
+exports.createChannelError = createChannelError;
 exports.createNormalizedClaimSearchKey = createNormalizedClaimSearchKey;
 exports.creditsToString = creditsToString;
 exports.doAbandonClaim = doAbandonClaim;
@@ -4922,6 +4973,7 @@ exports.doFileGet = doFileGet;
 exports.doFileList = doFileList;
 exports.doFocusSearchInput = doFocusSearchInput;
 exports.doGetNewAddress = doGetNewAddress;
+exports.doPopulateUserSettings = doPopulateUserSettings;
 exports.doPrepareEdit = doPrepareEdit;
 exports.doPublish = doPublish;
 exports.doPurchaseUri = doPurchaseUri;
