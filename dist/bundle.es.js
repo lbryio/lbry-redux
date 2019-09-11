@@ -848,10 +848,12 @@ const lbryProxy = new Proxy(Lbry, {
   }
 });
 
-//      
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const DEFAULT_SEARCH_RESULT_FROM = 0;
 const DEFAULT_SEARCH_SIZE = 20;
+const DEFAULT_CLAIM_TYPE = SEARCH_OPTIONS.INCLUDE_FILES;
+const DEFAULT_TYPES_ARR = [SEARCH_OPTIONS.MEDIA_FILE, SEARCH_OPTIONS.MEDIA_AUDIO, SEARCH_OPTIONS.MEDIA_VIDEO, SEARCH_OPTIONS.MEDIA_TEXT, SEARCH_OPTIONS.MEDIA_IMAGE, SEARCH_OPTIONS.MEDIA_APPLICATION];
 
 function parseQueryParams(queryString) {
   if (queryString === '') return {};
@@ -878,24 +880,55 @@ function toQueryString(params) {
   return parts.join('&');
 }
 
-const getSearchQueryString = (query, options = {}, includeUserOptions = false) => {
+const getSearchQueryString = (query, options = {}) => {
   const encodedQuery = encodeURIComponent(query);
+  const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE];
   const queryParams = [`s=${encodedQuery}`, `size=${options.size || DEFAULT_SEARCH_SIZE}`, `from=${options.from || DEFAULT_SEARCH_RESULT_FROM}`];
-
-  if (includeUserOptions) {
-    const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE];
+  // add any file type params
+  queryParams.push(buildMediaTypesString(DEFAULT_TYPES_ARR, options));
+  // add claimType
+  if (claimType) {
     queryParams.push(`claimType=${claimType}`);
-
-    // If they are only searching for channels, strip out the media info
-    if (!claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS)) {
-      queryParams.push(`mediaType=${[SEARCH_OPTIONS.MEDIA_FILE, SEARCH_OPTIONS.MEDIA_AUDIO, SEARCH_OPTIONS.MEDIA_VIDEO, SEARCH_OPTIONS.MEDIA_TEXT, SEARCH_OPTIONS.MEDIA_IMAGE, SEARCH_OPTIONS.MEDIA_APPLICATION].reduce((acc, currentOption) => options[currentOption] ? `${acc}${currentOption},` : acc, '')}`);
-    }
   }
 
   return queryParams.join('&');
 };
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+const buildMediaTypesString = (typesArr, options) => {
+  // for each truthy options['type'], append 'type,' to 'mediaType='
+  return `mediaType=${typesArr.reduce((acc, currentOption) => options[currentOption] ? `${acc}${currentOption},` : acc, '')}`;
+};
+
+const getOptionsForMainSearch = options => {
+  const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE];
+  // don't bother with file types if they're including channels
+  // this is slightly am
+  if (claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS)) {
+    return {
+      size: options.size,
+      from: options.from,
+      claimType: options.claimType
+    };
+  } else {
+    return options;
+  }
+};
+
+const getOptionsForBackgroundSearch = (customSize, customFrom, customMediaTypes, claimType) => {
+  const mediaTypes = customMediaTypes ? customMediaTypes.reduce((acc, type) => {
+    acc[type] = true;
+    return acc;
+  }, {}) : {};
+
+  return _extends({
+    size: customSize || DEFAULT_SEARCH_SIZE,
+    from: customFrom || DEFAULT_SEARCH_RESULT_FROM
+  }, mediaTypes, {
+    claimType: claimType || DEFAULT_CLAIM_TYPE
+  });
+};
+
+var _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 const channelNameMinLength = 1;
@@ -979,7 +1012,7 @@ function parseURI(URL, requireProto = false) {
   const streamClaimId = includesChannel ? secondaryClaimId : primaryClaimId;
   const channelClaimId = includesChannel && primaryClaimId;
 
-  return _extends({
+  return _extends$1({
     isChannel,
     path
   }, streamName ? { streamName } : {}, streamClaimId ? { streamClaimId } : {}, channelName ? { channelName } : {}, channelClaimId ? { channelClaimId } : {}, primaryClaimSequence ? { primaryClaimSequence: parseInt(primaryClaimSequence, 10) } : {}, secondaryClaimSequence ? { secondaryClaimSequence: parseInt(secondaryClaimSequence, 10) } : {}, primaryBidPosition ? { primaryBidPosition: parseInt(primaryBidPosition, 10) } : {}, secondaryBidPosition ? { secondaryBidPosition: parseInt(secondaryBidPosition, 10) } : {}, {
@@ -1133,7 +1166,7 @@ function convertToShareLink(URL) {
   }, true, 'https://open.lbry.com/');
 }
 
-var _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+//      
 
 const selectState = state => state.search;
 
@@ -1223,11 +1256,19 @@ const selectSearchSuggestions = reselect.createSelector(selectSearchValue, selec
 
 // Creates a query string based on the state in the search reducer
 // Can be overrided by passing in custom sizes/from values for other areas pagination
-const makeSelectQueryWithOptions = (customQuery, customSize, customFrom, isBackgroundSearch = false // If it's a background search, don't use the users settings
-) => reselect.createSelector(selectSearchValue, selectSearchOptions, (query, options) => {
+const makeSelectQueryWithOptions = (customQuery, customSize, customFrom, isBackgroundSearch = false, // If it's a background search, don't use the users settings
+customMediaTypes, // { mediaType: 'audio,video', claimType: 'file' }
+claimType) => reselect.createSelector(selectSearchValue, selectSearchOptions, (query, options) => {
   const size = customSize || options[SEARCH_OPTIONS.RESULT_COUNT];
-
-  const queryString = getSearchQueryString(customQuery || query, _extends$1({}, options, { size, from: customFrom }), !isBackgroundSearch);
+  let queryOptions;
+  if (!isBackgroundSearch) {
+    // main search
+    queryOptions = getOptionsForMainSearch(options);
+  } else {
+    // background search
+    queryOptions = getOptionsForBackgroundSearch(customSize, customFrom, customMediaTypes, claimType);
+  }
+  const queryString = getSearchQueryString(customQuery || query, queryOptions);
 
   return queryString;
 });
@@ -3314,7 +3355,7 @@ const doUpdateSearchQuery = (query, shouldSkipSuggestions) => dispatch => {
 
 const doSearch = (rawQuery, // pass in a query if you don't want to search for what's in the search bar
 size, // only pass in if you don't want to use the users setting (ex: related content)
-from, isBackgroundSearch = false) => (dispatch, getState) => {
+from, isBackgroundSearch = false, mediaTypes, claimType) => (dispatch, getState) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
   if (!query) {
@@ -3325,7 +3366,7 @@ from, isBackgroundSearch = false) => (dispatch, getState) => {
   }
 
   const state = getState();
-  const queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch)(state);
+  const queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch, mediaTypes, claimType)(state);
 
   // If we have already searched for something, we don't need to do anything
   const urisForQuery = makeSelectSearchUris(queryWithOptions)(state);

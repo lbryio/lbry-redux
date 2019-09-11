@@ -1,6 +1,10 @@
 // @flow
 import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
-import { getSearchQueryString } from 'util/query-params';
+import {
+  getSearchQueryString,
+  getOptionsForMainSearch,
+  getOptionsForBackgroundSearch,
+} from 'util/query-params';
 import { normalizeURI, parseURI } from 'lbryURI';
 import { createSelector } from 'reselect';
 
@@ -137,19 +141,29 @@ export const makeSelectQueryWithOptions = (
   customQuery: ?string,
   customSize: ?number,
   customFrom: ?number,
-  isBackgroundSearch: boolean = false // If it's a background search, don't use the users settings
+  isBackgroundSearch: boolean = false, // If it's a background search, don't use the users settings
+  customMediaTypes: ?Array<string>, // { mediaType: 'audio,video', claimType: 'file' }
+  claimType: ?string
 ) =>
   createSelector(
     selectSearchValue,
     selectSearchOptions,
     (query, options) => {
       const size = customSize || options[SEARCH_OPTIONS.RESULT_COUNT];
-
-      const queryString = getSearchQueryString(
-        customQuery || query,
-        { ...options, size, from: customFrom },
-        !isBackgroundSearch
-      );
+      let queryOptions;
+      if (!isBackgroundSearch) {
+        // main search
+        queryOptions = getOptionsForMainSearch(options);
+      } else {
+        // background search
+        queryOptions = getOptionsForBackgroundSearch(
+          customSize,
+          customFrom,
+          customMediaTypes,
+          claimType
+        );
+      }
+      const queryString = getSearchQueryString(customQuery || query, queryOptions);
 
       return queryString;
     }

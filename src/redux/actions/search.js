@@ -78,7 +78,9 @@ export const doSearch = (
   rawQuery: string, // pass in a query if you don't want to search for what's in the search bar
   size: ?number, // only pass in if you don't want to use the users setting (ex: related content)
   from: ?number,
-  isBackgroundSearch: boolean = false
+  isBackgroundSearch: boolean = false,
+  mediaTypes: ?Array<string>,
+  claimType: ?string
 ) => (dispatch: Dispatch, getState: GetState) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
@@ -90,7 +92,14 @@ export const doSearch = (
   }
 
   const state = getState();
-  const queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch)(state);
+  const queryWithOptions = makeSelectQueryWithOptions(
+    query,
+    size,
+    from,
+    isBackgroundSearch,
+    mediaTypes,
+    claimType
+  )(state);
 
   // If we have already searched for something, we don't need to do anything
   const urisForQuery = makeSelectSearchUris(queryWithOptions)(state);
