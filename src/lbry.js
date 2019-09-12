@@ -79,6 +79,7 @@ const Lbry: LbryTypes = {
   claim_list: params => daemonCallWithResult('claim_list', params),
   channel_create: params => daemonCallWithResult('channel_create', params),
   channel_update: params => daemonCallWithResult('channel_update', params),
+  channel_import: params => daemonCallWithResult('channel_import', params),
   channel_list: params => daemonCallWithResult('channel_list', params),
   stream_abandon: params => daemonCallWithResult('stream_abandon', params),
   channel_abandon: params => daemonCallWithResult('channel_abandon', params),

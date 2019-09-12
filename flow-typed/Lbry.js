@@ -190,6 +190,7 @@ declare type LbryTypes = {
   claim_list: (params?: {}) => Promise<ClaimListResponse>,
   channel_create: (params: {}) => Promise<ChannelCreateResponse>,
   channel_update: (params: {}) => Promise<ChannelUpdateResponse>,
+  channel_import: (params: {}) => Promise<string>,
   channel_list: () => Promise<ChannelListResponse>,
   stream_abandon: (params: {}) => Promise<GenericTxResponse>,
   channel_abandon: (params: {}) => Promise<GenericTxResponse>,

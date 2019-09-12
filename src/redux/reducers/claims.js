@@ -34,6 +34,7 @@ type State = {
   },
   updateChannelError: string,
   updatingChannel: boolean,
+  pendingChannelImport: string | boolean,
 };
 
 const reducers = {};
@@ -58,6 +59,7 @@ const defaultState = {
   updatingChannel: false,
   creatingChannel: false,
   createChannelError: undefined,
+  pendingChannelImport: false,
 };
 
 function handleClaimAction(state: State, action: any): State {
@@ -347,6 +349,14 @@ reducers[ACTIONS.UPDATE_CHANNEL_FAILED] = (state: State, action: any): State => 
     updatingChannel: false,
   });
 };
+
+reducers[ACTIONS.IMPORT_CHANNEL_STARTED] = (state: State, action: any): State => {
+  const channelId: string = action.data.id;
+  return Object.assign({}, state, { pendingChannelImports: channelId });
+};
+
+reducers[ACTIONS.IMPORT_CHANNEL_COMPLETED] = (state: State): State =>
+  Object.assign({}, state, { pendingChannelImports: false });
 
 reducers[ACTIONS.CLAIM_SEARCH_STARTED] = (state: State, action: any): State => {
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);

@@ -55,6 +55,7 @@ export {
   doCreateChannel,
   doUpdateChannel,
   doClaimSearch,
+  doImportChannel,
 } from 'redux/actions/claims';
 
 export { doDeletePurchasedUri, doPurchaseUri, doFileGet } from 'redux/actions/file';
@@ -206,6 +207,7 @@ export {
   selectUpdateChannelError,
   selectCreatingChannel,
   selectCreateChannelError,
+  selectChannelImportPending,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';
