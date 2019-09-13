@@ -262,7 +262,7 @@ const TAG_DELETE = 'TAG_DELETE';
 const TOGGLE_BLOCK_CHANNEL = 'TOGGLE_BLOCK_CHANNEL';
 
 // Sync
-const USER_SETTINGS_POPULATE = 'USER_SETTINGS_POPULATE';
+const USER_STATE_POPULATE = 'USER_STATE_POPULATE';
 
 var action_types = /*#__PURE__*/Object.freeze({
   WINDOW_FOCUSED: WINDOW_FOCUSED,
@@ -469,7 +469,7 @@ var action_types = /*#__PURE__*/Object.freeze({
   TAG_ADD: TAG_ADD,
   TAG_DELETE: TAG_DELETE,
   TOGGLE_BLOCK_CHANNEL: TOGGLE_BLOCK_CHANNEL,
-  USER_SETTINGS_POPULATE: USER_SETTINGS_POPULATE
+  USER_STATE_POPULATE: USER_STATE_POPULATE
 });
 
 const CC_LICENSES = [{
@@ -1469,7 +1469,7 @@ const selectCurrentChannelPage = reselect.createSelector(selectState$2, state =>
 
 const selectCreatingChannel = reselect.createSelector(selectState$2, state => state.creatingChannel);
 
-const createChannelError = reselect.createSelector(selectState$2, state => state.createChannelError);
+const selectCreateChannelError = reselect.createSelector(selectState$2, state => state.createChannelError);
 
 const selectClaimsByUri = reselect.createSelector(selectState$2, selectClaimsById, (state, byId) => {
   const byUri = state.claimsByUri || {};
@@ -1668,9 +1668,12 @@ const selectMyClaimsOutpoints = reselect.createSelector(selectMyClaims, myClaims
 const selectFetchingMyChannels = reselect.createSelector(selectState$2, state => state.fetchingMyChannels);
 
 const selectMyChannelClaims = reselect.createSelector(selectState$2, selectClaimsById, (state, byId) => {
-  const ids = state.myChannelClaims || [];
-  const claims = [];
+  const ids = state.myChannelClaims;
+  if (!ids) {
+    return ids;
+  }
 
+  const claims = [];
   ids.forEach(id => {
     if (byId[id]) {
       // I'm not sure why this check is necessary, but it ought to be a quick fix for https://github.com/lbryio/lbry-desktop/issues/544
@@ -2454,7 +2457,7 @@ function doCreateChannel(name, amount, optionalParams) {
     }).catch(error => {
       dispatch({
         type: CREATE_CHANNEL_FAILED,
-        data: error
+        data: error.message
       });
     });
   };
@@ -3556,8 +3559,8 @@ const doToggleBlockChannel = uri => ({
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function extractSettings(rawObj) {
-  if (rawObj && rawObj.version && rawObj.app) {
-    const { subscriptions, tags } = rawObj.app;
+  if (rawObj && rawObj.version === '0' && rawObj.shared) {
+    const { subscriptions, tags } = rawObj.shared;
     return _extends$5({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {});
   }
 
@@ -3567,7 +3570,7 @@ function extractSettings(rawObj) {
 function doPopulateUserSettings(settings) {
   return dispatch => {
     const { subscriptions, tags } = extractSettings(settings);
-    dispatch({ type: USER_SETTINGS_POPULATE, data: { subscriptions, tags } });
+    dispatch({ type: USER_STATE_POPULATE, data: { subscriptions, tags } });
   };
 }
 
@@ -3583,7 +3586,7 @@ const defaultState = {
   resolvingUris: [],
   // This should not be a Set
   // Storing sets in reducers can cause issues
-  myChannelClaims: new Set(),
+  myChannelClaims: undefined,
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
@@ -3716,13 +3719,20 @@ reducers[FETCH_CHANNEL_LIST_STARTED] = state => Object.assign({}, state, { fetch
 
 reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   const { claims } = action.data;
-  const myChannelClaims = new Set(state.myChannelClaims);
-  const byId = Object.assign({}, state.byId);
 
-  claims.forEach(claim => {
-    myChannelClaims.add(claim.claim_id);
-    byId[claim.claim_id] = claim;
-  });
+  let myChannelClaims;
+  let byId = Object.assign({}, state.byId);
+  if (!claims.length) {
+    // $FlowFixMe
+    myChannelClaims = null;
+  } else {
+    myChannelClaims = new Set(state.myChannelClaims);
+    claims.forEach(claim => {
+      // $FlowFixMe
+      myChannelClaims.add(claim.claim_id);
+      byId[claim.claim_id] = claim;
+    });
+  }
 
   return Object.assign({}, state, {
     byId,
@@ -4512,14 +4522,14 @@ const tagsReducer = handleActions({
       followedTags: newFollowedTags
     });
   },
-  [USER_SETTINGS_POPULATE]: (state, action) => {
+  [USER_STATE_POPULATE]: (state, action) => {
     const { tags } = action.data;
     let newTags;
 
     if (!tags) {
-      newTags = state.followedTags || DEFAULT_FOLLOWED_TAGS;
+      newTags = state.followedTags.length ? state.followedTags : DEFAULT_FOLLOWED_TAGS;
     } else {
-      if (!state.followedTags || !state.followedTags.length) {
+      if (!state.followedTags.length) {
         newTags = tags;
       } else {
         const map = {};
@@ -4890,7 +4900,6 @@ const selectFollowedTags = reselect.createSelector(selectFollowedTagsList, follo
 const selectUnfollowedTags = reselect.createSelector(selectKnownTagsByName, selectFollowedTagsList, (tagsByName, followedTags) => {
   const followedTagsSet = new Set(followedTags);
   let tagsToReturn = [];
-
   Object.keys(tagsByName).forEach(key => {
     if (!followedTagsSet.has(key)) {
       const { name } = tagsByName[key];
@@ -4938,7 +4947,6 @@ exports.claimsReducer = claimsReducer;
 exports.commentReducer = commentReducer;
 exports.contentReducer = contentReducer;
 exports.convertToShareLink = convertToShareLink;
-exports.createChannelError = createChannelError;
 exports.createNormalizedClaimSearchKey = createNormalizedClaimSearchKey;
 exports.creditsToString = creditsToString;
 exports.doAbandonClaim = doAbandonClaim;
@@ -5072,6 +5080,7 @@ exports.selectClaimSearchByQuery = selectClaimSearchByQuery;
 exports.selectClaimSearchByQueryLastPageReached = selectClaimSearchByQueryLastPageReached;
 exports.selectClaimsById = selectClaimsById;
 exports.selectClaimsByUri = selectClaimsByUri;
+exports.selectCreateChannelError = selectCreateChannelError;
 exports.selectCreatingChannel = selectCreatingChannel;
 exports.selectCurrentChannelPage = selectCurrentChannelPage;
 exports.selectDownloadedUris = selectDownloadedUris;

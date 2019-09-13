@@ -27,7 +27,6 @@ export const selectUnfollowedTags = createSelector(
   (tagsByName: KnownTags, followedTags: Array<string>): Array<Tag> => {
     const followedTagsSet = new Set(followedTags);
     let tagsToReturn = [];
-
     Object.keys(tagsByName).forEach(key => {
       if (!followedTagsSet.has(key)) {
         const { name } = tagsByName[key];

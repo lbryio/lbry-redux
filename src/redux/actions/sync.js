@@ -1,15 +1,17 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 
-function extractSettings(rawObj: {
-  version: string,
-  app: {},
-}): {
-  subscriptions?: Array<string>,
-  tags?: Array<string>,
-} {
-  if (rawObj && rawObj.version && rawObj.app) {
-    const { subscriptions, tags } = rawObj.app;
+type v0Data = {
+  version: '0',
+  shared: {
+    subscriptions?: Array<string>,
+    tags?: Array<string>,
+  },
+};
+
+function extractSettings(rawObj: v0Data) {
+  if (rawObj && rawObj.version === '0' && rawObj.shared) {
+    const { subscriptions, tags } = rawObj.shared;
     return {
       ...(subscriptions ? { subscriptions } : {}),
       ...(tags ? { tags } : {}),
@@ -20,8 +22,8 @@ function extractSettings(rawObj: {
 }
 
 export function doPopulateUserSettings(settings: any) {
-  return dispatch => {
+  return (dispatch: Dispatch) => {
     const { subscriptions, tags } = extractSettings(settings);
-    dispatch({ type: ACTIONS.USER_SETTINGS_POPULATE, data: { subscriptions, tags } });
+    dispatch({ type: ACTIONS.USER_STATE_POPULATE, data: { subscriptions, tags } });
   };
 }

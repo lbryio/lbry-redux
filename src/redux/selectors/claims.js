@@ -23,7 +23,7 @@ export const selectCreatingChannel = createSelector(
   state => state.creatingChannel
 );
 
-export const createChannelError = createSelector(
+export const selectCreateChannelError = createSelector(
   selectState,
   state => state.createChannelError
 );
@@ -240,8 +240,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-          ? claim.meta.creation_timestamp * 1000
-          : null);
+            ? claim.meta.creation_timestamp * 1000
+            : null);
       if (!timestamp) {
         return undefined;
       }
@@ -360,9 +360,12 @@ export const selectMyChannelClaims = createSelector(
   selectState,
   selectClaimsById,
   (state, byId) => {
-    const ids = state.myChannelClaims || [];
-    const claims = [];
+    const ids = state.myChannelClaims;
+    if (!ids) {
+      return ids;
+    }
 
+    const claims = [];
     ids.forEach(id => {
       if (byId[id]) {
         // I'm not sure why this check is necessary, but it ought to be a quick fix for https://github.com/lbryio/lbry-desktop/issues/544

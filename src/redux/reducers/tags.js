@@ -65,7 +65,7 @@ export const tagsReducer = handleActions(
         followedTags: newFollowedTags,
       };
     },
-    [ACTIONS.USER_SETTINGS_POPULATE]: (
+    [ACTIONS.USER_STATE_POPULATE]: (
       state: TagState,
       action: { data: { tags: ?Array<string> } }
     ) => {
@@ -73,9 +73,9 @@ export const tagsReducer = handleActions(
       let newTags;
 
       if (!tags) {
-        newTags = state.followedTags || DEFAULT_FOLLOWED_TAGS;
+        newTags = state.followedTags.length ? state.followedTags : DEFAULT_FOLLOWED_TAGS;
       } else {
-        if (!state.followedTags || !state.followedTags.length) {
+        if (!state.followedTags.length) {
           newTags = tags;
         } else {
           const map = {};

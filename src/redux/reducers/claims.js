@@ -18,7 +18,7 @@ type State = {
   byId: { [string]: Claim },
   resolvingUris: Array<string>,
   pendingById: { [string]: Claim },
-  myChannelClaims: Set<string>,
+  myChannelClaims: ?Set<string>,
   abandoningById: { [string]: boolean },
   fetchingChannelClaims: { [string]: number },
   fetchingMyChannels: boolean,
@@ -46,7 +46,7 @@ const defaultState = {
   resolvingUris: [],
   // This should not be a Set
   // Storing sets in reducers can cause issues
-  myChannelClaims: new Set(),
+  myChannelClaims: undefined,
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
@@ -190,13 +190,20 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = (state: State): State =>
 
 reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): State => {
   const { claims }: { claims: Array<ChannelClaim> } = action.data;
-  const myChannelClaims = new Set(state.myChannelClaims);
-  const byId = Object.assign({}, state.byId);
 
-  claims.forEach(claim => {
-    myChannelClaims.add(claim.claim_id);
-    byId[claim.claim_id] = claim;
-  });
+  let myChannelClaims;
+  let byId = Object.assign({}, state.byId);
+  if (!claims.length) {
+    // $FlowFixMe
+    myChannelClaims = null;
+  } else {
+    myChannelClaims = new Set(state.myChannelClaims);
+    claims.forEach(claim => {
+      // $FlowFixMe
+      myChannelClaims.add(claim.claim_id);
+      byId[claim.claim_id] = claim;
+    });
+  }
 
   return Object.assign({}, state, {
     byId,
