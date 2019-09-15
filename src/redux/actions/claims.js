@@ -237,26 +237,28 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
       bid: creditsToString(amount),
     };
     
-    if (optionalParams.title) {
-      createParams.title = optionalParams.title;
-    }
-    if (optionalParams.coverUrl) {
-      createParams.cover_url = optionalParams.coverUrl;
-    }
-    if (optionalParams.thumbnailUrl) {
-      createParams.thumbnail_url = optionalParams.thumbnailUrl;
-    }
-    if (optionalParams.description) {
-      createParams.description = optionalParams.description;
-    }
-    if (optionalParams.website) {
-      createParams.website_url = optionalParams.website;
-    }
-    if (optionalParams.email) {
-      createParams.email = optionalParams.email;
-    }
-    if (optionalParams.tags) {
-      createParams.tags = optionalParams.tags.map(tag => tag.name);
+    if (optionalParams) {
+      if (optionalParams.title) {
+        createParams.title = optionalParams.title;
+      }
+      if (optionalParams.coverUrl) {
+        createParams.cover_url = optionalParams.coverUrl;
+      }
+      if (optionalParams.thumbnailUrl) {
+        createParams.thumbnail_url = optionalParams.thumbnailUrl;
+      }
+      if (optionalParams.description) {
+        createParams.description = optionalParams.description;
+      }
+      if (optionalParams.website) {
+        createParams.website_url = optionalParams.website;
+      }
+      if (optionalParams.email) {
+        createParams.email = optionalParams.email;
+      }
+      if (optionalParams.tags) {
+        createParams.tags = optionalParams.tags.map(tag => tag.name);
+      }
     }
     
     return (
