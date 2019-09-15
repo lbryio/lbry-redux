@@ -563,3 +563,13 @@ export const makeSelectSupportsForUri = (uri: string) =>
       return total;
     }
   );
+
+export const selectUpdatingChannel = createSelector(
+  selectState,
+  state => state.updatingChannel
+);
+
+export const selectUpdateChannelError = createSelector(
+  selectState,
+  state => state.updateChannelError
+);

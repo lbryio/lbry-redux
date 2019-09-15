@@ -1790,6 +1790,10 @@ const makeSelectSupportsForUri = uri => reselect.createSelector(selectSupportsBy
   return total;
 });
 
+const selectUpdatingChannel = reselect.createSelector(selectState$2, state => state.updatingChannel);
+
+const selectUpdateChannelError = reselect.createSelector(selectState$2, state => state.updateChannelError);
+
 function formatCredits(amount, precision, shortFormat = false) {
   let actualAmount = parseFloat(amount),
       suffix = '';
@@ -2393,16 +2397,42 @@ function doFetchClaimsByChannel(uri, page = 1) {
   };
 }
 
-function doCreateChannel(name, amount) {
+function doCreateChannel(name, amount, optionalParams) {
   return dispatch => {
     dispatch({
       type: CREATE_CHANNEL_STARTED
     });
 
-    return lbryProxy.channel_create({
+    const createParams = {
       name,
       bid: creditsToString(amount)
-    })
+    };
+
+    if (optionalParams) {
+      if (optionalParams.title) {
+        createParams.title = optionalParams.title;
+      }
+      if (optionalParams.coverUrl) {
+        createParams.cover_url = optionalParams.coverUrl;
+      }
+      if (optionalParams.thumbnailUrl) {
+        createParams.thumbnail_url = optionalParams.thumbnailUrl;
+      }
+      if (optionalParams.description) {
+        createParams.description = optionalParams.description;
+      }
+      if (optionalParams.website) {
+        createParams.website_url = optionalParams.website;
+      }
+      if (optionalParams.email) {
+        createParams.email = optionalParams.email;
+      }
+      if (optionalParams.tags) {
+        createParams.tags = optionalParams.tags.map(tag => tag.name);
+      }
+    }
+
+    return lbryProxy.channel_create(createParams)
     // outputs[0] is the certificate
     // outputs[1] is the change from the tx, not in the app currently
     .then(result => {
@@ -2429,8 +2459,8 @@ function doUpdateChannel(params) {
       claim_id: params.claim_id,
       bid: creditsToString(params.amount),
       title: params.title,
-      cover_url: params.cover,
-      thumbnail_url: params.thumbnail,
+      cover_url: params.coverUrl,
+      thumbnail_url: params.thumbnailUrl,
       description: params.description,
       website_url: params.website,
       email: params.email,
@@ -3532,7 +3562,9 @@ const defaultState = {
   claimSearchError: false,
   claimSearchByQuery: {},
   claimSearchByQueryLastPageReached: {},
-  fetchingClaimSearchByQuery: {}
+  fetchingClaimSearchByQuery: {},
+  updateChannelError: '',
+  updatingChannel: false
 };
 
 function handleClaimAction(state, action) {
@@ -3665,7 +3697,8 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   return Object.assign({}, state, {
     byId,
     fetchingMyChannels: false,
-    myChannelClaims
+    myChannelClaims,
+    myClaims: claims
   });
 };
 
@@ -3763,6 +3796,13 @@ reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
   });
 };
 
+reducers[UPDATE_CHANNEL_STARTED] = (state, action) => {
+  return Object.assign({}, state, {
+    updateChannelError: '',
+    updatingChannel: true
+  });
+};
+
 reducers[UPDATE_CHANNEL_COMPLETED] = (state, action) => {
   const channelClaim = action.data.channelClaim;
   const byId = Object.assign({}, state.byId);
@@ -3770,7 +3810,16 @@ reducers[UPDATE_CHANNEL_COMPLETED] = (state, action) => {
   byId[channelClaim.claim_id] = channelClaim;
 
   return Object.assign({}, state, {
-    byId
+    byId,
+    updateChannelError: '',
+    updatingChannel: false
+  });
+};
+
+reducers[UPDATE_CHANNEL_FAILED] = (state, action) => {
+  return Object.assign({}, state, {
+    updateChannelError: action.data.message,
+    updatingChannel: false
   });
 };
 
@@ -5014,6 +5063,8 @@ exports.selectTransactionItems = selectTransactionItems;
 exports.selectTransactionListFilter = selectTransactionListFilter;
 exports.selectTransactionsById = selectTransactionsById;
 exports.selectUnfollowedTags = selectUnfollowedTags;
+exports.selectUpdateChannelError = selectUpdateChannelError;
+exports.selectUpdatingChannel = selectUpdatingChannel;
 exports.selectUrisLoading = selectUrisLoading;
 exports.selectWalletDecryptPending = selectWalletDecryptPending;
 exports.selectWalletDecryptResult = selectWalletDecryptResult;

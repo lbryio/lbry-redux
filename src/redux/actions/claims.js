@@ -226,17 +226,43 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
   };
 }
 
-export function doCreateChannel(name: string, amount: number) {
+export function doCreateChannel(name: string, amount: number, optionalParams: any) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CREATE_CHANNEL_STARTED,
     });
-
+    
+    const createParams = {
+      name,
+      bid: creditsToString(amount),
+    };
+    
+    if (optionalParams) {
+      if (optionalParams.title) {
+        createParams.title = optionalParams.title;
+      }
+      if (optionalParams.coverUrl) {
+        createParams.cover_url = optionalParams.coverUrl;
+      }
+      if (optionalParams.thumbnailUrl) {
+        createParams.thumbnail_url = optionalParams.thumbnailUrl;
+      }
+      if (optionalParams.description) {
+        createParams.description = optionalParams.description;
+      }
+      if (optionalParams.website) {
+        createParams.website_url = optionalParams.website;
+      }
+      if (optionalParams.email) {
+        createParams.email = optionalParams.email;
+      }
+      if (optionalParams.tags) {
+        createParams.tags = optionalParams.tags.map(tag => tag.name);
+      }
+    }
+    
     return (
-      Lbry.channel_create({
-        name,
-        bid: creditsToString(amount),
-      })
+      Lbry.channel_create(createParams)
         // outputs[0] is the certificate
         // outputs[1] is the change from the tx, not in the app currently
         .then((result: ChannelCreateResponse) => {
@@ -265,8 +291,8 @@ export function doUpdateChannel(params: any) {
       claim_id: params.claim_id,
       bid: creditsToString(params.amount),
       title: params.title,
-      cover_url: params.cover,
-      thumbnail_url: params.thumbnail,
+      cover_url: params.coverUrl,
+      thumbnail_url: params.thumbnailUrl,
       description: params.description,
       website_url: params.website,
       email: params.email,
