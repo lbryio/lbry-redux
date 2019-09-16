@@ -350,10 +350,8 @@ reducers[ACTIONS.UPDATE_CHANNEL_FAILED] = (state: State, action: any): State => 
   });
 };
 
-reducers[ACTIONS.IMPORT_CHANNEL_STARTED] = (state: State, action: any): State => {
-  const channelId: string = action.data.id;
-  return Object.assign({}, state, { pendingChannelImports: channelId });
-};
+reducers[ACTIONS.IMPORT_CHANNEL_STARTED] = (state: State): State =>
+  Object.assign({}, state, { pendingChannelImports: true });
 
 reducers[ACTIONS.IMPORT_CHANNEL_COMPLETED] = (state: State): State =>
   Object.assign({}, state, { pendingChannelImports: false });

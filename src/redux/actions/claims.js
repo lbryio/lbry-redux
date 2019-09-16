@@ -323,18 +323,16 @@ export function doUpdateChannel(params: any) {
   };
 }
 
-export function doImportChannel(id: string, certificate: string) {
+export function doImportChannel(certificate: string) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.IMPORT_CHANNEL_STARTED,
-      data: id,
     });
 
     return Lbry.channel_import({ channel_data: certificate })
       .then((result: string) => {
         dispatch({
           type: ACTIONS.IMPORT_CHANNEL_COMPLETED,
-          data: { result }, // "Added channel signing key for @name."
         });
       })
       .catch(error => {
