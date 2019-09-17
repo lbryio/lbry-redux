@@ -102,6 +102,7 @@ const Lbry: LbryTypes = {
   account_set: (params = {}) => daemonCallWithResult('account_set', params),
   address_is_mine: (params = {}) => daemonCallWithResult('address_is_mine', params),
   address_unused: (params = {}) => daemonCallWithResult('address_unused', params),
+  address_list: (params = {}) => daemonCallWithResult('address_list', params),
   transaction_list: (params = {}) => daemonCallWithResult('transaction_list', params),
   utxo_release: (params = {}) => daemonCallWithResult('utxo_release', params),
   support_abandon: (params = {}) => daemonCallWithResult('support_abandon', params),

@@ -215,6 +215,7 @@ declare type LbryTypes = {
   account_set: (params: {}) => Promise<AccountSetResponse>,
   address_is_mine: (params: {}) => Promise<boolean>,
   address_unused: (params: {}) => Promise<string>, // New address
+  address_list: (params: {}) => Promise<string>,
   transaction_list: (params: {}) => Promise<TxListResponse>,
   support_abandon: (params: {}) => Promise<SupportAbandonResponse>,
 
