@@ -113,7 +113,7 @@ export { doCommentList, doCommentCreate } from 'redux/actions/comments';
 
 export { doToggleBlockChannel } from 'redux/actions/blocked';
 
-export { doPopulateUserSettings } from 'redux/actions/sync';
+export { doPopulateSharedUserState } from 'redux/actions/sync';
 
 // utils
 export { batchActions } from 'util/batch-actions';

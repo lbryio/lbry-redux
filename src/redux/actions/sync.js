@@ -2,16 +2,17 @@
 import * as ACTIONS from 'constants/action_types';
 
 type v0Data = {
-  version: '0',
+  version: '0.1',
   shared: {
     subscriptions?: Array<string>,
     tags?: Array<string>,
   },
 };
 
-function extractSettings(rawObj: v0Data) {
-  if (rawObj && rawObj.version === '0' && rawObj.shared) {
+function extractUserState(rawObj: v0Data) {
+  if (rawObj && rawObj.version === '0.1' && rawObj.shared) {
     const { subscriptions, tags } = rawObj.shared;
+
     return {
       ...(subscriptions ? { subscriptions } : {}),
       ...(tags ? { tags } : {}),
@@ -21,9 +22,9 @@ function extractSettings(rawObj: v0Data) {
   return {};
 }
 
-export function doPopulateUserSettings(settings: any) {
+export function doPopulateSharedUserState(settings: any) {
   return (dispatch: Dispatch) => {
-    const { subscriptions, tags } = extractSettings(settings);
+    const { subscriptions, tags } = extractUserState(settings);
     dispatch({ type: ACTIONS.USER_STATE_POPULATE, data: { subscriptions, tags } });
   };
 }

@@ -3558,18 +3558,19 @@ const doToggleBlockChannel = uri => ({
 
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function extractSettings(rawObj) {
-  if (rawObj && rawObj.version === '0' && rawObj.shared) {
+function extractUserState(rawObj) {
+  if (rawObj && rawObj.version === '0.1' && rawObj.shared) {
     const { subscriptions, tags } = rawObj.shared;
+
     return _extends$5({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {});
   }
 
   return {};
 }
 
-function doPopulateUserSettings(settings) {
+function doPopulateSharedUserState(settings) {
   return dispatch => {
-    const { subscriptions, tags } = extractSettings(settings);
+    const { subscriptions, tags } = extractUserState(settings);
     dispatch({ type: USER_STATE_POPULATE, data: { subscriptions, tags } });
   };
 }
@@ -4524,23 +4525,8 @@ const tagsReducer = handleActions({
   },
   [USER_STATE_POPULATE]: (state, action) => {
     const { tags } = action.data;
-    let newTags;
-
-    if (!tags) {
-      newTags = state.followedTags.length ? state.followedTags : DEFAULT_FOLLOWED_TAGS;
-    } else {
-      if (!state.followedTags.length) {
-        newTags = tags;
-      } else {
-        const map = {};
-        newTags = tags.concat(state.followedTags).filter(tag => {
-          return map[tag] ? false : map[tag] = true;
-        }, {});
-      }
-    }
-
     return _extends$d({}, state, {
-      followedTags: newTags
+      followedTags: tags && tags.length ? tags : DEFAULT_FOLLOWED_TAGS
     });
   }
 }, defaultState$8);
@@ -4975,7 +4961,7 @@ exports.doFileGet = doFileGet;
 exports.doFileList = doFileList;
 exports.doFocusSearchInput = doFocusSearchInput;
 exports.doGetNewAddress = doGetNewAddress;
-exports.doPopulateUserSettings = doPopulateUserSettings;
+exports.doPopulateSharedUserState = doPopulateSharedUserState;
 exports.doPrepareEdit = doPrepareEdit;
 exports.doPublish = doPublish;
 exports.doPurchaseUri = doPurchaseUri;

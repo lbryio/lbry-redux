@@ -70,24 +70,9 @@ export const tagsReducer = handleActions(
       action: { data: { tags: ?Array<string> } }
     ) => {
       const { tags } = action.data;
-      let newTags;
-
-      if (!tags) {
-        newTags = state.followedTags.length ? state.followedTags : DEFAULT_FOLLOWED_TAGS;
-      } else {
-        if (!state.followedTags.length) {
-          newTags = tags;
-        } else {
-          const map = {};
-          newTags = tags.concat(state.followedTags).filter(tag => {
-            return map[tag] ? false : (map[tag] = true);
-          }, {});
-        }
-      }
-
       return {
         ...state,
-        followedTags: newTags,
+        followedTags: tags && tags.length ? tags : DEFAULT_FOLLOWED_TAGS,
       };
     },
   },
