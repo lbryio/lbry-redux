@@ -91,8 +91,6 @@ export { savePosition } from 'redux/actions/content';
 export {
   doUpdateBalance,
   doBalanceSubscribe,
-  doUpdateTotalBalance,
-  doTotalBalanceSubscribe,
   doFetchTransactions,
   doGetNewAddress,
   doCheckAddressIsMine,
@@ -258,6 +256,10 @@ export {
 export {
   selectBalance,
   selectTotalBalance,
+  selectReservedBalance,
+  selectClaimsBalance,
+  selectSupportsBalance,
+  selectTipsBalance,
   selectTransactionsById,
   selectSupportsByOutpoint,
   selectTotalSupports,

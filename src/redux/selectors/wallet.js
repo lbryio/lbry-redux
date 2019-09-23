@@ -80,6 +80,26 @@ export const selectTotalBalance = createSelector(
   state => state.totalBalance
 );
 
+export const selectReservedBalance = createSelector(
+  selectState,
+  state => state.reservedBalance
+);
+
+export const selectClaimsBalance = createSelector(
+  selectState,
+  state => state.claimsBalance
+);
+
+export const selectSupportsBalance = createSelector(
+  selectState,
+  state => state.supportsBalance
+);
+
+export const selectTipsBalance = createSelector(
+  selectState,
+  state => state.tipsBalance
+);
+
 export const selectTransactionsById = createSelector(
   selectState,
   state => state.transactions || {}
