@@ -5,7 +5,7 @@ import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
 import { isClaimNsfw, createNormalizedClaimSearchKey } from 'util/claim';
 import { getSearchQueryString } from 'util/query-params';
-
+import { PAGE_SIZE } from 'constants/claim';
 const selectState = state => state.claims || {};
 
 export const selectClaimsById = createSelector(
@@ -590,4 +590,21 @@ export const selectUpdatingChannel = createSelector(
 export const selectUpdateChannelError = createSelector(
   selectState,
   state => state.updateChannelError
+);
+
+export const makeSelectMyStreamUrisForPage = (page: number = 0) =>
+  createSelector(
+    selectMyClaimUrisWithoutChannels,
+    uris => {
+      const start = (Number(page) * Number(PAGE_SIZE));
+      const end = ((Number(page) + 1) * Number(PAGE_SIZE));
+      return (uris && uris.length)
+        ? uris.slice(start, end)
+        : [];
+    }
+  );
+
+export const selectMyStreamUrisCount = createSelector(
+  selectMyClaimUrisWithoutChannels,
+  channels => channels.length
 );
