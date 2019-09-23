@@ -1283,6 +1283,8 @@ function doDismissError() {
   };
 }
 
+//      
+
 const selectState$1 = state => state.wallet || {};
 
 const selectWalletState = selectState$1;
@@ -1440,6 +1442,20 @@ const selectBlocks = reselect.createSelector(selectState$1, state => state.block
 const selectCurrentHeight = reselect.createSelector(selectState$1, state => state.latestBlock);
 
 const selectTransactionListFilter = reselect.createSelector(selectState$1, state => state.transactionListFilter || '');
+
+const selectFilteredTransactions = reselect.createSelector(selectTransactionItems, selectTransactionListFilter, (transactions, filter) => {
+  return transactions.filter(transaction => {
+    return filter === ALL || filter === transaction.type;
+  });
+});
+
+const makeSelectFilteredTransactionsForPage = (page = 1) => reselect.createSelector(selectFilteredTransactions, filteredTransactions => {
+  const start = (Number(page) - 1) * Number(PAGE_SIZE);
+  const end = Number(page) * Number(PAGE_SIZE);
+  return filteredTransactions && filteredTransactions.length ? filteredTransactions.slice(start, end) : [];
+});
+
+const selectFilteredTransactionCount = reselect.createSelector(selectFilteredTransactions, filteredTransactions => filteredTransactions.length);
 
 var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -5064,6 +5080,7 @@ exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
 exports.makeSelectFileNameForUri = makeSelectFileNameForUri;
 exports.makeSelectFilePartlyDownloaded = makeSelectFilePartlyDownloaded;
+exports.makeSelectFilteredTransactionsForPage = makeSelectFilteredTransactionsForPage;
 exports.makeSelectFirstRecommendedFileForUri = makeSelectFirstRecommendedFileForUri;
 exports.makeSelectIsFollowingTag = makeSelectIsFollowingTag;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
@@ -5132,6 +5149,8 @@ exports.selectFileInfosByOutpoint = selectFileInfosByOutpoint;
 exports.selectFileInfosDownloaded = selectFileInfosDownloaded;
 exports.selectFileListDownloadedSort = selectFileListDownloadedSort;
 exports.selectFileListPublishedSort = selectFileListPublishedSort;
+exports.selectFilteredTransactionCount = selectFilteredTransactionCount;
+exports.selectFilteredTransactions = selectFilteredTransactions;
 exports.selectFollowedTags = selectFollowedTags;
 exports.selectGettingNewAddress = selectGettingNewAddress;
 exports.selectHasTransactions = selectHasTransactions;

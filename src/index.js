@@ -287,6 +287,9 @@ export {
   selectWalletUnlockSucceeded,
   selectWalletUnlockResult,
   selectTransactionListFilter,
+  selectFilteredTransactions,
+  makeSelectFilteredTransactionsForPage,
+  selectFilteredTransactionCount,
 } from 'redux/selectors/wallet';
 
 export {
