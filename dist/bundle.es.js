@@ -106,6 +106,9 @@ const CREATE_CHANNEL_FAILED = 'CREATE_CHANNEL_FAILED';
 const UPDATE_CHANNEL_STARTED = 'UPDATE_CHANNEL_STARTED';
 const UPDATE_CHANNEL_COMPLETED = 'UPDATE_CHANNEL_COMPLETED';
 const UPDATE_CHANNEL_FAILED = 'UPDATE_CHANNEL_FAILED';
+const IMPORT_CHANNEL_STARTED = 'IMPORT_CHANNEL_STARTED';
+const IMPORT_CHANNEL_COMPLETED = 'IMPORT_CHANNEL_COMPLETED';
+const IMPORT_CHANNEL_FAILED = 'IMPORT_CHANNEL_FAILED';
 const PUBLISH_STARTED = 'PUBLISH_STARTED';
 const PUBLISH_COMPLETED = 'PUBLISH_COMPLETED';
 const PUBLISH_FAILED = 'PUBLISH_FAILED';
@@ -342,6 +345,9 @@ var action_types = /*#__PURE__*/Object.freeze({
   UPDATE_CHANNEL_STARTED: UPDATE_CHANNEL_STARTED,
   UPDATE_CHANNEL_COMPLETED: UPDATE_CHANNEL_COMPLETED,
   UPDATE_CHANNEL_FAILED: UPDATE_CHANNEL_FAILED,
+  IMPORT_CHANNEL_STARTED: IMPORT_CHANNEL_STARTED,
+  IMPORT_CHANNEL_COMPLETED: IMPORT_CHANNEL_COMPLETED,
+  IMPORT_CHANNEL_FAILED: IMPORT_CHANNEL_FAILED,
   PUBLISH_STARTED: PUBLISH_STARTED,
   PUBLISH_COMPLETED: PUBLISH_COMPLETED,
   PUBLISH_FAILED: PUBLISH_FAILED,
@@ -734,6 +740,7 @@ const Lbry = {
   claim_list: params => daemonCallWithResult('claim_list', params),
   channel_create: params => daemonCallWithResult('channel_create', params),
   channel_update: params => daemonCallWithResult('channel_update', params),
+  channel_import: params => daemonCallWithResult('channel_import', params),
   channel_list: params => daemonCallWithResult('channel_list', params),
   stream_abandon: params => daemonCallWithResult('stream_abandon', params),
   channel_abandon: params => daemonCallWithResult('channel_abandon', params),
@@ -756,6 +763,7 @@ const Lbry = {
   account_set: (params = {}) => daemonCallWithResult('account_set', params),
   address_is_mine: (params = {}) => daemonCallWithResult('address_is_mine', params),
   address_unused: (params = {}) => daemonCallWithResult('address_unused', params),
+  address_list: (params = {}) => daemonCallWithResult('address_list', params),
   transaction_list: (params = {}) => daemonCallWithResult('transaction_list', params),
   utxo_release: (params = {}) => daemonCallWithResult('utxo_release', params),
   support_abandon: (params = {}) => daemonCallWithResult('support_abandon', params),
@@ -1686,6 +1694,8 @@ const selectMyChannelClaims = reselect.createSelector(selectState$2, selectClaim
 
 const selectResolvingUris = reselect.createSelector(selectState$2, state => state.resolvingUris || []);
 
+const selectChannelImportPending = reselect.createSelector(selectState$2, state => state.pendingChannelImport);
+
 const makeSelectIsUriResolving = uri => reselect.createSelector(selectResolvingUris, resolvingUris => resolvingUris && resolvingUris.indexOf(uri) !== -1);
 
 const selectPlayingUri = reselect.createSelector(selectState$2, state => state.playingUri);
@@ -2496,6 +2506,25 @@ function doUpdateChannel(params) {
     }).catch(error => {
       dispatch({
         type: UPDATE_CHANNEL_FAILED,
+        data: error
+      });
+    });
+  };
+}
+
+function doImportChannel(certificate) {
+  return dispatch => {
+    dispatch({
+      type: IMPORT_CHANNEL_STARTED
+    });
+
+    return lbryProxy.channel_import({ channel_data: certificate }).then(result => {
+      dispatch({
+        type: IMPORT_CHANNEL_COMPLETED
+      });
+    }).catch(error => {
+      dispatch({
+        type: IMPORT_CHANNEL_FAILED,
         data: error
       });
     });
@@ -3598,7 +3627,8 @@ const defaultState = {
   updateChannelError: '',
   updatingChannel: false,
   creatingChannel: false,
-  createChannelError: undefined
+  createChannelError: undefined,
+  pendingChannelImport: false
 };
 
 function handleClaimAction(state, action) {
@@ -3876,6 +3906,10 @@ reducers[UPDATE_CHANNEL_FAILED] = (state, action) => {
     updatingChannel: false
   });
 };
+
+reducers[IMPORT_CHANNEL_STARTED] = state => Object.assign({}, state, { pendingChannelImports: true });
+
+reducers[IMPORT_CHANNEL_COMPLETED] = state => Object.assign({}, state, { pendingChannelImports: false });
 
 reducers[CLAIM_SEARCH_STARTED] = (state, action) => {
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
@@ -4961,6 +4995,7 @@ exports.doFileGet = doFileGet;
 exports.doFileList = doFileList;
 exports.doFocusSearchInput = doFocusSearchInput;
 exports.doGetNewAddress = doGetNewAddress;
+exports.doImportChannel = doImportChannel;
 exports.doPopulateSharedUserState = doPopulateSharedUserState;
 exports.doPrepareEdit = doPrepareEdit;
 exports.doPublish = doPublish;
@@ -5061,6 +5096,7 @@ exports.selectBlockedChannels = selectBlockedChannels;
 exports.selectBlockedChannelsCount = selectBlockedChannelsCount;
 exports.selectBlocks = selectBlocks;
 exports.selectChannelClaimCounts = selectChannelClaimCounts;
+exports.selectChannelImportPending = selectChannelImportPending;
 exports.selectChannelIsBlocked = selectChannelIsBlocked;
 exports.selectClaimSearchByQuery = selectClaimSearchByQuery;
 exports.selectClaimSearchByQueryLastPageReached = selectClaimSearchByQueryLastPageReached;

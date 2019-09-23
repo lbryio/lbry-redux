@@ -190,6 +190,7 @@ declare type LbryTypes = {
   claim_list: (params?: {}) => Promise<ClaimListResponse>,
   channel_create: (params: {}) => Promise<ChannelCreateResponse>,
   channel_update: (params: {}) => Promise<ChannelUpdateResponse>,
+  channel_import: (params: {}) => Promise<string>,
   channel_list: () => Promise<ChannelListResponse>,
   stream_abandon: (params: {}) => Promise<GenericTxResponse>,
   channel_abandon: (params: {}) => Promise<GenericTxResponse>,
@@ -214,6 +215,7 @@ declare type LbryTypes = {
   account_set: (params: {}) => Promise<AccountSetResponse>,
   address_is_mine: (params: {}) => Promise<boolean>,
   address_unused: (params: {}) => Promise<string>, // New address
+  address_list: (params: {}) => Promise<string>,
   transaction_list: (params: {}) => Promise<TxListResponse>,
   support_abandon: (params: {}) => Promise<SupportAbandonResponse>,
 

@@ -323,6 +323,27 @@ export function doUpdateChannel(params: any) {
   };
 }
 
+export function doImportChannel(certificate: string) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.IMPORT_CHANNEL_STARTED,
+    });
+
+    return Lbry.channel_import({ channel_data: certificate })
+      .then((result: string) => {
+        dispatch({
+          type: ACTIONS.IMPORT_CHANNEL_COMPLETED,
+        });
+      })
+      .catch(error => {
+        dispatch({
+          type: ACTIONS.IMPORT_CHANNEL_FAILED,
+          data: error,
+        });
+      });
+  };
+}
+
 export function doFetchChannelListMine() {
   return (dispatch: Dispatch) => {
     dispatch({
