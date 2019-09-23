@@ -203,9 +203,6 @@ const USER_INVITE_STATUS_FETCH_FAILURE = 'USER_INVITE_STATUS_FETCH_FAILURE';
 const USER_INVITE_NEW_STARTED = 'USER_INVITE_NEW_STARTED';
 const USER_INVITE_NEW_SUCCESS = 'USER_INVITE_NEW_SUCCESS';
 const USER_INVITE_NEW_FAILURE = 'USER_INVITE_NEW_FAILURE';
-const USER_YOUTUBE_IMPORT_STARTED = 'USER_YOUTUBE_IMPORT_STARTED';
-const USER_YOUTUBE_IMPORT_COMPLETED = 'USER_YOUTUBE_IMPORT_COMPLETED';
-const USER_YOUTUBE_IMPORT_FAILURE = 'USER_YOUTUBE_IMPORT_FAILURE';
 const FETCH_ACCESS_TOKEN_SUCCESS = 'FETCH_ACCESS_TOKEN_SUCCESS';
 
 // Rewards
@@ -435,9 +432,6 @@ var action_types = /*#__PURE__*/Object.freeze({
   USER_INVITE_NEW_STARTED: USER_INVITE_NEW_STARTED,
   USER_INVITE_NEW_SUCCESS: USER_INVITE_NEW_SUCCESS,
   USER_INVITE_NEW_FAILURE: USER_INVITE_NEW_FAILURE,
-  USER_YOUTUBE_IMPORT_STARTED: USER_YOUTUBE_IMPORT_STARTED,
-  USER_YOUTUBE_IMPORT_COMPLETED: USER_YOUTUBE_IMPORT_COMPLETED,
-  USER_YOUTUBE_IMPORT_FAILURE: USER_YOUTUBE_IMPORT_FAILURE,
   FETCH_ACCESS_TOKEN_SUCCESS: FETCH_ACCESS_TOKEN_SUCCESS,
   FETCH_REWARDS_STARTED: FETCH_REWARDS_STARTED,
   FETCH_REWARDS_COMPLETED: FETCH_REWARDS_COMPLETED,
@@ -1063,18 +1057,6 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
   } = UrlObj,
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
   const { claimId, claimName, contentName } = deprecatedParts;
-
-  {
-    if (claimId) {
-      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
-    }
-    if (claimName) {
-      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
-    }
-    if (contentName) {
-      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
-    }
-  }
 
   if (!claimName && !channelName && !streamName) {
     console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
@@ -2530,17 +2512,15 @@ function doUpdateChannel(params) {
   };
 }
 
-function doImportChannel(id, certificate) {
+function doImportChannel(certificate) {
   return dispatch => {
     dispatch({
-      type: IMPORT_CHANNEL_STARTED,
-      data: id
+      type: IMPORT_CHANNEL_STARTED
     });
 
     return lbryProxy.channel_import({ channel_data: certificate }).then(result => {
       dispatch({
-        type: IMPORT_CHANNEL_COMPLETED,
-        data: { result } // "Added channel signing key for @name."
+        type: IMPORT_CHANNEL_COMPLETED
       });
     }).catch(error => {
       dispatch({
@@ -3927,10 +3907,7 @@ reducers[UPDATE_CHANNEL_FAILED] = (state, action) => {
   });
 };
 
-reducers[IMPORT_CHANNEL_STARTED] = (state, action) => {
-  const channelId = action.data.id;
-  return Object.assign({}, state, { pendingChannelImports: channelId });
-};
+reducers[IMPORT_CHANNEL_STARTED] = state => Object.assign({}, state, { pendingChannelImports: true });
 
 reducers[IMPORT_CHANNEL_COMPLETED] = state => Object.assign({}, state, { pendingChannelImports: false });
 
