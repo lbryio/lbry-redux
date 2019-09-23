@@ -12,18 +12,20 @@ import * as ACTIONS from 'constants/action_types';
 import { buildURI, parseURI } from 'lbryURI';
 
 type State = {
+  createChannelError: ?string,
   channelClaimCounts: { [string]: number },
   claimsByUri: { [string]: string },
   byId: { [string]: Claim },
   resolvingUris: Array<string>,
   pendingById: { [string]: Claim },
-  myChannelClaims: Set<string>,
+  myChannelClaims: ?Set<string>,
   abandoningById: { [string]: boolean },
   fetchingChannelClaims: { [string]: number },
   fetchingMyChannels: boolean,
   fetchingClaimSearchByQuery: { [string]: boolean },
   claimSearchByQuery: { [string]: Array<string> },
   claimSearchByQueryLastPageReached: { [string]: Array<boolean> },
+  creatingChannel: boolean,
   claimsByChannel: {
     [string]: {
       all: Array<string>,
@@ -44,7 +46,7 @@ const defaultState = {
   resolvingUris: [],
   // This should not be a Set
   // Storing sets in reducers can cause issues
-  myChannelClaims: new Set(),
+  myChannelClaims: undefined,
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
@@ -54,6 +56,8 @@ const defaultState = {
   fetchingClaimSearchByQuery: {},
   updateChannelError: '',
   updatingChannel: false,
+  creatingChannel: false,
+  createChannelError: undefined,
 };
 
 function handleClaimAction(state: State, action: any): State {
@@ -186,13 +190,20 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = (state: State): State =>
 
 reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): State => {
   const { claims }: { claims: Array<ChannelClaim> } = action.data;
-  const myChannelClaims = new Set(state.myChannelClaims);
-  const byId = Object.assign({}, state.byId);
 
-  claims.forEach(claim => {
-    myChannelClaims.add(claim.claim_id);
-    byId[claim.claim_id] = claim;
-  });
+  let myChannelClaims;
+  let byId = Object.assign({}, state.byId);
+  if (!claims.length) {
+    // $FlowFixMe
+    myChannelClaims = null;
+  } else {
+    myChannelClaims = new Set(state.myChannelClaims);
+    claims.forEach(claim => {
+      // $FlowFixMe
+      myChannelClaims.add(claim.claim_id);
+      byId[claim.claim_id] = claim;
+    });
+  }
 
   return Object.assign({}, state, {
     byId,
@@ -282,6 +293,12 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
   });
 };
 
+reducers[ACTIONS.CREATE_CHANNEL_STARTED] = (state: State): State => ({
+  ...state,
+  creatingChannel: true,
+  createChannelError: null,
+});
+
 reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State => {
   const channelClaim: ChannelClaim = action.data.channelClaim;
   const byId = Object.assign({}, state.byId);
@@ -293,6 +310,14 @@ reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State 
   return Object.assign({}, state, {
     byId,
     myChannelClaims,
+    creatingChannel: false,
+  });
+};
+
+reducers[ACTIONS.CREATE_CHANNEL_FAILED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    creatingChannel: false,
+    createChannelError: action.data,
   });
 };
 

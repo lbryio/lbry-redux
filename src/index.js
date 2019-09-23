@@ -113,6 +113,8 @@ export { doCommentList, doCommentCreate } from 'redux/actions/comments';
 
 export { doToggleBlockChannel } from 'redux/actions/blocked';
 
+export { doPopulateSharedUserState } from 'redux/actions/sync';
+
 // utils
 export { batchActions } from 'util/batch-actions';
 export { parseQueryParams, toQueryString } from 'util/query-params';
@@ -202,6 +204,8 @@ export {
   selectClaimSearchByQueryLastPageReached,
   selectUpdatingChannel,
   selectUpdateChannelError,
+  selectCreatingChannel,
+  selectCreateChannelError,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';
@@ -281,7 +285,11 @@ export {
   selectTransactionListFilter,
 } from 'redux/selectors/wallet';
 
-export { selectFollowedTags, selectUnfollowedTags } from 'redux/selectors/tags';
+export {
+  selectFollowedTags,
+  selectUnfollowedTags,
+  makeSelectIsFollowingTag,
+} from 'redux/selectors/tags';
 
 export {
   selectBlockedChannels,

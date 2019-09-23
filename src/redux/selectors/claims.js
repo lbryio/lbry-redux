@@ -18,6 +18,16 @@ export const selectCurrentChannelPage = createSelector(
   state => state.currentChannelPage || 1
 );
 
+export const selectCreatingChannel = createSelector(
+  selectState,
+  state => state.creatingChannel
+);
+
+export const selectCreateChannelError = createSelector(
+  selectState,
+  state => state.createChannelError
+);
+
 export const selectClaimsByUri = createSelector(
   selectState,
   selectClaimsById,
@@ -350,9 +360,12 @@ export const selectMyChannelClaims = createSelector(
   selectState,
   selectClaimsById,
   (state, byId) => {
-    const ids = state.myChannelClaims || [];
-    const claims = [];
+    const ids = state.myChannelClaims;
+    if (!ids) {
+      return ids;
+    }
 
+    const claims = [];
     ids.forEach(id => {
       if (byId[id]) {
         // I'm not sure why this check is necessary, but it ought to be a quick fix for https://github.com/lbryio/lbry-desktop/issues/544
