@@ -10,6 +10,7 @@
 
 import * as ACTIONS from 'constants/action_types';
 import { buildURI, parseURI } from 'lbryURI';
+import { concatClaims } from 'util/claim';
 
 type State = {
   createChannelError: ?string,
@@ -18,6 +19,7 @@ type State = {
   byId: { [string]: Claim },
   resolvingUris: Array<string>,
   pendingById: { [string]: Claim },
+  myClaims: ?Array<Claim>,
   myChannelClaims: ?Set<string>,
   abandoningById: { [string]: boolean },
   fetchingChannelClaims: { [string]: number },
@@ -48,6 +50,7 @@ const defaultState = {
   // This should not be a Set
   // Storing sets in reducers can cause issues
   myChannelClaims: undefined,
+  myClaims: undefined,
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
@@ -153,6 +156,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
+  const myClaims = state.myClaims || [];
 
   claims.forEach((claim: Claim) => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
@@ -180,7 +184,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
 
   return Object.assign({}, state, {
     isFetchingClaimListMine: false,
-    myClaims: claims,
+    myClaims: concatClaims(myClaims, claims),
     byId,
     claimsByUri: byUri,
     pendingById,
@@ -192,6 +196,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = (state: State): State =>
 
 reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): State => {
   const { claims }: { claims: Array<ChannelClaim> } = action.data;
+  const myClaims = state.myClaims || [];
 
   let myChannelClaims;
   let byId = Object.assign({}, state.byId);
@@ -211,7 +216,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
     byId,
     fetchingMyChannels: false,
     myChannelClaims,
-    myClaims: claims,
+    myClaims: concatClaims(myClaims, claims),
   });
 };
 

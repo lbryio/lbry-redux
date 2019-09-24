@@ -30,3 +30,21 @@ export function createNormalizedClaimSearchKey(options: { page?: number, release
   const query = JSON.stringify(rest);
   return query;
 }
+
+export function concatClaims(claimList: Array<Claim> = [], concatClaimList: Array<any> = []): Array<Claim> {
+  if (!claimList || claimList.length === 0) {
+    if (!concatClaimList) {
+      return [];
+    }
+    return concatClaimList.slice();
+  }
+  
+  const claims = claimList.slice();
+  concatClaimList.forEach(claim => {
+    if (!claims.some(item => item.claim_id === claim.claim_id)) {
+      claims.push(claim);
+    }
+  });
+  
+  return claims;
+}
