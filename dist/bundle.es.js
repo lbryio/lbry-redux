@@ -3768,8 +3768,7 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   return Object.assign({}, state, {
     byId,
     fetchingMyChannels: false,
-    myChannelClaims,
-    myClaims: claims
+    myChannelClaims
   });
 };
 
