@@ -8,40 +8,22 @@ import { selectMyClaimsRaw } from 'redux/selectors/claims';
 export function doUpdateBalance() {
   return (dispatch, getState) => {
     const {
-      wallet: { balance: balanceInStore },
+      wallet: { total: totalInStore },
     } = getState();
-    Lbry.account_balance().then(response => {
-      const { available } = response;
-      const balance = parseFloat(available);
-      if (balanceInStore !== balance) {
+    Lbry.account_balance({reserved_subtotals: true}).then((response: BalanceResponse)  => {
+      const { available, reserved, reserved_subtotals, total } = response;
+      const { claims, supports, tips } = reserved_subtotals;
+      const totalFloat = parseFloat(total);
+      if (totalInStore !== totalFloat) {
         dispatch({
           type: ACTIONS.UPDATE_BALANCE,
           data: {
-            balance,
-          },
-        });
-      }
-    });
-  };
-}
-
-export function doUpdateTotalBalance() {
-  return (dispatch, getState) => {
-    const {
-      wallet: { totalBalance: totalBalanceInStore },
-    } = getState();
-    Lbry.account_list().then(accountList => {
-      const { lbc_mainnet: accounts } = accountList;
-      const totalSatoshis =
-        accounts.length === 1
-          ? accounts[0].satoshis
-          : accounts.reduce((a, b) => a.satoshis + b.satoshis);
-      const totalBalance = (Number.isNaN(totalSatoshis) ? 0 : totalSatoshis) / 10 ** 8;
-      if (totalBalanceInStore !== totalBalance) {
-        dispatch({
-          type: ACTIONS.UPDATE_TOTAL_BALANCE,
-          data: {
-            totalBalance,
+            totalBalance: totalFloat,
+            balance: parseFloat(available),
+            reservedBalance: parseFloat(reserved),
+            claimsBalance: parseFloat(claims),
+            supportsBalance: parseFloat(supports),
+            tipsBalance: parseFloat(tips),
           },
         });
       }
@@ -53,13 +35,6 @@ export function doBalanceSubscribe() {
   return dispatch => {
     dispatch(doUpdateBalance());
     setInterval(() => dispatch(doUpdateBalance()), 5000);
-  };
-}
-
-export function doTotalBalanceSubscribe() {
-  return dispatch => {
-    dispatch(doUpdateTotalBalance());
-    setInterval(() => dispatch(doUpdateTotalBalance()), 5000);
   };
 }
 

@@ -16,6 +16,11 @@ type ActionResult = {
 
 type WalletState = {
   balance: any,
+  totalBalance: any,
+  reservedBalance: any,
+  claimsBalance: any,
+  supportsBalance: any,
+  tipsBalance: any,
   latestBlock: ?number,
   transactions: { [string]: Transaction },
   supports: { [string]: Support },
@@ -42,6 +47,10 @@ type WalletState = {
 const defaultState = {
   balance: undefined,
   totalBalance: undefined,
+  reservedBalance: undefined,
+  claimsBalance: undefined,
+  supportsBalance: undefined,
+  tipsBalance: undefined,
   latestBlock: undefined,
   transactions: {},
   fetchingTransactions: false,
@@ -146,12 +155,12 @@ export const walletReducer = handleActions(
 
     [ACTIONS.UPDATE_BALANCE]: (state: WalletState, action) => ({
       ...state,
-      balance: action.data.balance,
-    }),
-
-    [ACTIONS.UPDATE_TOTAL_BALANCE]: (state: WalletState, action) => ({
-      ...state,
       totalBalance: action.data.totalBalance,
+      balance: action.data.balance,
+      reservedBalance: action.data.reservedBalance,
+      claimsBalance: action.data.claimsBalance,
+      supportsBalance: action.data.supportsBalance,
+      tipsBalance: action.data.tipsBalance,
     }),
 
     [ACTIONS.CHECK_ADDRESS_IS_MINE_STARTED]: (state: WalletState) => ({

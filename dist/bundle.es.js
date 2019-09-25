@@ -754,7 +754,7 @@ const Lbry = {
   blob_list: (params = {}) => daemonCallWithResult('blob_list', params),
 
   // Wallet utilities
-  account_balance: () => daemonCallWithResult('account_balance'),
+  account_balance: (params = {}) => daemonCallWithResult('account_balance', params),
   account_decrypt: () => daemonCallWithResult('account_decrypt', {}),
   account_encrypt: (params = {}) => daemonCallWithResult('account_encrypt', params),
   account_unlock: (params = {}) => daemonCallWithResult('account_unlock', params),
@@ -1316,6 +1316,14 @@ const selectWalletLockResult = reselect.createSelector(selectState$1, state => s
 const selectBalance = reselect.createSelector(selectState$1, state => state.balance);
 
 const selectTotalBalance = reselect.createSelector(selectState$1, state => state.totalBalance);
+
+const selectReservedBalance = reselect.createSelector(selectState$1, state => state.reservedBalance);
+
+const selectClaimsBalance = reselect.createSelector(selectState$1, state => state.claimsBalance);
+
+const selectSupportsBalance = reselect.createSelector(selectState$1, state => state.supportsBalance);
+
+const selectTipsBalance = reselect.createSelector(selectState$1, state => state.tipsBalance);
 
 const selectTransactionsById = reselect.createSelector(selectState$1, state => state.transactions || {});
 
@@ -1879,37 +1887,22 @@ function creditsToString(amount) {
 function doUpdateBalance() {
   return (dispatch, getState) => {
     const {
-      wallet: { balance: balanceInStore }
+      wallet: { total: totalInStore }
     } = getState();
-    lbryProxy.account_balance().then(response => {
-      const { available } = response;
-      const balance = parseFloat(available);
-      if (balanceInStore !== balance) {
+    lbryProxy.account_balance({ reserved_subtotals: true }).then(response => {
+      const { available, reserved, reserved_subtotals, total } = response;
+      const { claims, supports, tips } = reserved_subtotals;
+      const totalFloat = parseFloat(total);
+      if (totalInStore !== totalFloat) {
         dispatch({
           type: UPDATE_BALANCE,
           data: {
-            balance
-          }
-        });
-      }
-    });
-  };
-}
-
-function doUpdateTotalBalance() {
-  return (dispatch, getState) => {
-    const {
-      wallet: { totalBalance: totalBalanceInStore }
-    } = getState();
-    lbryProxy.account_list().then(accountList => {
-      const { lbc_mainnet: accounts } = accountList;
-      const totalSatoshis = accounts.length === 1 ? accounts[0].satoshis : accounts.reduce((a, b) => a.satoshis + b.satoshis);
-      const totalBalance = (Number.isNaN(totalSatoshis) ? 0 : totalSatoshis) / Math.pow(10, 8);
-      if (totalBalanceInStore !== totalBalance) {
-        dispatch({
-          type: UPDATE_TOTAL_BALANCE,
-          data: {
-            totalBalance
+            totalBalance: totalFloat,
+            balance: parseFloat(available),
+            reservedBalance: parseFloat(reserved),
+            claimsBalance: parseFloat(claims),
+            supportsBalance: parseFloat(supports),
+            tipsBalance: parseFloat(tips)
           }
         });
       }
@@ -1921,13 +1914,6 @@ function doBalanceSubscribe() {
   return dispatch => {
     dispatch(doUpdateBalance());
     setInterval(() => dispatch(doUpdateBalance()), 5000);
-  };
-}
-
-function doTotalBalanceSubscribe() {
-  return dispatch => {
-    dispatch(doUpdateTotalBalance());
-    setInterval(() => dispatch(doUpdateTotalBalance()), 5000);
   };
 }
 
@@ -4624,6 +4610,10 @@ const buildDraftTransaction = () => ({
 const defaultState$a = {
   balance: undefined,
   totalBalance: undefined,
+  reservedBalance: undefined,
+  claimsBalance: undefined,
+  supportsBalance: undefined,
+  tipsBalance: undefined,
   latestBlock: undefined,
   transactions: {},
   fetchingTransactions: false,
@@ -4720,11 +4710,12 @@ const walletReducer = handleActions({
   },
 
   [UPDATE_BALANCE]: (state, action) => _extends$e({}, state, {
-    balance: action.data.balance
-  }),
-
-  [UPDATE_TOTAL_BALANCE]: (state, action) => _extends$e({}, state, {
-    totalBalance: action.data.totalBalance
+    totalBalance: action.data.totalBalance,
+    balance: action.data.balance,
+    reservedBalance: action.data.reservedBalance,
+    claimsBalance: action.data.claimsBalance,
+    supportsBalance: action.data.supportsBalance,
+    tipsBalance: action.data.tipsBalance
   }),
 
   [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$e({}, state, {
@@ -5034,14 +5025,12 @@ exports.doSetTransactionListFilter = doSetTransactionListFilter;
 exports.doToast = doToast;
 exports.doToggleBlockChannel = doToggleBlockChannel;
 exports.doToggleTagFollow = doToggleTagFollow;
-exports.doTotalBalanceSubscribe = doTotalBalanceSubscribe;
 exports.doUpdateBalance = doUpdateBalance;
 exports.doUpdateBlockHeight = doUpdateBlockHeight;
 exports.doUpdateChannel = doUpdateChannel;
 exports.doUpdatePublishForm = doUpdatePublishForm;
 exports.doUpdateSearchOptions = doUpdateSearchOptions;
 exports.doUpdateSearchQuery = doUpdateSearchQuery;
-exports.doUpdateTotalBalance = doUpdateTotalBalance;
 exports.doUploadThumbnail = doUploadThumbnail;
 exports.doWalletDecrypt = doWalletDecrypt;
 exports.doWalletEncrypt = doWalletEncrypt;
@@ -5121,6 +5110,7 @@ exports.selectChannelImportPending = selectChannelImportPending;
 exports.selectChannelIsBlocked = selectChannelIsBlocked;
 exports.selectClaimSearchByQuery = selectClaimSearchByQuery;
 exports.selectClaimSearchByQueryLastPageReached = selectClaimSearchByQueryLastPageReached;
+exports.selectClaimsBalance = selectClaimsBalance;
 exports.selectClaimsById = selectClaimsById;
 exports.selectClaimsByUri = selectClaimsByUri;
 exports.selectCreateChannelError = selectCreateChannelError;
@@ -5170,6 +5160,7 @@ exports.selectPurchaseUriErrorMessage = selectPurchaseUriErrorMessage;
 exports.selectPurchasedUris = selectPurchasedUris;
 exports.selectReceiveAddress = selectReceiveAddress;
 exports.selectRecentTransactions = selectRecentTransactions;
+exports.selectReservedBalance = selectReservedBalance;
 exports.selectResolvingUris = selectResolvingUris;
 exports.selectSearchBarFocused = selectSearchBarFocused;
 exports.selectSearchOptions = selectSearchOptions;
@@ -5177,8 +5168,10 @@ exports.selectSearchState = selectState;
 exports.selectSearchSuggestions = selectSearchSuggestions;
 exports.selectSearchUrisByQuery = selectSearchUrisByQuery;
 exports.selectSearchValue = selectSearchValue;
+exports.selectSupportsBalance = selectSupportsBalance;
 exports.selectSupportsByOutpoint = selectSupportsByOutpoint;
 exports.selectTakeOverAmount = selectTakeOverAmount;
+exports.selectTipsBalance = selectTipsBalance;
 exports.selectToast = selectToast;
 exports.selectTotalBalance = selectTotalBalance;
 exports.selectTotalDownloadProgress = selectTotalDownloadProgress;
