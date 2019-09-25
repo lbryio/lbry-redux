@@ -1,5 +1,8 @@
+// @flow
+
 import { createSelector } from 'reselect';
 import * as TRANSACTIONS from 'constants/transaction_types';
+import { PAGE_SIZE } from 'constants/transaction_list';
 
 export const selectState = state => state.wallet || {};
 
@@ -287,4 +290,30 @@ export const selectCurrentHeight = createSelector(
 export const selectTransactionListFilter = createSelector(
   selectState,
   state => state.transactionListFilter || ''
+);
+
+export const selectFilteredTransactions = createSelector(
+  selectTransactionItems,
+  selectTransactionListFilter,
+  (transactions, filter) => {
+    return transactions.filter(transaction => {
+      return filter === TRANSACTIONS.ALL || filter === transaction.type;
+    });
+  });
+
+export const makeSelectFilteredTransactionsForPage = (page: number = 1): Array<any> =>
+  createSelector(
+    selectFilteredTransactions,
+    filteredTransactions => {
+      const start = (Number(page) - 1) * Number(PAGE_SIZE);
+      const end = (Number(page) * Number(PAGE_SIZE));
+      return (filteredTransactions && filteredTransactions.length)
+        ? filteredTransactions.slice(start, end)
+        : [];
+    }
+  );
+
+export const selectFilteredTransactionCount = createSelector(
+  selectFilteredTransactions,
+  filteredTransactions => filteredTransactions.length
 );

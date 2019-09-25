@@ -6,6 +6,7 @@ import * as SETTINGS from 'constants/settings';
 import * as SORT_OPTIONS from 'constants/sort_options';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import * as TRANSACTIONS from 'constants/transaction_types';
+import * as TX_LIST from 'constants/transaction_list';
 import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
 import { DEFAULT_KNOWN_TAGS, DEFAULT_FOLLOWED_TAGS, MATURE_TAGS } from 'constants/tags';
 import Lbry from 'lbry';
@@ -21,6 +22,7 @@ export {
   SEARCH_OPTIONS,
   SETTINGS,
   TRANSACTIONS,
+  TX_LIST,
   SORT_OPTIONS,
   PAGES,
   DEFAULT_KNOWN_TAGS,
@@ -287,6 +289,9 @@ export {
   selectWalletUnlockSucceeded,
   selectWalletUnlockResult,
   selectTransactionListFilter,
+  selectFilteredTransactions,
+  makeSelectFilteredTransactionsForPage,
+  selectFilteredTransactionCount,
 } from 'redux/selectors/wallet';
 
 export {
