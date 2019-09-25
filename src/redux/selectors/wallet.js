@@ -2,7 +2,7 @@
 
 import { createSelector } from 'reselect';
 import * as TRANSACTIONS from 'constants/transaction_types';
-import { PAGE_SIZE } from 'constants/claim';
+import { PAGE_SIZE } from 'constants/transaction_list';
 
 export const selectState = state => state.wallet || {};
 
@@ -216,8 +216,6 @@ export const selectTransactionItems = createSelector(
     });
   }
 );
-
-
 
 export const selectRecentTransactions = createSelector(
   selectTransactionItems,

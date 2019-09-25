@@ -643,6 +643,13 @@ var transaction_types = /*#__PURE__*/Object.freeze({
   ABANDON: ABANDON
 });
 
+// PAGE SIZE
+const PAGE_SIZE$1 = 50;
+
+var transaction_list = /*#__PURE__*/Object.freeze({
+  PAGE_SIZE: PAGE_SIZE$1
+});
+
 const SEARCH_TYPES = {
   FILE: 'file',
   CHANNEL: 'channel',
@@ -1450,8 +1457,8 @@ const selectFilteredTransactions = reselect.createSelector(selectTransactionItem
 });
 
 const makeSelectFilteredTransactionsForPage = (page = 1) => reselect.createSelector(selectFilteredTransactions, filteredTransactions => {
-  const start = (Number(page) - 1) * Number(PAGE_SIZE);
-  const end = Number(page) * Number(PAGE_SIZE);
+  const start = (Number(page) - 1) * Number(PAGE_SIZE$1);
+  const end = Number(page) * Number(PAGE_SIZE$1);
   return filteredTransactions && filteredTransactions.length ? filteredTransactions.slice(start, end) : [];
 });
 
@@ -4988,6 +4995,7 @@ exports.SETTINGS = settings;
 exports.SORT_OPTIONS = sort_options;
 exports.THUMBNAIL_STATUSES = thumbnail_upload_statuses;
 exports.TRANSACTIONS = transaction_types;
+exports.TX_LIST = transaction_list;
 exports.batchActions = batchActions;
 exports.blockedReducer = blockedReducer;
 exports.buildURI = buildURI;
