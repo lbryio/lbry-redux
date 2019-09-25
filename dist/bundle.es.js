@@ -1842,9 +1842,9 @@ const selectUpdatingChannel = reselect.createSelector(selectState$2, state => st
 
 const selectUpdateChannelError = reselect.createSelector(selectState$2, state => state.updateChannelError);
 
-const makeSelectMyStreamUrisForPage = (page = 0) => reselect.createSelector(selectMyClaimUrisWithoutChannels, uris => {
-  const start = Number(page) * Number(PAGE_SIZE);
-  const end = (Number(page) + 1) * Number(PAGE_SIZE);
+const makeSelectMyStreamUrisForPage = (page = 1) => reselect.createSelector(selectMyClaimUrisWithoutChannels, uris => {
+  const start = (Number(page) - 1) * Number(PAGE_SIZE);
+  const end = Number(page) * Number(PAGE_SIZE);
   return uris && uris.length ? uris.slice(start, end) : [];
 });
 
@@ -2714,9 +2714,9 @@ const makeSelectFileNameForUri = uri => reselect.createSelector(makeSelectFileIn
   return fileInfo && fileInfo.file_name;
 });
 
-const makeSelectDownloadUrisForPage = (page = 0) => reselect.createSelector(selectDownloadedUris, uris => {
-  const start = Number(page) * Number(PAGE_SIZE);
-  const end = (Number(page) + 1) * Number(PAGE_SIZE);
+const makeSelectDownloadUrisForPage = (page = 1) => reselect.createSelector(selectDownloadedUris, uris => {
+  const start = (Number(page) - 1) * Number(PAGE_SIZE);
+  const end = Number(page) * Number(PAGE_SIZE);
   return uris && uris.length ? uris.slice(start, end) : [];
 });
 

@@ -204,12 +204,12 @@ export const makeSelectFileNameForUri = uri =>
     }
   );
 
-export const makeSelectDownloadUrisForPage = (page = 0) =>
+export const makeSelectDownloadUrisForPage = (page = 1) =>
   createSelector(
     selectDownloadedUris,
     uris => {
-      const start = (Number(page) * Number(PAGE_SIZE));
-      const end = ((Number(page) + 1) * Number(PAGE_SIZE));
+      const start = ((Number(page) - 1) * Number(PAGE_SIZE));
+      const end = (Number(page) * Number(PAGE_SIZE));
       return (uris && uris.length)
         ? uris.slice(start, end)
         : [];
