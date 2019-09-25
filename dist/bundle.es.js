@@ -1467,6 +1467,24 @@ function createNormalizedClaimSearchKey(options) {
   return query;
 }
 
+function concatClaims(claimList = [], concatClaimList = []) {
+  if (!claimList || claimList.length === 0) {
+    if (!concatClaimList) {
+      return [];
+    }
+    return concatClaimList.slice();
+  }
+
+  const claims = claimList.slice();
+  concatClaimList.forEach(claim => {
+    if (!claims.some(item => item.claim_id === claim.claim_id)) {
+      claims.push(claim);
+    }
+  });
+
+  return claims;
+}
+
 //      
 
 const selectState$2 = state => state.claims || {};
@@ -3617,6 +3635,7 @@ const defaultState = {
   // This should not be a Set
   // Storing sets in reducers can cause issues
   myChannelClaims: undefined,
+  myClaims: undefined,
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
@@ -3713,6 +3732,7 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById = Object.assign({}, state.pendingById);
+  const myClaims = state.myClaims || [];
 
   claims.forEach(claim => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
@@ -3739,7 +3759,7 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
 
   return Object.assign({}, state, {
     isFetchingClaimListMine: false,
-    myClaims: claims,
+    myClaims: concatClaims(myClaims, claims),
     byId,
     claimsByUri: byUri,
     pendingById
@@ -3750,6 +3770,7 @@ reducers[FETCH_CHANNEL_LIST_STARTED] = state => Object.assign({}, state, { fetch
 
 reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   const { claims } = action.data;
+  const myClaims = state.myClaims || [];
 
   let myChannelClaims;
   let byId = Object.assign({}, state.byId);
@@ -3769,7 +3790,7 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
     byId,
     fetchingMyChannels: false,
     myChannelClaims,
-    myClaims: claims
+    myClaims: concatClaims(myClaims, claims)
   });
 };
 
