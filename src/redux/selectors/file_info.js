@@ -204,19 +204,19 @@ export const makeSelectFileNameForUri = uri =>
     }
   );
 
-export const makeSelectDownloadUrisForPage = (page = 1) =>
+export const makeSelectDownloadUrlsForPage = (page = 1) =>
   createSelector(
     selectDownloadedUris,
-    uris => {
+    urls => {
       const start = ((Number(page) - 1) * Number(PAGE_SIZE));
       const end = (Number(page) * Number(PAGE_SIZE));
-      return (uris && uris.length)
-        ? uris.slice(start, end)
+      return (urls && urls.length)
+        ? urls.slice(start, end)
         : [];
     }
   );
 
-export const selectDownloadUrisCount = createSelector(
+export const selectDownloadUrlsCount = createSelector(
   selectDownloadedUris,
   uris => uris.length
 );

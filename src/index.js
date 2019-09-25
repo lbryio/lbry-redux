@@ -206,8 +206,8 @@ export {
   selectCreatingChannel,
   selectCreateChannelError,
   selectChannelImportPending,
-  makeSelectMyStreamUrisForPage,
-  selectMyStreamUrisCount,
+  makeSelectMyStreamUrlsForPage,
+  selectMyStreamUrlsCount,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';
@@ -232,8 +232,8 @@ export {
   makeSelectDownloadPathForUri,
   makeSelectFileNameForUri,
   makeSelectFilePartlyDownloaded,
-  makeSelectDownloadUrisForPage,
-  selectDownloadUrisCount,
+  makeSelectDownloadUrlsForPage,
+  selectDownloadUrlsCount,
 } from 'redux/selectors/file_info';
 
 export {

@@ -592,19 +592,19 @@ export const selectUpdateChannelError = createSelector(
   state => state.updateChannelError
 );
 
-export const makeSelectMyStreamUrisForPage = (page: number = 1) =>
+export const makeSelectMyStreamUrlsForPage = (page: number = 1) =>
   createSelector(
     selectMyClaimUrisWithoutChannels,
-    uris => {
+    urls => {
       const start = ((Number(page) - 1) * Number(PAGE_SIZE));
       const end = (Number(page) * Number(PAGE_SIZE));
-      return (uris && uris.length)
-        ? uris.slice(start, end)
+      return (urls && urls.length)
+        ? urls.slice(start, end)
         : [];
     }
   );
 
-export const selectMyStreamUrisCount = createSelector(
+export const selectMyStreamUrlsCount = createSelector(
   selectMyClaimUrisWithoutChannels,
   channels => channels.length
 );
