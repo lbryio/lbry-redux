@@ -8,7 +8,7 @@ import { selectMyClaimsRaw } from 'redux/selectors/claims';
 export function doUpdateBalance() {
   return (dispatch, getState) => {
     const {
-      wallet: { total: totalInStore },
+      wallet: { totalBalance: totalInStore },
     } = getState();
     Lbry.account_balance({reserved_subtotals: true}).then((response: BalanceResponse)  => {
       const { available, reserved, reserved_subtotals, total } = response;

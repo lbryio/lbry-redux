@@ -1887,7 +1887,7 @@ function creditsToString(amount) {
 function doUpdateBalance() {
   return (dispatch, getState) => {
     const {
-      wallet: { total: totalInStore }
+      wallet: { totalBalance: totalInStore }
     } = getState();
     lbryProxy.account_balance({ reserved_subtotals: true }).then(response => {
       const { available, reserved, reserved_subtotals, total } = response;
