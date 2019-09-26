@@ -9,6 +9,7 @@ import {
 import { createSelector } from 'reselect';
 import { buildURI } from 'lbryURI';
 import Lbry from 'lbry';
+import { PAGE_SIZE } from 'constants/claim';
 
 export const selectState = state => state.fileInfo || {};
 
@@ -202,3 +203,20 @@ export const makeSelectFileNameForUri = uri =>
       return fileInfo && fileInfo.file_name;
     }
   );
+
+export const makeSelectDownloadUrlsForPage = (page = 1) =>
+  createSelector(
+    selectDownloadedUris,
+    urls => {
+      const start = ((Number(page) - 1) * Number(PAGE_SIZE));
+      const end = (Number(page) * Number(PAGE_SIZE));
+      return (urls && urls.length)
+        ? urls.slice(start, end)
+        : [];
+    }
+  );
+
+export const selectDownloadUrlsCount = createSelector(
+  selectDownloadedUris,
+  uris => uris.length
+);

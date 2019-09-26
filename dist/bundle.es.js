@@ -1517,7 +1517,6 @@ function concatClaims(claimList = [], concatClaimList = []) {
 }
 
 //      
-
 const selectState$2 = state => state.claims || {};
 
 const selectClaimsById = reselect.createSelector(selectState$2, state => state.byId || {});
@@ -1865,6 +1864,14 @@ const makeSelectSupportsForUri = uri => reselect.createSelector(selectSupportsBy
 const selectUpdatingChannel = reselect.createSelector(selectState$2, state => state.updatingChannel);
 
 const selectUpdateChannelError = reselect.createSelector(selectState$2, state => state.updateChannelError);
+
+const makeSelectMyStreamUrlsForPage = (page = 1) => reselect.createSelector(selectMyClaimUrisWithoutChannels, urls => {
+  const start = (Number(page) - 1) * Number(PAGE_SIZE);
+  const end = Number(page) * Number(PAGE_SIZE);
+  return urls && urls.length ? urls.slice(start, end) : [];
+});
+
+const selectMyStreamUrlsCount = reselect.createSelector(selectMyClaimUrisWithoutChannels, channels => channels.length);
 
 function formatCredits(amount, precision, shortFormat = false) {
   let actualAmount = parseFloat(amount),
@@ -2729,6 +2736,14 @@ const makeSelectFilePartlyDownloaded = uri => reselect.createSelector(makeSelect
 const makeSelectFileNameForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), fileInfo => {
   return fileInfo && fileInfo.file_name;
 });
+
+const makeSelectDownloadUrlsForPage = (page = 1) => reselect.createSelector(selectDownloadedUris, urls => {
+  const start = (Number(page) - 1) * Number(PAGE_SIZE);
+  const end = Number(page) * Number(PAGE_SIZE);
+  return urls && urls.length ? urls.slice(start, end) : [];
+});
+
+const selectDownloadUrlsCount = reselect.createSelector(selectDownloadedUris, uris => uris.length);
 
 //      
 
@@ -5083,6 +5098,7 @@ exports.makeSelectContentTypeForUri = makeSelectContentTypeForUri;
 exports.makeSelectCoverForUri = makeSelectCoverForUri;
 exports.makeSelectDateForUri = makeSelectDateForUri;
 exports.makeSelectDownloadPathForUri = makeSelectDownloadPathForUri;
+exports.makeSelectDownloadUrlsForPage = makeSelectDownloadUrlsForPage;
 exports.makeSelectDownloadingForUri = makeSelectDownloadingForUri;
 exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
@@ -5096,6 +5112,7 @@ exports.makeSelectLoadingForUri = makeSelectLoadingForUri;
 exports.makeSelectMediaTypeForUri = makeSelectMediaTypeForUri;
 exports.makeSelectMetadataForUri = makeSelectMetadataForUri;
 exports.makeSelectMetadataItemForUri = makeSelectMetadataItemForUri;
+exports.makeSelectMyStreamUrlsForPage = makeSelectMyStreamUrlsForPage;
 exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
 exports.makeSelectPendingByUri = makeSelectPendingByUri;
@@ -5141,6 +5158,7 @@ exports.selectClaimsByUri = selectClaimsByUri;
 exports.selectCreateChannelError = selectCreateChannelError;
 exports.selectCreatingChannel = selectCreatingChannel;
 exports.selectCurrentChannelPage = selectCurrentChannelPage;
+exports.selectDownloadUrlsCount = selectDownloadUrlsCount;
 exports.selectDownloadedUris = selectDownloadedUris;
 exports.selectDownloadingByOutpoint = selectDownloadingByOutpoint;
 exports.selectDownloadingFileInfos = selectDownloadingFileInfos;
@@ -5179,6 +5197,7 @@ exports.selectMyClaims = selectMyClaims;
 exports.selectMyClaimsOutpoints = selectMyClaimsOutpoints;
 exports.selectMyClaimsRaw = selectMyClaimsRaw;
 exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
+exports.selectMyStreamUrlsCount = selectMyStreamUrlsCount;
 exports.selectPendingById = selectPendingById;
 exports.selectPendingClaims = selectPendingClaims;
 exports.selectPlayingUri = selectPlayingUri;
