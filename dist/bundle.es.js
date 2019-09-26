@@ -3204,7 +3204,7 @@ const doPublish = (success, fail) => (dispatch, getState) => {
   }
 
   // get the claim id from the channel name, we will use that instead
-  const namedChannelClaim = myChannels.find(myChannel => myChannel.name === channel);
+  const namedChannelClaim = myChannels ? myChannels.find(myChannel => myChannel.name === channel) : null;
   const channelId = namedChannelClaim ? namedChannelClaim.claim_id : '';
 
   const publishPayload = {
