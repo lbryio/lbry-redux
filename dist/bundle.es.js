@@ -1290,8 +1290,6 @@ function doDismissError() {
   };
 }
 
-//      
-
 const selectState$1 = state => state.wallet || {};
 
 const selectWalletState = selectState$1;
@@ -1339,7 +1337,7 @@ const selectTransactionsById = reselect.createSelector(selectState$1, state => s
 const selectSupportsByOutpoint = reselect.createSelector(selectState$1, state => state.supports || {});
 
 const selectTotalSupports = reselect.createSelector(selectSupportsByOutpoint, byOutpoint => {
-  let total = parseFloat("0.0");
+  let total = parseFloat('0.0');
 
   Object.values(byOutpoint).forEach(support => {
     const { amount } = support;
@@ -1869,22 +1867,28 @@ const makeSelectMyStreamUrlsForPage = (page = 1) => reselect.createSelector(sele
 
 const selectMyStreamUrlsCount = reselect.createSelector(selectMyClaimUrisWithoutChannels, channels => channels.length);
 
+function numberWithCommas(x) {
+  var parts = x.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+}
+
 function formatCredits(amount, precision, shortFormat = false) {
   let actualAmount = parseFloat(amount),
       suffix = '';
   if (Number.isNaN(actualAmount)) return '0';
 
   if (shortFormat) {
-    if (actualAmount >= 1000000) {
+    if (actualAmount >= 1000000 && precision <= 7) {
       actualAmount = actualAmount / 1000000;
       suffix = 'M';
-    } else if (actualAmount >= 1000) {
+    } else if (actualAmount >= 1000 && precision <= 4) {
       actualAmount = actualAmount / 1000;
       suffix = 'K';
     }
   }
 
-  return actualAmount.toFixed(precision || 1).replace(/\.?0+$/, '') + suffix;
+  return numberWithCommas(actualAmount.toFixed(precision || 1).replace(/\.?0+$/, '')) + suffix;
 }
 
 function formatFullPrice(amount, precision = 1) {

@@ -1,5 +1,3 @@
-// @flow
-
 import { createSelector } from 'reselect';
 import * as TRANSACTIONS from 'constants/transaction_types';
 import { PAGE_SIZE } from 'constants/transaction_list';
@@ -116,7 +114,7 @@ export const selectSupportsByOutpoint = createSelector(
 export const selectTotalSupports = createSelector(
   selectSupportsByOutpoint,
   byOutpoint => {
-    let total = parseFloat("0.0");
+    let total = parseFloat('0.0');
 
     Object.values(byOutpoint).forEach(support => {
       const { amount } = support;
@@ -299,15 +297,16 @@ export const selectFilteredTransactions = createSelector(
     return transactions.filter(transaction => {
       return filter === TRANSACTIONS.ALL || filter === transaction.type;
     });
-  });
+  }
+);
 
 export const makeSelectFilteredTransactionsForPage = (page: number = 1): Array<any> =>
   createSelector(
     selectFilteredTransactions,
     filteredTransactions => {
       const start = (Number(page) - 1) * Number(PAGE_SIZE);
-      const end = (Number(page) * Number(PAGE_SIZE));
-      return (filteredTransactions && filteredTransactions.length)
+      const end = Number(page) * Number(PAGE_SIZE);
+      return filteredTransactions && filteredTransactions.length
         ? filteredTransactions.slice(start, end)
         : [];
     }
