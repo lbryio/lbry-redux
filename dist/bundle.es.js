@@ -7,6 +7,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('proxy-polyfill');
 var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
+var isEqual = _interopDefault(require('utils/deep-equal'));
 
 const MINIMUM_PUBLISH_BID = 0.00000001;
 
@@ -777,6 +778,10 @@ const Lbry = {
 
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
+
+  // Preferences
+  preference_get: (params = {}) => daemonCallWithResult('preference_get', params),
+  preference_set: (params = {}) => daemonCallWithResult('preference_set', params),
 
   // Comments
   comment_list: (params = {}) => daemonCallWithResult('comment_list', params),
@@ -3646,6 +3651,57 @@ function doPopulateSharedUserState(settings) {
   };
 }
 
+function sharedStateSubscriber(state, filters, localCache, accountId, walletId) {
+  Object.keys(filters).forEach(key => {
+    const filter = filters[key];
+    const { source, property, transform } = filter;
+    let value = state[source][property];
+    if (transform) {
+      value = transform(value);
+    }
+
+    let cacheKey = key;
+    if (accountId) {
+      cacheKey = `${cacheKey}_${accountId}`;
+    }
+    if (walletId) {
+      cacheKey = `${cacheKey}_${walletId}`;
+    }
+
+    if (!isEqual(localCache[cacheKey], value)) {
+      // only update if the preference changed from last call in the same session
+      doPreferenceSet(key, value, accountId, walletId);
+    }
+  });
+}
+
+function doPreferenceSet(key, value, accountId, walletId, success, fail) {
+  const preference = {
+    type: typeof value,
+    value
+  };
+
+  lbryProxy.preference_set({ key, value: JSON.stringify(preference), account_id: accountId, wallet_id: walletId }).then(() => {
+    success(value);
+  }).catch(() => {
+    if (fail) {
+      fail();
+    }
+  });
+}
+
+function doPreferenceGet(key, accountId, walletId, success, fail) {
+  lbryProxy.preference_get({ key, account_id: accountId, wallet_id: walletId }).then(result => {
+    const preference = JSON.parse(result);
+    const { value } = normalized;
+    success(value);
+  }).catch(() => {
+    if (fail) {
+      fail();
+    }
+  });
+}
+
 var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers = {};
@@ -5048,6 +5104,8 @@ exports.doFocusSearchInput = doFocusSearchInput;
 exports.doGetNewAddress = doGetNewAddress;
 exports.doImportChannel = doImportChannel;
 exports.doPopulateSharedUserState = doPopulateSharedUserState;
+exports.doPreferenceGet = doPreferenceGet;
+exports.doPreferenceSet = doPreferenceSet;
 exports.doPrepareEdit = doPrepareEdit;
 exports.doPublish = doPublish;
 exports.doPurchaseUri = doPurchaseUri;
@@ -5241,6 +5299,7 @@ exports.selectWalletUnlockPending = selectWalletUnlockPending;
 exports.selectWalletUnlockResult = selectWalletUnlockResult;
 exports.selectWalletUnlockSucceeded = selectWalletUnlockSucceeded;
 exports.setSearchApi = setSearchApi;
+exports.sharedStateSubscriber = sharedStateSubscriber;
 exports.tagsReducer = tagsReducer;
 exports.toQueryString = toQueryString;
 exports.walletReducer = walletReducer;
