@@ -7,6 +7,7 @@ import * as SORT_OPTIONS from 'constants/sort_options';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import * as TRANSACTIONS from 'constants/transaction_types';
 import * as TX_LIST from 'constants/transaction_list';
+import * as HEADERS from 'constants/headers';
 import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
 import { DEFAULT_KNOWN_TAGS, DEFAULT_FOLLOWED_TAGS, MATURE_TAGS } from 'constants/tags';
 import Lbry from 'lbry';
@@ -28,6 +29,7 @@ export {
   DEFAULT_KNOWN_TAGS,
   DEFAULT_FOLLOWED_TAGS,
   MATURE_TAGS,
+  HEADERS,
 };
 
 // common

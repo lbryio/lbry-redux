@@ -30,6 +30,7 @@ const Lbry: LbryTypes = {
   setOverride: (methodName, newMethod) => {
     Lbry.overrides[methodName] = newMethod;
   },
+  getApiRequestHeaders: () => Lbry.apiRequestHeaders,
 
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
   getMediaType: (contentType?: string, fileName: ?string) => {
@@ -74,7 +75,6 @@ const Lbry: LbryTypes = {
   // Claim fetching and manipulation
   resolve: params => daemonCallWithResult('resolve', params),
   get: params => daemonCallWithResult('get', params),
-  publish: params => daemonCallWithResult('publish', params),
   claim_search: params => daemonCallWithResult('claim_search', params),
   claim_list: params => daemonCallWithResult('claim_list', params),
   channel_create: params => daemonCallWithResult('channel_create', params),
@@ -145,6 +145,15 @@ const Lbry: LbryTypes = {
     return Lbry.connectPromise;
   },
 };
+
+Lbry.publish = (params = {}) =>
+  new Promise((resolve, reject) => {
+    if (Lbry.overrides.publish) {
+      Lbry.overrides.publish(params).then(resolve, reject);
+    } else {
+      apiCall('publish', params, resolve, reject);
+    }
+  });
 
 function checkAndParse(response) {
   if (response.status >= 200 && response.status < 300) {

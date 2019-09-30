@@ -652,6 +652,12 @@ var transaction_list = /*#__PURE__*/Object.freeze({
   PAGE_SIZE: PAGE_SIZE$1
 });
 
+const AUTH_TOKEN = 'X-Lbry-Auth-Token';
+
+var headers = /*#__PURE__*/Object.freeze({
+  AUTH_TOKEN: AUTH_TOKEN
+});
+
 const SEARCH_TYPES = {
   FILE: 'file',
   CHANNEL: 'channel',
@@ -709,6 +715,7 @@ const Lbry = {
   setOverride: (methodName, newMethod) => {
     Lbry.overrides[methodName] = newMethod;
   },
+  getApiRequestHeaders: () => Lbry.apiRequestHeaders,
 
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
   getMediaType: (contentType, fileName) => {
@@ -744,7 +751,6 @@ const Lbry = {
   // Claim fetching and manipulation
   resolve: params => daemonCallWithResult('resolve', params),
   get: params => daemonCallWithResult('get', params),
-  publish: params => daemonCallWithResult('publish', params),
   claim_search: params => daemonCallWithResult('claim_search', params),
   claim_list: params => daemonCallWithResult('claim_list', params),
   channel_create: params => daemonCallWithResult('channel_create', params),
@@ -813,6 +819,14 @@ const Lbry = {
     return Lbry.connectPromise;
   }
 };
+
+Lbry.publish = (params = {}) => new Promise((resolve, reject) => {
+  if (Lbry.overrides.publish) {
+    Lbry.overrides.publish(params).then(resolve, reject);
+  } else {
+    apiCall('publish', params, resolve, reject);
+  }
+});
 
 function checkAndParse(response) {
   if (response.status >= 200 && response.status < 300) {
@@ -1078,6 +1092,18 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
   } = UrlObj,
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
   const { claimId, claimName, contentName } = deprecatedParts;
+
+  {
+    if (claimId) {
+      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
+    }
+    if (claimName) {
+      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
+    }
+    if (contentName) {
+      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
+    }
+  }
 
   if (!claimName && !channelName && !streamName) {
     console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
@@ -3192,6 +3218,9 @@ function doSetFileListSort(page, value) {
   };
 }
 
+const SPEECH_STATUS = 'https://spee.ch/api/config/site/publishing';
+const SPEECH_PUBLISH = 'https://spee.ch/api/claim/publish';
+
 function _objectWithoutProperties$2(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 const selectState$5 = state => state.publish || {};
@@ -3289,7 +3318,7 @@ const doResetThumbnailStatus = () => dispatch => {
     }
   });
 
-  return fetch('https://spee.ch/api/config/site/publishing').then(res => res.json()).then(status => {
+  return fetch(SPEECH_STATUS).then(res => res.json()).then(status => {
     if (status.disabled) {
       throw Error();
     }
@@ -3358,7 +3387,7 @@ const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter, fs, path) => di
       // $FlowFixMe
       data.append('file', { uri: 'file://' + filePath, type: fileType, name: fileName });
 
-      return fetch('https://spee.ch/api/claim/publish', {
+      return fetch(SPEECH_PUBLISH, {
         method: 'POST',
         body: data
       }).then(response => response.json()).then(json => json.success ? dispatch({
@@ -3390,7 +3419,7 @@ const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter, fs, path) => di
     data.append('name', name);
     data.append('file', file);
 
-    return fetch('https://spee.ch/api/claim/publish', {
+    return fetch(SPEECH_PUBLISH, {
       method: 'POST',
       body: data
     }).then(response => response.json()).then(json => json.success ? dispatch({
@@ -5260,6 +5289,7 @@ exports.ACTIONS = action_types;
 exports.CLAIM_VALUES = claim;
 exports.DEFAULT_FOLLOWED_TAGS = DEFAULT_FOLLOWED_TAGS;
 exports.DEFAULT_KNOWN_TAGS = DEFAULT_KNOWN_TAGS;
+exports.HEADERS = headers;
 exports.LICENSES = licenses;
 exports.Lbry = lbryProxy;
 exports.MATURE_TAGS = MATURE_TAGS;

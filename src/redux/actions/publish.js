@@ -1,5 +1,6 @@
 // @flow
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
+import { SPEECH_STATUS, SPEECH_PUBLISH } from 'constants/speech_urls';
 import * as ACTIONS from 'constants/action_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Lbry from 'lbry';
@@ -22,7 +23,7 @@ export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
     },
   });
 
-  return fetch('https://spee.ch/api/config/site/publishing')
+  return fetch(SPEECH_STATUS)
     .then(res => res.json())
     .then(status => {
       if (status.disabled) {
@@ -110,7 +111,7 @@ export const doUploadThumbnail = (
       // $FlowFixMe
       data.append('file', { uri: 'file://' + filePath, type: fileType, name: fileName });
 
-      return fetch('https://spee.ch/api/claim/publish', {
+      return fetch(SPEECH_PUBLISH, {
         method: 'POST',
         body: data,
       })
@@ -149,7 +150,7 @@ export const doUploadThumbnail = (
     data.append('name', name);
     data.append('file', file);
 
-    return fetch('https://spee.ch/api/claim/publish', {
+    return fetch(SPEECH_PUBLISH, {
       method: 'POST',
       body: data,
     })
