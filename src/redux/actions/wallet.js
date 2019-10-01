@@ -252,6 +252,7 @@ export function doSendTip(amount, claimId, isSupport, successCallback, errorCall
       claim_id: claimId,
       amount: creditsToString(amount),
       tip: !shouldSupport,
+      blocking: true,
     }).then(success, error);
   };
 }

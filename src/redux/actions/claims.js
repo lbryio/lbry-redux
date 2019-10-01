@@ -3,7 +3,12 @@ import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import { normalizeURI } from 'lbryURI';
 import { doToast } from 'redux/actions/notifications';
-import { selectMyClaimsRaw, selectResolvingUris, selectClaimsByUri } from 'redux/selectors/claims';
+import {
+  selectMyClaimsRaw,
+  selectResolvingUris,
+  selectClaimsByUri,
+  selectMyChannelClaims,
+} from 'redux/selectors/claims';
 import { doFetchTransactions } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
@@ -231,12 +236,13 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
     dispatch({
       type: ACTIONS.CREATE_CHANNEL_STARTED,
     });
-    
+
     const createParams = {
       name,
       bid: creditsToString(amount),
+      blocking: true,
     };
-    
+
     if (optionalParams) {
       if (optionalParams.title) {
         createParams.title = optionalParams.title;
@@ -260,7 +266,7 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
         createParams.tags = optionalParams.tags.map(tag => tag.name);
       }
     }
-    
+
     return (
       Lbry.channel_create(createParams)
         // outputs[0] is the certificate
@@ -283,10 +289,14 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
 }
 
 export function doUpdateChannel(params: any) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
       type: ACTIONS.UPDATE_CHANNEL_STARTED,
     });
+    const state = getState();
+    const myChannels = selectMyChannelClaims(state);
+    const channelClaim = myChannels.find(myChannel => myChannel.claim_id === params.claim_id);
+
     const updateParams = {
       claim_id: params.claim_id,
       bid: creditsToString(params.amount),
@@ -296,15 +306,26 @@ export function doUpdateChannel(params: any) {
       description: params.description,
       website_url: params.website,
       email: params.email,
-      replace: true,
       tags: [],
+      replace: true,
+      languages: [],
+      locations: [],
+      blocking: true,
     };
 
     if (params.tags) {
       updateParams.tags = params.tags.map(tag => tag.name);
     }
 
-    // TODO add languages and locations as above
+    //we'll need to remove these once we add locations/channels to channel page edit/create options
+
+    if (channelClaim && channelClaim.value && channelClaim.value.locations) {
+      updateParams.locations = channelClaim.value.locations;
+    }
+
+    if (channelClaim && channelClaim.value && channelClaim.value.languages) {
+      updateParams.languages = channelClaim.value.languages;
+    }
 
     return Lbry.channel_update(updateParams)
       .then((result: ChannelUpdateResponse) => {

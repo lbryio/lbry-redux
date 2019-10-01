@@ -1673,16 +1673,12 @@ const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectCla
 
 const makeSelectThumbnailForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const thumbnail = claim && claim.value && claim.value.thumbnail;
-  if (!thumbnail || !thumbnail.url) {
-    return null;
-  }
-
-  return thumbnail.url.trim();
+  return thumbnail && thumbnail.url ? thumbnail.url.trim() : undefined;
 });
 
 const makeSelectCoverForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const cover = claim && claim.value && claim.value.cover;
-  return cover ? cover.url : undefined;
+  return cover && cover.url ? cover.url.trim() : undefined;
 });
 
 const selectIsFetchingClaimListMine = reselect.createSelector(selectState$2, state => state.isFetchingClaimListMine);
@@ -2141,7 +2137,8 @@ function doSendTip(amount, claimId, isSupport, successCallback, errorCallback) {
     lbryProxy.support_create({
       claim_id: claimId,
       amount: creditsToString(amount),
-      tip: !shouldSupport
+      tip: !shouldSupport,
+      blocking: true
     }).then(success, error);
   };
 }
@@ -2462,7 +2459,8 @@ function doCreateChannel(name, amount, optionalParams) {
 
     const createParams = {
       name,
-      bid: creditsToString(amount)
+      bid: creditsToString(amount),
+      blocking: true
     };
 
     if (optionalParams) {
@@ -2508,10 +2506,14 @@ function doCreateChannel(name, amount, optionalParams) {
 }
 
 function doUpdateChannel(params) {
-  return dispatch => {
+  return (dispatch, getState) => {
     dispatch({
       type: UPDATE_CHANNEL_STARTED
     });
+    const state = getState();
+    const myChannels = selectMyChannelClaims(state);
+    const channelClaim = myChannels.find(myChannel => myChannel.claim_id === params.claim_id);
+
     const updateParams = {
       claim_id: params.claim_id,
       bid: creditsToString(params.amount),
@@ -2521,15 +2523,26 @@ function doUpdateChannel(params) {
       description: params.description,
       website_url: params.website,
       email: params.email,
+      tags: [],
       replace: true,
-      tags: []
+      languages: [],
+      locations: [],
+      blocking: true
     };
 
     if (params.tags) {
       updateParams.tags = params.tags.map(tag => tag.name);
     }
 
-    // TODO add languages and locations as above
+    //we'll need to remove these once we add locations/channels to channel page edit/create options
+
+    if (channelClaim && channelClaim.value && channelClaim.value.locations) {
+      updateParams.locations = channelClaim.value.locations;
+    }
+
+    if (channelClaim && channelClaim.value && channelClaim.value.languages) {
+      updateParams.languages = channelClaim.value.languages;
+    }
 
     return lbryProxy.channel_update(updateParams).then(result => {
       const channelClaim = result.outputs[0];
@@ -3253,11 +3266,12 @@ const doPublish = (success, fail) => (dispatch, getState) => {
     name,
     title,
     description,
-    locations: locations,
+    locations: [],
     bid: creditsToString(bid),
     languages: [language],
     tags: tags && tags.map(tag => tag.name),
-    thumbnail_url: thumbnail
+    thumbnail_url: thumbnail,
+    blocking: true
   };
   // Temporary solution to keep the same publish flow with the new tags api
   // Eventually we will allow users to enter their own tags on publish
@@ -3286,6 +3300,10 @@ const doPublish = (success, fail) => (dispatch, getState) => {
 
   if (channelId) {
     publishPayload.channel_id = channelId;
+  }
+
+  if (myClaimForUri && myClaimForUri.value && myClaimForUri.value.locations) {
+    publishPayload.locations = myClaimForUri.value.locations;
   }
 
   if (!contentIsFree && fee && fee.currency && Number(fee.amount) > 0) {
