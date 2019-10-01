@@ -7,7 +7,6 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('proxy-polyfill');
 var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
-var isEqual = _interopDefault(require('utils/deep-equal'));
 
 const MINIMUM_PUBLISH_BID = 0.00000001;
 
@@ -3632,7 +3631,118 @@ const doToggleBlockChannel = uri => ({
   }
 });
 
+/* eslint-disable */
+// underscore's deep equal function
+// https://github.com/jashkenas/underscore/blob/master/underscore.js#L1189
+
+function isEqual(a, b, aStack, bStack) {
+  // Identical objects are equal. `0 === -0`, but they aren't identical.
+  // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
+  if (a === b) return a !== 0 || 1 / a === 1 / b;
+  // `null` or `undefined` only equal to itself (strict comparison).
+  if (a == null || b == null) return false;
+  // `NaN`s are equivalent, but non-reflexive.
+  if (a !== a) return b !== b;
+  // Exhaust primitive checks
+  var type = typeof a;
+  if (type !== 'function' && type !== 'object' && typeof b != 'object') return false;
+  return deepEq(a, b, aStack, bStack);
+}
+
+function deepEq(a, b, aStack, bStack) {
+  // Compare `[[Class]]` names.
+  var className = toString.call(a);
+  if (className !== toString.call(b)) return false;
+  switch (className) {
+    // Strings, numbers, regular expressions, dates, and booleans are compared by value.
+    case '[object RegExp]':
+    // RegExps are coerced to strings for comparison (Note: '' + /a/i === '/a/i')
+    case '[object String]':
+      // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+      // equivalent to `new String("5")`.
+      return '' + a === '' + b;
+    case '[object Number]':
+      // `NaN`s are equivalent, but non-reflexive.
+      // Object(NaN) is equivalent to NaN.
+      if (+a !== +a) return +b !== +b;
+      // An `egal` comparison is performed for other numeric values.
+      return +a === 0 ? 1 / +a === 1 / b : +a === +b;
+    case '[object Date]':
+    case '[object Boolean]':
+      // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+      // millisecond representations. Note that invalid dates with millisecond representations
+      // of `NaN` are not equivalent.
+      return +a === +b;
+    case '[object Symbol]':
+      return SymbolProto.valueOf.call(a) === SymbolProto.valueOf.call(b);
+  }
+
+  var areArrays = className === '[object Array]';
+  if (!areArrays) {
+    if (typeof a != 'object' || typeof b != 'object') return false;
+
+    // Objects with different constructors are not equivalent, but `Object`s or `Array`s
+    // from different frames are.
+    var aCtor = a.constructor,
+        bCtor = b.constructor;
+    if (aCtor !== bCtor && !(typeof aCtor === 'function' && aCtor instanceof aCtor && typeof bCtor === 'function' && bCtor instanceof bCtor) && 'constructor' in a && 'constructor' in b) {
+      return false;
+    }
+  }
+  // Assume equality for cyclic structures. The algorithm for detecting cyclic
+  // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+
+  // Initializing stack of traversed objects.
+  // It's done here since we only need them for objects and arrays comparison.
+  aStack = aStack || [];
+  bStack = bStack || [];
+  var length = aStack.length;
+  while (length--) {
+    // Linear search. Performance is inversely proportional to the number of
+    // unique nested structures.
+    if (aStack[length] === a) return bStack[length] === b;
+  }
+
+  // Add the first object to the stack of traversed objects.
+  aStack.push(a);
+  bStack.push(b);
+
+  // Recursively compare objects and arrays.
+  if (areArrays) {
+    // Compare array lengths to determine if a deep comparison is necessary.
+    length = a.length;
+    if (length !== b.length) return false;
+    // Deep compare the contents, ignoring non-numeric properties.
+    while (length--) {
+      if (!isEqual(a[length], b[length], aStack, bStack)) return false;
+    }
+  } else {
+    // Deep compare objects.
+    var keys = Object.keys(a),
+        key;
+    length = keys.length;
+    // Ensure that both objects contain the same number of properties before comparing deep equality.
+    if (Object.keys(b).length !== length) return false;
+    while (length--) {
+      // Deep compare each member
+      key = keys[length];
+      if (!(has(b, key) && isEqual(a[key], b[key], aStack, bStack))) return false;
+    }
+  }
+  // Remove the first object from the stack of traversed objects.
+  aStack.pop();
+  bStack.pop();
+  return true;
+}
+
+function has(obj, path) {
+  return obj != null && hasOwnProperty.call(obj, path);
+}
+/* eslint-enable */
+
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+const stateCache = {};
 
 function extractUserState(rawObj) {
   if (rawObj && rawObj.version === '0.1' && rawObj.shared) {
@@ -3651,7 +3761,7 @@ function doPopulateSharedUserState(settings) {
   };
 }
 
-function sharedStateSubscriber(state, filters, localCache, accountId, walletId) {
+function sharedStateSubscriber(state, filters, accountId, walletId) {
   Object.keys(filters).forEach(key => {
     const filter = filters[key];
     const { source, property, transform } = filter;
@@ -3668,16 +3778,17 @@ function sharedStateSubscriber(state, filters, localCache, accountId, walletId) 
       cacheKey = `${cacheKey}_${walletId}`;
     }
 
-    if (!isEqual(localCache[cacheKey], value)) {
+    if (!isEqual(stateCache[cacheKey], value)) {
       // only update if the preference changed from last call in the same session
       doPreferenceSet(key, value, accountId, walletId);
     }
   });
 }
 
-function doPreferenceSet(key, value, accountId, walletId, success, fail) {
+function doPreferenceSet(key, value, version, accountId, walletId, success, fail) {
   const preference = {
     type: typeof value,
+    version,
     value
   };
 
@@ -3692,9 +3803,14 @@ function doPreferenceSet(key, value, accountId, walletId, success, fail) {
 
 function doPreferenceGet(key, accountId, walletId, success, fail) {
   lbryProxy.preference_get({ key, account_id: accountId, wallet_id: walletId }).then(result => {
-    const preference = JSON.parse(result);
-    const { value } = normalized;
-    success(value);
+    if (result) {
+      const preference = JSON.parse(result);
+      const { value, version } = preference;
+      return success(value, version);
+    }
+
+    // Or fail instead?
+    return success(null, null);
   }).catch(() => {
     if (fail) {
       fail();

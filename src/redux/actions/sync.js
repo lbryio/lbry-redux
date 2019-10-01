@@ -11,6 +11,8 @@ type v0Data = {
   },
 };
 
+const stateCache = {};
+
 function extractUserState(rawObj: v0Data) {
   if (rawObj && rawObj.version === '0.1' && rawObj.shared) {
     const { subscriptions, tags } = rawObj.shared;
@@ -34,7 +36,7 @@ export function doPopulateSharedUserState(settings: any) {
 export function sharedStateSubscriber(
   state: any,
   filters: any,
-  localCache: any,
+  version: string,
   accountId: string,
   walletId: string)
 {
@@ -54,16 +56,25 @@ export function sharedStateSubscriber(
       cacheKey = `${cacheKey}_${walletId}`;
     }
 
-    if (!isEqual(localCache[cacheKey], value)) {
+    if (!isEqual(stateCache[cacheKey], value)) {
       // only update if the preference changed from last call in the same session
-      doPreferenceSet(key, value, accountId, walletId);
+      doPreferenceSet(key, value, version, accountId, walletId);
     }
   });
 }
 
-export function doPreferenceSet(key: string, value: any, accountId: string, walletId: string, success: Function, fail: Function) {
+export function doPreferenceSet(
+  key: string,
+  value: any,
+  version: string,
+  accountId: string,
+  walletId: string,
+  success: Function,
+  fail: Function
+) {
   const preference = {
     type: (typeof value),
+    version,
     value
   };
 
@@ -74,16 +85,22 @@ export function doPreferenceSet(key: string, value: any, accountId: string, wall
   });
 }
 
-export function doPreferenceGet(key: string, accountId: string, walletId: string, success: Function, fail: Function) {
+export function doPreferenceGet(
+  key: string,
+  accountId: string,
+  walletId: string,
+  success: Function,
+  fail: Function
+) {
   Lbry.preference_get({ key, account_id: accountId, wallet_id: walletId }).then(result => {
     if (result) {
       const preference = JSON.parse(result);
-      const { value } = preference;
-      return success(value);
+      const { value, version } = preference;
+      return success(value, version);
     }
 
     // Or fail instead?
-    return success(null);
+    return success(null, null);
   }).catch(() => {
     if (fail) { fail(); }
   });
