@@ -10,7 +10,7 @@ export function doUpdateBalance() {
     const {
       wallet: { totalBalance: totalInStore },
     } = getState();
-    Lbry.account_balance({reserved_subtotals: true}).then((response: BalanceResponse)  => {
+    return Lbry.account_balance({ reserved_subtotals: true }).then((response: BalanceResponse) => {
       const { available, reserved, reserved_subtotals, total } = response;
       const { claims, supports, tips } = reserved_subtotals;
       const totalFloat = parseFloat(total);

@@ -1915,7 +1915,7 @@ function doUpdateBalance() {
     const {
       wallet: { totalBalance: totalInStore }
     } = getState();
-    lbryProxy.account_balance({ reserved_subtotals: true }).then(response => {
+    return lbryProxy.account_balance({ reserved_subtotals: true }).then(response => {
       const { available, reserved, reserved_subtotals, total } = response;
       const { claims, supports, tips } = reserved_subtotals;
       const totalFloat = parseFloat(total);
