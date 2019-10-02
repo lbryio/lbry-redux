@@ -1874,21 +1874,33 @@ function numberWithCommas(x) {
 }
 
 function formatCredits(amount, precision, shortFormat = false) {
-  let actualAmount = parseFloat(amount),
-      suffix = '';
+  let actualAmount = parseFloat(amount);
+  let actualPrecision = parseFloat(precision);
+  let suffix = '';
+
   if (Number.isNaN(actualAmount)) return '0';
 
-  if (shortFormat) {
-    if (actualAmount >= 1000000 && precision <= 7) {
-      actualAmount = actualAmount / 1000000;
-      suffix = 'M';
-    } else if (actualAmount >= 1000 && precision <= 4) {
-      actualAmount = actualAmount / 1000;
-      suffix = 'K';
+  if (actualAmount >= 1000000) {
+    if (precision <= 7) {
+      if (shortFormat) {
+        actualAmount = actualAmount / 1000000;
+        suffix = 'M';
+      } else {
+        actualPrecision -= 7;
+      }
+    }
+  } else if (actualAmount >= 1000) {
+    if (precision <= 4) {
+      if (shortFormat) {
+        actualAmount = actualAmount / 1000;
+        suffix = 'K';
+      } else {
+        actualPrecision -= 4;
+      }
     }
   }
 
-  return numberWithCommas(actualAmount.toFixed(precision || 1).replace(/\.?0+$/, '')) + suffix;
+  return numberWithCommas(actualAmount.toFixed(actualPrecision >= 0 ? actualPrecision : 1).replace(/\..*0+$/, '')) + suffix;
 }
 
 function formatFullPrice(amount, precision = 1) {
