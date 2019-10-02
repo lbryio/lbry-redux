@@ -294,15 +294,17 @@ export const doPublish = (success: Function, fail: Function) => (
     languages?: Array<string>,
     tags: Array<string>,
     locations?: Array<any>,
+    blocking: boolean,
   } = {
     name,
     title,
     description,
-    locations: locations,
+    locations: [],
     bid: creditsToString(bid),
     languages: [language],
     tags: tags && tags.map(tag => tag.name),
     thumbnail_url: thumbnail,
+    blocking: true,
   };
   // Temporary solution to keep the same publish flow with the new tags api
   // Eventually we will allow users to enter their own tags on publish
@@ -331,6 +333,10 @@ export const doPublish = (success: Function, fail: Function) => (
 
   if (channelId) {
     publishPayload.channel_id = channelId;
+  }
+
+  if (myClaimForUri && myClaimForUri.value && myClaimForUri.value.locations) {
+      publishPayload.locations = myClaimForUri.value.locations;
   }
 
   if (!contentIsFree && fee && (fee.currency && Number(fee.amount) > 0)) {
