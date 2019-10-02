@@ -3,19 +3,20 @@ import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import isEqual from 'util/deep-equal';
 
-type v0Data = {
+type sharedData = {
   version: '0.1',
-  shared: {
+  value: {
     subscriptions?: Array<string>,
     tags?: Array<string>,
   },
 };
 
-const stateCache = {};
+let oldShared;
+const sharedPreferenceKey = 'shared';
 
-function extractUserState(rawObj: v0Data) {
-  if (rawObj && rawObj.version === '0.1' && rawObj.shared) {
-    const { subscriptions, tags } = rawObj.shared;
+function extractUserState(rawObj: sharedData) {
+  if (rawObj && rawObj.version === '0.1' && rawObj.value) {
+    const { subscriptions, tags } = rawObj.value;
 
     return {
       ...(subscriptions ? { subscriptions } : {}),
@@ -40,6 +41,9 @@ export function sharedStateSubscriber(
   accountId: string,
   walletId: string)
 {
+  // the shared object that will be saved
+  const shared = {};
+
   Object.keys(filters).forEach(key => {
     const filter = filters[key];
     const { source, property, transform } = filter;
@@ -48,19 +52,15 @@ export function sharedStateSubscriber(
       value = transform(value);
     }
 
-    let cacheKey = key;
-    if (accountId) {
-      cacheKey = `${cacheKey}_${accountId}`;
-    }
-    if (walletId) {
-      cacheKey = `${cacheKey}_${walletId}`;
-    }
-
-    if (!isEqual(stateCache[cacheKey], value)) {
-      // only update if the preference changed from last call in the same session
-      doPreferenceSet(key, value, version, accountId, walletId);
-    }
+    shared[key] = value;
   });
+
+
+  if (!isEqual(oldShared, shared)) {
+    // only update if the preference changed from last call in the same session
+    oldShared = shared;
+    doPreferenceSet(sharedPreferenceKey, shared, version, accountId, walletId);
+  }
 }
 
 export function doPreferenceSet(
@@ -75,11 +75,11 @@ export function doPreferenceSet(
   const preference = {
     type: (typeof value),
     version,
-    value
+    value,
   };
 
   Lbry.preference_set({ key, value: JSON.stringify(preference), account_id: accountId, wallet_id: walletId }).then(() => {
-    success(value);
+    success(preference);
   }).catch(() => {
     if (fail) { fail(); }
   });
@@ -94,14 +94,12 @@ export function doPreferenceGet(
 ) {
   Lbry.preference_get({ key, account_id: accountId, wallet_id: walletId }).then(result => {
     if (result) {
-      const preference = JSON.parse(result);
-      const { value, version } = preference;
-      return success(value, version);
+      const preference = result[key];
+      return success(preference);
     }
 
-    // Or fail instead?
-    return success(null, null);
-  }).catch(() => {
-    if (fail) { fail(); }
+    return success(null);
+  }).catch(err => {
+    if (fail) { fail(err); }
   });
 }

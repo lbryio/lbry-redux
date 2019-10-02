@@ -3742,11 +3742,12 @@ function has(obj, path) {
 
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const stateCache = {};
+let oldShared;
+const sharedPreferenceKey = 'shared';
 
 function extractUserState(rawObj) {
-  if (rawObj && rawObj.version === '0.1' && rawObj.shared) {
-    const { subscriptions, tags } = rawObj.shared;
+  if (rawObj && rawObj.version === '0.1' && rawObj.value) {
+    const { subscriptions, tags } = rawObj.value;
 
     return _extends$5({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {});
   }
@@ -3761,7 +3762,10 @@ function doPopulateSharedUserState(settings) {
   };
 }
 
-function sharedStateSubscriber(state, filters, accountId, walletId) {
+function sharedStateSubscriber(state, filters, version, accountId, walletId) {
+  // the shared object that will be saved
+  const shared = {};
+
   Object.keys(filters).forEach(key => {
     const filter = filters[key];
     const { source, property, transform } = filter;
@@ -3770,19 +3774,14 @@ function sharedStateSubscriber(state, filters, accountId, walletId) {
       value = transform(value);
     }
 
-    let cacheKey = key;
-    if (accountId) {
-      cacheKey = `${cacheKey}_${accountId}`;
-    }
-    if (walletId) {
-      cacheKey = `${cacheKey}_${walletId}`;
-    }
-
-    if (!isEqual(stateCache[cacheKey], value)) {
-      // only update if the preference changed from last call in the same session
-      doPreferenceSet(key, value, accountId, walletId);
-    }
+    shared[key] = value;
   });
+
+  if (!isEqual(oldShared, shared)) {
+    // only update if the preference changed from last call in the same session
+    oldShared = shared;
+    doPreferenceSet(sharedPreferenceKey, shared, version, accountId, walletId);
+  }
 }
 
 function doPreferenceSet(key, value, version, accountId, walletId, success, fail) {
@@ -3793,7 +3792,7 @@ function doPreferenceSet(key, value, version, accountId, walletId, success, fail
   };
 
   lbryProxy.preference_set({ key, value: JSON.stringify(preference), account_id: accountId, wallet_id: walletId }).then(() => {
-    success(value);
+    success(preference);
   }).catch(() => {
     if (fail) {
       fail();
@@ -3804,16 +3803,14 @@ function doPreferenceSet(key, value, version, accountId, walletId, success, fail
 function doPreferenceGet(key, accountId, walletId, success, fail) {
   lbryProxy.preference_get({ key, account_id: accountId, wallet_id: walletId }).then(result => {
     if (result) {
-      const preference = JSON.parse(result);
-      const { value, version } = preference;
-      return success(value, version);
+      const preference = result[key];
+      return success(preference);
     }
 
-    // Or fail instead?
-    return success(null, null);
-  }).catch(() => {
+    return success(null);
+  }).catch(err => {
     if (fail) {
-      fail();
+      fail(err);
     }
   });
 }
