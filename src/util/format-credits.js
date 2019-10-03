@@ -33,7 +33,7 @@ export function formatCredits(amount, precision, shortFormat = false) {
 
   return (
     numberWithCommas(
-      actualAmount.toFixed(actualPrecision >= 0 ? actualPrecision : 1).replace(/\..*0+$/, '')
+      actualAmount.toFixed(actualPrecision >= 0 ? actualPrecision : 1).replace(/\.*0+$/, '')
     ) + suffix
   );
 }

@@ -1900,7 +1900,7 @@ function formatCredits(amount, precision, shortFormat = false) {
     }
   }
 
-  return numberWithCommas(actualAmount.toFixed(actualPrecision >= 0 ? actualPrecision : 1).replace(/\..*0+$/, '')) + suffix;
+  return numberWithCommas(actualAmount.toFixed(actualPrecision >= 0 ? actualPrecision : 1).replace(/\.*0+$/, '')) + suffix;
 }
 
 function formatFullPrice(amount, precision = 1) {
@@ -1935,6 +1935,7 @@ function doUpdateBalance() {
       const { available, reserved, reserved_subtotals, total } = response;
       const { claims, supports, tips } = reserved_subtotals;
       const totalFloat = parseFloat(total);
+
       if (totalInStore !== totalFloat) {
         dispatch({
           type: UPDATE_BALANCE,
@@ -3829,6 +3830,7 @@ reducers[FETCH_CHANNEL_LIST_STARTED] = state => Object.assign({}, state, { fetch
 reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   const { claims } = action.data;
   const myClaims = state.myClaims || [];
+  const pendingById = Object.assign(state.pendingById);
 
   let myChannelClaims;
   let byId = Object.assign({}, state.byId);
@@ -3841,6 +3843,10 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
       // $FlowFixMe
       myChannelClaims.add(claim.claim_id);
       byId[claim.claim_id] = claim;
+
+      if (pendingById[claim.claim_id] && claim.confirmations > 0) {
+        delete pendingById[claim.claim_id];
+      }
     });
   }
 
@@ -3940,13 +3946,16 @@ reducers[CREATE_CHANNEL_STARTED] = state => _extends$6({}, state, {
 reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
   const channelClaim = action.data.channelClaim;
   const byId = Object.assign({}, state.byId);
+  const pendingById = Object.assign({}, state.pendingById);
   const myChannelClaims = new Set(state.myChannelClaims);
 
   byId[channelClaim.claim_id] = channelClaim;
+  pendingById[channelClaim.claim_id] = channelClaim;
   myChannelClaims.add(channelClaim.claim_id);
 
   return Object.assign({}, state, {
     byId,
+    pendingById,
     myChannelClaims,
     creatingChannel: false
   });

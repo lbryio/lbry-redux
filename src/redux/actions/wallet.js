@@ -14,6 +14,7 @@ export function doUpdateBalance() {
       const { available, reserved, reserved_subtotals, total } = response;
       const { claims, supports, tips } = reserved_subtotals;
       const totalFloat = parseFloat(total);
+
       if (totalInStore !== totalFloat) {
         dispatch({
           type: ACTIONS.UPDATE_BALANCE,
