@@ -15,6 +15,7 @@ const CHANNEL_NEW = 'new';
 const PAGE_SIZE = 20;
 
 var claim = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   MINIMUM_PUBLISH_BID: MINIMUM_PUBLISH_BID,
   CHANNEL_ANONYMOUS: CHANNEL_ANONYMOUS,
   CHANNEL_NEW: CHANNEL_NEW,
@@ -268,6 +269,7 @@ const TOGGLE_BLOCK_CHANNEL = 'TOGGLE_BLOCK_CHANNEL';
 const USER_STATE_POPULATE = 'USER_STATE_POPULATE';
 
 var action_types = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   WINDOW_FOCUSED: WINDOW_FOCUSED,
   DAEMON_READY: DAEMON_READY,
   DAEMON_VERSION_MATCH: DAEMON_VERSION_MATCH,
@@ -504,6 +506,7 @@ const OTHER = 'other';
 const COPYRIGHT = 'copyright';
 
 var licenses = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   CC_LICENSES: CC_LICENSES,
   NONE: NONE,
   PUBLIC_DOMAIN: PUBLIC_DOMAIN,
@@ -534,6 +537,7 @@ const HISTORY = 'user_history';
 const WALLET = 'wallet';
 
 var pages = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   AUTH: AUTH,
   BACKUP: BACKUP,
   CHANNEL: CHANNEL,
@@ -578,6 +582,7 @@ const FOREGROUND_NOTIFICATION_ENABLED = 'foregroundNotificationEnabled';
 const KEEP_DAEMON_RUNNING = 'keepDaemonRunning';
 
 var settings = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   CREDIT_REQUIRED_ACKNOWLEDGED: CREDIT_REQUIRED_ACKNOWLEDGED,
   NEW_USER_ACKNOWLEDGED: NEW_USER_ACKNOWLEDGED,
   EMAIL_COLLECTION_ACKNOWLEDGED: EMAIL_COLLECTION_ACKNOWLEDGED,
@@ -600,6 +605,7 @@ const TITLE = 'title';
 const FILENAME = 'filename';
 
 var sort_options = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   DATE_NEW: DATE_NEW,
   DATE_OLD: DATE_OLD,
   TITLE: TITLE,
@@ -613,6 +619,7 @@ const COMPLETE = 'complete';
 const MANUAL = 'manual';
 
 var thumbnail_upload_statuses = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   API_DOWN: API_DOWN,
   READY: READY,
   IN_PROGRESS: IN_PROGRESS,
@@ -632,6 +639,7 @@ const UPDATE = 'update';
 const ABANDON = 'abandon';
 
 var transaction_types = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   ALL: ALL,
   SPEND: SPEND,
   RECEIVE: RECEIVE,
@@ -647,6 +655,7 @@ var transaction_types = /*#__PURE__*/Object.freeze({
 const PAGE_SIZE$1 = 50;
 
 var transaction_list = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   PAGE_SIZE: PAGE_SIZE$1
 });
 
@@ -2750,13 +2759,31 @@ const makeSelectFileNameForUri = uri => reselect.createSelector(makeSelectFileIn
   return fileInfo && fileInfo.file_name;
 });
 
-const makeSelectDownloadUrlsForPage = (page = 1) => reselect.createSelector(selectDownloadedUris, urls => {
+const selectDownloadUrlsCount = reselect.createSelector(selectDownloadedUris, uris => uris.length);
+
+function filterFileInfos(fileInfos, query) {
+  if (query) {
+    const queryMatchRegExp = new RegExp(query, 'i');
+    return fileInfos.filter(fileInfo => {
+      const { metadata } = fileInfo;
+      return metadata.title && metadata.title.match(queryMatchRegExp) || fileInfo.channel_name && fileInfo.channel_name.match(queryMatchRegExp) || fileInfo.claim_name && fileInfo.claim_name.match(queryMatchRegExp);
+    });
+  }
+
+  return fileInfos;
+}
+
+const makeSelectSearchDownloadUrlsForPage = (query, page = 1) => reselect.createSelector(selectFileInfosDownloaded, fileInfos => {
+  const matchingFileInfos = filterFileInfos(fileInfos, query);
   const start = (Number(page) - 1) * Number(PAGE_SIZE);
   const end = Number(page) * Number(PAGE_SIZE);
-  return urls && urls.length ? urls.slice(start, end) : [];
+
+  return matchingFileInfos && matchingFileInfos.length ? matchingFileInfos.slice(start, end).map(fileInfo => buildURI({ streamName: fileInfo.claim_name, channelName: fileInfo.channel_name, channelClaimId: fileInfo.channel_claim_id })) : [];
 });
 
-const selectDownloadUrlsCount = reselect.createSelector(selectDownloadedUris, uris => uris.length);
+const makeSelectSearchDownloadUrlsCount = query => reselect.createSelector(selectFileInfosDownloaded, fileInfos => {
+  return fileInfos && fileInfos.length ? filterFileInfos(fileInfos, query).length : 0;
+});
 
 //      
 
@@ -5116,7 +5143,6 @@ exports.makeSelectContentTypeForUri = makeSelectContentTypeForUri;
 exports.makeSelectCoverForUri = makeSelectCoverForUri;
 exports.makeSelectDateForUri = makeSelectDateForUri;
 exports.makeSelectDownloadPathForUri = makeSelectDownloadPathForUri;
-exports.makeSelectDownloadUrlsForPage = makeSelectDownloadUrlsForPage;
 exports.makeSelectDownloadingForUri = makeSelectDownloadingForUri;
 exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
@@ -5138,6 +5164,8 @@ exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
 exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
 exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
+exports.makeSelectSearchDownloadUrlsCount = makeSelectSearchDownloadUrlsCount;
+exports.makeSelectSearchDownloadUrlsForPage = makeSelectSearchDownloadUrlsForPage;
 exports.makeSelectSearchUris = makeSelectSearchUris;
 exports.makeSelectShortUrlForUri = makeSelectShortUrlForUri;
 exports.makeSelectStreamingUrlForUri = makeSelectStreamingUrlForUri;
