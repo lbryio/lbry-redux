@@ -12,9 +12,9 @@ Add `lbry-redux` as a dependency to your `package.json` file.
 If you intend to make changes to the module and test immediately, you can use `npm link` to add the package to your `node_modules` folder. This will create a symlink to the folder where `lbry-redux` was cloned to.
 ```
 cd lbry-redux
-sudo npm link
-cd /<path>/<to>/<project>/node_modules
-npm link lbry-redux
+yarn link
+cd /<path>/<to>/<project> (ex: cd ~/lbry-desktop)
+yarn link lbry-redux
 ````
 
 ### Build
