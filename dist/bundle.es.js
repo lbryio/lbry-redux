@@ -652,10 +652,12 @@ var transaction_list = /*#__PURE__*/Object.freeze({
   PAGE_SIZE: PAGE_SIZE$1
 });
 
-const AUTH_TOKEN = 'X-Lbry-Auth-Token';
+const SPEECH_STATUS = 'https://spee.ch/api/config/site/publishing';
+const SPEECH_PUBLISH = 'https://spee.ch/api/claim/publish';
 
-var headers = /*#__PURE__*/Object.freeze({
-  AUTH_TOKEN: AUTH_TOKEN
+var speech_urls = /*#__PURE__*/Object.freeze({
+  SPEECH_STATUS: SPEECH_STATUS,
+  SPEECH_PUBLISH: SPEECH_PUBLISH
 });
 
 const SEARCH_TYPES = {
@@ -1092,18 +1094,6 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
   } = UrlObj,
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
   const { claimId, claimName, contentName } = deprecatedParts;
-
-  {
-    if (claimId) {
-      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
-    }
-    if (claimName) {
-      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
-    }
-    if (contentName) {
-      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
-    }
-  }
 
   if (!claimName && !channelName && !streamName) {
     console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
@@ -3218,9 +3208,6 @@ function doSetFileListSort(page, value) {
   };
 }
 
-const SPEECH_STATUS = 'https://spee.ch/api/config/site/publishing';
-const SPEECH_PUBLISH = 'https://spee.ch/api/claim/publish';
-
 function _objectWithoutProperties$2(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 const selectState$5 = state => state.publish || {};
@@ -3349,7 +3336,7 @@ const doUpdatePublishForm = publishFormValue => dispatch => dispatch({
   data: _extends$5({}, publishFormValue)
 });
 
-const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter, fs, path) => dispatch => {
+const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => dispatch => {
   let thumbnail, fileExt, fileName, fileType;
 
   const makeid = () => {
@@ -3399,23 +3386,22 @@ const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter, fs, path) => di
       }) : uploadError(json.message)).catch(err => uploadError(err.message));
     });
   } else {
-    if (filePath) {
+    if (filePath && fs && path) {
       thumbnail = fs.readFileSync(filePath);
       fileExt = path.extname(filePath);
       fileName = path.basename(filePath);
       fileType = `image/${fileExt.slice(1)}`;
-    } else if (thumbnailBuffer) {
-      thumbnail = thumbnailBuffer;
-      fileExt = '.png';
-      fileName = 'thumbnail.png';
-      fileType = 'image/png';
+    } else if (thumbnailBlob) {
+      fileExt = `.${thumbnailBlob.type && thumbnailBlob.type.split('/')[1]}`;
+      fileName = thumbnailBlob.name;
+      fileType = thumbnailBlob.type;
     } else {
       return null;
     }
 
     const data = new FormData();
     const name = makeid();
-    const file = new File([thumbnail], fileName, { type: fileType });
+    const file = thumbnailBlob || thumbnail && new File([thumbnail], fileName, { type: fileType });
     data.append('name', name);
     data.append('file', file);
 
@@ -5289,7 +5275,6 @@ exports.ACTIONS = action_types;
 exports.CLAIM_VALUES = claim;
 exports.DEFAULT_FOLLOWED_TAGS = DEFAULT_FOLLOWED_TAGS;
 exports.DEFAULT_KNOWN_TAGS = DEFAULT_KNOWN_TAGS;
-exports.HEADERS = headers;
 exports.LICENSES = licenses;
 exports.Lbry = lbryProxy;
 exports.MATURE_TAGS = MATURE_TAGS;
@@ -5298,6 +5283,7 @@ exports.SEARCH_OPTIONS = SEARCH_OPTIONS;
 exports.SEARCH_TYPES = SEARCH_TYPES;
 exports.SETTINGS = settings;
 exports.SORT_OPTIONS = sort_options;
+exports.SPEECH_URLS = speech_urls;
 exports.THUMBNAIL_STATUSES = thumbnail_upload_statuses;
 exports.TRANSACTIONS = transaction_types;
 exports.TX_LIST = transaction_list;
