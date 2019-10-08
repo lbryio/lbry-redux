@@ -971,13 +971,19 @@ function parseURI(URL, requireProto = false) {
 
   // Validate protocol
   if (requireProto && !proto) {
-    throw new Error(__('LBRY URIs must include a protocol prefix (lbry://).'));
+    throw new Error(__('LBRY URLs must include a protocol prefix (lbry://).'));
   }
 
   // Validate and process name
   if (!streamNameOrChannelName) {
-    throw new Error(__('URI does not include name.'));
+    throw new Error(__('URL does not include name.'));
   }
+
+  rest.forEach(urlPiece => {
+    if (urlPiece && urlPiece.includes(' ')) {
+      throw new Error('URL can not include a space');
+    }
+  });
 
   const includesChannel = streamNameOrChannelName.startsWith('@');
   const isChannel = streamNameOrChannelName.startsWith('@') && !possibleStreamName;
@@ -1108,7 +1114,8 @@ function normalizeURI(URL) {
 
 function isURIValid(URL) {
   try {
-    parseURI(normalizeURI(URL));
+    let parts = parseURI(normalizeURI(URL));
+    console.log('parts', parts);
   } catch (error) {
     return false;
   }

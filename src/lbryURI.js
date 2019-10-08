@@ -10,9 +10,7 @@ const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
 const regexPartModifierSeparator = '([:$#]?)([^/]*)';
 const queryStringBreaker = '^([\\S]+)([?][\\S]*)';
-const separateQuerystring = new RegExp(
-  queryStringBreaker
-);
+const separateQuerystring = new RegExp(queryStringBreaker);
 
 /**
  * Parses a LBRY name into its component parts. Throws errors with user-friendly
@@ -44,7 +42,7 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
   );
   // chop off the querystring first
   let QSStrippedURL, qs;
-  const qsRegexResult = separateQuerystring.exec(URL)
+  const qsRegexResult = separateQuerystring.exec(URL);
   if (qsRegexResult) {
     [QSStrippedURL, qs] = qsRegexResult.slice(1).map(match => match || null);
   }
@@ -65,13 +63,19 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
 
   // Validate protocol
   if (requireProto && !proto) {
-    throw new Error(__('LBRY URIs must include a protocol prefix (lbry://).'));
+    throw new Error(__('LBRY URLs must include a protocol prefix (lbry://).'));
   }
 
   // Validate and process name
   if (!streamNameOrChannelName) {
-    throw new Error(__('URI does not include name.'));
+    throw new Error(__('URL does not include name.'));
   }
+
+  rest.forEach(urlPiece => {
+    if (urlPiece && urlPiece.includes(' ')) {
+      throw new Error('URL can not include a space');
+    }
+  });
 
   const includesChannel = streamNameOrChannelName.startsWith('@');
   const isChannel = streamNameOrChannelName.startsWith('@') && !possibleStreamName;
@@ -119,7 +123,7 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
     claimName: streamNameOrChannelName,
     claimId: primaryClaimId,
     ...(streamName ? { contentName: streamName } : {}),
-    ...(qs ? { queryString: qs} : {}),
+    ...(qs ? { queryString: qs } : {}),
   };
 }
 
@@ -256,7 +260,8 @@ export function normalizeURI(URL: string) {
 
 export function isURIValid(URL: string): boolean {
   try {
-    parseURI(normalizeURI(URL));
+    let parts = parseURI(normalizeURI(URL));
+    console.log('parts', parts);
   } catch (error) {
     return false;
   }
