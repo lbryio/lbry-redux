@@ -260,8 +260,7 @@ export function normalizeURI(URL: string) {
 
 export function isURIValid(URL: string): boolean {
   try {
-    let parts = parseURI(normalizeURI(URL));
-    console.log('parts', parts);
+    parseURI(normalizeURI(URL));
   } catch (error) {
     return false;
   }
