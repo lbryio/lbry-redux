@@ -1290,8 +1290,6 @@ function doDismissError() {
   };
 }
 
-//      
-
 const selectState$1 = state => state.wallet || {};
 
 const selectWalletState = selectState$1;
@@ -1339,7 +1337,7 @@ const selectTransactionsById = reselect.createSelector(selectState$1, state => s
 const selectSupportsByOutpoint = reselect.createSelector(selectState$1, state => state.supports || {});
 
 const selectTotalSupports = reselect.createSelector(selectSupportsByOutpoint, byOutpoint => {
-  let total = parseFloat("0.0");
+  let total = parseFloat('0.0');
 
   Object.values(byOutpoint).forEach(support => {
     const { amount } = support;
@@ -1869,22 +1867,40 @@ const makeSelectMyStreamUrlsForPage = (page = 1) => reselect.createSelector(sele
 
 const selectMyStreamUrlsCount = reselect.createSelector(selectMyClaimUrisWithoutChannels, channels => channels.length);
 
+function numberWithCommas(x) {
+  var parts = x.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+}
+
 function formatCredits(amount, precision, shortFormat = false) {
-  let actualAmount = parseFloat(amount),
-      suffix = '';
+  let actualAmount = parseFloat(amount);
+  let actualPrecision = parseFloat(precision);
+  let suffix = '';
+
   if (Number.isNaN(actualAmount)) return '0';
 
-  if (shortFormat) {
-    if (actualAmount >= 1000000) {
-      actualAmount = actualAmount / 1000000;
-      suffix = 'M';
-    } else if (actualAmount >= 1000) {
-      actualAmount = actualAmount / 1000;
-      suffix = 'K';
+  if (actualAmount >= 1000000) {
+    if (precision <= 7) {
+      if (shortFormat) {
+        actualAmount = actualAmount / 1000000;
+        suffix = 'M';
+      } else {
+        actualPrecision -= 7;
+      }
+    }
+  } else if (actualAmount >= 1000) {
+    if (precision <= 4) {
+      if (shortFormat) {
+        actualAmount = actualAmount / 1000;
+        suffix = 'K';
+      } else {
+        actualPrecision -= 4;
+      }
     }
   }
 
-  return actualAmount.toFixed(precision || 1).replace(/\.?0+$/, '') + suffix;
+  return numberWithCommas(actualAmount.toFixed(actualPrecision >= 0 ? actualPrecision : 1).replace(/\.*0+$/, '')) + suffix;
 }
 
 function formatFullPrice(amount, precision = 1) {
@@ -1919,6 +1935,7 @@ function doUpdateBalance() {
       const { available, reserved, reserved_subtotals, total } = response;
       const { claims, supports, tips } = reserved_subtotals;
       const totalFloat = parseFloat(total);
+
       if (totalInStore !== totalFloat) {
         dispatch({
           type: UPDATE_BALANCE,
@@ -3813,6 +3830,7 @@ reducers[FETCH_CHANNEL_LIST_STARTED] = state => Object.assign({}, state, { fetch
 reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   const { claims } = action.data;
   const myClaims = state.myClaims || [];
+  const pendingById = Object.assign(state.pendingById);
 
   let myChannelClaims;
   let byId = Object.assign({}, state.byId);
@@ -3825,6 +3843,10 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
       // $FlowFixMe
       myChannelClaims.add(claim.claim_id);
       byId[claim.claim_id] = claim;
+
+      if (pendingById[claim.claim_id] && claim.confirmations > 0) {
+        delete pendingById[claim.claim_id];
+      }
     });
   }
 
@@ -3924,13 +3946,16 @@ reducers[CREATE_CHANNEL_STARTED] = state => _extends$6({}, state, {
 reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
   const channelClaim = action.data.channelClaim;
   const byId = Object.assign({}, state.byId);
+  const pendingById = Object.assign({}, state.pendingById);
   const myChannelClaims = new Set(state.myChannelClaims);
 
   byId[channelClaim.claim_id] = channelClaim;
+  pendingById[channelClaim.claim_id] = channelClaim;
   myChannelClaims.add(channelClaim.claim_id);
 
   return Object.assign({}, state, {
     byId,
+    pendingById,
     myChannelClaims,
     creatingChannel: false
   });
