@@ -995,7 +995,9 @@ function parseURI(URL, requireProto = false) {
     }
 
     if (channelName.length < channelNameMinLength) {
-      throw new Error(__(`Channel names must be at least %s characters.`, channelNameMinLength));
+      throw new Error(__(`Channel names must be at least %channelNameMinLength% characters.`, {
+        channelNameMinLength
+      }));
     }
   }
 
@@ -1025,7 +1027,7 @@ function parseURIModifier(modSeperator, modValue) {
 
   if (modSeperator) {
     if (!modValue) {
-      throw new Error(__(`No modifier provided after separator %s.`, modSeperator));
+      throw new Error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
     }
 
     if (modSeperator === '#') {
@@ -1038,7 +1040,7 @@ function parseURIModifier(modSeperator, modValue) {
   }
 
   if (claimId && (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/))) {
-    throw new Error(__(`Invalid claim ID %s.`, claimId));
+    throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
   }
 
   if (claimSequence && !claimSequence.match(/^-?[1-9][0-9]*$/)) {
@@ -1114,8 +1116,7 @@ function normalizeURI(URL) {
 
 function isURIValid(URL) {
   try {
-    let parts = parseURI(normalizeURI(URL));
-    console.log('parts', parts);
+    parseURI(normalizeURI(URL));
   } catch (error) {
     return false;
   }

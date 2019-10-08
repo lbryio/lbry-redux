@@ -237,7 +237,18 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
       type: ACTIONS.CREATE_CHANNEL_STARTED,
     });
 
-    const createParams = {
+    const createParams: {
+      name: string,
+      bid: string,
+      blocking: true,
+      title?: string,
+      cover_url?: string,
+      thumbnail_url?: string,
+      description?: string,
+      website_url?: string,
+      email?: string,
+      tags?: Array<string>,
+    } = {
       name,
       bid: creditsToString(amount),
       blocking: true,
@@ -317,7 +328,7 @@ export function doUpdateChannel(params: any) {
       updateParams.tags = params.tags.map(tag => tag.name);
     }
 
-    //we'll need to remove these once we add locations/channels to channel page edit/create options
+    // we'll need to remove these once we add locations/channels to channel page edit/create options
 
     if (channelClaim && channelClaim.value && channelClaim.value.locations) {
       updateParams.locations = channelClaim.value.locations;
