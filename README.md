@@ -27,4 +27,4 @@ We :heart: contributions from everyone! We welcome [bug reports](https://github.
 
 ## License
 
-This module is released under the [MIT License](license)
+This module is released under the [MIT License](LICENSE)
