@@ -114,7 +114,12 @@ export { doCommentList, doCommentCreate } from 'redux/actions/comments';
 
 export { doToggleBlockChannel } from 'redux/actions/blocked';
 
-export { doPopulateSharedUserState } from 'redux/actions/sync';
+export {
+  doPopulateSharedUserState,
+  doPreferenceGet,
+  doPreferenceSet,
+  sharedStateSubscriber
+} from 'redux/actions/sync';
 
 // utils
 export { batchActions } from 'util/batch-actions';

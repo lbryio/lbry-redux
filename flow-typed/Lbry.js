@@ -202,6 +202,10 @@ declare type LbryTypes = {
   blob_delete: (params: {}) => Promise<string>,
   blob_list: (params: {}) => Promise<BlobListResponse>,
 
+  // Preferences
+  preference_get: (params: {}) => Promise<any>,
+  preference_set: (params: {}) => Promise<any>,
+
   // Commenting
   comment_list: (params: {}) => Promise<CommentListResponse>,
   comment_create: (params: {}) => Promise<CommentCreateResponse>,
