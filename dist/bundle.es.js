@@ -2563,7 +2563,7 @@ function doUpdateChannel(params) {
       updateParams.tags = params.tags.map(tag => tag.name);
     }
 
-    //we'll need to remove these once we add locations/channels to channel page edit/create options
+    // we'll need to remove these once we add locations/channels to channel page edit/create options
 
     if (channelClaim && channelClaim.value && channelClaim.value.locations) {
       updateParams.locations = channelClaim.value.locations;
@@ -3834,7 +3834,12 @@ function doPreferenceSet(key, value, version, accountId, walletId, success, fail
     value
   };
 
-  lbryProxy.preference_set({ key, value: JSON.stringify(preference), account_id: accountId, wallet_id: walletId }).then(() => {
+  const options = _extends$5({
+    key,
+    value: JSON.stringify(preference)
+  }, accountId ? { account_id: accountId } : {}, walletId ? { wallet_id: walletId } : {});
+
+  lbryProxy.preference_set(options).then(() => {
     success(preference);
   }).catch(() => {
     if (fail) {
@@ -3844,7 +3849,11 @@ function doPreferenceSet(key, value, version, accountId, walletId, success, fail
 }
 
 function doPreferenceGet(key, accountId, walletId, success, fail) {
-  lbryProxy.preference_get({ key, account_id: accountId, wallet_id: walletId }).then(result => {
+  const options = _extends$5({
+    key
+  }, accountId ? { account_id: accountId } : {}, walletId ? { wallet_id: walletId } : {});
+
+  lbryProxy.preference_get(options).then(result => {
     if (result) {
       const preference = result[key];
       return success(preference);

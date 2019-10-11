@@ -39,8 +39,8 @@ export function sharedStateSubscriber(
   filters: any,
   version: string,
   accountId: string,
-  walletId: string)
-{
+  walletId: string
+) {
   // the shared object that will be saved
   const shared = {};
 
@@ -54,7 +54,6 @@ export function sharedStateSubscriber(
 
     shared[key] = value;
   });
-
 
   if (!isEqual(oldShared, shared)) {
     // only update if the preference changed from last call in the same session
@@ -73,33 +72,54 @@ export function doPreferenceSet(
   fail: Function
 ) {
   const preference = {
-    type: (typeof value),
+    type: typeof value,
     version,
     value,
   };
 
-  Lbry.preference_set({ key, value: JSON.stringify(preference), account_id: accountId, wallet_id: walletId }).then(() => {
-    success(preference);
-  }).catch(() => {
-    if (fail) { fail(); }
-  });
+  const options = {
+    key,
+    value: JSON.stringify(preference),
+    ...(accountId ? { account_id: accountId } : {}),
+    ...(walletId ? { wallet_id: walletId } : {}),
+  };
+
+  Lbry.preference_set(options)
+    .then(() => {
+      success(preference);
+    })
+    .catch(() => {
+      if (fail) {
+        fail();
+      }
+    });
 }
 
 export function doPreferenceGet(
   key: string,
-  accountId: string,
-  walletId: string,
+  accountId?: string,
+  walletId?: string,
   success: Function,
-  fail: Function
+  fail?: Function
 ) {
-  Lbry.preference_get({ key, account_id: accountId, wallet_id: walletId }).then(result => {
-    if (result) {
-      const preference = result[key];
-      return success(preference);
-    }
+  const options = {
+    key,
+    ...(accountId ? { account_id: accountId } : {}),
+    ...(walletId ? { wallet_id: walletId } : {}),
+  };
 
-    return success(null);
-  }).catch(err => {
-    if (fail) { fail(err); }
-  });
+  Lbry.preference_get(options)
+    .then(result => {
+      if (result) {
+        const preference = result[key];
+        return success(preference);
+      }
+
+      return success(null);
+    })
+    .catch(err => {
+      if (fail) {
+        fail(err);
+      }
+    });
 }
