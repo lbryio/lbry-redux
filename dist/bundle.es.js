@@ -1890,7 +1890,7 @@ function formatCredits(amount, precision, shortFormat = false) {
   let actualPrecision = parseFloat(precision);
   let suffix = '';
 
-  if (Number.isNaN(actualAmount)) return '0';
+  if (Number.isNaN(actualAmount) || actualAmount === 0) return '0';
 
   if (actualAmount >= 1000000) {
     if (precision <= 7) {
@@ -2563,7 +2563,7 @@ function doUpdateChannel(params) {
       updateParams.tags = params.tags.map(tag => tag.name);
     }
 
-    //we'll need to remove these once we add locations/channels to channel page edit/create options
+    // we'll need to remove these once we add locations/channels to channel page edit/create options
 
     if (channelClaim && channelClaim.value && channelClaim.value.locations) {
       updateParams.locations = channelClaim.value.locations;

@@ -9,7 +9,7 @@ export function formatCredits(amount, precision, shortFormat = false) {
   let actualPrecision = parseFloat(precision);
   let suffix = '';
 
-  if (Number.isNaN(actualAmount)) return '0';
+  if (Number.isNaN(actualAmount) || actualAmount === 0) return '0';
 
   if (actualAmount >= 1000000) {
     if (precision <= 7) {
