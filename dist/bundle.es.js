@@ -2496,11 +2496,13 @@ function doCreateChannel(name, amount, optionalParams) {
         type: CREATE_CHANNEL_COMPLETED,
         data: { channelClaim }
       });
+      return channelClaim;
     }).catch(error => {
       dispatch({
         type: CREATE_CHANNEL_FAILED,
         data: error.message
       });
+      return error;
     });
   };
 }

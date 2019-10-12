@@ -277,12 +277,14 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
             type: ACTIONS.CREATE_CHANNEL_COMPLETED,
             data: { channelClaim },
           });
+          return channelClaim;
         })
         .catch(error => {
           dispatch({
             type: ACTIONS.CREATE_CHANNEL_FAILED,
             data: error.message,
           });
+          return error;
         })
     );
   };
