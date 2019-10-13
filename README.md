@@ -18,7 +18,7 @@ yarn link lbry-redux
 ````
 
 ### Build
-Run `$ yarn build`. If the symlink does not work, just build the file and move the `bundle.js` file in to the `node_modules/` folder.
+Run `$ yarn build`. If the symlink does not work, just build the file and move the `bundle.js` file into the `node_modules/` folder.
 
 ## Contributing 
 We :heart: contributions from everyone! We welcome [bug reports](https://github.com/lbryio/lbry-redux/issues/), [bug fixes](https://github.com/lbryio/lbry-redux/pulls) and feedback on the module is always appreciated.
