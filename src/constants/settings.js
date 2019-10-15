@@ -17,3 +17,4 @@ export const AUTOMATIC_DARK_MODE_ENABLED = 'automaticDarkModeEnabled';
 export const BACKGROUND_PLAY_ENABLED = 'backgroundPlayEnabled';
 export const FOREGROUND_NOTIFICATION_ENABLED = 'foregroundNotificationEnabled';
 export const KEEP_DAEMON_RUNNING = 'keepDaemonRunning';
+export const SHOW_URI_BAR_SUGGESTIONS = 'showUriBarSuggestions';
