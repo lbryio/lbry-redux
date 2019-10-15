@@ -48,7 +48,8 @@ export function doCommentCreate(
       type: ACTIONS.COMMENT_CREATE_STARTED,
     });
     const myChannels = selectMyChannelClaims(state);
-    const namedChannelClaim = myChannels.find(myChannel => myChannel.name === channel);
+    const namedChannelClaim =
+      myChannels && myChannels.find(myChannel => myChannel.name === channel);
     const channel_id = namedChannelClaim ? namedChannelClaim.claim_id : null;
     return Lbry.comment_create({
       comment,
