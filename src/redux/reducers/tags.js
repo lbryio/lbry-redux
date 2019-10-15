@@ -14,7 +14,7 @@ function getDefaultKnownTags() {
 }
 
 const defaultState: TagState = {
-  followedTags: [],
+  followedTags: DEFAULT_FOLLOWED_TAGS,
   knownTags: getDefaultKnownTags(),
 };
 

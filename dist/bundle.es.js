@@ -4803,7 +4803,7 @@ function getDefaultKnownTags() {
 }
 
 const defaultState$8 = {
-  followedTags: [],
+  followedTags: DEFAULT_FOLLOWED_TAGS,
   knownTags: getDefaultKnownTags()
 };
 
