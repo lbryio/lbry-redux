@@ -1469,11 +1469,11 @@ const buildSharedStateMiddleware = (actions, sharedStateFilters, sharedStateCb) 
     // only update if the preference changed from last call in the same session
     oldShared = shared;
     doPreferenceSet(SHARED_PREFERENCE_KEY, shared, SHARED_PREFERENCE_VERSION);
+  }
 
-    if (sharedStateCb) {
-      // Pass dispatch to the callback to consumers can dispatch actions in response to preference set
-      sharedStateCb({ dispatch, getState });
-    }
+  if (sharedStateCb) {
+    // Pass dispatch to the callback to consumers can dispatch actions in response to preference set
+    sharedStateCb({ dispatch, getState });
   }
 
   return actionResult;
