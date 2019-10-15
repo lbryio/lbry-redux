@@ -129,36 +129,20 @@ declare type TxListResponse = Array<Transaction>;
 
 declare type BlobListResponse = Array<string>;
 
-declare type AccountListResponse = Array<{
+declare type WalletListResponse = Array<{
   id: string,
-  is_default: string,
-  ledger: string,
   name: string,
-  seed: string,
-  encrypted: string,
-  private_key: string,
-  public_key: string,
-  address_generator: string,
-  modified_on: string,
 }>;
+
+declare type WalletStatusResponse = {
+  is_encrypted: boolean,
+  is_locked: boolean,
+};
 
 declare type SyncApplyResponse = {
   hash: string,
   data: string,
 };
-
-declare type AccountSetResponse = Array<{
-  id: string,
-  is_default: string,
-  ledger: string,
-  name: string,
-  seed: string,
-  encrypted: string,
-  private_key: string,
-  public_key: string,
-  address_generator: string,
-  modified_on: string,
-}>;
 
 declare type SupportAbandonResponse = GenericTxResponse;
 
@@ -211,12 +195,12 @@ declare type LbryTypes = {
   comment_create: (params: {}) => Promise<CommentCreateResponse>,
   // Wallet utilities
   wallet_balance: (params: {}) => Promise<BalanceResponse>,
-  account_decrypt: (prams: {}) => Promise<boolean>,
-  account_encrypt: (params: {}) => Promise<boolean>,
-  account_unlock: (params: {}) => Promise<boolean>,
-  account_list: (params: {}) => Promise<AccountListResponse>,
+  wallet_decrypt: (prams: {}) => Promise<boolean>,
+  wallet_encrypt: (params: {}) => Promise<boolean>,
+  wallet_unlock: (params: {}) => Promise<boolean>,
+  wallet_list: (params: {}) => Promise<WalletListResponse>,
   wallet_send: (params: {}) => Promise<GenericTxResponse>,
-  account_set: (params: {}) => Promise<AccountSetResponse>,
+  wallet_status: (params: {}) => Promise<WalletStatusResponse>,
   address_is_mine: (params: {}) => Promise<boolean>,
   address_unused: (params: {}) => Promise<string>, // New address
   address_list: (params: {}) => Promise<string>,

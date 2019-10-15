@@ -94,12 +94,12 @@ const Lbry: LbryTypes = {
 
   // Wallet utilities
   wallet_balance: (params = {}) => daemonCallWithResult('wallet_balance', params),
-  account_decrypt: () => daemonCallWithResult('account_decrypt', {}),
-  account_encrypt: (params = {}) => daemonCallWithResult('account_encrypt', params),
-  account_unlock: (params = {}) => daemonCallWithResult('account_unlock', params),
-  account_list: (params = {}) => daemonCallWithResult('account_list', params),
+  wallet_decrypt: () => daemonCallWithResult('wallet_decrypt', {}),
+  wallet_encrypt: (params = {}) => daemonCallWithResult('wallet_encrypt', params),
+  wallet_unlock: (params = {}) => daemonCallWithResult('wallet_unlock', params),
+  wallet_list: (params = {}) => daemonCallWithResult('wallet_list', params),
   wallet_send: (params = {}) => daemonCallWithResult('wallet_send', params),
-  account_set: (params = {}) => daemonCallWithResult('account_set', params),
+  wallet_status: (params = {}) => daemonCallWithResult('wallet_status', params),
   address_is_mine: (params = {}) => daemonCallWithResult('address_is_mine', params),
   address_unused: (params = {}) => daemonCallWithResult('address_unused', params),
   address_list: (params = {}) => daemonCallWithResult('address_list', params),
