@@ -44,6 +44,9 @@ export {
   convertToShareLink,
 } from 'lbryURI';
 
+// middlware
+export { buildSharedStateMiddleware } from 'redux/middleware/shared-state';
+
 // actions
 export { doToast, doDismissToast, doError, doDismissError } from 'redux/actions/notifications';
 
@@ -114,12 +117,7 @@ export { doCommentList, doCommentCreate } from 'redux/actions/comments';
 
 export { doToggleBlockChannel } from 'redux/actions/blocked';
 
-export {
-  doPopulateSharedUserState,
-  doPreferenceGet,
-  doPreferenceSet,
-  sharedStateSubscriber
-} from 'redux/actions/sync';
+export { doPopulateSharedUserState, doPreferenceGet, doPreferenceSet } from 'redux/actions/sync';
 
 // utils
 export { batchActions } from 'util/batch-actions';

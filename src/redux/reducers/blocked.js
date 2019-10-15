@@ -26,6 +26,17 @@ export const blockedReducer = handleActions(
         blockedChannels: newBlockedChannels,
       };
     },
+    [ACTIONS.USER_STATE_POPULATE]: (
+      state: BlocklistState,
+      action: { data: { blockedChannels: ?Array<string> } }
+    ) => {
+      const { blockedChannels } = action.data;
+      return {
+        ...state,
+        blockedChannels:
+          blockedChannels && blockedChannels.length ? blockedChannels : state.blockedChannels,
+      };
+    },
   },
   defaultState
 );
