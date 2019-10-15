@@ -3998,7 +3998,7 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById = Object.assign({}, state.pendingById);
-  const myClaims = state.myClaims || [];
+  const myClaims = [];
 
   claims.forEach(claim => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
