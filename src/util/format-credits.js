@@ -1,15 +1,9 @@
-function numberWithCommas(x) {
-  var parts = x.toString().split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return parts.join('.');
-}
-
 export function formatCredits(amount, precision, shortFormat = false) {
   let actualAmount = parseFloat(amount);
   let actualPrecision = parseFloat(precision);
   let suffix = '';
 
-  if (Number.isNaN(actualAmount) || actualAmount === 0) return '0';
+  if (!amount || Number.isNaN(actualAmount) || actualAmount === 0) return '0';
 
   if (actualAmount >= 1000000) {
     if (precision <= 7) {
@@ -31,10 +25,12 @@ export function formatCredits(amount, precision, shortFormat = false) {
     }
   }
 
+  const number = actualAmount.toString().replace(/\.*0+$/, '');
+
   return (
-    numberWithCommas(
-      actualAmount.toFixed(actualPrecision >= 0 ? actualPrecision : 1).replace(/\.*0+$/, '')
-    ) + suffix
+    new Intl.NumberFormat('en-IN', {
+      maximumSignificantDigits: actualPrecision >= 0 ? actualPrecision : 1,
+    }).format(number) + suffix
   );
 }
 
