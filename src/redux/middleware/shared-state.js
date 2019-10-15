@@ -43,7 +43,7 @@ export const buildSharedStateMiddleware = (
 
     if (sharedStateCb) {
       // Pass dispatch to the callback to consumers can dispatch actions in response to preference set
-      sharedStateCb(dispatch);
+      sharedStateCb({ dispatch, getState });
     }
   }
 
