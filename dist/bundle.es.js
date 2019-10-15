@@ -761,12 +761,12 @@ const Lbry = {
   blob_list: (params = {}) => daemonCallWithResult('blob_list', params),
 
   // Wallet utilities
-  account_balance: (params = {}) => daemonCallWithResult('account_balance', params),
+  wallet_balance: (params = {}) => daemonCallWithResult('wallet_balance', params),
   account_decrypt: () => daemonCallWithResult('account_decrypt', {}),
   account_encrypt: (params = {}) => daemonCallWithResult('account_encrypt', params),
   account_unlock: (params = {}) => daemonCallWithResult('account_unlock', params),
   account_list: (params = {}) => daemonCallWithResult('account_list', params),
-  account_send: (params = {}) => daemonCallWithResult('account_send', params),
+  wallet_send: (params = {}) => daemonCallWithResult('wallet_send', params),
   account_set: (params = {}) => daemonCallWithResult('account_set', params),
   address_is_mine: (params = {}) => daemonCallWithResult('address_is_mine', params),
   address_unused: (params = {}) => daemonCallWithResult('address_unused', params),
@@ -1265,6 +1265,218 @@ const makeSelectQueryWithOptions = (customQuery, customSize, customFrom, isBackg
   return queryString;
 });
 
+/* eslint-disable */
+// underscore's deep equal function
+// https://github.com/jashkenas/underscore/blob/master/underscore.js#L1189
+
+function isEqual(a, b, aStack, bStack) {
+  // Identical objects are equal. `0 === -0`, but they aren't identical.
+  // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
+  if (a === b) return a !== 0 || 1 / a === 1 / b;
+  // `null` or `undefined` only equal to itself (strict comparison).
+  if (a == null || b == null) return false;
+  // `NaN`s are equivalent, but non-reflexive.
+  if (a !== a) return b !== b;
+  // Exhaust primitive checks
+  var type = typeof a;
+  if (type !== 'function' && type !== 'object' && typeof b != 'object') return false;
+  return deepEq(a, b, aStack, bStack);
+}
+
+function deepEq(a, b, aStack, bStack) {
+  // Compare `[[Class]]` names.
+  var className = toString.call(a);
+  if (className !== toString.call(b)) return false;
+  switch (className) {
+    // Strings, numbers, regular expressions, dates, and booleans are compared by value.
+    case '[object RegExp]':
+    // RegExps are coerced to strings for comparison (Note: '' + /a/i === '/a/i')
+    case '[object String]':
+      // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+      // equivalent to `new String("5")`.
+      return '' + a === '' + b;
+    case '[object Number]':
+      // `NaN`s are equivalent, but non-reflexive.
+      // Object(NaN) is equivalent to NaN.
+      if (+a !== +a) return +b !== +b;
+      // An `egal` comparison is performed for other numeric values.
+      return +a === 0 ? 1 / +a === 1 / b : +a === +b;
+    case '[object Date]':
+    case '[object Boolean]':
+      // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+      // millisecond representations. Note that invalid dates with millisecond representations
+      // of `NaN` are not equivalent.
+      return +a === +b;
+    case '[object Symbol]':
+      return SymbolProto.valueOf.call(a) === SymbolProto.valueOf.call(b);
+  }
+
+  var areArrays = className === '[object Array]';
+  if (!areArrays) {
+    if (typeof a != 'object' || typeof b != 'object') return false;
+
+    // Objects with different constructors are not equivalent, but `Object`s or `Array`s
+    // from different frames are.
+    var aCtor = a.constructor,
+        bCtor = b.constructor;
+    if (aCtor !== bCtor && !(typeof aCtor === 'function' && aCtor instanceof aCtor && typeof bCtor === 'function' && bCtor instanceof bCtor) && 'constructor' in a && 'constructor' in b) {
+      return false;
+    }
+  }
+  // Assume equality for cyclic structures. The algorithm for detecting cyclic
+  // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+
+  // Initializing stack of traversed objects.
+  // It's done here since we only need them for objects and arrays comparison.
+  aStack = aStack || [];
+  bStack = bStack || [];
+  var length = aStack.length;
+  while (length--) {
+    // Linear search. Performance is inversely proportional to the number of
+    // unique nested structures.
+    if (aStack[length] === a) return bStack[length] === b;
+  }
+
+  // Add the first object to the stack of traversed objects.
+  aStack.push(a);
+  bStack.push(b);
+
+  // Recursively compare objects and arrays.
+  if (areArrays) {
+    // Compare array lengths to determine if a deep comparison is necessary.
+    length = a.length;
+    if (length !== b.length) return false;
+    // Deep compare the contents, ignoring non-numeric properties.
+    while (length--) {
+      if (!isEqual(a[length], b[length], aStack, bStack)) return false;
+    }
+  } else {
+    // Deep compare objects.
+    var keys = Object.keys(a),
+        key;
+    length = keys.length;
+    // Ensure that both objects contain the same number of properties before comparing deep equality.
+    if (Object.keys(b).length !== length) return false;
+    while (length--) {
+      // Deep compare each member
+      key = keys[length];
+      if (!(has(b, key) && isEqual(a[key], b[key], aStack, bStack))) return false;
+    }
+  }
+  // Remove the first object from the stack of traversed objects.
+  aStack.pop();
+  bStack.pop();
+  return true;
+}
+
+function has(obj, path) {
+  return obj != null && hasOwnProperty.call(obj, path);
+}
+/* eslint-enable */
+
+var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function extractUserState(rawObj) {
+  if (rawObj && rawObj.version === '0.1' && rawObj.value) {
+    const { subscriptions, tags, blockedChannels } = rawObj.value;
+
+    return _extends$2({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blockedChannels ? { blockedChannels } : {});
+  }
+
+  return {};
+}
+
+function doPopulateSharedUserState(settings) {
+  return dispatch => {
+    const { subscriptions, tags } = extractUserState(settings);
+    dispatch({ type: USER_STATE_POPULATE, data: { subscriptions, tags } });
+  };
+}
+
+function doPreferenceSet(key, value, version, success, fail) {
+  const preference = {
+    type: typeof value,
+    version,
+    value
+  };
+
+  const options = {
+    key,
+    value: JSON.stringify(preference)
+  };
+
+  lbryProxy.preference_set(options).then(() => {
+    success(preference);
+  }).catch(() => {
+    if (fail) {
+      fail();
+    }
+  });
+}
+
+function doPreferenceGet(key, success, fail) {
+  const options = {
+    key
+  };
+
+  lbryProxy.preference_get(options).then(result => {
+    if (result) {
+      const preference = result[key];
+      return success(preference);
+    }
+
+    return success(null);
+  }).catch(err => {
+    if (fail) {
+      fail(err);
+    }
+  });
+}
+
+//      
+
+const SHARED_PREFERENCE_KEY = 'shared';
+const SHARED_PREFERENCE_VERSION = '0.1';
+let oldShared = {};
+
+const buildSharedStateMiddleware = (actions, sharedStateFilters, sharedStateCb) => ({ getState, dispatch }) => next => action => {
+  const currentState = getState();
+
+  // We don't care if sync is disabled here, we always want to backup preferences to the wallet
+  if (!actions.includes(action.type)) {
+    return next(action);
+  }
+
+  const actionResult = next(action);
+  // Call `getState` after calling `next` to ensure the state has updated in response to the action
+  const nextState = getState();
+  const shared = {};
+
+  Object.keys(sharedStateFilters).forEach(key => {
+    const filter = sharedStateFilters[key];
+    const { source, property, transform } = filter;
+    let value = nextState[source][property];
+    if (transform) {
+      value = transform(value);
+    }
+
+    shared[key] = value;
+  });
+
+  if (!isEqual(oldShared, shared)) {
+    // only update if the preference changed from last call in the same session
+    oldShared = shared;
+    doPreferenceSet(SHARED_PREFERENCE_KEY, shared, SHARED_PREFERENCE_VERSION);
+
+    if (sharedStateCb) {
+      // Pass dispatch to the callback to consumers can dispatch actions in response to preference set
+      sharedStateCb(dispatch);
+    }
+  }
+
+  return actionResult;
+};
+
 //      
 
 function doToast(params) {
@@ -1474,11 +1686,11 @@ const makeSelectFilteredTransactionsForPage = (page = 1) => reselect.createSelec
 
 const selectFilteredTransactionCount = reselect.createSelector(selectFilteredTransactions, filteredTransactions => filteredTransactions.length);
 
-var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$1(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-const matureTagMap = MATURE_TAGS.reduce((acc, tag) => _extends$2({}, acc, { [tag]: true }), {});
+const matureTagMap = MATURE_TAGS.reduce((acc, tag) => _extends$3({}, acc, { [tag]: true }), {});
 
 const isClaimNsfw = claim => {
   if (!claim) {
@@ -1943,7 +2155,7 @@ function doUpdateBalance() {
     const {
       wallet: { totalBalance: totalInStore }
     } = getState();
-    return lbryProxy.account_balance({ reserved_subtotals: true }).then(response => {
+    return lbryProxy.wallet_balance({ reserved_subtotals: true }).then(response => {
       const { available, reserved, reserved_subtotals, total } = response;
       const { claims, supports, tips } = reserved_subtotals;
       const totalFloat = parseFloat(total);
@@ -2088,7 +2300,7 @@ function doSendDraftTransaction(address, amount) {
       }));
     };
 
-    lbryProxy.account_send({
+    lbryProxy.wallet_send({
       addresses: [address],
       amount: creditsToString(amount)
     }).then(successCallback, errorCallback);
@@ -2281,7 +2493,7 @@ function batchActions(...actions) {
   };
 }
 
-var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function doResolveUris(uris, returnCachedClaims = false) {
   return (dispatch, getState) => {
@@ -2321,7 +2533,7 @@ function doResolveUris(uris, returnCachedClaims = false) {
         // https://github.com/facebook/flow/issues/2221
         if (uriResolveInfo) {
           if (uriResolveInfo.error) {
-            resolveInfo[uri] = _extends$3({}, fallbackResolveInfo);
+            resolveInfo[uri] = _extends$4({}, fallbackResolveInfo);
           } else {
             let result = {};
             if (uriResolveInfo.value_type === 'channel') {
@@ -3063,7 +3275,7 @@ const selectTakeOverAmount = reselect.createSelector(selectState$5, selectMyClai
   return null;
 });
 
-var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const doResetThumbnailStatus = () => dispatch => {
   dispatch({
@@ -3101,7 +3313,7 @@ const doClearPublish = () => dispatch => {
 
 const doUpdatePublishForm = publishFormValue => dispatch => dispatch({
   type: UPDATE_PUBLISH_FORM,
-  data: _extends$4({}, publishFormValue)
+  data: _extends$5({}, publishFormValue)
 });
 
 const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter, fs, path) => dispatch => {
@@ -3673,199 +3885,6 @@ const doToggleBlockChannel = uri => ({
     uri
   }
 });
-
-/* eslint-disable */
-// underscore's deep equal function
-// https://github.com/jashkenas/underscore/blob/master/underscore.js#L1189
-
-function isEqual(a, b, aStack, bStack) {
-  // Identical objects are equal. `0 === -0`, but they aren't identical.
-  // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
-  if (a === b) return a !== 0 || 1 / a === 1 / b;
-  // `null` or `undefined` only equal to itself (strict comparison).
-  if (a == null || b == null) return false;
-  // `NaN`s are equivalent, but non-reflexive.
-  if (a !== a) return b !== b;
-  // Exhaust primitive checks
-  var type = typeof a;
-  if (type !== 'function' && type !== 'object' && typeof b != 'object') return false;
-  return deepEq(a, b, aStack, bStack);
-}
-
-function deepEq(a, b, aStack, bStack) {
-  // Compare `[[Class]]` names.
-  var className = toString.call(a);
-  if (className !== toString.call(b)) return false;
-  switch (className) {
-    // Strings, numbers, regular expressions, dates, and booleans are compared by value.
-    case '[object RegExp]':
-    // RegExps are coerced to strings for comparison (Note: '' + /a/i === '/a/i')
-    case '[object String]':
-      // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
-      // equivalent to `new String("5")`.
-      return '' + a === '' + b;
-    case '[object Number]':
-      // `NaN`s are equivalent, but non-reflexive.
-      // Object(NaN) is equivalent to NaN.
-      if (+a !== +a) return +b !== +b;
-      // An `egal` comparison is performed for other numeric values.
-      return +a === 0 ? 1 / +a === 1 / b : +a === +b;
-    case '[object Date]':
-    case '[object Boolean]':
-      // Coerce dates and booleans to numeric primitive values. Dates are compared by their
-      // millisecond representations. Note that invalid dates with millisecond representations
-      // of `NaN` are not equivalent.
-      return +a === +b;
-    case '[object Symbol]':
-      return SymbolProto.valueOf.call(a) === SymbolProto.valueOf.call(b);
-  }
-
-  var areArrays = className === '[object Array]';
-  if (!areArrays) {
-    if (typeof a != 'object' || typeof b != 'object') return false;
-
-    // Objects with different constructors are not equivalent, but `Object`s or `Array`s
-    // from different frames are.
-    var aCtor = a.constructor,
-        bCtor = b.constructor;
-    if (aCtor !== bCtor && !(typeof aCtor === 'function' && aCtor instanceof aCtor && typeof bCtor === 'function' && bCtor instanceof bCtor) && 'constructor' in a && 'constructor' in b) {
-      return false;
-    }
-  }
-  // Assume equality for cyclic structures. The algorithm for detecting cyclic
-  // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
-
-  // Initializing stack of traversed objects.
-  // It's done here since we only need them for objects and arrays comparison.
-  aStack = aStack || [];
-  bStack = bStack || [];
-  var length = aStack.length;
-  while (length--) {
-    // Linear search. Performance is inversely proportional to the number of
-    // unique nested structures.
-    if (aStack[length] === a) return bStack[length] === b;
-  }
-
-  // Add the first object to the stack of traversed objects.
-  aStack.push(a);
-  bStack.push(b);
-
-  // Recursively compare objects and arrays.
-  if (areArrays) {
-    // Compare array lengths to determine if a deep comparison is necessary.
-    length = a.length;
-    if (length !== b.length) return false;
-    // Deep compare the contents, ignoring non-numeric properties.
-    while (length--) {
-      if (!isEqual(a[length], b[length], aStack, bStack)) return false;
-    }
-  } else {
-    // Deep compare objects.
-    var keys = Object.keys(a),
-        key;
-    length = keys.length;
-    // Ensure that both objects contain the same number of properties before comparing deep equality.
-    if (Object.keys(b).length !== length) return false;
-    while (length--) {
-      // Deep compare each member
-      key = keys[length];
-      if (!(has(b, key) && isEqual(a[key], b[key], aStack, bStack))) return false;
-    }
-  }
-  // Remove the first object from the stack of traversed objects.
-  aStack.pop();
-  bStack.pop();
-  return true;
-}
-
-function has(obj, path) {
-  return obj != null && hasOwnProperty.call(obj, path);
-}
-/* eslint-enable */
-
-var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-let oldShared;
-const sharedPreferenceKey = 'shared';
-
-function extractUserState(rawObj) {
-  if (rawObj && rawObj.version === '0.1' && rawObj.value) {
-    const { subscriptions, tags } = rawObj.value;
-
-    return _extends$5({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {});
-  }
-
-  return {};
-}
-
-function doPopulateSharedUserState(settings) {
-  return dispatch => {
-    const { subscriptions, tags } = extractUserState(settings);
-    dispatch({ type: USER_STATE_POPULATE, data: { subscriptions, tags } });
-  };
-}
-
-function sharedStateSubscriber(state, filters, version, accountId, walletId) {
-  // the shared object that will be saved
-  const shared = {};
-
-  Object.keys(filters).forEach(key => {
-    const filter = filters[key];
-    const { source, property, transform } = filter;
-    let value = state[source][property];
-    if (transform) {
-      value = transform(value);
-    }
-
-    shared[key] = value;
-  });
-
-  if (!isEqual(oldShared, shared)) {
-    // only update if the preference changed from last call in the same session
-    oldShared = shared;
-    doPreferenceSet(sharedPreferenceKey, shared, version, accountId, walletId);
-  }
-}
-
-function doPreferenceSet(key, value, version, accountId, walletId, success, fail) {
-  const preference = {
-    type: typeof value,
-    version,
-    value
-  };
-
-  const options = _extends$5({
-    key,
-    value: JSON.stringify(preference)
-  }, accountId ? { account_id: accountId } : {}, walletId ? { wallet_id: walletId } : {});
-
-  lbryProxy.preference_set(options).then(() => {
-    success(preference);
-  }).catch(() => {
-    if (fail) {
-      fail();
-    }
-  });
-}
-
-function doPreferenceGet(key, accountId, walletId, success, fail) {
-  const options = _extends$5({
-    key
-  }, accountId ? { account_id: accountId } : {}, walletId ? { wallet_id: walletId } : {});
-
-  lbryProxy.preference_get(options).then(result => {
-    if (result) {
-      const preference = result[key];
-      return success(preference);
-    }
-
-    return success(null);
-  }).catch(err => {
-    if (fail) {
-      fail(err);
-    }
-  });
-}
 
 var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -4839,7 +4858,7 @@ const tagsReducer = handleActions({
   }
 }, defaultState$8);
 
-//      
+var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$9 = {
   blockedChannels: []
@@ -4860,10 +4879,16 @@ const blockedReducer = handleActions({
     return {
       blockedChannels: newBlockedChannels
     };
+  },
+  [USER_STATE_POPULATE]: (state, action) => {
+    const { blockedChannels } = action.data;
+    return _extends$e({}, state, {
+      blockedChannels: blockedChannels && blockedChannels.length ? blockedChannels : state.blockedChannels
+    });
   }
 }, defaultState$9);
 
-var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const buildDraftTransaction = () => ({
   amount: undefined,
@@ -4907,25 +4932,25 @@ const defaultState$a = {
 };
 
 const walletReducer = handleActions({
-  [FETCH_TRANSACTIONS_STARTED]: state => _extends$e({}, state, {
+  [FETCH_TRANSACTIONS_STARTED]: state => _extends$f({}, state, {
     fetchingTransactions: true
   }),
 
   [FETCH_TRANSACTIONS_COMPLETED]: (state, action) => {
-    const byId = _extends$e({}, state.transactions);
+    const byId = _extends$f({}, state.transactions);
 
     const { transactions } = action.data;
     transactions.forEach(transaction => {
       byId[transaction.txid] = transaction;
     });
 
-    return _extends$e({}, state, {
+    return _extends$f({}, state, {
       transactions: byId,
       fetchingTransactions: false
     });
   },
 
-  [FETCH_SUPPORTS_STARTED]: state => _extends$e({}, state, {
+  [FETCH_SUPPORTS_STARTED]: state => _extends$f({}, state, {
     fetchingSupports: true
   }),
 
@@ -4938,7 +4963,7 @@ const walletReducer = handleActions({
       byOutpoint[`${txid}:${nout}`] = transaction;
     });
 
-    return _extends$e({}, state, { supports: byOutpoint, fetchingSupports: false });
+    return _extends$f({}, state, { supports: byOutpoint, fetchingSupports: false });
   },
 
   [ABANDON_SUPPORT_STARTED]: (state, action) => {
@@ -4947,7 +4972,7 @@ const walletReducer = handleActions({
 
     currentlyAbandoning[outpoint] = true;
 
-    return _extends$e({}, state, {
+    return _extends$f({}, state, {
       abandoningSupportsByOutpoint: currentlyAbandoning
     });
   },
@@ -4960,23 +4985,23 @@ const walletReducer = handleActions({
     delete currentlyAbandoning[outpoint];
     delete byOutpoint[outpoint];
 
-    return _extends$e({}, state, {
+    return _extends$f({}, state, {
       supports: byOutpoint,
       abandoningSupportsById: currentlyAbandoning
     });
   },
 
-  [GET_NEW_ADDRESS_STARTED]: state => _extends$e({}, state, {
+  [GET_NEW_ADDRESS_STARTED]: state => _extends$f({}, state, {
     gettingNewAddress: true
   }),
 
   [GET_NEW_ADDRESS_COMPLETED]: (state, action) => {
     const { address } = action.data;
 
-    return _extends$e({}, state, { gettingNewAddress: false, receiveAddress: address });
+    return _extends$f({}, state, { gettingNewAddress: false, receiveAddress: address });
   },
 
-  [UPDATE_BALANCE]: (state, action) => _extends$e({}, state, {
+  [UPDATE_BALANCE]: (state, action) => _extends$f({}, state, {
     totalBalance: action.data.totalBalance,
     balance: action.data.balance,
     reservedBalance: action.data.reservedBalance,
@@ -4985,32 +5010,32 @@ const walletReducer = handleActions({
     tipsBalance: action.data.tipsBalance
   }),
 
-  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$e({}, state, {
+  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$f({}, state, {
     checkingAddressOwnership: true
   }),
 
-  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$e({}, state, {
+  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$f({}, state, {
     checkingAddressOwnership: false
   }),
 
   [SET_DRAFT_TRANSACTION_AMOUNT]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$e({}, oldDraft, { amount: parseFloat(action.data.amount) });
+    const newDraft = _extends$f({}, oldDraft, { amount: parseFloat(action.data.amount) });
 
-    return _extends$e({}, state, { draftTransaction: newDraft });
+    return _extends$f({}, state, { draftTransaction: newDraft });
   },
 
   [SET_DRAFT_TRANSACTION_ADDRESS]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$e({}, oldDraft, { address: action.data.address });
+    const newDraft = _extends$f({}, oldDraft, { address: action.data.address });
 
-    return _extends$e({}, state, { draftTransaction: newDraft });
+    return _extends$f({}, state, { draftTransaction: newDraft });
   },
 
   [SEND_TRANSACTION_STARTED]: state => {
-    const newDraftTransaction = _extends$e({}, state.draftTransaction, { sending: true });
+    const newDraftTransaction = _extends$f({}, state.draftTransaction, { sending: true });
 
-    return _extends$e({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$f({}, state, { draftTransaction: newDraftTransaction });
   },
 
   [SEND_TRANSACTION_COMPLETED]: state => Object.assign({}, state, {
@@ -5023,103 +5048,103 @@ const walletReducer = handleActions({
       error: action.data.error
     });
 
-    return _extends$e({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$f({}, state, { draftTransaction: newDraftTransaction });
   },
 
-  [SUPPORT_TRANSACTION_STARTED]: state => _extends$e({}, state, {
+  [SUPPORT_TRANSACTION_STARTED]: state => _extends$f({}, state, {
     sendingSupport: true
   }),
 
-  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$e({}, state, {
+  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$f({}, state, {
     sendingSupport: false
   }),
 
-  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$e({}, state, {
+  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$f({}, state, {
     error: action.data.error,
     sendingSupport: false
   }),
 
-  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$e({}, state, {
+  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$f({}, state, {
     walletIsEncrypted: action.result
   }),
 
-  [WALLET_ENCRYPT_START]: state => _extends$e({}, state, {
+  [WALLET_ENCRYPT_START]: state => _extends$f({}, state, {
     walletEncryptPending: true,
     walletEncryptSucceded: null,
     walletEncryptResult: null
   }),
 
-  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$e({}, state, {
+  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$f({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: true,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$e({}, state, {
+  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$f({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: false,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_START]: state => _extends$e({}, state, {
+  [WALLET_DECRYPT_START]: state => _extends$f({}, state, {
     walletDecryptPending: true,
     walletDecryptSucceded: null,
     walletDecryptResult: null
   }),
 
-  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$e({}, state, {
+  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$f({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: true,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$e({}, state, {
+  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$f({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: false,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_UNLOCK_START]: state => _extends$e({}, state, {
+  [WALLET_UNLOCK_START]: state => _extends$f({}, state, {
     walletUnlockPending: true,
     walletUnlockSucceded: null,
     walletUnlockResult: null
   }),
 
-  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$e({}, state, {
+  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$f({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: true,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$e({}, state, {
+  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$f({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: false,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_LOCK_START]: state => _extends$e({}, state, {
+  [WALLET_LOCK_START]: state => _extends$f({}, state, {
     walletLockPending: false,
     walletLockSucceded: null,
     walletLockResult: null
   }),
 
-  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$e({}, state, {
+  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$f({}, state, {
     walletLockPending: false,
     walletLockSucceded: true,
     walletLockResult: action.result
   }),
 
-  [WALLET_LOCK_FAILED]: (state, action) => _extends$e({}, state, {
+  [WALLET_LOCK_FAILED]: (state, action) => _extends$f({}, state, {
     walletLockPending: false,
     walletLockSucceded: false,
     walletLockResult: action.result
   }),
 
-  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$e({}, state, {
+  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$f({}, state, {
     transactionListFilter: action.data
   }),
 
-  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$e({}, state, {
+  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$f({}, state, {
     latestBlock: action.data
   })
 }, defaultState$a);
@@ -5135,14 +5160,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$g = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$7 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$7, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$f({
+    return _extends$g({
       id
     }, params);
   }
@@ -5242,6 +5267,7 @@ exports.TRANSACTIONS = transaction_types;
 exports.TX_LIST = transaction_list;
 exports.batchActions = batchActions;
 exports.blockedReducer = blockedReducer;
+exports.buildSharedStateMiddleware = buildSharedStateMiddleware;
 exports.buildURI = buildURI;
 exports.claimsReducer = claimsReducer;
 exports.commentReducer = commentReducer;
@@ -5472,7 +5498,6 @@ exports.selectWalletUnlockPending = selectWalletUnlockPending;
 exports.selectWalletUnlockResult = selectWalletUnlockResult;
 exports.selectWalletUnlockSucceeded = selectWalletUnlockSucceeded;
 exports.setSearchApi = setSearchApi;
-exports.sharedStateSubscriber = sharedStateSubscriber;
 exports.tagsReducer = tagsReducer;
 exports.toQueryString = toQueryString;
 exports.walletReducer = walletReducer;

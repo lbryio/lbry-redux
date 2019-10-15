@@ -1,26 +1,24 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
-import isEqual from 'util/deep-equal';
 
-type sharedData = {
+type SharedData = {
   version: '0.1',
   value: {
     subscriptions?: Array<string>,
     tags?: Array<string>,
+    blockedChannels?: Array<string>,
   },
 };
 
-let oldShared;
-const sharedPreferenceKey = 'shared';
-
-function extractUserState(rawObj: sharedData) {
+function extractUserState(rawObj: SharedData) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
-    const { subscriptions, tags } = rawObj.value;
+    const { subscriptions, tags, blockedChannels } = rawObj.value;
 
     return {
       ...(subscriptions ? { subscriptions } : {}),
       ...(tags ? { tags } : {}),
+      ...(blockedChannels ? { blockedChannels } : {}),
     };
   }
 
@@ -34,40 +32,10 @@ export function doPopulateSharedUserState(settings: any) {
   };
 }
 
-export function sharedStateSubscriber(
-  state: any,
-  filters: any,
-  version: string,
-  accountId: string,
-  walletId: string
-) {
-  // the shared object that will be saved
-  const shared = {};
-
-  Object.keys(filters).forEach(key => {
-    const filter = filters[key];
-    const { source, property, transform } = filter;
-    let value = state[source][property];
-    if (transform) {
-      value = transform(value);
-    }
-
-    shared[key] = value;
-  });
-
-  if (!isEqual(oldShared, shared)) {
-    // only update if the preference changed from last call in the same session
-    oldShared = shared;
-    doPreferenceSet(sharedPreferenceKey, shared, version, accountId, walletId);
-  }
-}
-
 export function doPreferenceSet(
   key: string,
   value: any,
   version: string,
-  accountId: string,
-  walletId: string,
   success: Function,
   fail: Function
 ) {
@@ -80,8 +48,6 @@ export function doPreferenceSet(
   const options = {
     key,
     value: JSON.stringify(preference),
-    ...(accountId ? { account_id: accountId } : {}),
-    ...(walletId ? { wallet_id: walletId } : {}),
   };
 
   Lbry.preference_set(options)
@@ -95,17 +61,9 @@ export function doPreferenceSet(
     });
 }
 
-export function doPreferenceGet(
-  key: string,
-  accountId?: string,
-  walletId?: string,
-  success: Function,
-  fail?: Function
-) {
+export function doPreferenceGet(key: string, success: Function, fail?: Function) {
   const options = {
     key,
-    ...(accountId ? { account_id: accountId } : {}),
-    ...(walletId ? { wallet_id: walletId } : {}),
   };
 
   Lbry.preference_get(options)

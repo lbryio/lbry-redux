@@ -10,7 +10,7 @@ export function doUpdateBalance() {
     const {
       wallet: { totalBalance: totalInStore },
     } = getState();
-    return Lbry.account_balance({ reserved_subtotals: true }).then((response: BalanceResponse) => {
+    return Lbry.wallet_balance({ reserved_subtotals: true }).then(response => {
       const { available, reserved, reserved_subtotals, total } = response;
       const { claims, supports, tips } = reserved_subtotals;
       const totalFloat = parseFloat(total);
@@ -165,7 +165,7 @@ export function doSendDraftTransaction(address, amount) {
       );
     };
 
-    Lbry.account_send({
+    Lbry.wallet_send({
       addresses: [address],
       amount: creditsToString(amount),
     }).then(successCallback, errorCallback);

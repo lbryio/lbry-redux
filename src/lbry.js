@@ -93,12 +93,12 @@ const Lbry: LbryTypes = {
   blob_list: (params = {}) => daemonCallWithResult('blob_list', params),
 
   // Wallet utilities
-  account_balance: (params = {}) => daemonCallWithResult('account_balance', params),
+  wallet_balance: (params = {}) => daemonCallWithResult('wallet_balance', params),
   account_decrypt: () => daemonCallWithResult('account_decrypt', {}),
   account_encrypt: (params = {}) => daemonCallWithResult('account_encrypt', params),
   account_unlock: (params = {}) => daemonCallWithResult('account_unlock', params),
   account_list: (params = {}) => daemonCallWithResult('account_list', params),
-  account_send: (params = {}) => daemonCallWithResult('account_send', params),
+  wallet_send: (params = {}) => daemonCallWithResult('wallet_send', params),
   account_set: (params = {}) => daemonCallWithResult('account_set', params),
   address_is_mine: (params = {}) => daemonCallWithResult('address_is_mine', params),
   address_unused: (params = {}) => daemonCallWithResult('address_unused', params),

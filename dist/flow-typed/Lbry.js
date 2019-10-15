@@ -210,12 +210,12 @@ declare type LbryTypes = {
   comment_list: (params: {}) => Promise<CommentListResponse>,
   comment_create: (params: {}) => Promise<CommentCreateResponse>,
   // Wallet utilities
-  account_balance: (params: {}) => Promise<BalanceResponse>,
+  wallet_balance: (params: {}) => Promise<BalanceResponse>,
   account_decrypt: (prams: {}) => Promise<boolean>,
   account_encrypt: (params: {}) => Promise<boolean>,
   account_unlock: (params: {}) => Promise<boolean>,
   account_list: (params: {}) => Promise<AccountListResponse>,
-  account_send: (params: {}) => Promise<GenericTxResponse>,
+  wallet_send: (params: {}) => Promise<GenericTxResponse>,
   account_set: (params: {}) => Promise<AccountSetResponse>,
   address_is_mine: (params: {}) => Promise<boolean>,
   address_unused: (params: {}) => Promise<string>, // New address
