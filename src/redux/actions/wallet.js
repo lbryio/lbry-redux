@@ -264,7 +264,7 @@ export function doWalletEncrypt(newPassword) {
       type: ACTIONS.WALLET_ENCRYPT_START,
     });
 
-    Lbry.account_encrypt({ new_password: newPassword }).then(result => {
+    Lbry.wallet_encrypt({ new_password: newPassword }).then(result => {
       if (result === true) {
         dispatch({
           type: ACTIONS.WALLET_ENCRYPT_COMPLETED,
@@ -286,7 +286,7 @@ export function doWalletUnlock(password) {
       type: ACTIONS.WALLET_UNLOCK_START,
     });
 
-    Lbry.account_unlock({ password }).then(result => {
+    Lbry.wallet_unlock({ password }).then(result => {
       if (result === true) {
         dispatch({
           type: ACTIONS.WALLET_UNLOCK_COMPLETED,
@@ -330,7 +330,7 @@ export function doWalletDecrypt() {
       type: ACTIONS.WALLET_DECRYPT_START,
     });
 
-    Lbry.account_decrypt().then(result => {
+    Lbry.wallet_decrypt().then(result => {
       if (result === true) {
         dispatch({
           type: ACTIONS.WALLET_DECRYPT_COMPLETED,

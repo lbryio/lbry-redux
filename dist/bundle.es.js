@@ -764,12 +764,12 @@ const Lbry = {
 
   // Wallet utilities
   wallet_balance: (params = {}) => daemonCallWithResult('wallet_balance', params),
-  account_decrypt: () => daemonCallWithResult('account_decrypt', {}),
-  account_encrypt: (params = {}) => daemonCallWithResult('account_encrypt', params),
-  account_unlock: (params = {}) => daemonCallWithResult('account_unlock', params),
-  account_list: (params = {}) => daemonCallWithResult('account_list', params),
+  wallet_decrypt: () => daemonCallWithResult('wallet_decrypt', {}),
+  wallet_encrypt: (params = {}) => daemonCallWithResult('wallet_encrypt', params),
+  wallet_unlock: (params = {}) => daemonCallWithResult('wallet_unlock', params),
+  wallet_list: (params = {}) => daemonCallWithResult('wallet_list', params),
   wallet_send: (params = {}) => daemonCallWithResult('wallet_send', params),
-  account_set: (params = {}) => daemonCallWithResult('account_set', params),
+  wallet_status: (params = {}) => daemonCallWithResult('wallet_status', params),
   address_is_mine: (params = {}) => daemonCallWithResult('address_is_mine', params),
   address_unused: (params = {}) => daemonCallWithResult('address_unused', params),
   address_list: (params = {}) => daemonCallWithResult('address_list', params),
@@ -2390,7 +2390,7 @@ function doWalletEncrypt(newPassword) {
       type: WALLET_ENCRYPT_START
     });
 
-    lbryProxy.account_encrypt({ new_password: newPassword }).then(result => {
+    lbryProxy.wallet_encrypt({ new_password: newPassword }).then(result => {
       if (result === true) {
         dispatch({
           type: WALLET_ENCRYPT_COMPLETED,
@@ -2412,7 +2412,7 @@ function doWalletUnlock(password) {
       type: WALLET_UNLOCK_START
     });
 
-    lbryProxy.account_unlock({ password }).then(result => {
+    lbryProxy.wallet_unlock({ password }).then(result => {
       if (result === true) {
         dispatch({
           type: WALLET_UNLOCK_COMPLETED,
@@ -2434,7 +2434,7 @@ function doWalletDecrypt() {
       type: WALLET_DECRYPT_START
     });
 
-    lbryProxy.account_decrypt().then(result => {
+    lbryProxy.wallet_decrypt().then(result => {
       if (result === true) {
         dispatch({
           type: WALLET_DECRYPT_COMPLETED,
