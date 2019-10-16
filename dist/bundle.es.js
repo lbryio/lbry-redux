@@ -2605,7 +2605,7 @@ function doAbandonClaim(txid, nout) {
 
     const isClaim = !!claimToAbandon;
     const startedActionType = isClaim ? ABANDON_CLAIM_STARTED : ABANDON_SUPPORT_STARTED;
-    const completedActionType = isClaim ? ABANDON_CLAIM_STARTED : ABANDON_SUPPORT_COMPLETED;
+    const completedActionType = isClaim ? ABANDON_CLAIM_SUCCEEDED : ABANDON_SUPPORT_COMPLETED;
 
     dispatch({
       type: startedActionType,
@@ -4000,7 +4000,7 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById = Object.assign({}, state.pendingById);
-  const myClaims = state.myClaims || [];
+  const myClaims = state.myClaims ? state.myClaims.slice() : [];
 
   claims.forEach(claim => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
@@ -4131,6 +4131,7 @@ reducers[ABANDON_CLAIM_STARTED] = (state, action) => {
 reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   const { claimId } = action.data;
   const byId = Object.assign({}, state.byId);
+  const newMyClaims = state.myClaims ? state.myClaims.slice() : [];
   const claimsByUri = Object.assign({}, state.claimsByUri);
 
   Object.keys(claimsByUri).forEach(uri => {
@@ -4138,7 +4139,7 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
       delete claimsByUri[uri];
     }
   });
-
+  const myClaims = newMyClaims.filter(i => i.claim_id && i.claim_id !== claimId);
   delete byId[claimId];
 
   return Object.assign({}, state, {
