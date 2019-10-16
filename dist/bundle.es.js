@@ -1079,6 +1079,18 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
   const { claimId, claimName, contentName } = deprecatedParts;
 
+  {
+    if (claimId) {
+      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
+    }
+    if (claimName) {
+      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
+    }
+    if (contentName) {
+      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
+    }
+  }
+
   if (!claimName && !channelName && !streamName) {
     console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
   }
@@ -2605,7 +2617,7 @@ function doAbandonClaim(txid, nout) {
 
     const isClaim = !!claimToAbandon;
     const startedActionType = isClaim ? ABANDON_CLAIM_STARTED : ABANDON_SUPPORT_STARTED;
-    const completedActionType = isClaim ? ABANDON_CLAIM_STARTED : ABANDON_SUPPORT_COMPLETED;
+    const completedActionType = isClaim ? ABANDON_CLAIM_SUCCEEDED : ABANDON_SUPPORT_COMPLETED;
 
     dispatch({
       type: startedActionType,
@@ -4000,7 +4012,7 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById = Object.assign({}, state.pendingById);
-  const myClaims = state.myClaims || [];
+  const myClaims = state.myClaims ? state.myClaims.slice() : [];
 
   claims.forEach(claim => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
@@ -4131,6 +4143,7 @@ reducers[ABANDON_CLAIM_STARTED] = (state, action) => {
 reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   const { claimId } = action.data;
   const byId = Object.assign({}, state.byId);
+  const newMyClaims = state.myClaims ? state.myClaims.slice() : [];
   const claimsByUri = Object.assign({}, state.claimsByUri);
 
   Object.keys(claimsByUri).forEach(uri => {
@@ -4138,7 +4151,7 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
       delete claimsByUri[uri];
     }
   });
-
+  const myClaims = newMyClaims.filter(i => i.claim_id && i.claim_id !== claimId);
   delete byId[claimId];
 
   return Object.assign({}, state, {

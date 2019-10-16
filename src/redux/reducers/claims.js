@@ -156,7 +156,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
-  const myClaims = state.myClaims || [];
+  const myClaims = state.myClaims ? state.myClaims.slice() : [];
 
   claims.forEach((claim: Claim) => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
@@ -289,6 +289,7 @@ reducers[ACTIONS.ABANDON_CLAIM_STARTED] = (state: State, action: any): State => 
 reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State => {
   const { claimId }: { claimId: string } = action.data;
   const byId = Object.assign({}, state.byId);
+  const newMyClaims = state.myClaims ? state.myClaims.slice() : [];
   const claimsByUri = Object.assign({}, state.claimsByUri);
 
   Object.keys(claimsByUri).forEach(uri => {
@@ -296,7 +297,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
       delete claimsByUri[uri];
     }
   });
-
+  const myClaims = newMyClaims.filter(i => i.claim_id && i.claim_id !== claimId);
   delete byId[claimId];
 
   return Object.assign({}, state, {
