@@ -137,7 +137,7 @@ export function doAbandonClaim(txid: string, nout: number) {
       ? ACTIONS.ABANDON_CLAIM_STARTED
       : ACTIONS.ABANDON_SUPPORT_STARTED;
     const completedActionType = isClaim
-      ? ACTIONS.ABANDON_CLAIM_STARTED
+      ? ACTIONS.ABANDON_CLAIM_SUCCEEDED
       : ACTIONS.ABANDON_SUPPORT_COMPLETED;
 
     dispatch({
