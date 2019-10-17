@@ -2458,11 +2458,11 @@ function doWalletStatus() {
       type: WALLET_STATUS_START
     });
 
-    lbryProxy.status().then(status => {
-      if (status && status.wallet) {
+    lbryProxy.wallet_status().then(status => {
+      if (status) {
         dispatch({
           type: WALLET_STATUS_COMPLETED,
-          result: status.wallet.is_encrypted
+          result: status.is_encrypted
         });
       }
     });
