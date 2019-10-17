@@ -4143,6 +4143,7 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   delete byId[claimId];
 
   return Object.assign({}, state, {
+    myClaims,
     byId,
     claimsByUri
   });

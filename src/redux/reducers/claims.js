@@ -301,6 +301,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
   delete byId[claimId];
 
   return Object.assign({}, state, {
+    myClaims,
     byId,
     claimsByUri,
   });
