@@ -168,7 +168,7 @@ declare type LbryTypes = {
   version: () => Promise<VersionResponse>,
   resolve: (params: {}) => Promise<ResolveResponse>,
   get: (params: {}) => Promise<GetResponse>,
-  publish: (params: {}) => Promise<PublishResponse>,
+  publish?: (params: {}) => Promise<PublishResponse>,
 
   claim_search: (params: {}) => Promise<ClaimSearchResponse>,
   claim_list: (params?: {}) => Promise<ClaimListResponse>,

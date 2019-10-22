@@ -1,5 +1,6 @@
 // @flow
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
+import { SPEECH_STATUS, SPEECH_PUBLISH } from 'constants/speech_urls';
 import * as ACTIONS from 'constants/action_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Lbry from 'lbry';
@@ -22,7 +23,7 @@ export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
     },
   });
 
-  return fetch('https://spee.ch/api/config/site/publishing')
+  return fetch(SPEECH_STATUS)
     .then(res => res.json())
     .then(status => {
       if (status.disabled) {
@@ -62,11 +63,11 @@ export const doUpdatePublishForm = (publishFormValue: UpdatePublishFormData) => 
   });
 
 export const doUploadThumbnail = (
-  filePath: string,
-  thumbnailBuffer: Uint8Array,
-  fsAdapter: any,
-  fs: any,
-  path: any
+  filePath?: string,
+  thumbnailBlob?: File,
+  fsAdapter?: any,
+  fs?: any,
+  path?: any
 ) => (dispatch: Dispatch) => {
   let thumbnail, fileExt, fileName, fileType;
 
@@ -110,7 +111,7 @@ export const doUploadThumbnail = (
       // $FlowFixMe
       data.append('file', { uri: 'file://' + filePath, type: fileType, name: fileName });
 
-      return fetch('https://spee.ch/api/claim/publish', {
+      return fetch(SPEECH_PUBLISH, {
         method: 'POST',
         body: data,
       })
@@ -129,27 +130,26 @@ export const doUploadThumbnail = (
         .catch(err => uploadError(err.message));
     });
   } else {
-    if (filePath) {
+    if (filePath && fs && path) {
       thumbnail = fs.readFileSync(filePath);
       fileExt = path.extname(filePath);
       fileName = path.basename(filePath);
       fileType = `image/${fileExt.slice(1)}`;
-    } else if (thumbnailBuffer) {
-      thumbnail = thumbnailBuffer;
-      fileExt = '.png';
-      fileName = 'thumbnail.png';
-      fileType = 'image/png';
+    } else if (thumbnailBlob) {
+      fileExt = `.${thumbnailBlob.type && thumbnailBlob.type.split('/')[1]}`;
+      fileName = thumbnailBlob.name;
+      fileType = thumbnailBlob.type;
     } else {
       return null;
     }
 
     const data = new FormData();
     const name = makeid();
-    const file = new File([thumbnail], fileName, { type: fileType });
+    const file = thumbnailBlob || (thumbnail && new File([thumbnail], fileName, { type: fileType }));
     data.append('name', name);
     data.append('file', file);
 
-    return fetch('https://spee.ch/api/claim/publish', {
+    return fetch(SPEECH_PUBLISH, {
       method: 'POST',
       body: data,
     })

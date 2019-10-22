@@ -652,6 +652,14 @@ var transaction_list = /*#__PURE__*/Object.freeze({
   PAGE_SIZE: PAGE_SIZE$1
 });
 
+const SPEECH_STATUS = 'https://spee.ch/api/config/site/publishing';
+const SPEECH_PUBLISH = 'https://spee.ch/api/claim/publish';
+
+var speech_urls = /*#__PURE__*/Object.freeze({
+  SPEECH_STATUS: SPEECH_STATUS,
+  SPEECH_PUBLISH: SPEECH_PUBLISH
+});
+
 const SEARCH_TYPES = {
   FILE: 'file',
   CHANNEL: 'channel',
@@ -709,6 +717,7 @@ const Lbry = {
   setOverride: (methodName, newMethod) => {
     Lbry.overrides[methodName] = newMethod;
   },
+  getApiRequestHeaders: () => Lbry.apiRequestHeaders,
 
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
   getMediaType: (contentType, fileName) => {
@@ -744,7 +753,6 @@ const Lbry = {
   // Claim fetching and manipulation
   resolve: params => daemonCallWithResult('resolve', params),
   get: params => daemonCallWithResult('get', params),
-  publish: params => daemonCallWithResult('publish', params),
   claim_search: params => daemonCallWithResult('claim_search', params),
   claim_list: params => daemonCallWithResult('claim_list', params),
   channel_create: params => daemonCallWithResult('channel_create', params),
@@ -813,6 +821,14 @@ const Lbry = {
     return Lbry.connectPromise;
   }
 };
+
+Lbry.publish = (params = {}) => new Promise((resolve, reject) => {
+  if (Lbry.overrides.publish) {
+    Lbry.overrides.publish(params).then(resolve, reject);
+  } else {
+    apiCall('publish', params, resolve, reject);
+  }
+});
 
 function checkAndParse(response) {
   if (response.status >= 200 && response.status < 300) {
@@ -3289,7 +3305,7 @@ const doResetThumbnailStatus = () => dispatch => {
     }
   });
 
-  return fetch('https://spee.ch/api/config/site/publishing').then(res => res.json()).then(status => {
+  return fetch(SPEECH_STATUS).then(res => res.json()).then(status => {
     if (status.disabled) {
       throw Error();
     }
@@ -3320,7 +3336,7 @@ const doUpdatePublishForm = publishFormValue => dispatch => dispatch({
   data: _extends$5({}, publishFormValue)
 });
 
-const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter, fs, path) => dispatch => {
+const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => dispatch => {
   let thumbnail, fileExt, fileName, fileType;
 
   const makeid = () => {
@@ -3358,7 +3374,7 @@ const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter, fs, path) => di
       // $FlowFixMe
       data.append('file', { uri: 'file://' + filePath, type: fileType, name: fileName });
 
-      return fetch('https://spee.ch/api/claim/publish', {
+      return fetch(SPEECH_PUBLISH, {
         method: 'POST',
         body: data
       }).then(response => response.json()).then(json => json.success ? dispatch({
@@ -3370,27 +3386,26 @@ const doUploadThumbnail = (filePath, thumbnailBuffer, fsAdapter, fs, path) => di
       }) : uploadError(json.message)).catch(err => uploadError(err.message));
     });
   } else {
-    if (filePath) {
+    if (filePath && fs && path) {
       thumbnail = fs.readFileSync(filePath);
       fileExt = path.extname(filePath);
       fileName = path.basename(filePath);
       fileType = `image/${fileExt.slice(1)}`;
-    } else if (thumbnailBuffer) {
-      thumbnail = thumbnailBuffer;
-      fileExt = '.png';
-      fileName = 'thumbnail.png';
-      fileType = 'image/png';
+    } else if (thumbnailBlob) {
+      fileExt = `.${thumbnailBlob.type && thumbnailBlob.type.split('/')[1]}`;
+      fileName = thumbnailBlob.name;
+      fileType = thumbnailBlob.type;
     } else {
       return null;
     }
 
     const data = new FormData();
     const name = makeid();
-    const file = new File([thumbnail], fileName, { type: fileType });
+    const file = thumbnailBlob || thumbnail && new File([thumbnail], fileName, { type: fileType });
     data.append('name', name);
     data.append('file', file);
 
-    return fetch('https://spee.ch/api/claim/publish', {
+    return fetch(SPEECH_PUBLISH, {
       method: 'POST',
       body: data
     }).then(response => response.json()).then(json => json.success ? dispatch({
@@ -5268,6 +5283,7 @@ exports.SEARCH_OPTIONS = SEARCH_OPTIONS;
 exports.SEARCH_TYPES = SEARCH_TYPES;
 exports.SETTINGS = settings;
 exports.SORT_OPTIONS = sort_options;
+exports.SPEECH_URLS = speech_urls;
 exports.THUMBNAIL_STATUSES = thumbnail_upload_statuses;
 exports.TRANSACTIONS = transaction_types;
 exports.TX_LIST = transaction_list;
