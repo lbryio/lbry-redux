@@ -18,3 +18,7 @@ export const BACKGROUND_PLAY_ENABLED = 'backgroundPlayEnabled';
 export const FOREGROUND_NOTIFICATION_ENABLED = 'foregroundNotificationEnabled';
 export const KEEP_DAEMON_RUNNING = 'keepDaemonRunning';
 export const SHOW_URI_BAR_SUGGESTIONS = 'showUriBarSuggestions';
+export const RECEIVE_SUBSCRIPTION_NOTIFICATIONS = 'receiveSubscriptionNotifications';
+export const RECEIVE_REWARD_NOTIFICATIONS = 'receiveRewardNotifications';
+export const RECEIVE_INTERESTS_NOTIFICATIONS = 'receiveInterestsNotifications';
+export const RECEIVE_CREATOR_NOTIFICATIONS = 'receiveCreatorNotifications';
