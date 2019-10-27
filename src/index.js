@@ -239,7 +239,8 @@ export {
   makeSelectDownloadPathForUri,
   makeSelectFileNameForUri,
   makeSelectFilePartlyDownloaded,
-  makeSelectDownloadUrlsForPage,
+  makeSelectSearchDownloadUrlsForPage,
+  makeSelectSearchDownloadUrlsCount,
   selectDownloadUrlsCount,
 } from 'redux/selectors/file_info';
 

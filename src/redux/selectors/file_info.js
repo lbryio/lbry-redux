@@ -204,19 +204,46 @@ export const makeSelectFileNameForUri = uri =>
     }
   );
 
-export const makeSelectDownloadUrlsForPage = (page = 1) =>
-  createSelector(
-    selectDownloadedUris,
-    urls => {
-      const start = ((Number(page) - 1) * Number(PAGE_SIZE));
-      const end = (Number(page) * Number(PAGE_SIZE));
-      return (urls && urls.length)
-        ? urls.slice(start, end)
-        : [];
-    }
-  );
-
 export const selectDownloadUrlsCount = createSelector(
   selectDownloadedUris,
   uris => uris.length
 );
+
+function filterFileInfos(fileInfos, query) {
+  if (query) {
+    const queryMatchRegExp = new RegExp(query, 'i');
+    return fileInfos.filter(fileInfo => {
+      const { metadata } = fileInfo;
+      return (metadata.title && metadata.title.match(queryMatchRegExp)) ||
+        (fileInfo.channel_name && fileInfo.channel_name.match(queryMatchRegExp)) ||
+        (fileInfo.claim_name && fileInfo.claim_name.match(queryMatchRegExp));
+    });
+  }
+
+  return fileInfos;
+}
+
+export const makeSelectSearchDownloadUrlsForPage = (query, page = 1) =>
+  createSelector(
+    selectFileInfosDownloaded,
+    fileInfos => {
+      const matchingFileInfos = filterFileInfos(fileInfos, query);
+      const start = ((Number(page) - 1) * Number(PAGE_SIZE));
+      const end = (Number(page) * Number(PAGE_SIZE));
+
+      return (matchingFileInfos && matchingFileInfos.length)
+        ? matchingFileInfos.slice(start, end).map(fileInfo =>
+          buildURI({ streamName: fileInfo.claim_name, channelName: fileInfo.channel_name, channelClaimId: fileInfo.channel_claim_id }))
+        : [];
+    }
+  );
+
+export const makeSelectSearchDownloadUrlsCount = (query) =>
+  createSelector(
+    selectFileInfosDownloaded,
+    fileInfos => {
+      return fileInfos && fileInfos.length
+        ? filterFileInfos(fileInfos, query).length
+        : 0;
+    }
+  );
