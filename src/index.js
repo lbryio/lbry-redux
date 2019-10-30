@@ -111,6 +111,7 @@ export {
   doWalletStatus,
   doSetTransactionListFilter,
   doUpdateBlockHeight,
+  doClearSupport,
 } from 'redux/actions/wallet';
 
 export { doToggleTagFollow, doAddTag, doDeleteTag } from 'redux/actions/tags';

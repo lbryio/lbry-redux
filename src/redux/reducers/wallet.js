@@ -223,6 +223,11 @@ export const walletReducer = handleActions(
       sendingSupport: false,
     }),
 
+    [ACTIONS.CLEAR_SUPPORT_TRANSACTION]: (state: WalletState) => ({
+      ...state,
+      sendingSupport: false,
+    }),
+
     [ACTIONS.WALLET_STATUS_COMPLETED]: (state: WalletState, action) => ({
       ...state,
       walletIsEncrypted: action.result,
