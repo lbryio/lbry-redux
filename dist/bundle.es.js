@@ -15,7 +15,6 @@ const CHANNEL_NEW = 'new';
 const PAGE_SIZE = 20;
 
 var claim = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   MINIMUM_PUBLISH_BID: MINIMUM_PUBLISH_BID,
   CHANNEL_ANONYMOUS: CHANNEL_ANONYMOUS,
   CHANNEL_NEW: CHANNEL_NEW,
@@ -71,6 +70,7 @@ const SEND_TRANSACTION_FAILED = 'SEND_TRANSACTION_FAILED';
 const SUPPORT_TRANSACTION_STARTED = 'SUPPORT_TRANSACTION_STARTED';
 const SUPPORT_TRANSACTION_COMPLETED = 'SUPPORT_TRANSACTION_COMPLETED';
 const SUPPORT_TRANSACTION_FAILED = 'SUPPORT_TRANSACTION_FAILED';
+const CLEAR_SUPPORT_TRANSACTION = 'CLEAR_SUPPORT_TRANSACTION';
 const WALLET_ENCRYPT_START = 'WALLET_ENCRYPT_START';
 const WALLET_ENCRYPT_COMPLETED = 'WALLET_ENCRYPT_COMPLETED';
 const WALLET_ENCRYPT_FAILED = 'WALLET_ENCRYPT_FAILED';
@@ -269,7 +269,6 @@ const TOGGLE_BLOCK_CHANNEL = 'TOGGLE_BLOCK_CHANNEL';
 const USER_STATE_POPULATE = 'USER_STATE_POPULATE';
 
 var action_types = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   WINDOW_FOCUSED: WINDOW_FOCUSED,
   DAEMON_READY: DAEMON_READY,
   DAEMON_VERSION_MATCH: DAEMON_VERSION_MATCH,
@@ -313,6 +312,7 @@ var action_types = /*#__PURE__*/Object.freeze({
   SUPPORT_TRANSACTION_STARTED: SUPPORT_TRANSACTION_STARTED,
   SUPPORT_TRANSACTION_COMPLETED: SUPPORT_TRANSACTION_COMPLETED,
   SUPPORT_TRANSACTION_FAILED: SUPPORT_TRANSACTION_FAILED,
+  CLEAR_SUPPORT_TRANSACTION: CLEAR_SUPPORT_TRANSACTION,
   WALLET_ENCRYPT_START: WALLET_ENCRYPT_START,
   WALLET_ENCRYPT_COMPLETED: WALLET_ENCRYPT_COMPLETED,
   WALLET_ENCRYPT_FAILED: WALLET_ENCRYPT_FAILED,
@@ -506,7 +506,6 @@ const OTHER = 'other';
 const COPYRIGHT = 'copyright';
 
 var licenses = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   CC_LICENSES: CC_LICENSES,
   NONE: NONE,
   PUBLIC_DOMAIN: PUBLIC_DOMAIN,
@@ -537,7 +536,6 @@ const HISTORY = 'user_history';
 const WALLET = 'wallet';
 
 var pages = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   AUTH: AUTH,
   BACKUP: BACKUP,
   CHANNEL: CHANNEL,
@@ -587,7 +585,6 @@ const RECEIVE_INTERESTS_NOTIFICATIONS = 'receiveInterestsNotifications';
 const RECEIVE_CREATOR_NOTIFICATIONS = 'receiveCreatorNotifications';
 
 var settings = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   CREDIT_REQUIRED_ACKNOWLEDGED: CREDIT_REQUIRED_ACKNOWLEDGED,
   NEW_USER_ACKNOWLEDGED: NEW_USER_ACKNOWLEDGED,
   EMAIL_COLLECTION_ACKNOWLEDGED: EMAIL_COLLECTION_ACKNOWLEDGED,
@@ -615,7 +612,6 @@ const TITLE = 'title';
 const FILENAME = 'filename';
 
 var sort_options = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   DATE_NEW: DATE_NEW,
   DATE_OLD: DATE_OLD,
   TITLE: TITLE,
@@ -629,7 +625,6 @@ const COMPLETE = 'complete';
 const MANUAL = 'manual';
 
 var thumbnail_upload_statuses = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   API_DOWN: API_DOWN,
   READY: READY,
   IN_PROGRESS: IN_PROGRESS,
@@ -649,7 +644,6 @@ const UPDATE = 'update';
 const ABANDON = 'abandon';
 
 var transaction_types = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   ALL: ALL,
   SPEND: SPEND,
   RECEIVE: RECEIVE,
@@ -665,7 +659,6 @@ var transaction_types = /*#__PURE__*/Object.freeze({
 const PAGE_SIZE$1 = 50;
 
 var transaction_list = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   PAGE_SIZE: PAGE_SIZE$1
 });
 
@@ -2416,6 +2409,12 @@ function doSendTip(amount, claimId, isSupport, successCallback, errorCallback) {
       tip: !shouldSupport,
       blocking: true
     }).then(success, error);
+  };
+}
+
+function doClearSupport() {
+  return {
+    type: CLEAR_SUPPORT_TRANSACTION
   };
 }
 
@@ -5120,6 +5119,10 @@ const walletReducer = handleActions({
     sendingSupport: false
   }),
 
+  [CLEAR_SUPPORT_TRANSACTION]: state => _extends$f({}, state, {
+    sendingSupport: false
+  }),
+
   [WALLET_STATUS_COMPLETED]: (state, action) => _extends$f({}, state, {
     walletIsEncrypted: action.result
   }),
@@ -5340,6 +5343,7 @@ exports.doCheckAddressIsMine = doCheckAddressIsMine;
 exports.doCheckPendingPublishes = doCheckPendingPublishes;
 exports.doClaimSearch = doClaimSearch;
 exports.doClearPublish = doClearPublish;
+exports.doClearSupport = doClearSupport;
 exports.doCommentCreate = doCommentCreate;
 exports.doCommentList = doCommentList;
 exports.doCreateChannel = doCreateChannel;

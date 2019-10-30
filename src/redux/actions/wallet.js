@@ -258,6 +258,12 @@ export function doSendTip(amount, claimId, isSupport, successCallback, errorCall
   };
 }
 
+export function doClearSupport() {
+  return {
+    type: ACTIONS.CLEAR_SUPPORT_TRANSACTION,
+  };
+}
+
 export function doWalletEncrypt(newPassword) {
   return dispatch => {
     dispatch({
