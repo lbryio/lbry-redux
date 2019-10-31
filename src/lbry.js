@@ -171,7 +171,7 @@ function checkAndParse(response) {
   });
 }
 
-function apiCall(method: string, params: ?{}, resolve: Function, reject: Function) {
+export function apiCall(method: string, params: ?{}, resolve: Function, reject: Function) {
   const counter = new Date().getTime();
   const options = {
     method: 'POST',
