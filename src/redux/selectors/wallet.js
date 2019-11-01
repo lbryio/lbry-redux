@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import * as TRANSACTIONS from 'constants/transaction_types';
-import { PAGE_SIZE } from 'constants/transaction_list';
+import { PAGE_SIZE, LATEST_PAGE_SIZE } from 'constants/transaction_list';
 
 export const selectState = state => state.wallet || {};
 
@@ -215,21 +215,6 @@ export const selectTransactionItems = createSelector(
   }
 );
 
-export const selectRecentTransactions = createSelector(
-  selectTransactionItems,
-  transactions => {
-    const threshold = new Date();
-    threshold.setDate(threshold.getDate() - 7);
-    return transactions.filter(transaction => {
-      if (!transaction.date) {
-        return true; // pending transaction
-      }
-
-      return transaction.date > threshold;
-    });
-  }
-);
-
 export const selectHasTransactions = createSelector(
   selectTransactionItems,
   transactions => transactions && transactions.length > 0
@@ -308,6 +293,15 @@ export const makeSelectFilteredTransactionsForPage = (page: number = 1): Array<a
       const end = Number(page) * Number(PAGE_SIZE);
       return filteredTransactions && filteredTransactions.length
         ? filteredTransactions.slice(start, end)
+        : [];
+    }
+  );
+
+  export const makeSelectLatestTransactions = createSelector(
+    selectTransactionItems,
+    (transactions) => {
+      return transactions && transactions.length
+        ? transactions.slice( transactions.length < LATEST_PAGE_SIZE ? transactions.length : LATEST_PAGE_SIZE )
         : [];
     }
   );

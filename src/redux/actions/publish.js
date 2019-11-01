@@ -366,7 +366,7 @@ export const doCheckPendingPublishes = (onConfirmed: Function) => (
   let publishCheckInterval;
 
   const checkFileList = () => {
-    Lbry.claim_list().then(claims => {
+    Lbry.stream_list( { page: 1, page_size: 5}).then(claims => {
       // $FlowFixMe
       claims.forEach(claim => {
         // If it's confirmed, check if it was pending previously

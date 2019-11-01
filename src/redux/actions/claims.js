@@ -178,7 +178,7 @@ export function doAbandonClaim(txid: string, nout: number) {
       // After abandoning, call claim_list to show the claim as abandoned
       // Also fetch transactions to show the new abandon transaction
       if (isClaim) dispatch(doFetchClaimListMine());
-      dispatch(doFetchTransactions());
+      dispatch(doFetchTransactions(1,2));
     };
 
     const abandonParams = {
@@ -396,7 +396,15 @@ export function doFetchChannelListMine() {
 }
 
 export function doClaimSearch(
-  options: { tags?: Array<string>, page?: number, page_size?: number, release_time?: string } = {
+  options: {     page_size: number,
+    page: number,
+    no_totals: boolean,
+    any_tags?: Array<string>,
+    channel_ids?: Array<string>,
+    not_channel_ids?: Array<string>,
+    not_tags?: Array<string>,
+    order_by?: Array<string>,
+    release_time?: string, } = {
     page_size: 10,
   }
 ) {

@@ -39,15 +39,15 @@ export function doBalanceSubscribe() {
   };
 }
 
-export function doFetchTransactions() {
+export function doFetchTransactions(page, pageSize) {
   return dispatch => {
     dispatch(doFetchSupports());
     dispatch({
       type: ACTIONS.FETCH_TRANSACTIONS_STARTED,
     });
-
+    debugger;
     Lbry.utxo_release()
-      .then(() => Lbry.transaction_list())
+      .then(() => Lbry.transaction_list({ page: page, page_size: pageSize}))
       .then(results => {
         dispatch({
           type: ACTIONS.FETCH_TRANSACTIONS_COMPLETED,

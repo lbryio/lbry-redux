@@ -657,9 +657,11 @@ var transaction_types = /*#__PURE__*/Object.freeze({
 
 // PAGE SIZE
 const PAGE_SIZE$1 = 50;
+const LATEST_PAGE_SIZE = 20;
 
 var transaction_list = /*#__PURE__*/Object.freeze({
-  PAGE_SIZE: PAGE_SIZE$1
+  PAGE_SIZE: PAGE_SIZE$1,
+  LATEST_PAGE_SIZE: LATEST_PAGE_SIZE
 });
 
 const SPEECH_STATUS = 'https://spee.ch/api/config/site/publishing';
@@ -1664,18 +1666,6 @@ const selectTransactionItems = reselect.createSelector(selectTransactionsById, b
   });
 });
 
-const selectRecentTransactions = reselect.createSelector(selectTransactionItems, transactions => {
-  const threshold = new Date();
-  threshold.setDate(threshold.getDate() - 7);
-  return transactions.filter(transaction => {
-    if (!transaction.date) {
-      return true; // pending transaction
-    }
-
-    return transaction.date > threshold;
-  });
-});
-
 const selectHasTransactions = reselect.createSelector(selectTransactionItems, transactions => transactions && transactions.length > 0);
 
 const selectIsFetchingTransactions = reselect.createSelector(selectState$1, state => state.fetchingTransactions);
@@ -1710,6 +1700,10 @@ const makeSelectFilteredTransactionsForPage = (page = 1) => reselect.createSelec
   const start = (Number(page) - 1) * Number(PAGE_SIZE$1);
   const end = Number(page) * Number(PAGE_SIZE$1);
   return filteredTransactions && filteredTransactions.length ? filteredTransactions.slice(start, end) : [];
+});
+
+const makeSelectLatestTransactions = reselect.createSelector(selectTransactionItems, transactions => {
+  return transactions && transactions.length ? transactions.slice(transactions.length < LATEST_PAGE_SIZE ? transactions.length : LATEST_PAGE_SIZE) : [];
 });
 
 const selectFilteredTransactionCount = reselect.createSelector(selectFilteredTransactions, filteredTransactions => filteredTransactions.length);
@@ -2212,14 +2206,14 @@ function doBalanceSubscribe() {
   };
 }
 
-function doFetchTransactions() {
+function doFetchTransactions(page, pageSize) {
   return dispatch => {
     dispatch(doFetchSupports());
     dispatch({
       type: FETCH_TRANSACTIONS_STARTED
     });
-
-    lbryProxy.utxo_release().then(() => lbryProxy.transaction_list()).then(results => {
+    debugger;
+    lbryProxy.utxo_release().then(() => lbryProxy.transaction_list({ page: page, page_size: pageSize })).then(results => {
       dispatch({
         type: FETCH_TRANSACTIONS_COMPLETED,
         data: {
@@ -2673,7 +2667,7 @@ function doAbandonClaim(txid, nout) {
       // After abandoning, call claim_list to show the claim as abandoned
       // Also fetch transactions to show the new abandon transaction
       if (isClaim) dispatch(doFetchClaimListMine());
-      dispatch(doFetchTransactions());
+      dispatch(doFetchTransactions(1, 2));
     };
 
     const abandonParams = {
@@ -3624,7 +3618,7 @@ const doCheckPendingPublishes = onConfirmed => (dispatch, getState) => {
   let publishCheckInterval;
 
   const checkFileList = () => {
-    lbryProxy.claim_list().then(claims => {
+    lbryProxy.stream_list({ page: 1, page_size: 5 }).then(claims => {
       // $FlowFixMe
       claims.forEach(claim => {
         // If it's confirmed, check if it was pending previously
@@ -5425,6 +5419,7 @@ exports.makeSelectFilteredTransactionsForPage = makeSelectFilteredTransactionsFo
 exports.makeSelectFirstRecommendedFileForUri = makeSelectFirstRecommendedFileForUri;
 exports.makeSelectIsFollowingTag = makeSelectIsFollowingTag;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
+exports.makeSelectLatestTransactions = makeSelectLatestTransactions;
 exports.makeSelectLoadingForUri = makeSelectLoadingForUri;
 exports.makeSelectMediaTypeForUri = makeSelectMediaTypeForUri;
 exports.makeSelectMetadataForUri = makeSelectMetadataForUri;
@@ -5524,7 +5519,6 @@ exports.selectPublishFormValues = selectPublishFormValues;
 exports.selectPurchaseUriErrorMessage = selectPurchaseUriErrorMessage;
 exports.selectPurchasedUris = selectPurchasedUris;
 exports.selectReceiveAddress = selectReceiveAddress;
-exports.selectRecentTransactions = selectRecentTransactions;
 exports.selectReservedBalance = selectReservedBalance;
 exports.selectResolvingUris = selectResolvingUris;
 exports.selectSearchBarFocused = selectSearchBarFocused;

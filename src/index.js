@@ -277,7 +277,6 @@ export {
   selectSupportsByOutpoint,
   selectTotalSupports,
   selectTransactionItems,
-  selectRecentTransactions,
   selectHasTransactions,
   selectIsFetchingTransactions,
   selectIsSendingSupport,
@@ -301,6 +300,7 @@ export {
   selectWalletUnlockResult,
   selectTransactionListFilter,
   selectFilteredTransactions,
+  makeSelectLatestTransactions,
   makeSelectFilteredTransactionsForPage,
   selectFilteredTransactionCount,
 } from 'redux/selectors/wallet';
