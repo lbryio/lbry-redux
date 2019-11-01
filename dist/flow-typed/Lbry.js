@@ -107,7 +107,7 @@ declare type ClaimSearchResponse = {
 };
 
 declare type ClaimListResponse = {
-  claims: Array<ChannelClaim | Claim>,
+  items: Array<ChannelClaim | Claim>,
 };
 
 declare type ChannelCreateResponse = GenericTxResponse & {
@@ -125,7 +125,7 @@ declare type ChannelListResponse = Array<ChannelClaim>;
 
 declare type FileListResponse = Array<FileListItem>;
 
-declare type TxListResponse = Array<Transaction>;
+declare type TxListResponse = { items: Array<Transaction> };
 
 declare type BlobListResponse = Array<string>;
 
@@ -145,6 +145,8 @@ declare type SyncApplyResponse = {
 };
 
 declare type SupportAbandonResponse = GenericTxResponse;
+
+declare type StreamListResponse = { items: Array<StreamClaim> };
 
 //
 // Types used in the generic Lbry object that is exported
@@ -168,7 +170,7 @@ declare type LbryTypes = {
   version: () => Promise<VersionResponse>,
   resolve: (params: {}) => Promise<ResolveResponse>,
   get: (params: {}) => Promise<GetResponse>,
-  publish?: (params: {}) => Promise<PublishResponse>,
+  publish: (params: {}) => Promise<PublishResponse>,
 
   claim_search: (params: {}) => Promise<ClaimSearchResponse>,
   claim_list: (params?: {}) => Promise<ClaimListResponse>,
@@ -177,6 +179,7 @@ declare type LbryTypes = {
   channel_import: (params: {}) => Promise<string>,
   channel_list: () => Promise<ChannelListResponse>,
   stream_abandon: (params: {}) => Promise<GenericTxResponse>,
+  stream_list: (params: {}) => Promise<StreamListResponse>,
   channel_abandon: (params: {}) => Promise<GenericTxResponse>,
   support_create: (params: {}) => Promise<GenericTxResponse>,
 

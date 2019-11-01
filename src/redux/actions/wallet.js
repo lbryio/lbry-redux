@@ -5,30 +5,38 @@ import { selectBalance } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { selectMyClaimsRaw } from 'redux/selectors/claims';
 
+let walletBalancePromise = null;
 export function doUpdateBalance() {
   return (dispatch, getState) => {
     const {
       wallet: { totalBalance: totalInStore },
     } = getState();
-    return Lbry.wallet_balance({ reserved_subtotals: true }).then(response => {
-      const { available, reserved, reserved_subtotals, total } = response;
-      const { claims, supports, tips } = reserved_subtotals;
-      const totalFloat = parseFloat(total);
 
-      if (totalInStore !== totalFloat) {
-        dispatch({
-          type: ACTIONS.UPDATE_BALANCE,
-          data: {
-            totalBalance: totalFloat,
-            balance: parseFloat(available),
-            reservedBalance: parseFloat(reserved),
-            claimsBalance: parseFloat(claims),
-            supportsBalance: parseFloat(supports),
-            tipsBalance: parseFloat(tips),
-          },
-        });
-      }
-    });
+    if (walletBalancePromise === null) {
+      walletBalancePromise = Lbry.wallet_balance({ reserved_subtotals: true }).then(response => {
+        walletBalancePromise = null;
+
+        const { available, reserved, reserved_subtotals, total } = response;
+        const { claims, supports, tips } = reserved_subtotals;
+        const totalFloat = parseFloat(total);
+
+        if (totalInStore !== totalFloat) {
+          dispatch({
+            type: ACTIONS.UPDATE_BALANCE,
+            data: {
+              totalBalance: totalFloat,
+              balance: parseFloat(available),
+              reservedBalance: parseFloat(reserved),
+              claimsBalance: parseFloat(claims),
+              supportsBalance: parseFloat(supports),
+              tipsBalance: parseFloat(tips),
+            },
+          });
+        }
+      });
+    }
+
+    return walletBalancePromise;
   };
 }
 
@@ -39,20 +47,20 @@ export function doBalanceSubscribe() {
   };
 }
 
-export function doFetchTransactions(page, pageSize) {
+export function doFetchTransactions(page = 1, pageSize = 99999) {
   return dispatch => {
     dispatch(doFetchSupports());
     dispatch({
       type: ACTIONS.FETCH_TRANSACTIONS_STARTED,
     });
-    debugger;
+
     Lbry.utxo_release()
-      .then(() => Lbry.transaction_list({ page: page, page_size: pageSize}))
-      .then(results => {
+      .then(() => Lbry.transaction_list({ page, page_size: pageSize }))
+      .then(result => {
         dispatch({
           type: ACTIONS.FETCH_TRANSACTIONS_COMPLETED,
           data: {
-            transactions: results,
+            transactions: result.items,
           },
         });
       });

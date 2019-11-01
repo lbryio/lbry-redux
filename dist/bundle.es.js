@@ -772,6 +772,7 @@ const Lbry = {
   channel_import: params => daemonCallWithResult('channel_import', params),
   channel_list: params => daemonCallWithResult('channel_list', params),
   stream_abandon: params => daemonCallWithResult('stream_abandon', params),
+  stream_list: params => daemonCallWithResult('stream_list', params),
   channel_abandon: params => daemonCallWithResult('channel_abandon', params),
   support_create: params => daemonCallWithResult('support_create', params),
 
@@ -831,16 +832,16 @@ const Lbry = {
     // Flow thinks this could be empty, but it will always reuturn a promise
     // $FlowFixMe
     return Lbry.connectPromise;
-  }
-};
+  },
 
-Lbry.publish = (params = {}) => new Promise((resolve, reject) => {
-  if (Lbry.overrides.publish) {
-    Lbry.overrides.publish(params).then(resolve, reject);
-  } else {
-    apiCall('publish', params, resolve, reject);
-  }
-});
+  publish: (params = {}) => new Promise((resolve, reject) => {
+    if (Lbry.overrides.publish) {
+      Lbry.overrides.publish(params).then(resolve, reject);
+    } else {
+      apiCall('publish', params, resolve, reject);
+    }
+  })
+};
 
 function checkAndParse(response) {
   if (response.status >= 200 && response.status < 300) {
@@ -1703,7 +1704,7 @@ const makeSelectFilteredTransactionsForPage = (page = 1) => reselect.createSelec
 });
 
 const makeSelectLatestTransactions = reselect.createSelector(selectTransactionItems, transactions => {
-  return transactions && transactions.length ? transactions.slice(transactions.length < LATEST_PAGE_SIZE ? transactions.length : LATEST_PAGE_SIZE) : [];
+  return transactions && transactions.length ? transactions.slice(0, LATEST_PAGE_SIZE) : [];
 });
 
 const selectFilteredTransactionCount = reselect.createSelector(selectFilteredTransactions, filteredTransactions => filteredTransactions.length);
@@ -2172,30 +2173,38 @@ function creditsToString(amount) {
   return creditString;
 }
 
+let walletBalancePromise = null;
 function doUpdateBalance() {
   return (dispatch, getState) => {
     const {
       wallet: { totalBalance: totalInStore }
     } = getState();
-    return lbryProxy.wallet_balance({ reserved_subtotals: true }).then(response => {
-      const { available, reserved, reserved_subtotals, total } = response;
-      const { claims, supports, tips } = reserved_subtotals;
-      const totalFloat = parseFloat(total);
 
-      if (totalInStore !== totalFloat) {
-        dispatch({
-          type: UPDATE_BALANCE,
-          data: {
-            totalBalance: totalFloat,
-            balance: parseFloat(available),
-            reservedBalance: parseFloat(reserved),
-            claimsBalance: parseFloat(claims),
-            supportsBalance: parseFloat(supports),
-            tipsBalance: parseFloat(tips)
-          }
-        });
-      }
-    });
+    if (walletBalancePromise === null) {
+      walletBalancePromise = lbryProxy.wallet_balance({ reserved_subtotals: true }).then(response => {
+        walletBalancePromise = null;
+
+        const { available, reserved, reserved_subtotals, total } = response;
+        const { claims, supports, tips } = reserved_subtotals;
+        const totalFloat = parseFloat(total);
+
+        if (totalInStore !== totalFloat) {
+          dispatch({
+            type: UPDATE_BALANCE,
+            data: {
+              totalBalance: totalFloat,
+              balance: parseFloat(available),
+              reservedBalance: parseFloat(reserved),
+              claimsBalance: parseFloat(claims),
+              supportsBalance: parseFloat(supports),
+              tipsBalance: parseFloat(tips)
+            }
+          });
+        }
+      });
+    }
+
+    return walletBalancePromise;
   };
 }
 
@@ -2206,18 +2215,18 @@ function doBalanceSubscribe() {
   };
 }
 
-function doFetchTransactions(page, pageSize) {
+function doFetchTransactions(page = 1, pageSize = 99999) {
   return dispatch => {
     dispatch(doFetchSupports());
     dispatch({
       type: FETCH_TRANSACTIONS_STARTED
     });
-    debugger;
-    lbryProxy.utxo_release().then(() => lbryProxy.transaction_list({ page: page, page_size: pageSize })).then(results => {
+
+    lbryProxy.utxo_release().then(() => lbryProxy.transaction_list({ page, page_size: pageSize })).then(result => {
       dispatch({
         type: FETCH_TRANSACTIONS_COMPLETED,
         data: {
-          transactions: results
+          transactions: result.items
         }
       });
     });
@@ -2593,13 +2602,15 @@ function doResolveUri(uri) {
   return doResolveUris([uri]);
 }
 
-function doFetchClaimListMine() {
+function doFetchClaimListMine(page = 1, pageSize = 9999) {
   return dispatch => {
     dispatch({
       type: FETCH_CLAIM_LIST_MINE_STARTED
     });
 
-    lbryProxy.claim_list().then(claims => {
+    lbryProxy.claim_list({ page, page_size: pageSize }).then(result => {
+      const claims = result.items;
+
       dispatch({
         type: FETCH_CLAIM_LIST_MINE_COMPLETED,
         data: {
@@ -2664,10 +2675,12 @@ function doAbandonClaim(txid, nout) {
         message: abandonMessage
       }));
 
-      // After abandoning, call claim_list to show the claim as abandoned
-      // Also fetch transactions to show the new abandon transaction
-      if (isClaim) dispatch(doFetchClaimListMine());
-      dispatch(doFetchTransactions(1, 2));
+      // After abandoning, fetch transactions to show the new abandon transaction
+      // Only fetch the latest few transactions since we don't care about old ones
+      // Not very robust, but better than calling the entire list for large wallets
+      const page = 1;
+      const pageSize = 10;
+      dispatch(doFetchTransactions(page, pageSize));
     };
 
     const abandonParams = {
@@ -2867,7 +2880,9 @@ function doFetchChannelListMine() {
 }
 
 function doClaimSearch(options = {
-  page_size: 10
+  no_totals: true,
+  page_size: 10,
+  page: 1
 }) {
   const query = createNormalizedClaimSearchKey(options);
   return dispatch => {
@@ -3431,6 +3446,7 @@ const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => disp
     const name = makeid();
     const file = thumbnailBlob || thumbnail && new File([thumbnail], fileName, { type: fileType });
     data.append('name', name);
+    // $FlowFixMe
     data.append('file', file);
 
     return fetch(SPEECH_PUBLISH, {
@@ -3618,8 +3634,9 @@ const doCheckPendingPublishes = onConfirmed => (dispatch, getState) => {
   let publishCheckInterval;
 
   const checkFileList = () => {
-    lbryProxy.stream_list({ page: 1, page_size: 5 }).then(claims => {
-      // $FlowFixMe
+    lbryProxy.stream_list({ page: 1, page_size: 10 }).then(result => {
+      const claims = result.items;
+
       claims.forEach(claim => {
         // If it's confirmed, check if it was pending previously
         if (claim.confirmations > 0 && pendingById[claim.claim_id]) {

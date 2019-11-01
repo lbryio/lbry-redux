@@ -145,8 +145,10 @@ export const doUploadThumbnail = (
 
     const data = new FormData();
     const name = makeid();
-    const file = thumbnailBlob || (thumbnail && new File([thumbnail], fileName, { type: fileType }));
+    const file =
+      thumbnailBlob || (thumbnail && new File([thumbnail], fileName, { type: fileType }));
     data.append('name', name);
+    // $FlowFixMe
     data.append('file', file);
 
     return fetch(SPEECH_PUBLISH, {
@@ -275,7 +277,9 @@ export const doPublish = (success: Function, fail: Function) => (
   }
 
   // get the claim id from the channel name, we will use that instead
-  const namedChannelClaim = myChannels ? myChannels.find(myChannel => myChannel.name === channel) : null;
+  const namedChannelClaim = myChannels
+    ? myChannels.find(myChannel => myChannel.name === channel)
+    : null;
   const channelId = namedChannelClaim ? namedChannelClaim.claim_id : '';
 
   const publishPayload: {
@@ -336,7 +340,7 @@ export const doPublish = (success: Function, fail: Function) => (
   }
 
   if (myClaimForUri && myClaimForUri.value && myClaimForUri.value.locations) {
-      publishPayload.locations = myClaimForUri.value.locations;
+    publishPayload.locations = myClaimForUri.value.locations;
   }
 
   if (!contentIsFree && fee && (fee.currency && Number(fee.amount) > 0)) {
@@ -366,8 +370,9 @@ export const doCheckPendingPublishes = (onConfirmed: Function) => (
   let publishCheckInterval;
 
   const checkFileList = () => {
-    Lbry.stream_list( { page: 1, page_size: 5}).then(claims => {
-      // $FlowFixMe
+    Lbry.stream_list({ page: 1, page_size: 10 }).then(result => {
+      const claims = result.items;
+
       claims.forEach(claim => {
         // If it's confirmed, check if it was pending previously
         if (claim.confirmations > 0 && pendingById[claim.claim_id]) {

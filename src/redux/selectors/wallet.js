@@ -285,7 +285,7 @@ export const selectFilteredTransactions = createSelector(
   }
 );
 
-export const makeSelectFilteredTransactionsForPage = (page: number = 1): Array<any> =>
+export const makeSelectFilteredTransactionsForPage = (page = 1) =>
   createSelector(
     selectFilteredTransactions,
     filteredTransactions => {
@@ -297,14 +297,12 @@ export const makeSelectFilteredTransactionsForPage = (page: number = 1): Array<a
     }
   );
 
-  export const makeSelectLatestTransactions = createSelector(
-    selectTransactionItems,
-    (transactions) => {
-      return transactions && transactions.length
-        ? transactions.slice( transactions.length < LATEST_PAGE_SIZE ? transactions.length : LATEST_PAGE_SIZE )
-        : [];
-    }
-  );
+export const makeSelectLatestTransactions = createSelector(
+  selectTransactionItems,
+  transactions => {
+    return transactions && transactions.length ? transactions.slice(0, LATEST_PAGE_SIZE) : [];
+  }
+);
 
 export const selectFilteredTransactionCount = createSelector(
   selectFilteredTransactions,
