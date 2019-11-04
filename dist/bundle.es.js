@@ -1667,6 +1667,18 @@ const selectTransactionItems = reselect.createSelector(selectTransactionsById, b
   });
 });
 
+const selectRecentTransactions = reselect.createSelector(selectTransactionItems, transactions => {
+  const threshold = new Date();
+  threshold.setDate(threshold.getDate() - 7);
+  return transactions.filter(transaction => {
+    if (!transaction.date) {
+      return true; // pending transaction
+    }
+
+    return transaction.date > threshold;
+  });
+});
+
 const selectHasTransactions = reselect.createSelector(selectTransactionItems, transactions => transactions && transactions.length > 0);
 
 const selectIsFetchingTransactions = reselect.createSelector(selectState$1, state => state.fetchingTransactions);
@@ -5536,6 +5548,7 @@ exports.selectPublishFormValues = selectPublishFormValues;
 exports.selectPurchaseUriErrorMessage = selectPurchaseUriErrorMessage;
 exports.selectPurchasedUris = selectPurchasedUris;
 exports.selectReceiveAddress = selectReceiveAddress;
+exports.selectRecentTransactions = selectRecentTransactions;
 exports.selectReservedBalance = selectReservedBalance;
 exports.selectResolvingUris = selectResolvingUris;
 exports.selectSearchBarFocused = selectSearchBarFocused;

@@ -215,6 +215,21 @@ export const selectTransactionItems = createSelector(
   }
 );
 
+export const selectRecentTransactions = createSelector(
+  selectTransactionItems,
+  transactions => {
+    const threshold = new Date();
+    threshold.setDate(threshold.getDate() - 7);
+    return transactions.filter(transaction => {
+      if (!transaction.date) {
+        return true; // pending transaction
+      }
+
+      return transaction.date > threshold;
+    });
+  }
+);
+
 export const selectHasTransactions = createSelector(
   selectTransactionItems,
   transactions => transactions && transactions.length > 0
