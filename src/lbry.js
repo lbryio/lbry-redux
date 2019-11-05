@@ -85,6 +85,7 @@ const Lbry: LbryTypes = {
   stream_list: params => daemonCallWithResult('stream_list', params),
   channel_abandon: params => daemonCallWithResult('channel_abandon', params),
   support_create: params => daemonCallWithResult('support_create', params),
+  support_list: params => daemonCallWithResult('support_list', params),
 
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),

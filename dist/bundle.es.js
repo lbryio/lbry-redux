@@ -775,6 +775,7 @@ const Lbry = {
   stream_list: params => daemonCallWithResult('stream_list', params),
   channel_abandon: params => daemonCallWithResult('channel_abandon', params),
   support_create: params => daemonCallWithResult('support_create', params),
+  support_list: params => daemonCallWithResult('support_list', params),
 
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),
@@ -2193,7 +2194,7 @@ function doUpdateBalance() {
     } = getState();
 
     if (walletBalancePromise === null) {
-      walletBalancePromise = lbryProxy.wallet_balance({ reserved_subtotals: true }).then(response => {
+      walletBalancePromise = lbryProxy.wallet_balance().then(response => {
         walletBalancePromise = null;
 
         const { available, reserved, reserved_subtotals, total } = response;
@@ -2245,17 +2246,17 @@ function doFetchTransactions(page = 1, pageSize = 99999) {
   };
 }
 
-function doFetchSupports() {
+function doFetchSupports(page = 1, pageSize = 99999) {
   return dispatch => {
     dispatch({
       type: FETCH_SUPPORTS_STARTED
     });
 
-    lbryProxy.support_list().then(results => {
+    lbryProxy.support_list({ page, page_size: pageSize }).then(result => {
       dispatch({
         type: FETCH_SUPPORTS_COMPLETED,
         data: {
-          supports: results
+          supports: result.items
         }
       });
     });
@@ -2614,13 +2615,13 @@ function doResolveUri(uri) {
   return doResolveUris([uri]);
 }
 
-function doFetchClaimListMine(page = 1, pageSize = 9999) {
+function doFetchClaimListMine(page = 1, pageSize = 99999) {
   return dispatch => {
     dispatch({
       type: FETCH_CLAIM_LIST_MINE_STARTED
     });
 
-    lbryProxy.claim_list({ page, page_size: pageSize }).then(result => {
+    lbryProxy.stream_list({ page, page_size: pageSize }).then(result => {
       const claims = result.items;
 
       dispatch({
@@ -2874,7 +2875,7 @@ function doImportChannel(certificate) {
   };
 }
 
-function doFetchChannelListMine() {
+function doFetchChannelListMine(page = 1, pageSize = 99999) {
   return dispatch => {
     dispatch({
       type: FETCH_CHANNEL_LIST_STARTED
@@ -2883,11 +2884,11 @@ function doFetchChannelListMine() {
     const callback = channels => {
       dispatch({
         type: FETCH_CHANNEL_LIST_COMPLETED,
-        data: { claims: channels }
+        data: { claims: channels.items }
       });
     };
 
-    lbryProxy.channel_list().then(callback);
+    lbryProxy.channel_list({ page, page_size: pageSize }).then(callback);
   };
 }
 
@@ -3210,12 +3211,15 @@ function doFetchFileInfo(uri) {
         }
       });
 
-      lbryProxy.file_list({ outpoint, full_status: true }).then(fileInfos => {
+      lbryProxy.file_list({ outpoint, full_status: true, page: 1, page_size: 1 }).then(result => {
+        const { items: fileInfos } = result;
+        const fileInfo = fileInfos[0];
+
         dispatch({
           type: FETCH_FILE_INFO_COMPLETED,
           data: {
             outpoint,
-            fileInfo: fileInfos && fileInfos.length ? fileInfos[0] : null
+            fileInfo: fileInfo || null
           }
         });
       });
@@ -3223,7 +3227,7 @@ function doFetchFileInfo(uri) {
   };
 }
 
-function doFileList() {
+function doFileList(page = 1, pageSize = 99999) {
   return (dispatch, getState) => {
     const state = getState();
     const isFetching = selectIsFetchingFileList(state);
@@ -3233,11 +3237,12 @@ function doFileList() {
         type: FILE_LIST_STARTED
       });
 
-      lbryProxy.file_list().then(fileInfos => {
+      lbryProxy.file_list({ page, page_size: pageSize }).then(result => {
+        const { items: fileInfos } = result;
         dispatch({
           type: FILE_LIST_SUCCEEDED,
           data: {
-            fileInfos
+            fileInfos: fileInfos.reverse()
           }
         });
       });
@@ -3889,7 +3894,7 @@ const doDeleteTag = name => ({
 
 //      
 
-function doCommentList(uri) {
+function doCommentList(uri, page = 1, pageSize = 99999) {
   return (dispatch, getState) => {
     const state = getState();
     const claim = selectClaimsByUri(state)[uri];
@@ -3899,12 +3904,15 @@ function doCommentList(uri) {
       type: COMMENT_LIST_STARTED
     });
     lbryProxy.comment_list({
-      claim_id: claimId
-    }).then(results => {
+      claim_id: claimId,
+      page,
+      page_size: pageSize
+    }).then(result => {
+      const { items: comments } = result;
       dispatch({
         type: COMMENT_LIST_COMPLETED,
         data: {
-          comments: results,
+          comments,
           claimId: claimId,
           uri: uri
         }
@@ -4387,8 +4395,8 @@ const commentReducer = handleActions({
     const byId = Object.assign({}, state.byId);
     const commentsByUri = Object.assign({}, state.commentsByUri);
 
-    if (comments['items']) {
-      byId[claimId] = comments['items'];
+    if (comments) {
+      byId[claimId] = comments;
       commentsByUri[uri] = claimId;
     }
     return _extends$7({}, state, {
