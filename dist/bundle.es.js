@@ -2881,10 +2881,10 @@ function doFetchChannelListMine(page = 1, pageSize = 99999) {
       type: FETCH_CHANNEL_LIST_STARTED
     });
 
-    const callback = channels => {
+    const callback = response => {
       dispatch({
         type: FETCH_CHANNEL_LIST_COMPLETED,
-        data: { claims: channels.items }
+        data: { claims: response.items }
       });
     };
 
@@ -3017,7 +3017,7 @@ const selectFileListDownloadedSort = reselect.createSelector(selectState$3, stat
 
 const selectDownloadedUris = reselect.createSelector(selectFileInfosDownloaded,
 // We should use permament_url but it doesn't exist in file_list
-info => info.slice().reverse().map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`));
+info => info.slice().map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`));
 
 const makeSelectMediaTypeForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), makeSelectContentTypeForUri(uri), (fileInfo, contentType) => {
   if (!fileInfo && !contentType) {
@@ -3068,7 +3068,11 @@ const makeSelectSearchDownloadUrlsForPage = (query, page = 1) => reselect.create
   const start = (Number(page) - 1) * Number(PAGE_SIZE);
   const end = Number(page) * Number(PAGE_SIZE);
 
-  return matchingFileInfos && matchingFileInfos.length ? matchingFileInfos.slice(start, end).map(fileInfo => buildURI({ streamName: fileInfo.claim_name, channelName: fileInfo.channel_name, channelClaimId: fileInfo.channel_claim_id })) : [];
+  return matchingFileInfos && matchingFileInfos.length ? matchingFileInfos.slice(start, end).map(fileInfo => buildURI({
+    streamName: fileInfo.claim_name,
+    channelName: fileInfo.channel_name,
+    channelClaimId: fileInfo.channel_claim_id
+  })) : [];
 });
 
 const makeSelectSearchDownloadUrlsCount = query => reselect.createSelector(selectFileInfosDownloaded, fileInfos => {
