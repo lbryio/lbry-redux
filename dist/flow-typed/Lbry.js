@@ -108,6 +108,10 @@ declare type ClaimSearchResponse = {
 
 declare type ClaimListResponse = {
   items: Array<ChannelClaim | Claim>,
+  page: number,
+  page_size: number,
+  total_items: number,
+  total_pages: number,
 };
 
 declare type ChannelCreateResponse = GenericTxResponse & {
@@ -119,15 +123,47 @@ declare type ChannelUpdateResponse = GenericTxResponse & {
 };
 
 declare type CommentCreateResponse = Comment;
-declare type CommentListResponse = Array<Comment>;
+declare type CommentListResponse = {
+  items: Array<Comment>,
+  page: number,
+  page_size: number,
+  total_items: number,
+  total_pages: number,
+};
 
-declare type ChannelListResponse = Array<ChannelClaim>;
+declare type ChannelListResponse = {
+  items: Array<ChannelClaim>,
+  page: number,
+  page_size: number,
+  total_items: number,
+  total_pages: number,
+};
 
-declare type FileListResponse = Array<FileListItem>;
+declare type FileListResponse = {
+  items: Array<FileListItem>,
+  page: number,
+  page_size: number,
+  total_items: number,
+  total_pages: number,
+};
 
-declare type TxListResponse = { items: Array<Transaction> };
+declare type TxListResponse = {
+  items: Array<Transaction>,
+  page: number,
+  page_size: number,
+  total_items: number,
+  total_pages: number,
+};
 
-declare type BlobListResponse = Array<string>;
+declare type SupportListResponse = {
+  items: Array<Support>,
+  page: number,
+  page_size: number,
+  total_items: number,
+  total_pages: number,
+};
+
+declare type BlobListResponse = { items: Array<string> };
 
 declare type WalletListResponse = Array<{
   id: string,
@@ -146,7 +182,13 @@ declare type SyncApplyResponse = {
 
 declare type SupportAbandonResponse = GenericTxResponse;
 
-declare type StreamListResponse = { items: Array<StreamClaim> };
+declare type StreamListResponse = {
+  items: Array<StreamClaim>,
+  page: number,
+  page_size: number,
+  total_items: number,
+  total_pages: number,
+};
 
 //
 // Types used in the generic Lbry object that is exported
@@ -173,15 +215,17 @@ declare type LbryTypes = {
   publish: (params: {}) => Promise<PublishResponse>,
 
   claim_search: (params: {}) => Promise<ClaimSearchResponse>,
-  claim_list: (params?: {}) => Promise<ClaimListResponse>,
+  claim_list: (params: {}) => Promise<ClaimListResponse>,
   channel_create: (params: {}) => Promise<ChannelCreateResponse>,
   channel_update: (params: {}) => Promise<ChannelUpdateResponse>,
   channel_import: (params: {}) => Promise<string>,
-  channel_list: () => Promise<ChannelListResponse>,
+  channel_list: (params: {}) => Promise<ChannelListResponse>,
   stream_abandon: (params: {}) => Promise<GenericTxResponse>,
   stream_list: (params: {}) => Promise<StreamListResponse>,
   channel_abandon: (params: {}) => Promise<GenericTxResponse>,
   support_create: (params: {}) => Promise<GenericTxResponse>,
+  support_list: (params: {}) => Promise<SupportListResponse>,
+  support_abandon: (params: {}) => Promise<SupportAbandonResponse>,
 
   // File fetching and manipulation
   file_list: (params: {}) => Promise<FileListResponse>,
@@ -208,7 +252,6 @@ declare type LbryTypes = {
   address_unused: (params: {}) => Promise<string>, // New address
   address_list: (params: {}) => Promise<string>,
   transaction_list: (params: {}) => Promise<TxListResponse>,
-  support_abandon: (params: {}) => Promise<SupportAbandonResponse>,
 
   // Sync
   sync_hash: (params: {}) => Promise<string>,

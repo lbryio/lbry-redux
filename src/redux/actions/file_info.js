@@ -19,12 +19,15 @@ export function doFetchFileInfo(uri) {
         },
       });
 
-      Lbry.file_list({ outpoint, full_status: true }).then(fileInfos => {
+      Lbry.file_list({ outpoint, full_status: true, page: 1, page_size: 1 }).then(result => {
+        const { items: fileInfos } = result;
+        const fileInfo = fileInfos[0];
+
         dispatch({
           type: ACTIONS.FETCH_FILE_INFO_COMPLETED,
           data: {
             outpoint,
-            fileInfo: fileInfos && fileInfos.length ? fileInfos[0] : null,
+            fileInfo: fileInfo || null,
           },
         });
       });
@@ -32,7 +35,7 @@ export function doFetchFileInfo(uri) {
   };
 }
 
-export function doFileList() {
+export function doFileList(page: number = 1, pageSize: number = 99999) {
   return (dispatch, getState) => {
     const state = getState();
     const isFetching = selectIsFetchingFileList(state);
@@ -42,11 +45,12 @@ export function doFileList() {
         type: ACTIONS.FILE_LIST_STARTED,
       });
 
-      Lbry.file_list().then(fileInfos => {
+      Lbry.file_list({ page, page_size: pageSize }).then(result => {
+        const { items: fileInfos } = result;
         dispatch({
           type: ACTIONS.FILE_LIST_SUCCEEDED,
           data: {
-            fileInfos,
+            fileInfos: fileInfos.reverse(),
           },
         });
       });

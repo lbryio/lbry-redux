@@ -94,13 +94,13 @@ export function doResolveUri(uri: string) {
   return doResolveUris([uri]);
 }
 
-export function doFetchClaimListMine(page: number = 1, pageSize: number = 9999) {
+export function doFetchClaimListMine(page: number = 1, pageSize: number = 99999) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED,
     });
 
-    Lbry.claim_list({ page, page_size: pageSize }).then((result: ClaimListResponse) => {
+    Lbry.stream_list({ page, page_size: pageSize }).then((result: StreamListResponse) => {
       const claims = result.items;
 
       dispatch({
@@ -382,20 +382,20 @@ export function doImportChannel(certificate: string) {
   };
 }
 
-export function doFetchChannelListMine() {
+export function doFetchChannelListMine(page: number = 1, pageSize: number = 99999) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_CHANNEL_LIST_STARTED,
     });
 
-    const callback = (channels: Array<ChannelClaim>) => {
+    const callback = (response: ChannelListResponse) => {
       dispatch({
         type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED,
-        data: { claims: channels },
+        data: { claims: response.items },
       });
     };
 
-    Lbry.channel_list().then(callback);
+    Lbry.channel_list({ page, page_size: pageSize }).then(callback);
   };
 }
 

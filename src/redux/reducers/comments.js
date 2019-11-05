@@ -42,8 +42,8 @@ export const commentReducer = handleActions(
       const byId = Object.assign({}, state.byId);
       const commentsByUri = Object.assign({}, state.commentsByUri);
 
-      if (comments['items']) {
-        byId[claimId] = comments['items'];
+      if (comments) {
+        byId[claimId] = comments;
         commentsByUri[uri] = claimId;
       }
       return {

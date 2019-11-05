@@ -2,6 +2,7 @@
 
 declare type FileListItem = {
   metadata: StreamMetadata,
+  added_on: number,
   blobs_completed: number,
   blobs_in_stream: number,
   blobs_remaining: number,

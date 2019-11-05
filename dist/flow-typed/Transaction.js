@@ -19,6 +19,7 @@ declare type Support = {
   is_change: string,
   is_mine: string,
   name: string,
+  normalized_name: string,
   nout: string,
   permanent_url: string,
   timestamp: number,

@@ -146,11 +146,7 @@ export const selectFileListDownloadedSort = createSelector(
 export const selectDownloadedUris = createSelector(
   selectFileInfosDownloaded,
   // We should use permament_url but it doesn't exist in file_list
-  info =>
-    info
-      .slice()
-      .reverse()
-      .map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`)
+  info => info.slice().map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`)
 );
 
 export const makeSelectMediaTypeForUri = uri =>
@@ -214,9 +210,11 @@ function filterFileInfos(fileInfos, query) {
     const queryMatchRegExp = new RegExp(query, 'i');
     return fileInfos.filter(fileInfo => {
       const { metadata } = fileInfo;
-      return (metadata.title && metadata.title.match(queryMatchRegExp)) ||
+      return (
+        (metadata.title && metadata.title.match(queryMatchRegExp)) ||
         (fileInfo.channel_name && fileInfo.channel_name.match(queryMatchRegExp)) ||
-        (fileInfo.claim_name && fileInfo.claim_name.match(queryMatchRegExp));
+        (fileInfo.claim_name && fileInfo.claim_name.match(queryMatchRegExp))
+      );
     });
   }
 
@@ -228,22 +226,25 @@ export const makeSelectSearchDownloadUrlsForPage = (query, page = 1) =>
     selectFileInfosDownloaded,
     fileInfos => {
       const matchingFileInfos = filterFileInfos(fileInfos, query);
-      const start = ((Number(page) - 1) * Number(PAGE_SIZE));
-      const end = (Number(page) * Number(PAGE_SIZE));
+      const start = (Number(page) - 1) * Number(PAGE_SIZE);
+      const end = Number(page) * Number(PAGE_SIZE);
 
-      return (matchingFileInfos && matchingFileInfos.length)
+      return matchingFileInfos && matchingFileInfos.length
         ? matchingFileInfos.slice(start, end).map(fileInfo =>
-          buildURI({ streamName: fileInfo.claim_name, channelName: fileInfo.channel_name, channelClaimId: fileInfo.channel_claim_id }))
+          buildURI({
+            streamName: fileInfo.claim_name,
+            channelName: fileInfo.channel_name,
+            channelClaimId: fileInfo.channel_claim_id,
+          })
+        )
         : [];
     }
   );
 
-export const makeSelectSearchDownloadUrlsCount = (query) =>
+export const makeSelectSearchDownloadUrlsCount = query =>
   createSelector(
     selectFileInfosDownloaded,
     fileInfos => {
-      return fileInfos && fileInfos.length
-        ? filterFileInfos(fileInfos, query).length
-        : 0;
+      return fileInfos && fileInfos.length ? filterFileInfos(fileInfos, query).length : 0;
     }
   );

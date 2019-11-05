@@ -4,7 +4,7 @@ import Lbry from 'lbry';
 import { selectClaimsByUri, selectMyChannelClaims } from 'redux/selectors/claims';
 import { doToast } from 'redux/actions/notifications';
 
-export function doCommentList(uri: string) {
+export function doCommentList(uri: string, page: number = 1, pageSize: number = 99999) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimsByUri(state)[uri];
@@ -15,12 +15,15 @@ export function doCommentList(uri: string) {
     });
     Lbry.comment_list({
       claim_id: claimId,
+      page,
+      page_size: pageSize,
     })
-      .then((results: CommentListResponse) => {
+      .then((result: CommentListResponse) => {
+        const { items: comments } = result;
         dispatch({
           type: ACTIONS.COMMENT_LIST_COMPLETED,
           data: {
-            comments: results,
+            comments,
             claimId: claimId,
             uri: uri,
           },

@@ -13,7 +13,7 @@ export function doUpdateBalance() {
     } = getState();
 
     if (walletBalancePromise === null) {
-      walletBalancePromise = Lbry.wallet_balance({ reserved_subtotals: true }).then(response => {
+      walletBalancePromise = Lbry.wallet_balance().then(response => {
         walletBalancePromise = null;
 
         const { available, reserved, reserved_subtotals, total } = response;
@@ -67,17 +67,17 @@ export function doFetchTransactions(page = 1, pageSize = 99999) {
   };
 }
 
-export function doFetchSupports() {
+export function doFetchSupports(page = 1, pageSize = 99999) {
   return dispatch => {
     dispatch({
       type: ACTIONS.FETCH_SUPPORTS_STARTED,
     });
 
-    Lbry.support_list().then(results => {
+    Lbry.support_list({ page, page_size: pageSize }).then(result => {
       dispatch({
         type: ACTIONS.FETCH_SUPPORTS_COMPLETED,
         data: {
-          supports: results,
+          supports: result.items,
         },
       });
     });
