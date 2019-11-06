@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import * as TRANSACTIONS from 'constants/transaction_types';
-import { PAGE_SIZE } from 'constants/transaction_list';
+import { PAGE_SIZE, LATEST_PAGE_SIZE } from 'constants/transaction_list';
 
 export const selectState = state => state.wallet || {};
 
@@ -300,7 +300,7 @@ export const selectFilteredTransactions = createSelector(
   }
 );
 
-export const makeSelectFilteredTransactionsForPage = (page: number = 1): Array<any> =>
+export const makeSelectFilteredTransactionsForPage = (page = 1) =>
   createSelector(
     selectFilteredTransactions,
     filteredTransactions => {
@@ -311,6 +311,13 @@ export const makeSelectFilteredTransactionsForPage = (page: number = 1): Array<a
         : [];
     }
   );
+
+export const makeSelectLatestTransactions = createSelector(
+  selectTransactionItems,
+  transactions => {
+    return transactions && transactions.length ? transactions.slice(0, LATEST_PAGE_SIZE) : [];
+  }
+);
 
 export const selectFilteredTransactionCount = createSelector(
   selectFilteredTransactions,

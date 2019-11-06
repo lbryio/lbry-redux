@@ -301,6 +301,7 @@ export {
   selectWalletUnlockResult,
   selectTransactionListFilter,
   selectFilteredTransactions,
+  makeSelectLatestTransactions,
   makeSelectFilteredTransactionsForPage,
   selectFilteredTransactionCount,
 } from 'redux/selectors/wallet';

@@ -94,13 +94,15 @@ export function doResolveUri(uri: string) {
   return doResolveUris([uri]);
 }
 
-export function doFetchClaimListMine() {
+export function doFetchClaimListMine(page: number = 1, pageSize: number = 99999) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED,
     });
 
-    Lbry.claim_list().then((claims: ClaimListResponse) => {
+    Lbry.stream_list({ page, page_size: pageSize }).then((result: StreamListResponse) => {
+      const claims = result.items;
+
       dispatch({
         type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
         data: {
@@ -175,10 +177,12 @@ export function doAbandonClaim(txid: string, nout: number) {
         })
       );
 
-      // After abandoning, call claim_list to show the claim as abandoned
-      // Also fetch transactions to show the new abandon transaction
-      if (isClaim) dispatch(doFetchClaimListMine());
-      dispatch(doFetchTransactions());
+      // After abandoning, fetch transactions to show the new abandon transaction
+      // Only fetch the latest few transactions since we don't care about old ones
+      // Not very robust, but better than calling the entire list for large wallets
+      const page = 1;
+      const pageSize = 10;
+      dispatch(doFetchTransactions(page, pageSize));
     };
 
     const abandonParams = {
@@ -378,26 +382,38 @@ export function doImportChannel(certificate: string) {
   };
 }
 
-export function doFetchChannelListMine() {
+export function doFetchChannelListMine(page: number = 1, pageSize: number = 99999) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_CHANNEL_LIST_STARTED,
     });
 
-    const callback = (channels: Array<ChannelClaim>) => {
+    const callback = (response: ChannelListResponse) => {
       dispatch({
         type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED,
-        data: { claims: channels },
+        data: { claims: response.items },
       });
     };
 
-    Lbry.channel_list().then(callback);
+    Lbry.channel_list({ page, page_size: pageSize }).then(callback);
   };
 }
 
 export function doClaimSearch(
-  options: { tags?: Array<string>, page?: number, page_size?: number, release_time?: string } = {
+  options: {
+    page_size: number,
+    page: number,
+    no_totals: boolean,
+    any_tags?: Array<string>,
+    channel_ids?: Array<string>,
+    not_channel_ids?: Array<string>,
+    not_tags?: Array<string>,
+    order_by?: Array<string>,
+    release_time?: string,
+  } = {
+    no_totals: true,
     page_size: 10,
+    page: 1,
   }
 ) {
   const query = createNormalizedClaimSearchKey(options);

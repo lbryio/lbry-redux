@@ -82,8 +82,10 @@ const Lbry: LbryTypes = {
   channel_import: params => daemonCallWithResult('channel_import', params),
   channel_list: params => daemonCallWithResult('channel_list', params),
   stream_abandon: params => daemonCallWithResult('stream_abandon', params),
+  stream_list: params => daemonCallWithResult('stream_list', params),
   channel_abandon: params => daemonCallWithResult('channel_abandon', params),
   support_create: params => daemonCallWithResult('support_create', params),
+  support_list: params => daemonCallWithResult('support_list', params),
 
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),
@@ -144,16 +146,16 @@ const Lbry: LbryTypes = {
     // $FlowFixMe
     return Lbry.connectPromise;
   },
-};
 
-Lbry.publish = (params = {}) =>
-  new Promise((resolve, reject) => {
-    if (Lbry.overrides.publish) {
-      Lbry.overrides.publish(params).then(resolve, reject);
-    } else {
-      apiCall('publish', params, resolve, reject);
-    }
-  });
+  publish: (params = {}) =>
+    new Promise((resolve, reject) => {
+      if (Lbry.overrides.publish) {
+        Lbry.overrides.publish(params).then(resolve, reject);
+      } else {
+        apiCall('publish', params, resolve, reject);
+      }
+    }),
+};
 
 function checkAndParse(response) {
   if (response.status >= 200 && response.status < 300) {

@@ -657,9 +657,11 @@ var transaction_types = /*#__PURE__*/Object.freeze({
 
 // PAGE SIZE
 const PAGE_SIZE$1 = 50;
+const LATEST_PAGE_SIZE = 20;
 
 var transaction_list = /*#__PURE__*/Object.freeze({
-  PAGE_SIZE: PAGE_SIZE$1
+  PAGE_SIZE: PAGE_SIZE$1,
+  LATEST_PAGE_SIZE: LATEST_PAGE_SIZE
 });
 
 const SPEECH_STATUS = 'https://spee.ch/api/config/site/publishing';
@@ -770,8 +772,10 @@ const Lbry = {
   channel_import: params => daemonCallWithResult('channel_import', params),
   channel_list: params => daemonCallWithResult('channel_list', params),
   stream_abandon: params => daemonCallWithResult('stream_abandon', params),
+  stream_list: params => daemonCallWithResult('stream_list', params),
   channel_abandon: params => daemonCallWithResult('channel_abandon', params),
   support_create: params => daemonCallWithResult('support_create', params),
+  support_list: params => daemonCallWithResult('support_list', params),
 
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),
@@ -829,16 +833,16 @@ const Lbry = {
     // Flow thinks this could be empty, but it will always reuturn a promise
     // $FlowFixMe
     return Lbry.connectPromise;
-  }
-};
+  },
 
-Lbry.publish = (params = {}) => new Promise((resolve, reject) => {
-  if (Lbry.overrides.publish) {
-    Lbry.overrides.publish(params).then(resolve, reject);
-  } else {
-    apiCall('publish', params, resolve, reject);
-  }
-});
+  publish: (params = {}) => new Promise((resolve, reject) => {
+    if (Lbry.overrides.publish) {
+      Lbry.overrides.publish(params).then(resolve, reject);
+    } else {
+      apiCall('publish', params, resolve, reject);
+    }
+  })
+};
 
 function checkAndParse(response) {
   if (response.status >= 200 && response.status < 300) {
@@ -1712,6 +1716,10 @@ const makeSelectFilteredTransactionsForPage = (page = 1) => reselect.createSelec
   return filteredTransactions && filteredTransactions.length ? filteredTransactions.slice(start, end) : [];
 });
 
+const makeSelectLatestTransactions = reselect.createSelector(selectTransactionItems, transactions => {
+  return transactions && transactions.length ? transactions.slice(0, LATEST_PAGE_SIZE) : [];
+});
+
 const selectFilteredTransactionCount = reselect.createSelector(selectFilteredTransactions, filteredTransactions => filteredTransactions.length);
 
 var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -2178,30 +2186,38 @@ function creditsToString(amount) {
   return creditString;
 }
 
+let walletBalancePromise = null;
 function doUpdateBalance() {
   return (dispatch, getState) => {
     const {
       wallet: { totalBalance: totalInStore }
     } = getState();
-    return lbryProxy.wallet_balance({ reserved_subtotals: true }).then(response => {
-      const { available, reserved, reserved_subtotals, total } = response;
-      const { claims, supports, tips } = reserved_subtotals;
-      const totalFloat = parseFloat(total);
 
-      if (totalInStore !== totalFloat) {
-        dispatch({
-          type: UPDATE_BALANCE,
-          data: {
-            totalBalance: totalFloat,
-            balance: parseFloat(available),
-            reservedBalance: parseFloat(reserved),
-            claimsBalance: parseFloat(claims),
-            supportsBalance: parseFloat(supports),
-            tipsBalance: parseFloat(tips)
-          }
-        });
-      }
-    });
+    if (walletBalancePromise === null) {
+      walletBalancePromise = lbryProxy.wallet_balance().then(response => {
+        walletBalancePromise = null;
+
+        const { available, reserved, reserved_subtotals, total } = response;
+        const { claims, supports, tips } = reserved_subtotals;
+        const totalFloat = parseFloat(total);
+
+        if (totalInStore !== totalFloat) {
+          dispatch({
+            type: UPDATE_BALANCE,
+            data: {
+              totalBalance: totalFloat,
+              balance: parseFloat(available),
+              reservedBalance: parseFloat(reserved),
+              claimsBalance: parseFloat(claims),
+              supportsBalance: parseFloat(supports),
+              tipsBalance: parseFloat(tips)
+            }
+          });
+        }
+      });
+    }
+
+    return walletBalancePromise;
   };
 }
 
@@ -2212,35 +2228,35 @@ function doBalanceSubscribe() {
   };
 }
 
-function doFetchTransactions() {
+function doFetchTransactions(page = 1, pageSize = 99999) {
   return dispatch => {
     dispatch(doFetchSupports());
     dispatch({
       type: FETCH_TRANSACTIONS_STARTED
     });
 
-    lbryProxy.utxo_release().then(() => lbryProxy.transaction_list()).then(results => {
+    lbryProxy.utxo_release().then(() => lbryProxy.transaction_list({ page, page_size: pageSize })).then(result => {
       dispatch({
         type: FETCH_TRANSACTIONS_COMPLETED,
         data: {
-          transactions: results
+          transactions: result.items
         }
       });
     });
   };
 }
 
-function doFetchSupports() {
+function doFetchSupports(page = 1, pageSize = 99999) {
   return dispatch => {
     dispatch({
       type: FETCH_SUPPORTS_STARTED
     });
 
-    lbryProxy.support_list().then(results => {
+    lbryProxy.support_list({ page, page_size: pageSize }).then(result => {
       dispatch({
         type: FETCH_SUPPORTS_COMPLETED,
         data: {
-          supports: results
+          supports: result.items
         }
       });
     });
@@ -2599,13 +2615,15 @@ function doResolveUri(uri) {
   return doResolveUris([uri]);
 }
 
-function doFetchClaimListMine() {
+function doFetchClaimListMine(page = 1, pageSize = 99999) {
   return dispatch => {
     dispatch({
       type: FETCH_CLAIM_LIST_MINE_STARTED
     });
 
-    lbryProxy.claim_list().then(claims => {
+    lbryProxy.stream_list({ page, page_size: pageSize }).then(result => {
+      const claims = result.items;
+
       dispatch({
         type: FETCH_CLAIM_LIST_MINE_COMPLETED,
         data: {
@@ -2670,10 +2688,12 @@ function doAbandonClaim(txid, nout) {
         message: abandonMessage
       }));
 
-      // After abandoning, call claim_list to show the claim as abandoned
-      // Also fetch transactions to show the new abandon transaction
-      if (isClaim) dispatch(doFetchClaimListMine());
-      dispatch(doFetchTransactions());
+      // After abandoning, fetch transactions to show the new abandon transaction
+      // Only fetch the latest few transactions since we don't care about old ones
+      // Not very robust, but better than calling the entire list for large wallets
+      const page = 1;
+      const pageSize = 10;
+      dispatch(doFetchTransactions(page, pageSize));
     };
 
     const abandonParams = {
@@ -2855,25 +2875,27 @@ function doImportChannel(certificate) {
   };
 }
 
-function doFetchChannelListMine() {
+function doFetchChannelListMine(page = 1, pageSize = 99999) {
   return dispatch => {
     dispatch({
       type: FETCH_CHANNEL_LIST_STARTED
     });
 
-    const callback = channels => {
+    const callback = response => {
       dispatch({
         type: FETCH_CHANNEL_LIST_COMPLETED,
-        data: { claims: channels }
+        data: { claims: response.items }
       });
     };
 
-    lbryProxy.channel_list().then(callback);
+    lbryProxy.channel_list({ page, page_size: pageSize }).then(callback);
   };
 }
 
 function doClaimSearch(options = {
-  page_size: 10
+  no_totals: true,
+  page_size: 10,
+  page: 1
 }) {
   const query = createNormalizedClaimSearchKey(options);
   return dispatch => {
@@ -2995,7 +3017,7 @@ const selectFileListDownloadedSort = reselect.createSelector(selectState$3, stat
 
 const selectDownloadedUris = reselect.createSelector(selectFileInfosDownloaded,
 // We should use permament_url but it doesn't exist in file_list
-info => info.slice().reverse().map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`));
+info => info.slice().map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`));
 
 const makeSelectMediaTypeForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), makeSelectContentTypeForUri(uri), (fileInfo, contentType) => {
   if (!fileInfo && !contentType) {
@@ -3046,7 +3068,11 @@ const makeSelectSearchDownloadUrlsForPage = (query, page = 1) => reselect.create
   const start = (Number(page) - 1) * Number(PAGE_SIZE);
   const end = Number(page) * Number(PAGE_SIZE);
 
-  return matchingFileInfos && matchingFileInfos.length ? matchingFileInfos.slice(start, end).map(fileInfo => buildURI({ streamName: fileInfo.claim_name, channelName: fileInfo.channel_name, channelClaimId: fileInfo.channel_claim_id })) : [];
+  return matchingFileInfos && matchingFileInfos.length ? matchingFileInfos.slice(start, end).map(fileInfo => buildURI({
+    streamName: fileInfo.claim_name,
+    channelName: fileInfo.channel_name,
+    channelClaimId: fileInfo.channel_claim_id
+  })) : [];
 });
 
 const makeSelectSearchDownloadUrlsCount = query => reselect.createSelector(selectFileInfosDownloaded, fileInfos => {
@@ -3189,12 +3215,15 @@ function doFetchFileInfo(uri) {
         }
       });
 
-      lbryProxy.file_list({ outpoint, full_status: true }).then(fileInfos => {
+      lbryProxy.file_list({ outpoint, full_status: true, page: 1, page_size: 1 }).then(result => {
+        const { items: fileInfos } = result;
+        const fileInfo = fileInfos[0];
+
         dispatch({
           type: FETCH_FILE_INFO_COMPLETED,
           data: {
             outpoint,
-            fileInfo: fileInfos && fileInfos.length ? fileInfos[0] : null
+            fileInfo: fileInfo || null
           }
         });
       });
@@ -3202,7 +3231,7 @@ function doFetchFileInfo(uri) {
   };
 }
 
-function doFileList() {
+function doFileList(page = 1, pageSize = 99999) {
   return (dispatch, getState) => {
     const state = getState();
     const isFetching = selectIsFetchingFileList(state);
@@ -3212,11 +3241,12 @@ function doFileList() {
         type: FILE_LIST_STARTED
       });
 
-      lbryProxy.file_list().then(fileInfos => {
+      lbryProxy.file_list({ page, page_size: pageSize }).then(result => {
+        const { items: fileInfos } = result;
         dispatch({
           type: FILE_LIST_SUCCEEDED,
           data: {
-            fileInfos
+            fileInfos: fileInfos.reverse()
           }
         });
       });
@@ -3437,6 +3467,7 @@ const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => disp
     const name = makeid();
     const file = thumbnailBlob || thumbnail && new File([thumbnail], fileName, { type: fileType });
     data.append('name', name);
+    // $FlowFixMe
     data.append('file', file);
 
     return fetch(SPEECH_PUBLISH, {
@@ -3624,8 +3655,9 @@ const doCheckPendingPublishes = onConfirmed => (dispatch, getState) => {
   let publishCheckInterval;
 
   const checkFileList = () => {
-    lbryProxy.claim_list().then(claims => {
-      // $FlowFixMe
+    lbryProxy.stream_list({ page: 1, page_size: 10 }).then(result => {
+      const claims = result.items;
+
       claims.forEach(claim => {
         // If it's confirmed, check if it was pending previously
         if (claim.confirmations > 0 && pendingById[claim.claim_id]) {
@@ -3866,7 +3898,7 @@ const doDeleteTag = name => ({
 
 //      
 
-function doCommentList(uri) {
+function doCommentList(uri, page = 1, pageSize = 99999) {
   return (dispatch, getState) => {
     const state = getState();
     const claim = selectClaimsByUri(state)[uri];
@@ -3876,12 +3908,15 @@ function doCommentList(uri) {
       type: COMMENT_LIST_STARTED
     });
     lbryProxy.comment_list({
-      claim_id: claimId
-    }).then(results => {
+      claim_id: claimId,
+      page,
+      page_size: pageSize
+    }).then(result => {
+      const { items: comments } = result;
       dispatch({
         type: COMMENT_LIST_COMPLETED,
         data: {
-          comments: results,
+          comments,
           claimId: claimId,
           uri: uri
         }
@@ -4364,8 +4399,8 @@ const commentReducer = handleActions({
     const byId = Object.assign({}, state.byId);
     const commentsByUri = Object.assign({}, state.commentsByUri);
 
-    if (comments['items']) {
-      byId[claimId] = comments['items'];
+    if (comments) {
+      byId[claimId] = comments;
       commentsByUri[uri] = claimId;
     }
     return _extends$7({}, state, {
@@ -5426,6 +5461,7 @@ exports.makeSelectFilteredTransactionsForPage = makeSelectFilteredTransactionsFo
 exports.makeSelectFirstRecommendedFileForUri = makeSelectFirstRecommendedFileForUri;
 exports.makeSelectIsFollowingTag = makeSelectIsFollowingTag;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
+exports.makeSelectLatestTransactions = makeSelectLatestTransactions;
 exports.makeSelectLoadingForUri = makeSelectLoadingForUri;
 exports.makeSelectMediaTypeForUri = makeSelectMediaTypeForUri;
 exports.makeSelectMetadataForUri = makeSelectMetadataForUri;
