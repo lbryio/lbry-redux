@@ -80,15 +80,17 @@ export const selectFileInfosDownloaded = createSelector(
   selectFileInfosByOutpoint,
   selectMyClaims,
   (byOutpoint, myClaims) =>
-    Object.values(byOutpoint).filter(fileInfo => {
-      const myClaimIds = myClaims.map(claim => claim.claim_id);
+    Object.values(byOutpoint)
+      .reverse()
+      .filter(fileInfo => {
+        const myClaimIds = myClaims.map(claim => claim.claim_id);
 
-      return (
-        fileInfo &&
-        myClaimIds.indexOf(fileInfo.claim_id) === -1 &&
-        (fileInfo.completed || fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0)
-      );
-    })
+        return (
+          fileInfo &&
+          myClaimIds.indexOf(fileInfo.claim_id) === -1 &&
+          (fileInfo.completed || fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0)
+        );
+      })
 );
 
 // export const selectFileInfoForUri = (state, props) => {
