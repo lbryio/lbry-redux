@@ -2970,7 +2970,7 @@ const makeSelectLoadingForUri = uri => reselect.createSelector(selectUrisLoading
   return isFetching;
 });
 
-const selectFileInfosDownloaded = reselect.createSelector(selectFileInfosByOutpoint, selectMyClaims, (byOutpoint, myClaims) => Object.values(byOutpoint).filter(fileInfo => {
+const selectFileInfosDownloaded = reselect.createSelector(selectFileInfosByOutpoint, selectMyClaims, (byOutpoint, myClaims) => Object.values(byOutpoint).reverse().filter(fileInfo => {
   const myClaimIds = myClaims.map(claim => claim.claim_id);
 
   return fileInfo && myClaimIds.indexOf(fileInfo.claim_id) === -1 && (fileInfo.completed || fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0);
@@ -3246,7 +3246,7 @@ function doFileList(page = 1, pageSize = 99999) {
         dispatch({
           type: FILE_LIST_SUCCEEDED,
           data: {
-            fileInfos: fileInfos.reverse()
+            fileInfos: fileInfos
           }
         });
       });

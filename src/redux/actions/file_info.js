@@ -35,7 +35,7 @@ export function doFetchFileInfo(uri) {
   };
 }
 
-export function doFileList(page: number = 1, pageSize: number = 99999) {
+export function doFileList(page = 1, pageSize = 99999) {
   return (dispatch, getState) => {
     const state = getState();
     const isFetching = selectIsFetchingFileList(state);
@@ -50,7 +50,7 @@ export function doFileList(page: number = 1, pageSize: number = 99999) {
         dispatch({
           type: ACTIONS.FILE_LIST_SUCCEEDED,
           data: {
-            fileInfos: fileInfos.reverse(),
+            fileInfos: fileInfos,
           },
         });
       });
