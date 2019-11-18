@@ -4022,6 +4022,10 @@ function handleClaimAction(state, action) {
     if (stream) {
       byId[stream.claim_id] = stream;
       byUri[url] = stream.claim_id;
+
+      // If url isn't a canonical_url, make sure that is added too
+      byUri[stream.canonical_url] = stream.claim_id;
+
       // Also add the permanent_url here until lighthouse returns canonical_url for search results
       byUri[stream.permanent_url] = stream.claim_id;
       newResolvingUrls.delete(stream.canonical_url);
