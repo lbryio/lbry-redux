@@ -4016,6 +4016,7 @@ function handleClaimAction(state, action) {
     const { claimsInChannel, stream, channel } = resolveResponse;
     if (claimsInChannel) {
       channelClaimCounts[url] = claimsInChannel;
+      channelClaimCounts[channel.canonical_url] = claimsInChannel;
     }
 
     if (stream) {
