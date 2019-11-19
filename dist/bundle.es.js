@@ -2732,13 +2732,14 @@ function doFetchClaimsByChannel(uri, page = 1) {
       page: page || 1,
       order_by: ['release_time']
     }).then(result => {
-      const { items: claimsInChannel, page: returnedPage } = result;
+      const { items: claims, total_items: claimsInChannel, page: returnedPage } = result;
 
       dispatch({
         type: FETCH_CHANNEL_CLAIMS_COMPLETED,
         data: {
           uri,
-          claims: claimsInChannel || [],
+          claimsInChannel,
+          claims: claims || [],
           page: returnedPage || undefined
         }
       });
@@ -4172,9 +4173,10 @@ reducers[FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
   const {
     uri,
     claims,
+    claimsInChannel,
     page
   } = action.data;
-
+  const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
   const claimsByChannel = Object.assign({}, state.claimsByChannel);
   const byChannel = Object.assign({}, claimsByChannel[uri]);
   const allClaimIds = new Set(byChannel.all);
@@ -4192,6 +4194,10 @@ reducers[FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
     });
   }
 
+  if (claimsInChannel) {
+    channelClaimCounts[uri] = claimsInChannel;
+  }
+
   byChannel.all = allClaimIds;
   byChannel[page] = currentPageClaimIds;
   claimsByChannel[uri] = byChannel;
@@ -4202,6 +4208,7 @@ reducers[FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
     byId,
     fetchingChannelClaims,
     claimsByUri,
+    channelClaimCounts,
     currentChannelPage: page
   });
 };

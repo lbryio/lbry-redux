@@ -221,13 +221,14 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
       page: page || 1,
       order_by: ['release_time'],
     }).then((result: ClaimSearchResponse) => {
-      const { items: claimsInChannel, page: returnedPage } = result;
+      const { items: claims, total_items: claimsInChannel, page: returnedPage } = result;
 
       dispatch({
         type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
         data: {
           uri,
-          claims: claimsInChannel || [],
+          claimsInChannel,
+          claims: claims || [],
           page: returnedPage || undefined,
         },
       });
