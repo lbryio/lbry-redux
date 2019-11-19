@@ -246,9 +246,15 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: State, action: any): 
   const {
     uri,
     claims,
+    claimsInChannel,
     page,
-  }: { uri: string, claims: Array<StreamClaim>, page: number } = action.data;
-
+  }: {
+    uri: string,
+    claims: Array<StreamClaim>,
+    claimsInChannel?: number,
+    page: number,
+  } = action.data;
+  const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
   const claimsByChannel = Object.assign({}, state.claimsByChannel);
   const byChannel = Object.assign({}, claimsByChannel[uri]);
   const allClaimIds = new Set(byChannel.all);
@@ -266,6 +272,10 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: State, action: any): 
     });
   }
 
+  if (claimsInChannel) {
+    channelClaimCounts[uri] = claimsInChannel;
+  }
+
   byChannel.all = allClaimIds;
   byChannel[page] = currentPageClaimIds;
   claimsByChannel[uri] = byChannel;
@@ -276,6 +286,7 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: State, action: any): 
     byId,
     fetchingChannelClaims,
     claimsByUri,
+    channelClaimCounts,
     currentChannelPage: page,
   });
 };
