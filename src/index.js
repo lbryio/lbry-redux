@@ -159,6 +159,8 @@ export {
   makeSelectClaimIsMine,
   makeSelectFetchingChannelClaims,
   makeSelectClaimsInChannelForPage,
+  makeSelectTotalMatchingPaginatedPagesInChannel,
+  makeSelectTotalMatchingClaimsInChannel,
   makeSelectMetadataForUri,
   makeSelectMetadataItemForUri,
   makeSelectThumbnailForUri,

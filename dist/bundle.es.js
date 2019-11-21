@@ -1881,7 +1881,7 @@ const makeSelectClaimIsMine = rawUri => {
 const selectAllFetchingChannelClaims = reselect.createSelector(selectState$2, state => state.fetchingChannelClaims || {});
 
 const makeSelectFetchingChannelClaims = uri => reselect.createSelector(selectAllFetchingChannelClaims, fetching => fetching && fetching[uri]);
-
+// this is actually the result of claim search
 const makeSelectClaimsInChannelForPage = (uri, page) => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
   const byChannel = allClaims[uri] || {};
   const claimIds = byChannel[page || 1];
@@ -1889,6 +1889,16 @@ const makeSelectClaimsInChannelForPage = (uri, page) => reselect.createSelector(
   if (!claimIds) return claimIds;
 
   return claimIds.map(claimId => byId[claimId]);
+});
+
+const makeSelectTotalMatchingClaimsInChannel = uri => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
+  const byChannel = allClaims[uri] || {};
+  return byChannel['itemCount'];
+});
+
+const makeSelectTotalMatchingPaginatedPagesInChannel = uri => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
+  const byChannel = allClaims[uri] || {};
+  return byChannel['pageCount'];
 });
 
 const makeSelectClaimsInChannelForCurrentPageState = uri => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, selectCurrentChannelPage, (byId, allClaims, page) => {
@@ -4174,11 +4184,17 @@ reducers[FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
     uri,
     claims,
     claimsInChannel,
-    page
+    page,
+    totalPages
   } = action.data;
+
+  // byChannel keeps claim_search relevant results by page. If the total changes, erase it.
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
+
   const claimsByChannel = Object.assign({}, state.claimsByChannel);
-  const byChannel = Object.assign({}, claimsByChannel[uri]);
+  // check if count has changed - that means cached pagination will be wrong, so clear it
+  const previousCount = claimsByChannel[uri] && claimsByChannel[uri]['itemCount'];
+  const byChannel = claimsInChannel === previousCount ? Object.assign({}, claimsByChannel[uri]) : {};
   const allClaimIds = new Set(byChannel.all);
   const currentPageClaimIds = [];
   const byId = Object.assign({}, state.byId);
@@ -4199,6 +4215,8 @@ reducers[FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
   }
 
   byChannel.all = allClaimIds;
+  byChannel.pageCount = totalPages;
+  byChannel.itemCount = claimsInChannel;
   byChannel[page] = currentPageClaimIds;
   claimsByChannel[uri] = byChannel;
   delete fetchingChannelClaims[uri];
@@ -5496,6 +5514,8 @@ exports.makeSelectTagsForUri = makeSelectTagsForUri;
 exports.makeSelectThumbnailForUri = makeSelectThumbnailForUri;
 exports.makeSelectTitleForUri = makeSelectTitleForUri;
 exports.makeSelectTotalItemsForChannel = makeSelectTotalItemsForChannel;
+exports.makeSelectTotalMatchingClaimsInChannel = makeSelectTotalMatchingClaimsInChannel;
+exports.makeSelectTotalMatchingPaginatedPagesInChannel = makeSelectTotalMatchingPaginatedPagesInChannel;
 exports.makeSelectTotalPagesForChannel = makeSelectTotalPagesForChannel;
 exports.makeSelectUriIsStreamable = makeSelectUriIsStreamable;
 exports.normalizeURI = normalizeURI;

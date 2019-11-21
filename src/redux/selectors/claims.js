@@ -177,7 +177,7 @@ export const makeSelectFetchingChannelClaims = (uri: string) =>
     selectAllFetchingChannelClaims,
     fetching => fetching && fetching[uri]
   );
-
+// this is actually the result of claim search
 export const makeSelectClaimsInChannelForPage = (uri: string, page?: number) =>
   createSelector(
     selectClaimsById,
@@ -191,6 +191,27 @@ export const makeSelectClaimsInChannelForPage = (uri: string, page?: number) =>
       return claimIds.map(claimId => byId[claimId]);
     }
   );
+
+export const makeSelectTotalMatchingClaimsInChannel = (uri: string) =>
+  createSelector(
+    selectClaimsById,
+    selectAllClaimsByChannel,
+    (byId, allClaims) => {
+      const byChannel = allClaims[uri] || {};
+      return byChannel['itemCount'];
+    }
+  );
+
+export const makeSelectTotalMatchingPaginatedPagesInChannel = (uri: string) =>
+  createSelector(
+    selectClaimsById,
+    selectAllClaimsByChannel,
+    (byId, allClaims) => {
+      const byChannel = allClaims[uri] || {};
+      return byChannel['pageCount'];
+    }
+  );
+
 
 export const makeSelectClaimsInChannelForCurrentPageState = (uri: string) =>
   createSelector(
