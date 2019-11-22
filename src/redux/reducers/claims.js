@@ -28,7 +28,7 @@ type State = {
   claimSearchByQuery: { [string]: Array<string> },
   claimSearchByQueryLastPageReached: { [string]: Array<boolean> },
   creatingChannel: boolean,
-  claimsByChannel: {
+  paginatedClaimsByChannel: {
     [string]: {
       all: Array<string>,
       pageCount: number,
@@ -45,7 +45,7 @@ const reducers = {};
 const defaultState = {
   byId: {},
   claimsByUri: {},
-  claimsByChannel: {},
+  paginatedClaimsByChannel: {},
   channelClaimCounts: {},
   fetchingChannelClaims: {},
   resolvingUris: [],
@@ -262,10 +262,10 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: State, action: any): 
   // byChannel keeps claim_search relevant results by page. If the total changes, erase it.
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
-  const claimsByChannel = Object.assign({}, state.claimsByChannel);
+  const paginatedClaimsByChannel = Object.assign({}, state.paginatedClaimsByChannel);
   // check if count has changed - that means cached pagination will be wrong, so clear it
-  const previousCount = claimsByChannel[uri] && claimsByChannel[uri]['itemCount'];
-  const byChannel = (claimsInChannel === previousCount) ? Object.assign({}, claimsByChannel[uri]) : {};
+  const previousCount = paginatedClaimsByChannel[uri] && paginatedClaimsByChannel[uri]['itemCount'];
+  const byChannel = (claimsInChannel === previousCount) ? Object.assign({}, paginatedClaimsByChannel[uri]) : {};
   const allClaimIds = new Set(byChannel.all);
   const currentPageClaimIds = [];
   const byId = Object.assign({}, state.byId);
@@ -281,19 +281,15 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: State, action: any): 
     });
   }
 
-  if (claimsInChannel) {
-    channelClaimCounts[uri] = claimsInChannel;
-  }
-
   byChannel.all = allClaimIds;
   byChannel.pageCount = totalPages;
   byChannel.itemCount = claimsInChannel;
   byChannel[page] = currentPageClaimIds;
-  claimsByChannel[uri] = byChannel;
+  paginatedClaimsByChannel[uri] = byChannel;
   delete fetchingChannelClaims[uri];
 
   return Object.assign({}, state, {
-    claimsByChannel,
+    paginatedClaimsByChannel,
     byId,
     fetchingChannelClaims,
     claimsByUri,

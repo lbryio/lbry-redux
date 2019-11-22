@@ -1805,7 +1805,7 @@ const selectClaimsByUri = reselect.createSelector(selectState$2, selectClaimsByI
   return claims;
 });
 
-const selectAllClaimsByChannel = reselect.createSelector(selectState$2, state => state.claimsByChannel || {});
+const selectAllClaimsByChannel = reselect.createSelector(selectState$2, state => state.paginatedClaimsByChannel || {});
 
 const selectPendingById = reselect.createSelector(selectState$2, state => state.pendingById || {});
 
@@ -1881,7 +1881,7 @@ const makeSelectClaimIsMine = rawUri => {
 const selectAllFetchingChannelClaims = reselect.createSelector(selectState$2, state => state.fetchingChannelClaims || {});
 
 const makeSelectFetchingChannelClaims = uri => reselect.createSelector(selectAllFetchingChannelClaims, fetching => fetching && fetching[uri]);
-// this is actually the result of claim search
+
 const makeSelectClaimsInChannelForPage = (uri, page) => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
   const byChannel = allClaims[uri] || {};
   const claimIds = byChannel[page || 1];
@@ -1891,12 +1891,12 @@ const makeSelectClaimsInChannelForPage = (uri, page) => reselect.createSelector(
   return claimIds.map(claimId => byId[claimId]);
 });
 
-const makeSelectTotalMatchingClaimsInChannel = uri => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
+const makeSelectTotalClaimsInChannelSearch = uri => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
   const byChannel = allClaims[uri] || {};
   return byChannel['itemCount'];
 });
 
-const makeSelectTotalMatchingPaginatedPagesInChannel = uri => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
+const makeSelectTotalPagesInChannelSearch = uri => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
   const byChannel = allClaims[uri] || {};
   return byChannel['pageCount'];
 });
@@ -3991,7 +3991,7 @@ const reducers = {};
 const defaultState = {
   byId: {},
   claimsByUri: {},
-  claimsByChannel: {},
+  paginatedClaimsByChannel: {},
   channelClaimCounts: {},
   fetchingChannelClaims: {},
   resolvingUris: [],
@@ -4191,10 +4191,10 @@ reducers[FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
   // byChannel keeps claim_search relevant results by page. If the total changes, erase it.
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
-  const claimsByChannel = Object.assign({}, state.claimsByChannel);
+  const paginatedClaimsByChannel = Object.assign({}, state.paginatedClaimsByChannel);
   // check if count has changed - that means cached pagination will be wrong, so clear it
-  const previousCount = claimsByChannel[uri] && claimsByChannel[uri]['itemCount'];
-  const byChannel = claimsInChannel === previousCount ? Object.assign({}, claimsByChannel[uri]) : {};
+  const previousCount = paginatedClaimsByChannel[uri] && paginatedClaimsByChannel[uri]['itemCount'];
+  const byChannel = claimsInChannel === previousCount ? Object.assign({}, paginatedClaimsByChannel[uri]) : {};
   const allClaimIds = new Set(byChannel.all);
   const currentPageClaimIds = [];
   const byId = Object.assign({}, state.byId);
@@ -4210,19 +4210,15 @@ reducers[FETCH_CHANNEL_CLAIMS_COMPLETED] = (state, action) => {
     });
   }
 
-  if (claimsInChannel) {
-    channelClaimCounts[uri] = claimsInChannel;
-  }
-
   byChannel.all = allClaimIds;
   byChannel.pageCount = totalPages;
   byChannel.itemCount = claimsInChannel;
   byChannel[page] = currentPageClaimIds;
-  claimsByChannel[uri] = byChannel;
+  paginatedClaimsByChannel[uri] = byChannel;
   delete fetchingChannelClaims[uri];
 
   return Object.assign({}, state, {
-    claimsByChannel,
+    paginatedClaimsByChannel,
     byId,
     fetchingChannelClaims,
     claimsByUri,
@@ -5513,10 +5509,10 @@ exports.makeSelectSupportsForUri = makeSelectSupportsForUri;
 exports.makeSelectTagsForUri = makeSelectTagsForUri;
 exports.makeSelectThumbnailForUri = makeSelectThumbnailForUri;
 exports.makeSelectTitleForUri = makeSelectTitleForUri;
+exports.makeSelectTotalClaimsInChannelSearch = makeSelectTotalClaimsInChannelSearch;
 exports.makeSelectTotalItemsForChannel = makeSelectTotalItemsForChannel;
-exports.makeSelectTotalMatchingClaimsInChannel = makeSelectTotalMatchingClaimsInChannel;
-exports.makeSelectTotalMatchingPaginatedPagesInChannel = makeSelectTotalMatchingPaginatedPagesInChannel;
 exports.makeSelectTotalPagesForChannel = makeSelectTotalPagesForChannel;
+exports.makeSelectTotalPagesInChannelSearch = makeSelectTotalPagesInChannelSearch;
 exports.makeSelectUriIsStreamable = makeSelectUriIsStreamable;
 exports.normalizeURI = normalizeURI;
 exports.notificationsReducer = notificationsReducer;

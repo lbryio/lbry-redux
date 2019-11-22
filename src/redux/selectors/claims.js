@@ -54,7 +54,7 @@ export const selectClaimsByUri = createSelector(
 
 export const selectAllClaimsByChannel = createSelector(
   selectState,
-  state => state.claimsByChannel || {}
+  state => state.paginatedClaimsByChannel || {}
 );
 
 export const selectPendingById = createSelector(
@@ -177,7 +177,7 @@ export const makeSelectFetchingChannelClaims = (uri: string) =>
     selectAllFetchingChannelClaims,
     fetching => fetching && fetching[uri]
   );
-// this is actually the result of claim search
+
 export const makeSelectClaimsInChannelForPage = (uri: string, page?: number) =>
   createSelector(
     selectClaimsById,
@@ -192,7 +192,7 @@ export const makeSelectClaimsInChannelForPage = (uri: string, page?: number) =>
     }
   );
 
-export const makeSelectTotalMatchingClaimsInChannel = (uri: string) =>
+export const makeSelectTotalClaimsInChannelSearch = (uri: string) =>
   createSelector(
     selectClaimsById,
     selectAllClaimsByChannel,
@@ -202,7 +202,7 @@ export const makeSelectTotalMatchingClaimsInChannel = (uri: string) =>
     }
   );
 
-export const makeSelectTotalMatchingPaginatedPagesInChannel = (uri: string) =>
+export const makeSelectTotalPagesInChannelSearch = (uri: string) =>
   createSelector(
     selectClaimsById,
     selectAllClaimsByChannel,
