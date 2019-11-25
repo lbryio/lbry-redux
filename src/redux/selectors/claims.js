@@ -466,6 +466,18 @@ export const makeSelectNsfwCountForChannel = (uri: string) =>
     }
   );
 
+export const makeSelectOmittedCountForChannel = (uri: string) =>
+  createSelector(
+    makeSelectTotalItemsForChannel(uri),
+    makeSelectTotalClaimsInChannelSearch(uri),
+    (claimsInChannel, claimsInSearch) => {
+      if (claimsInChannel && claimsInSearch) {
+        return claimsInChannel - claimsInSearch;
+      }
+      else return 0;
+    }
+  );
+
 export const makeSelectClaimIsNsfw = (uri: string): boolean =>
   createSelector(
     makeSelectClaimForUri(uri),

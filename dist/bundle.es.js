@@ -2041,6 +2041,12 @@ const makeSelectNsfwCountForChannel = uri => reselect.createSelector(selectClaim
   }, 0);
 });
 
+const makeSelectOmittedCountForChannel = uri => reselect.createSelector(makeSelectTotalItemsForChannel(uri), makeSelectTotalClaimsInChannelSearch(uri), (claimsInChannel, claimsInSearch) => {
+  if (claimsInChannel && claimsInSearch) {
+    return claimsInChannel - claimsInSearch;
+  } else return 0;
+});
+
 const makeSelectClaimIsNsfw = uri => reselect.createSelector(makeSelectClaimForUri(uri),
 // Eventually these will come from some list of tags that are considered adult
 // Or possibly come from users settings of what tags they want to hide
@@ -5495,6 +5501,7 @@ exports.makeSelectMetadataItemForUri = makeSelectMetadataItemForUri;
 exports.makeSelectMyStreamUrlsForPage = makeSelectMyStreamUrlsForPage;
 exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
+exports.makeSelectOmittedCountForChannel = makeSelectOmittedCountForChannel;
 exports.makeSelectPendingByUri = makeSelectPendingByUri;
 exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
