@@ -54,7 +54,7 @@ export const selectClaimsByUri = createSelector(
 
 export const selectAllClaimsByChannel = createSelector(
   selectState,
-  state => state.claimsByChannel || {}
+  state => state.paginatedClaimsByChannel || {}
 );
 
 export const selectPendingById = createSelector(
@@ -191,6 +191,27 @@ export const makeSelectClaimsInChannelForPage = (uri: string, page?: number) =>
       return claimIds.map(claimId => byId[claimId]);
     }
   );
+
+export const makeSelectTotalClaimsInChannelSearch = (uri: string) =>
+  createSelector(
+    selectClaimsById,
+    selectAllClaimsByChannel,
+    (byId, allClaims) => {
+      const byChannel = allClaims[uri] || {};
+      return byChannel['itemCount'];
+    }
+  );
+
+export const makeSelectTotalPagesInChannelSearch = (uri: string) =>
+  createSelector(
+    selectClaimsById,
+    selectAllClaimsByChannel,
+    (byId, allClaims) => {
+      const byChannel = allClaims[uri] || {};
+      return byChannel['pageCount'];
+    }
+  );
+
 
 export const makeSelectClaimsInChannelForCurrentPageState = (uri: string) =>
   createSelector(
@@ -442,6 +463,18 @@ export const makeSelectNsfwCountForChannel = (uri: string) =>
         }
         return acc;
       }, 0);
+    }
+  );
+
+export const makeSelectOmittedCountForChannel = (uri: string) =>
+  createSelector(
+    makeSelectTotalItemsForChannel(uri),
+    makeSelectTotalClaimsInChannelSearch(uri),
+    (claimsInChannel, claimsInSearch) => {
+      if (claimsInChannel && claimsInSearch) {
+        return claimsInChannel - claimsInSearch;
+      }
+      else return 0;
     }
   );
 
