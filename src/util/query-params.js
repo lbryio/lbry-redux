@@ -50,7 +50,7 @@ export const getSearchQueryString = (
     queryParams.push(`claimType=${claimType}`);
 
     // If they are only searching for channels, strip out the media info
-    if (!claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS)) {
+    if (claimType !== SEARCH_OPTIONS.INCLUDE_CHANNELS) {
       queryParams.push(
         `mediaType=${[
           SEARCH_OPTIONS.MEDIA_FILE,
