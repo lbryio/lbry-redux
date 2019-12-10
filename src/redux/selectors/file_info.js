@@ -169,7 +169,8 @@ export const makeSelectUriIsStreamable = uri =>
   createSelector(
     makeSelectMediaTypeForUri(uri),
     mediaType => {
-      const isStreamable = ['audio', 'video', 'image'].indexOf(mediaType) !== -1;
+      const isStreamable =
+        ['audio', 'video', 'image', 'text', 'document'].indexOf(mediaType) !== -1;
       return isStreamable;
     }
   );
