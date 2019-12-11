@@ -8,6 +8,8 @@ import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import * as TRANSACTIONS from 'constants/transaction_types';
 import * as TX_LIST from 'constants/transaction_list';
 import * as SPEECH_URLS from 'constants/speech_urls';
+import * as DAEMON_SETTINGS from 'constants/daemon_settings';
+import * as SHARED_PREFS from 'constants/shared_prefs';
 import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
 import { DEFAULT_KNOWN_TAGS, DEFAULT_FOLLOWED_TAGS, MATURE_TAGS } from 'constants/tags';
 import Lbry, { apiCall } from 'lbry';
@@ -22,6 +24,7 @@ export {
   SEARCH_TYPES,
   SEARCH_OPTIONS,
   SETTINGS,
+  DAEMON_SETTINGS,
   TRANSACTIONS,
   TX_LIST,
   SORT_OPTIONS,
@@ -30,6 +33,7 @@ export {
   DEFAULT_FOLLOWED_TAGS,
   MATURE_TAGS,
   SPEECH_URLS,
+  SHARED_PREFS,
 };
 
 // common
@@ -109,6 +113,7 @@ export {
   doWalletDecrypt,
   doWalletUnlock,
   doWalletStatus,
+  doWalletRestart,
   doSetTransactionListFilter,
   doUpdateBlockHeight,
   doClearSupport,

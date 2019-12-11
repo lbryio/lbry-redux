@@ -8,27 +8,29 @@ type SharedData = {
     subscriptions?: Array<string>,
     tags?: Array<string>,
     blockedChannels?: Array<string>,
+    settings?: any,
   },
 };
 
 function extractUserState(rawObj: SharedData) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
-    const { subscriptions, tags, blockedChannels } = rawObj.value;
+    const { subscriptions, tags, blockedChannels, settings} = rawObj.value;
 
     return {
       ...(subscriptions ? { subscriptions } : {}),
       ...(tags ? { tags } : {}),
       ...(blockedChannels ? { blockedChannels } : {}),
+      ...(settings ? { settings } : {}),
     };
   }
 
   return {};
 }
 
-export function doPopulateSharedUserState(settings: any) {
+export function doPopulateSharedUserState(sharedSettings: any) {
   return (dispatch: Dispatch) => {
-    const { subscriptions, tags } = extractUserState(settings);
-    dispatch({ type: ACTIONS.USER_STATE_POPULATE, data: { subscriptions, tags } });
+    const { subscriptions, tags, blockedChannels, settings } = extractUserState(sharedSettings);
+    dispatch({ type: ACTIONS.USER_STATE_POPULATE, data: { subscriptions, tags, blockedChannels, settings } }); // clientSettings ? hideSplash ?
   };
 }
 
