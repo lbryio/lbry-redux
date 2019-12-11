@@ -338,14 +338,18 @@ export function doWalletLock() {
   };
 }
 
-export function doWalletRestart() {
+export function doWalletReconnect() {
   return dispatch => {
     dispatch({
       type: ACTIONS.WALLET_RESTART,
     });
     // this basically returns null when it's done. :(
     // might be good to  dispatch ACTIONS.WALLET_RESTARTED
-    Lbry.wallet_reconnect();
+    Lbry.wallet_reconnect().then(
+      dispatch({
+        type: ACTIONS.WALLET_RESTART_COMPLETED,
+      })
+    );
   };
 }
 export function doWalletDecrypt() {

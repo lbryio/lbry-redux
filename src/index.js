@@ -113,7 +113,7 @@ export {
   doWalletDecrypt,
   doWalletUnlock,
   doWalletStatus,
-  doWalletRestart,
+  doWalletReconnect,
   doSetTransactionListFilter,
   doUpdateBlockHeight,
   doClearSupport,

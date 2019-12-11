@@ -86,6 +86,7 @@ const WALLET_LOCK_FAILED = 'WALLET_LOCK_FAILED';
 const WALLET_STATUS_START = 'WALLET_STATUS_START';
 const WALLET_STATUS_COMPLETED = 'WALLET_STATUS_COMPLETED';
 const WALLET_RESTART = 'WALLET_RESTART';
+const WALLET_RESTART_COMPLETED = 'WALLET_RESTART_COMPLETED';
 const SET_TRANSACTION_LIST_FILTER = 'SET_TRANSACTION_LIST_FILTER';
 const UPDATE_CURRENT_HEIGHT = 'UPDATE_CURRENT_HEIGHT';
 const SET_DRAFT_TRANSACTION_AMOUNT = 'SET_DRAFT_TRANSACTION_AMOUNT';
@@ -331,6 +332,7 @@ var action_types = /*#__PURE__*/Object.freeze({
   WALLET_STATUS_START: WALLET_STATUS_START,
   WALLET_STATUS_COMPLETED: WALLET_STATUS_COMPLETED,
   WALLET_RESTART: WALLET_RESTART,
+  WALLET_RESTART_COMPLETED: WALLET_RESTART_COMPLETED,
   SET_TRANSACTION_LIST_FILTER: SET_TRANSACTION_LIST_FILTER,
   UPDATE_CURRENT_HEIGHT: UPDATE_CURRENT_HEIGHT,
   SET_DRAFT_TRANSACTION_AMOUNT: SET_DRAFT_TRANSACTION_AMOUNT,
@@ -2588,14 +2590,16 @@ function doWalletUnlock(password) {
   };
 }
 
-function doWalletRestart() {
+function doWalletReconnect() {
   return dispatch => {
     dispatch({
       type: WALLET_RESTART
     });
     // this basically returns null when it's done. :(
     // might be good to  dispatch ACTIONS.WALLET_RESTARTED
-    lbryProxy.wallet_reconnect();
+    lbryProxy.wallet_reconnect().then(dispatch({
+      type: WALLET_RESTART_COMPLETED
+    }));
   };
 }
 function doWalletDecrypt() {
@@ -5565,7 +5569,7 @@ exports.doUpdateSearchQuery = doUpdateSearchQuery;
 exports.doUploadThumbnail = doUploadThumbnail;
 exports.doWalletDecrypt = doWalletDecrypt;
 exports.doWalletEncrypt = doWalletEncrypt;
-exports.doWalletRestart = doWalletRestart;
+exports.doWalletReconnect = doWalletReconnect;
 exports.doWalletStatus = doWalletStatus;
 exports.doWalletUnlock = doWalletUnlock;
 exports.fileInfoReducer = fileInfoReducer;
