@@ -345,7 +345,7 @@ export function doWalletReconnect() {
     });
     // this basically returns null when it's done. :(
     // might be good to  dispatch ACTIONS.WALLET_RESTARTED
-    Lbry.wallet_reconnect().then(
+    Lbry.wallet_reconnect().then(() =>
       dispatch({
         type: ACTIONS.WALLET_RESTART_COMPLETED,
       })

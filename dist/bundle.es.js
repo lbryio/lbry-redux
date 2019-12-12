@@ -171,7 +171,7 @@ const SEARCH_BLUR = 'SEARCH_BLUR';
 // Settings
 const DAEMON_SETTINGS_RECEIVED = 'DAEMON_SETTINGS_RECEIVED';
 const SHARED_PREFERENCE_SET = 'SHARED_PREFERENCE_SET';
-const WALLET_SERVERS_CACHED = 'WALLET_SERVERS_CACHED';
+const SAVE_CUSTOM_WALLET_SERVERS = 'SAVE_CUSTOM_WALLET_SERVERS';
 const CLIENT_SETTING_CHANGED = 'CLIENT_SETTING_CHANGED';
 const UPDATE_IS_NIGHT = 'UPDATE_IS_NIGHT';
 
@@ -407,7 +407,7 @@ var action_types = /*#__PURE__*/Object.freeze({
   SEARCH_BLUR: SEARCH_BLUR,
   DAEMON_SETTINGS_RECEIVED: DAEMON_SETTINGS_RECEIVED,
   SHARED_PREFERENCE_SET: SHARED_PREFERENCE_SET,
-  WALLET_SERVERS_CACHED: WALLET_SERVERS_CACHED,
+  SAVE_CUSTOM_WALLET_SERVERS: SAVE_CUSTOM_WALLET_SERVERS,
   CLIENT_SETTING_CHANGED: CLIENT_SETTING_CHANGED,
   UPDATE_IS_NIGHT: UPDATE_IS_NIGHT,
   AUTHENTICATION_STARTED: AUTHENTICATION_STARTED,
@@ -761,6 +761,15 @@ var daemon_settings = /*#__PURE__*/Object.freeze({
   WALLET_DIR: WALLET_DIR,
   WALLETS: WALLETS
 });
+
+/*
+* How to use this file:
+* Settings exported from here will trigger the setting to be
+* sent to the preference middleware when set using the
+* usual setDaemonSettings and clearDaemonSettings methods.
+*
+* See redux/settings/actions in the app for where this is used.
+ */
 
 const WALLET_SERVERS = LBRYUM_SERVERS;
 
@@ -1517,7 +1526,7 @@ function extractUserState(rawObj) {
 function doPopulateSharedUserState(sharedSettings) {
   return dispatch => {
     const { subscriptions, tags, blockedChannels, settings } = extractUserState(sharedSettings);
-    dispatch({ type: USER_STATE_POPULATE, data: { subscriptions, tags, blockedChannels, settings } }); // clientSettings ? hideSplash ?
+    dispatch({ type: USER_STATE_POPULATE, data: { subscriptions, tags, blockedChannels, settings } });
   };
 }
 
@@ -2597,7 +2606,7 @@ function doWalletReconnect() {
     });
     // this basically returns null when it's done. :(
     // might be good to  dispatch ACTIONS.WALLET_RESTARTED
-    lbryProxy.wallet_reconnect().then(dispatch({
+    lbryProxy.wallet_reconnect().then(() => dispatch({
       type: WALLET_RESTART_COMPLETED
     }));
   };

@@ -30,7 +30,7 @@ function extractUserState(rawObj: SharedData) {
 export function doPopulateSharedUserState(sharedSettings: any) {
   return (dispatch: Dispatch) => {
     const { subscriptions, tags, blockedChannels, settings } = extractUserState(sharedSettings);
-    dispatch({ type: ACTIONS.USER_STATE_POPULATE, data: { subscriptions, tags, blockedChannels, settings } }); // clientSettings ? hideSplash ?
+    dispatch({ type: ACTIONS.USER_STATE_POPULATE, data: { subscriptions, tags, blockedChannels, settings } });
   };
 }
 
