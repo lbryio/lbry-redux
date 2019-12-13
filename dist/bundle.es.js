@@ -85,6 +85,8 @@ const WALLET_LOCK_COMPLETED = 'WALLET_LOCK_COMPLETED';
 const WALLET_LOCK_FAILED = 'WALLET_LOCK_FAILED';
 const WALLET_STATUS_START = 'WALLET_STATUS_START';
 const WALLET_STATUS_COMPLETED = 'WALLET_STATUS_COMPLETED';
+const WALLET_RESTART = 'WALLET_RESTART';
+const WALLET_RESTART_COMPLETED = 'WALLET_RESTART_COMPLETED';
 const SET_TRANSACTION_LIST_FILTER = 'SET_TRANSACTION_LIST_FILTER';
 const UPDATE_CURRENT_HEIGHT = 'UPDATE_CURRENT_HEIGHT';
 const SET_DRAFT_TRANSACTION_AMOUNT = 'SET_DRAFT_TRANSACTION_AMOUNT';
@@ -168,6 +170,9 @@ const SEARCH_BLUR = 'SEARCH_BLUR';
 
 // Settings
 const DAEMON_SETTINGS_RECEIVED = 'DAEMON_SETTINGS_RECEIVED';
+const DAEMON_STATUS_RECEIVED = 'DAEMON_STATUS_RECEIVED';
+const SHARED_PREFERENCE_SET = 'SHARED_PREFERENCE_SET';
+const SAVE_CUSTOM_WALLET_SERVERS = 'SAVE_CUSTOM_WALLET_SERVERS';
 const CLIENT_SETTING_CHANGED = 'CLIENT_SETTING_CHANGED';
 const UPDATE_IS_NIGHT = 'UPDATE_IS_NIGHT';
 
@@ -327,6 +332,8 @@ var action_types = /*#__PURE__*/Object.freeze({
   WALLET_LOCK_FAILED: WALLET_LOCK_FAILED,
   WALLET_STATUS_START: WALLET_STATUS_START,
   WALLET_STATUS_COMPLETED: WALLET_STATUS_COMPLETED,
+  WALLET_RESTART: WALLET_RESTART,
+  WALLET_RESTART_COMPLETED: WALLET_RESTART_COMPLETED,
   SET_TRANSACTION_LIST_FILTER: SET_TRANSACTION_LIST_FILTER,
   UPDATE_CURRENT_HEIGHT: UPDATE_CURRENT_HEIGHT,
   SET_DRAFT_TRANSACTION_AMOUNT: SET_DRAFT_TRANSACTION_AMOUNT,
@@ -400,6 +407,9 @@ var action_types = /*#__PURE__*/Object.freeze({
   SEARCH_FOCUS: SEARCH_FOCUS,
   SEARCH_BLUR: SEARCH_BLUR,
   DAEMON_SETTINGS_RECEIVED: DAEMON_SETTINGS_RECEIVED,
+  DAEMON_STATUS_RECEIVED: DAEMON_STATUS_RECEIVED,
+  SHARED_PREFERENCE_SET: SHARED_PREFERENCE_SET,
+  SAVE_CUSTOM_WALLET_SERVERS: SAVE_CUSTOM_WALLET_SERVERS,
   CLIENT_SETTING_CHANGED: CLIENT_SETTING_CHANGED,
   UPDATE_IS_NIGHT: UPDATE_IS_NIGHT,
   AUTHENTICATION_STARTED: AUTHENTICATION_STARTED,
@@ -670,6 +680,103 @@ const SPEECH_PUBLISH = 'https://spee.ch/api/claim/publish';
 var speech_urls = /*#__PURE__*/Object.freeze({
   SPEECH_STATUS: SPEECH_STATUS,
   SPEECH_PUBLISH: SPEECH_PUBLISH
+});
+
+const ANNOUNCE_HEAD_AND_SD_ONLY = 'announce_head_and_sd_only';
+const API = 'api';
+const BLOB_DOWNLOAD_TIMEOUT = 'blob_download_timeout';
+const BLOB_LRU_CACHE_SIZE = 'blob_lru_cache_size';
+const BLOCKCHAIN_NAME = 'blockchain_name';
+const CACHE_TIME = 'cache_time';
+const COIN_SELECTION_STRATEGY = 'coin_selection_strategy';
+const COMMENT_SERVER = 'comment_server';
+const COMPONENTS_TO_SKIP = 'components_to_skip';
+const CONCURRENT_BLOB_ANNOUNCERS = 'concurrent_blob_announcers';
+const CONCURRENT_REFLECTOR_UPLOADS = 'concurrent_reflector_uploads';
+const CONFIG = 'config';
+const DATA_DIR = 'data_dir';
+const DOWNLOAD_DIR = 'download_dir';
+const DOWNLOAD_TIMEOUT = 'download_timeout';
+const FIXED_PEER_DELAY = 'fixed_peer_delay';
+const KNOWN_DHT_NODES = 'known_dht_nodes';
+const LBRYUM_SERVERS = 'lbryum_servers';
+const MAX_CONNECTIONS_PER_DOWNLOAD = 'max_connections_per_download';
+const MAX_KEY_FEE = 'max_key_fee';
+const DEFAULT_WALLET = 'default_wallet';
+const NETWORK_INTERFACE = 'network_interface';
+const NODE_RPC_TIMEOUT = 'node_rpc_timeout';
+const PEER_CONNECT_TIMEOUT = 'peer_connect_timeout';
+const REFLECT_STREAMS = 'reflect_streams';
+const REFLECTOR_SERVERS = 'reflector_servers';
+const S3_HEADERS_DEPTH = 's3_headers_depth';
+const SAVE_BLOBS = 'save_blobs';
+const SAVE_FILES = 'save_files';
+const SHARE_USAGE_DATA = 'share_usage_data';
+const SPLIT_BUCKETS_UNDER_INDEX = 'split_buckets_under_index';
+const STREAMING_GET = 'streaming_get';
+const STREAMING_SERVER = 'streaming_server';
+const TCP_PORT = 'tcp_port';
+const TRACK_BANDWIDTH = 'track_bandwidth';
+const UDP_PORT = 'udp_port';
+const USE_UPNP = 'use_upnp';
+const WALLET_DIR = 'wallet_dir';
+const WALLETS = 'wallets';
+
+var daemon_settings = /*#__PURE__*/Object.freeze({
+  ANNOUNCE_HEAD_AND_SD_ONLY: ANNOUNCE_HEAD_AND_SD_ONLY,
+  API: API,
+  BLOB_DOWNLOAD_TIMEOUT: BLOB_DOWNLOAD_TIMEOUT,
+  BLOB_LRU_CACHE_SIZE: BLOB_LRU_CACHE_SIZE,
+  BLOCKCHAIN_NAME: BLOCKCHAIN_NAME,
+  CACHE_TIME: CACHE_TIME,
+  COIN_SELECTION_STRATEGY: COIN_SELECTION_STRATEGY,
+  COMMENT_SERVER: COMMENT_SERVER,
+  COMPONENTS_TO_SKIP: COMPONENTS_TO_SKIP,
+  CONCURRENT_BLOB_ANNOUNCERS: CONCURRENT_BLOB_ANNOUNCERS,
+  CONCURRENT_REFLECTOR_UPLOADS: CONCURRENT_REFLECTOR_UPLOADS,
+  CONFIG: CONFIG,
+  DATA_DIR: DATA_DIR,
+  DOWNLOAD_DIR: DOWNLOAD_DIR,
+  DOWNLOAD_TIMEOUT: DOWNLOAD_TIMEOUT,
+  FIXED_PEER_DELAY: FIXED_PEER_DELAY,
+  KNOWN_DHT_NODES: KNOWN_DHT_NODES,
+  LBRYUM_SERVERS: LBRYUM_SERVERS,
+  MAX_CONNECTIONS_PER_DOWNLOAD: MAX_CONNECTIONS_PER_DOWNLOAD,
+  MAX_KEY_FEE: MAX_KEY_FEE,
+  DEFAULT_WALLET: DEFAULT_WALLET,
+  NETWORK_INTERFACE: NETWORK_INTERFACE,
+  NODE_RPC_TIMEOUT: NODE_RPC_TIMEOUT,
+  PEER_CONNECT_TIMEOUT: PEER_CONNECT_TIMEOUT,
+  REFLECT_STREAMS: REFLECT_STREAMS,
+  REFLECTOR_SERVERS: REFLECTOR_SERVERS,
+  S3_HEADERS_DEPTH: S3_HEADERS_DEPTH,
+  SAVE_BLOBS: SAVE_BLOBS,
+  SAVE_FILES: SAVE_FILES,
+  SHARE_USAGE_DATA: SHARE_USAGE_DATA,
+  SPLIT_BUCKETS_UNDER_INDEX: SPLIT_BUCKETS_UNDER_INDEX,
+  STREAMING_GET: STREAMING_GET,
+  STREAMING_SERVER: STREAMING_SERVER,
+  TCP_PORT: TCP_PORT,
+  TRACK_BANDWIDTH: TRACK_BANDWIDTH,
+  UDP_PORT: UDP_PORT,
+  USE_UPNP: USE_UPNP,
+  WALLET_DIR: WALLET_DIR,
+  WALLETS: WALLETS
+});
+
+/*
+* How to use this file:
+* Settings exported from here will trigger the setting to be
+* sent to the preference middleware when set using the
+* usual setDaemonSettings and clearDaemonSettings methods.
+*
+* See redux/settings/actions in the app for where this is used.
+ */
+
+const WALLET_SERVERS = LBRYUM_SERVERS;
+
+var shared_preferences = /*#__PURE__*/Object.freeze({
+  WALLET_SERVERS: WALLET_SERVERS
 });
 
 const SEARCH_TYPES = {
@@ -1410,18 +1517,18 @@ var _extends$2 = Object.assign || function (target) { for (var i = 1; i < argume
 
 function extractUserState(rawObj) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
-    const { subscriptions, tags, blockedChannels } = rawObj.value;
+    const { subscriptions, tags, blockedChannels, settings } = rawObj.value;
 
-    return _extends$2({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blockedChannels ? { blockedChannels } : {});
+    return _extends$2({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blockedChannels ? { blockedChannels } : {}, settings ? { settings } : {});
   }
 
   return {};
 }
 
-function doPopulateSharedUserState(settings) {
+function doPopulateSharedUserState(sharedSettings) {
   return dispatch => {
-    const { subscriptions, tags } = extractUserState(settings);
-    dispatch({ type: USER_STATE_POPULATE, data: { subscriptions, tags } });
+    const { subscriptions, tags, blockedChannels, settings } = extractUserState(sharedSettings);
+    dispatch({ type: USER_STATE_POPULATE, data: { subscriptions, tags, blockedChannels, settings } });
   };
 }
 
@@ -2494,6 +2601,18 @@ function doWalletUnlock(password) {
   };
 }
 
+function doWalletReconnect() {
+  return dispatch => {
+    dispatch({
+      type: WALLET_RESTART
+    });
+    // this basically returns null when it's done. :(
+    // might be good to  dispatch ACTIONS.WALLET_RESTARTED
+    lbryProxy.wallet_reconnect().then(() => dispatch({
+      type: WALLET_RESTART_COMPLETED
+    }));
+  };
+}
 function doWalletDecrypt() {
   return dispatch => {
     dispatch({
@@ -5378,6 +5497,7 @@ const selectChannelIsBlocked = uri => reselect.createSelector(selectBlockedChann
 
 exports.ACTIONS = action_types;
 exports.CLAIM_VALUES = claim;
+exports.DAEMON_SETTINGS = daemon_settings;
 exports.DEFAULT_FOLLOWED_TAGS = DEFAULT_FOLLOWED_TAGS;
 exports.DEFAULT_KNOWN_TAGS = DEFAULT_KNOWN_TAGS;
 exports.LICENSES = licenses;
@@ -5387,6 +5507,7 @@ exports.PAGES = pages;
 exports.SEARCH_OPTIONS = SEARCH_OPTIONS;
 exports.SEARCH_TYPES = SEARCH_TYPES;
 exports.SETTINGS = settings;
+exports.SHARED_PREFERENCES = shared_preferences;
 exports.SORT_OPTIONS = sort_options;
 exports.SPEECH_URLS = speech_urls;
 exports.THUMBNAIL_STATUSES = thumbnail_upload_statuses;
@@ -5459,6 +5580,7 @@ exports.doUpdateSearchQuery = doUpdateSearchQuery;
 exports.doUploadThumbnail = doUploadThumbnail;
 exports.doWalletDecrypt = doWalletDecrypt;
 exports.doWalletEncrypt = doWalletEncrypt;
+exports.doWalletReconnect = doWalletReconnect;
 exports.doWalletStatus = doWalletStatus;
 exports.doWalletUnlock = doWalletUnlock;
 exports.fileInfoReducer = fileInfoReducer;
