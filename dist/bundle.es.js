@@ -2161,7 +2161,7 @@ const makeSelectNsfwCountForChannel = uri => reselect.createSelector(selectClaim
 });
 
 const makeSelectOmittedCountForChannel = uri => reselect.createSelector(makeSelectTotalItemsForChannel(uri), makeSelectTotalClaimsInChannelSearch(uri), (claimsInChannel, claimsInSearch) => {
-  if (claimsInChannel && claimsInSearch) {
+  if (claimsInChannel && typeof claimsInSearch === 'number' && claimsInSearch >= 0) {
     return claimsInChannel - claimsInSearch;
   } else return 0;
 });

@@ -471,7 +471,7 @@ export const makeSelectOmittedCountForChannel = (uri: string) =>
     makeSelectTotalItemsForChannel(uri),
     makeSelectTotalClaimsInChannelSearch(uri),
     (claimsInChannel, claimsInSearch) => {
-      if (claimsInChannel && claimsInSearch) {
+      if (claimsInChannel && typeof claimsInSearch === 'number' && claimsInSearch >= 0) {
         return claimsInChannel - claimsInSearch;
       }
       else return 0;
