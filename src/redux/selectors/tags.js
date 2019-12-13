@@ -10,7 +10,7 @@ export const selectKnownTagsByName = createSelector(
 
 export const selectFollowedTagsList = createSelector(
   selectState,
-  (state: TagState): Array<string> => state.followedTags
+  (state: TagState): Array<string> => state.followedTags.filter(tag => typeof tag === 'string')
 );
 
 export const selectFollowedTags = createSelector(
