@@ -50,6 +50,8 @@ declare type StatusResponse = {
     blocks_behind: number,
     is_encrypted: boolean,
     is_locked: boolean,
+    headers_synchronization_progress: number,
+    available_servers: number,
   },
 };
 
