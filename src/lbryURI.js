@@ -138,7 +138,7 @@ function parseURIModifier(modSeperator: ?string, modValue: ?string) {
 
   if (modSeperator) {
     if (!modValue) {
-      throw new Error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
+      console.error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
     }
 
     if (modSeperator === '#') {
@@ -151,15 +151,15 @@ function parseURIModifier(modSeperator: ?string, modValue: ?string) {
   }
 
   if (claimId && (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/))) {
-    throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
+    console.error(__(`Invalid claim ID %claimId%.`, { claimId }));
   }
 
   if (claimSequence && !claimSequence.match(/^-?[1-9][0-9]*$/)) {
-    throw new Error(__('Claim sequence must be a number.'));
+    console.error(__('Claim sequence must be a number.'));
   }
 
   if (bidPosition && !bidPosition.match(/^-?[1-9][0-9]*$/)) {
-    throw new Error(__('Bid position must be a number.'));
+    console.error(__('Bid position must be a number.'));
   }
 
   return [claimId, claimSequence, bidPosition];
