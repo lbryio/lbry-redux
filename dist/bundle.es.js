@@ -1517,9 +1517,9 @@ var _extends$2 = Object.assign || function (target) { for (var i = 1; i < argume
 
 function extractUserState(rawObj) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
-    const { subscriptions, tags, blockedChannels, settings } = rawObj.value;
+    const { subscriptions, tags, blocked, settings } = rawObj.value;
 
-    return _extends$2({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blockedChannels ? { blockedChannels } : {}, settings ? { settings } : {});
+    return _extends$2({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, settings ? { settings } : {});
   }
 
   return {};
@@ -1527,8 +1527,8 @@ function extractUserState(rawObj) {
 
 function doPopulateSharedUserState(sharedSettings) {
   return dispatch => {
-    const { subscriptions, tags, blockedChannels, settings } = extractUserState(sharedSettings);
-    dispatch({ type: USER_STATE_POPULATE, data: { subscriptions, tags, blockedChannels, settings } });
+    const { subscriptions, tags, blocked, settings } = extractUserState(sharedSettings);
+    dispatch({ type: USER_STATE_POPULATE, data: { subscriptions, tags, blocked, settings } });
   };
 }
 
@@ -5122,9 +5122,9 @@ const blockedReducer = handleActions({
     };
   },
   [USER_STATE_POPULATE]: (state, action) => {
-    const { blockedChannels } = action.data;
+    const { blocked } = action.data;
     return _extends$e({}, state, {
-      blockedChannels: blockedChannels && blockedChannels.length ? blockedChannels : state.blockedChannels
+      blockedChannels: blocked && blocked.length ? blocked : state.blockedChannels
     });
   }
 }, defaultState$9);
