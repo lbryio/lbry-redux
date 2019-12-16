@@ -28,13 +28,13 @@ export const blockedReducer = handleActions(
     },
     [ACTIONS.USER_STATE_POPULATE]: (
       state: BlocklistState,
-      action: { data: { blockedChannels: ?Array<string> } }
+      action: { data: { blocked: ?Array<string> } }
     ) => {
-      const { blockedChannels } = action.data;
+      const { blocked } = action.data;
       return {
         ...state,
         blockedChannels:
-          blockedChannels && blockedChannels.length ? blockedChannels : state.blockedChannels,
+          blocked && blocked.length ? blocked : state.blockedChannels,
       };
     },
   },
