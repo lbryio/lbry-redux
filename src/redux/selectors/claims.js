@@ -212,7 +212,6 @@ export const makeSelectTotalPagesInChannelSearch = (uri: string) =>
     }
   );
 
-
 export const makeSelectClaimsInChannelForCurrentPageState = (uri: string) =>
   createSelector(
     selectClaimsById,
@@ -261,8 +260,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-          ? claim.meta.creation_timestamp * 1000
-          : null);
+            ? claim.meta.creation_timestamp * 1000
+            : null);
       if (!timestamp) {
         return undefined;
       }
@@ -473,8 +472,7 @@ export const makeSelectOmittedCountForChannel = (uri: string) =>
     (claimsInChannel, claimsInSearch) => {
       if (claimsInChannel && typeof claimsInSearch === 'number' && claimsInSearch >= 0) {
         return claimsInChannel - claimsInSearch;
-      }
-      else return 0;
+      } else return 0;
     }
   );
 
@@ -508,7 +506,13 @@ export const makeSelectRecommendedContentForUri = (uri: string) =>
 
         const { title } = claim.value;
 
-        const searchQuery = getSearchQueryString(title ? title.replace(/\//, ' ') : '');
+        if (!title) {
+          return;
+        }
+
+        const searchQuery = getSearchQueryString(title, undefined, undefined, {
+          related_to: claim.claim_id,
+        });
 
         let searchUris = searchUrisByQuery[searchQuery];
         if (searchUris) {
@@ -625,11 +629,9 @@ export const makeSelectMyStreamUrlsForPage = (page: number = 1) =>
   createSelector(
     selectMyClaimUrisWithoutChannels,
     urls => {
-      const start = ((Number(page) - 1) * Number(PAGE_SIZE));
-      const end = (Number(page) * Number(PAGE_SIZE));
-      return (urls && urls.length)
-        ? urls.slice(start, end)
-        : [];
+      const start = (Number(page) - 1) * Number(PAGE_SIZE);
+      const end = Number(page) * Number(PAGE_SIZE);
+      return urls && urls.length ? urls.slice(start, end) : [];
     }
   );
 

@@ -75,10 +75,13 @@ export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boole
 };
 
 export const doSearch = (
-  rawQuery: string, // pass in a query if you don't want to search for what's in the search bar
+  rawQuery: string,
   size: ?number, // only pass in if you don't want to use the users setting (ex: related content)
   from: ?number,
-  isBackgroundSearch: boolean = false
+  isBackgroundSearch: boolean = false,
+  options: {
+    related_to?: string,
+  } = {}
 ) => (dispatch: Dispatch, getState: GetState) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
@@ -90,7 +93,9 @@ export const doSearch = (
   }
 
   const state = getState();
-  const queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch)(state);
+  let queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch, options)(
+    state
+  );
 
   // If we have already searched for something, we don't need to do anything
   const urisForQuery = makeSelectSearchUris(queryWithOptions)(state);
@@ -150,6 +155,8 @@ export const doSearch = (
       });
     });
 };
+
+export const doSearchForRelatedContent = (query: string) => {};
 
 export const doFocusSearchInput = () => (dispatch: Dispatch) =>
   dispatch({

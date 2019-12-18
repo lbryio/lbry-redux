@@ -137,7 +137,10 @@ export const makeSelectQueryWithOptions = (
   customQuery: ?string,
   customSize: ?number,
   customFrom: ?number,
-  isBackgroundSearch: boolean = false // If it's a background search, don't use the users settings
+  isBackgroundSearch: boolean = false, // If it's a background search, don't use the users settings
+  additionalOptions: {
+    related_to?: string,
+  } = {}
 ) =>
   createSelector(
     selectSearchValue,
@@ -148,7 +151,8 @@ export const makeSelectQueryWithOptions = (
       const queryString = getSearchQueryString(
         customQuery || query,
         { ...options, size, from: customFrom },
-        !isBackgroundSearch
+        !isBackgroundSearch,
+        additionalOptions
       );
 
       return queryString;
