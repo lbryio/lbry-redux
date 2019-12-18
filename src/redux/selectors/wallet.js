@@ -323,3 +323,8 @@ export const selectFilteredTransactionCount = createSelector(
   selectFilteredTransactions,
   filteredTransactions => filteredTransactions.length
 );
+
+export const selectIsWalletReconnecting = createSelector(
+  selectState,
+  state => state.walletReconnecting
+);

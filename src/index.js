@@ -312,6 +312,7 @@ export {
   makeSelectLatestTransactions,
   makeSelectFilteredTransactionsForPage,
   selectFilteredTransactionCount,
+  selectIsWalletReconnecting,
 } from 'redux/selectors/wallet';
 
 export {

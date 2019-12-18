@@ -1829,6 +1829,8 @@ const makeSelectLatestTransactions = reselect.createSelector(selectTransactionIt
 
 const selectFilteredTransactionCount = reselect.createSelector(selectFilteredTransactions, filteredTransactions => filteredTransactions.length);
 
+const selectIsWalletReconnecting = reselect.createSelector(selectState$1, state => state.walletReconnecting);
+
 var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$1(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
@@ -5169,7 +5171,8 @@ const defaultState$a = {
   walletLockPending: false,
   walletLockSucceded: null,
   walletLockResult: null,
-  transactionListFilter: 'all'
+  transactionListFilter: 'all',
+  walletReconnecting: false
 };
 
 const walletReducer = handleActions({
@@ -5391,6 +5394,13 @@ const walletReducer = handleActions({
 
   [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$f({}, state, {
     latestBlock: action.data
+  }),
+  [WALLET_RESTART]: state => _extends$f({}, state, {
+    walletReconnecting: true
+  }),
+
+  [WALLET_RESTART_COMPLETED]: state => _extends$f({}, state, {
+    walletReconnecting: false
   })
 }, defaultState$a);
 
@@ -5701,6 +5711,7 @@ exports.selectIsResolvingPublishUris = selectIsResolvingPublishUris;
 exports.selectIsSearching = selectIsSearching;
 exports.selectIsSendingSupport = selectIsSendingSupport;
 exports.selectIsStillEditing = selectIsStillEditing;
+exports.selectIsWalletReconnecting = selectIsWalletReconnecting;
 exports.selectLastPurchasedUri = selectLastPurchasedUri;
 exports.selectMyActiveClaims = selectMyActiveClaims;
 exports.selectMyChannelClaims = selectMyChannelClaims;

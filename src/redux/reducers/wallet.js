@@ -42,6 +42,7 @@ type WalletState = {
   walletLockPending: boolean,
   walletLockSucceded: ?boolean,
   walletLockResult: ?boolean,
+  walletReconnecting: boolean,
 };
 
 const defaultState = {
@@ -74,6 +75,7 @@ const defaultState = {
   walletLockSucceded: null,
   walletLockResult: null,
   transactionListFilter: 'all',
+  walletReconnecting: false,
 };
 
 export const walletReducer = handleActions(
@@ -325,6 +327,15 @@ export const walletReducer = handleActions(
     [ACTIONS.UPDATE_CURRENT_HEIGHT]: (state: WalletState, action: { data: number }) => ({
       ...state,
       latestBlock: action.data,
+    }),
+    [ACTIONS.WALLET_RESTART]: (state: WalletState) => ({
+      ...state,
+      walletReconnecting: true,
+    }),
+
+    [ACTIONS.WALLET_RESTART_COMPLETED]: (state: WalletState) => ({
+      ...state,
+      walletReconnecting: false,
     }),
   },
   defaultState
