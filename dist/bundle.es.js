@@ -2202,7 +2202,7 @@ const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSe
       return;
     }
 
-    const searchQuery = getSearchQueryString(title, undefined, undefined, {
+    const searchQuery = getSearchQueryString(title.replace(/\//, ' '), undefined, undefined, {
       related_to: claim.claim_id
     });
 

@@ -156,8 +156,6 @@ export const doSearch = (
     });
 };
 
-export const doSearchForRelatedContent = (query: string) => {};
-
 export const doFocusSearchInput = () => (dispatch: Dispatch) =>
   dispatch({
     type: ACTIONS.SEARCH_FOCUS,
