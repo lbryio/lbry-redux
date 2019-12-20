@@ -2500,7 +2500,7 @@ function doSendTip(amount, claimId, isSupport, successCallback, errorCallback) {
 
     if (balance - amount <= 0) {
       dispatch(doToast({
-        message: 'Insufficient credits',
+        message: __('Insufficient credits'),
         isError: true
       }));
       return;
@@ -2508,7 +2508,7 @@ function doSendTip(amount, claimId, isSupport, successCallback, errorCallback) {
 
     const success = () => {
       dispatch(doToast({
-        message: shouldSupport ? __(`You deposited ${amount} LBC as a support!`) : __(`You sent ${amount} LBC as a tip, Mahalo!`),
+        message: shouldSupport ? __('You deposited %amount% LBC as a support!', { amount }) : __('You sent %amount% LBC as a tip, Mahalo!', { amount }),
         linkText: __('History'),
         linkTarget: __('/wallet')
       }));
