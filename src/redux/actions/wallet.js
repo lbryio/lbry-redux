@@ -13,27 +13,31 @@ export function doUpdateBalance() {
     } = getState();
 
     if (walletBalancePromise === null) {
-      walletBalancePromise = Lbry.wallet_balance().then(response => {
-        walletBalancePromise = null;
+      walletBalancePromise = Lbry.wallet_balance()
+        .then(response => {
+          walletBalancePromise = null;
 
-        const { available, reserved, reserved_subtotals, total } = response;
-        const { claims, supports, tips } = reserved_subtotals;
-        const totalFloat = parseFloat(total);
+          const { available, reserved, reserved_subtotals, total } = response;
+          const { claims, supports, tips } = reserved_subtotals;
+          const totalFloat = parseFloat(total);
 
-        if (totalInStore !== totalFloat) {
-          dispatch({
-            type: ACTIONS.UPDATE_BALANCE,
-            data: {
-              totalBalance: totalFloat,
-              balance: parseFloat(available),
-              reservedBalance: parseFloat(reserved),
-              claimsBalance: parseFloat(claims),
-              supportsBalance: parseFloat(supports),
-              tipsBalance: parseFloat(tips),
-            },
-          });
-        }
-      });
+          if (totalInStore !== totalFloat) {
+            dispatch({
+              type: ACTIONS.UPDATE_BALANCE,
+              data: {
+                totalBalance: totalFloat,
+                balance: parseFloat(available),
+                reservedBalance: parseFloat(reserved),
+                claimsBalance: parseFloat(claims),
+                supportsBalance: parseFloat(supports),
+                tipsBalance: parseFloat(tips),
+              },
+            });
+          }
+        })
+        .catch(() => {
+          walletBalancePromise = null;
+        });
     }
 
     return walletBalancePromise;
