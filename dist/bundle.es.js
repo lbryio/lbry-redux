@@ -1121,12 +1121,12 @@ function parseURI(URL, requireProto = false) {
 
   // Validate protocol
   if (requireProto && !proto) {
-    console.error(__('LBRY URLs must include a protocol prefix (lbry://).'));
+    throw new Error(__('LBRY URLs must include a protocol prefix (lbry://).'));
   }
 
   // Validate and process name
   if (!streamNameOrChannelName) {
-    console.error(__('URL does not include name.'));
+    throw new Error(__('URL does not include name.'));
   }
 
   rest.forEach(urlPiece => {
@@ -1141,11 +1141,11 @@ function parseURI(URL, requireProto = false) {
 
   if (includesChannel) {
     if (!channelName) {
-      console.error(__('No channel name after @.'));
+      throw new Error(__('No channel name after @.'));
     }
 
     if (channelName.length < channelNameMinLength) {
-      console.error(__(`Channel names must be at least %channelNameMinLength% characters.`, {
+      throw new Error(__(`Channel names must be at least %channelNameMinLength% characters.`, {
         channelNameMinLength
       }));
     }
@@ -1177,7 +1177,7 @@ function parseURIModifier(modSeperator, modValue) {
 
   if (modSeperator) {
     if (!modValue) {
-      console.error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
+      throw new Error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
     }
 
     if (modSeperator === '#') {
@@ -1190,15 +1190,15 @@ function parseURIModifier(modSeperator, modValue) {
   }
 
   if (claimId && (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/))) {
-    console.error(__(`Invalid claim ID %claimId%.`, { claimId }));
+    throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
   }
 
   if (claimSequence && !claimSequence.match(/^-?[1-9][0-9]*$/)) {
-    console.error(__('Claim sequence must be a number.'));
+    throw new Error(__('Claim sequence must be a number.'));
   }
 
   if (bidPosition && !bidPosition.match(/^-?[1-9][0-9]*$/)) {
-    console.error(__('Bid position must be a number.'));
+    throw new Error(__('Bid position must be a number.'));
   }
 
   return [claimId, claimSequence, bidPosition];
