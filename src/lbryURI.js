@@ -63,17 +63,17 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
 
   // Validate protocol
   if (requireProto && !proto) {
-    throw new Error(__('LBRY URLs must include a protocol prefix (lbry://).'));
+    console.error(__('LBRY URLs must include a protocol prefix (lbry://).'));
   }
 
   // Validate and process name
   if (!streamNameOrChannelName) {
-    throw new Error(__('URL does not include name.'));
+    console.error(__('URL does not include name.'));
   }
 
   rest.forEach(urlPiece => {
     if (urlPiece && urlPiece.includes(' ')) {
-      throw new Error('URL can not include a space');
+      console.error('URL can not include a space');
     }
   });
 
@@ -83,11 +83,11 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
 
   if (includesChannel) {
     if (!channelName) {
-      throw new Error(__('No channel name after @.'));
+      console.error(__('No channel name after @.'));
     }
 
     if (channelName.length < channelNameMinLength) {
-      throw new Error(
+      console.error(
         __(`Channel names must be at least %channelNameMinLength% characters.`, {
           channelNameMinLength,
         })
