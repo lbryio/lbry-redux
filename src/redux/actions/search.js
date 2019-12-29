@@ -78,7 +78,8 @@ export const doSearch = (
   rawQuery: string, // pass in a query if you don't want to search for what's in the search bar
   size: ?number, // only pass in if you don't want to use the users setting (ex: related content)
   from: ?number,
-  isBackgroundSearch: boolean = false
+  isBackgroundSearch: boolean = false,
+  resolveResults: boolean = true,
 ) => (dispatch: Dispatch, getState: GetState) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
@@ -130,7 +131,9 @@ export const doSearch = (
           }
 
           const url = buildURI(urlObj);
-          actions.push(doResolveUri(url));
+          if (resolveResults) {
+            actions.push(doResolveUri(url));
+          }
           uris.push(url);
         }
       });

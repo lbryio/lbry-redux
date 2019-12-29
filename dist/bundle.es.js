@@ -3910,7 +3910,7 @@ const doUpdateSearchQuery = (query, shouldSkipSuggestions) => dispatch => {
 
 const doSearch = (rawQuery, // pass in a query if you don't want to search for what's in the search bar
 size, // only pass in if you don't want to use the users setting (ex: related content)
-from, isBackgroundSearch = false) => (dispatch, getState) => {
+from, isBackgroundSearch = false, resolveResults = true) => (dispatch, getState) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
   if (!query) {
@@ -3959,7 +3959,9 @@ from, isBackgroundSearch = false) => (dispatch, getState) => {
         }
 
         const url = buildURI(urlObj);
-        actions.push(doResolveUri(url));
+        if (resolveResults) {
+          actions.push(doResolveUri(url));
+        }
         uris.push(url);
       }
     });
