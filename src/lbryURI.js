@@ -73,7 +73,7 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
 
   rest.forEach(urlPiece => {
     if (urlPiece && urlPiece.includes(' ')) {
-      throw new Error('URL can not include a space');
+      console.error('URL can not include a space');
     }
   });
 
@@ -138,7 +138,7 @@ function parseURIModifier(modSeperator: ?string, modValue: ?string) {
 
   if (modSeperator) {
     if (!modValue) {
-      console.error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
+      throw new Error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
     }
 
     if (modSeperator === '#') {
@@ -151,15 +151,15 @@ function parseURIModifier(modSeperator: ?string, modValue: ?string) {
   }
 
   if (claimId && (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/))) {
-    console.error(__(`Invalid claim ID %claimId%.`, { claimId }));
+    throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
   }
 
   if (claimSequence && !claimSequence.match(/^-?[1-9][0-9]*$/)) {
-    console.error(__('Claim sequence must be a number.'));
+    throw new Error(__('Claim sequence must be a number.'));
   }
 
   if (bidPosition && !bidPosition.match(/^-?[1-9][0-9]*$/)) {
-    console.error(__('Bid position must be a number.'));
+    throw new Error(__('Bid position must be a number.'));
   }
 
   return [claimId, claimSequence, bidPosition];
