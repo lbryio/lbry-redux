@@ -1,6 +1,9 @@
 // @flow
 import { normalizeURI, buildURI, parseURI } from 'lbryURI';
-import { selectSearchUrisByQuery } from 'redux/selectors/search';
+import {
+  selectResolvedSearchResultsByQuery,
+  selectSearchUrisByQuery,
+} from 'redux/selectors/search';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
 import { isClaimNsfw, createNormalizedClaimSearchKey } from 'util/claim';
@@ -639,3 +642,39 @@ export const selectMyStreamUrlsCount = createSelector(
   selectMyClaimUrisWithoutChannels,
   channels => channels.length
 );
+
+export const makeSelectResolvedRecommendedContentForUri = (uri: string, size: number) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    selectResolvedSearchResultsByQuery,
+    (claim, resolvedResultsByQuery) => {
+      const atVanityURI = !uri.includes('#');
+
+      let recommendedContent;
+      if (claim) {
+        // always grab full URL - this can change once search returns canonical
+        const currentUri = buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
+
+        const { title } = claim.value;
+
+        if (!title) {
+          return;
+        }
+
+        const searchQuery = getSearchQueryString(title.replace(/\//, ' '), { size }, undefined, {
+          related_to: claim.claim_id,
+        });
+
+        let results = resolvedResultsByQuery[searchQuery];
+        if (results) {
+          results = results.filter(
+            result =>
+              buildURI({ streamClaimId: result.claimId, streamName: result.name }) !== currentUri
+          );
+          recommendedContent = results;
+        }
+      }
+
+      return recommendedContent;
+    }
+  );

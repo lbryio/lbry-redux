@@ -2277,6 +2277,34 @@ const makeSelectMyStreamUrlsForPage = (page = 1) => reselect.createSelector(sele
 
 const selectMyStreamUrlsCount = reselect.createSelector(selectMyClaimUrisWithoutChannels, channels => channels.length);
 
+const makeSelectResolvedRecommendedContentForUri = (uri, size) => reselect.createSelector(makeSelectClaimForUri(uri), selectResolvedSearchResultsByQuery, (claim, resolvedResultsByQuery) => {
+  const atVanityURI = !uri.includes('#');
+
+  let recommendedContent;
+  if (claim) {
+    // always grab full URL - this can change once search returns canonical
+    const currentUri = buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
+
+    const { title } = claim.value;
+
+    if (!title) {
+      return;
+    }
+
+    const searchQuery = getSearchQueryString(title.replace(/\//, ' '), { size }, undefined, {
+      related_to: claim.claim_id
+    });
+
+    let results = resolvedResultsByQuery[searchQuery];
+    if (results) {
+      results = results.filter(result => buildURI({ streamClaimId: result.claimId, streamName: result.name }) !== currentUri);
+      recommendedContent = results;
+    }
+  }
+
+  return recommendedContent;
+});
+
 function numberWithCommas(x) {
   var parts = x.toString().split('.');
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -5091,7 +5119,9 @@ const searchReducer = handleActions({
 
     return _extends$c({}, state, {
       searching: false,
-      resolvedResultsByQuery: Object.assign({}, state.resolvedResultsByQuery, { [query]: results })
+      resolvedResultsByQuery: Object.assign({}, state.resolvedResultsByQuery, {
+        [query]: results
+      })
     });
   },
 
@@ -5736,6 +5766,7 @@ exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
 exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
 exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
+exports.makeSelectResolvedRecommendedContentForUri = makeSelectResolvedRecommendedContentForUri;
 exports.makeSelectResolvedSearchResults = makeSelectResolvedSearchResults;
 exports.makeSelectSearchDownloadUrlsCount = makeSelectSearchDownloadUrlsCount;
 exports.makeSelectSearchDownloadUrlsForPage = makeSelectSearchDownloadUrlsForPage;

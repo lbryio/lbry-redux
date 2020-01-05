@@ -184,6 +184,7 @@ export {
   makeSelectOmittedCountForChannel,
   makeSelectClaimIsNsfw,
   makeSelectRecommendedContentForUri,
+  makeSelectResolvedRecommendedContentForUri,
   makeSelectFirstRecommendedFileForUri,
   makeSelectChannelForClaimUri,
   makeSelectClaimIsPending,
