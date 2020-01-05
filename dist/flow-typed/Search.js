@@ -28,6 +28,7 @@ declare type SearchState = {
   options: SearchOptions,
   suggestions: { [string]: Array<SearchSuggestion> },
   urisByQuery: {},
+  resolvedResultsByQuery: {},
 };
 
 declare type SearchSuccess = {
@@ -56,4 +57,23 @@ declare type UpdateSearchSuggestions = {
 declare type UpdateSearchOptions = {
   type: ACTIONS.UPDATE_SEARCH_OPTIONS,
   data: SearchOptions,
+};
+
+declare type ResolvedSearchResult = {
+  channel: string,
+  channel_claim_id: string,
+  claimId: string,
+  fee: number,
+  name: string,
+  release_time: string,
+  thumbnail_url: string,
+  title: string,
+};
+
+declare type ResolvedSearchSuccess = {
+  type: ACTIONS.RESOLVED_SEARCH_SUCCESS,
+  data: {
+    query: string,
+    results: Array<ResolvedSearchResult>,
+  },
 };

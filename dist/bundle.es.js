@@ -162,6 +162,9 @@ const DELETE_PURCHASED_URI = 'DELETE_PURCHASED_URI';
 const SEARCH_START = 'SEARCH_START';
 const SEARCH_SUCCESS = 'SEARCH_SUCCESS';
 const SEARCH_FAIL = 'SEARCH_FAIL';
+const RESOLVED_SEARCH_START = 'RESOLVED_SEARCH_START';
+const RESOLVED_SEARCH_SUCCESS = 'RESOLVED_SEARCH_SUCCESS';
+const RESOLVED_SEARCH_FAIL = 'RESOLVED_SEARCH_FAIL';
 const UPDATE_SEARCH_QUERY = 'UPDATE_SEARCH_QUERY';
 const UPDATE_SEARCH_OPTIONS = 'UPDATE_SEARCH_OPTIONS';
 const UPDATE_SEARCH_SUGGESTIONS = 'UPDATE_SEARCH_SUGGESTIONS';
@@ -401,6 +404,9 @@ var action_types = /*#__PURE__*/Object.freeze({
   SEARCH_START: SEARCH_START,
   SEARCH_SUCCESS: SEARCH_SUCCESS,
   SEARCH_FAIL: SEARCH_FAIL,
+  RESOLVED_SEARCH_START: RESOLVED_SEARCH_START,
+  RESOLVED_SEARCH_SUCCESS: RESOLVED_SEARCH_SUCCESS,
+  RESOLVED_SEARCH_FAIL: RESOLVED_SEARCH_FAIL,
   UPDATE_SEARCH_QUERY: UPDATE_SEARCH_QUERY,
   UPDATE_SEARCH_OPTIONS: UPDATE_SEARCH_OPTIONS,
   UPDATE_SEARCH_SUGGESTIONS: UPDATE_SEARCH_SUGGESTIONS,
@@ -1329,6 +1335,12 @@ const selectSearchUrisByQuery = reselect.createSelector(selectState, state => st
 const makeSelectSearchUris = query =>
 // replace statement below is kind of ugly, and repeated in doSearch action
 reselect.createSelector(selectSearchUrisByQuery, byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query]);
+
+const selectResolvedSearchResultsByQuery = reselect.createSelector(selectState, state => state.resolvedResultsByQuery);
+
+const makeSelectResolvedSearchResults = query =>
+// replace statement below is kind of ugly, and repeated in doSearch action
+reselect.createSelector(selectResolvedSearchResultsByQuery, byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query]);
 
 const selectSearchBarFocused = reselect.createSelector(selectState, state => state.focused);
 
@@ -3995,6 +4007,57 @@ from, isBackgroundSearch = false, options = {}, resolveResults = true) => (dispa
   });
 };
 
+const doResolvedSearch = (rawQuery, size, // only pass in if you don't want to use the users setting (ex: related content)
+from, isBackgroundSearch = false, options = {}) => (dispatch, getState) => {
+  const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
+
+  if (!query) {
+    dispatch({
+      type: RESOLVED_SEARCH_FAIL
+    });
+    return;
+  }
+
+  const state = getState();
+  let queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch, options)(state);
+
+  // If we have already searched for something, we don't need to do anything
+  const resultsForQuery = makeSelectResolvedSearchResults(queryWithOptions)(state);
+  if (resultsForQuery && !!resultsForQuery.length) {
+    return;
+  }
+
+  dispatch({
+    type: RESOLVED_SEARCH_START
+  });
+
+  if (!state.search.searchQuery && !isBackgroundSearch) {
+    dispatch(doUpdateSearchQuery(query));
+  }
+
+  fetch(`${CONNECTION_STRING}search?resolve=true&${queryWithOptions}`).then(handleFetchResponse).then(data => {
+    const results = [];
+
+    data.forEach(result => {
+      if (result) {
+        results.push(result);
+      }
+    });
+
+    dispatch({
+      type: RESOLVED_SEARCH_SUCCESS,
+      data: {
+        query: queryWithOptions,
+        results
+      }
+    });
+  }).catch(e => {
+    dispatch({
+      type: RESOLVED_SEARCH_FAIL
+    });
+  });
+};
+
 const doFocusSearchInput = () => dispatch => dispatch({
   type: SEARCH_FOCUS
 });
@@ -4999,7 +5062,8 @@ const defaultState$7 = {
     [SEARCH_OPTIONS.MEDIA_APPLICATION]: true
   },
   suggestions: {},
-  urisByQuery: {}
+  urisByQuery: {},
+  resolvedResultsByQuery: {}
 };
 
 const searchReducer = handleActions({
@@ -5016,6 +5080,22 @@ const searchReducer = handleActions({
   },
 
   [SEARCH_FAIL]: state => _extends$c({}, state, {
+    searching: false
+  }),
+
+  [RESOLVED_SEARCH_START]: state => _extends$c({}, state, {
+    searching: true
+  }),
+  [RESOLVED_SEARCH_SUCCESS]: (state, action) => {
+    const { query, results } = action.data;
+
+    return _extends$c({}, state, {
+      searching: false,
+      resolvedResultsByQuery: Object.assign({}, state.resolvedResultsByQuery, { [query]: results })
+    });
+  },
+
+  [RESOLVED_SEARCH_FAIL]: state => _extends$c({}, state, {
     searching: false
   }),
 
@@ -5587,6 +5667,7 @@ exports.doPurchaseUri = doPurchaseUri;
 exports.doResetThumbnailStatus = doResetThumbnailStatus;
 exports.doResolveUri = doResolveUri;
 exports.doResolveUris = doResolveUris;
+exports.doResolvedSearch = doResolvedSearch;
 exports.doSearch = doSearch;
 exports.doSendDraftTransaction = doSendDraftTransaction;
 exports.doSendTip = doSendTip;
@@ -5655,6 +5736,7 @@ exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
 exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
 exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
+exports.makeSelectResolvedSearchResults = makeSelectResolvedSearchResults;
 exports.makeSelectSearchDownloadUrlsCount = makeSelectSearchDownloadUrlsCount;
 exports.makeSelectSearchDownloadUrlsForPage = makeSelectSearchDownloadUrlsForPage;
 exports.makeSelectSearchUris = makeSelectSearchUris;
@@ -5747,6 +5829,7 @@ exports.selectPurchasedUris = selectPurchasedUris;
 exports.selectReceiveAddress = selectReceiveAddress;
 exports.selectRecentTransactions = selectRecentTransactions;
 exports.selectReservedBalance = selectReservedBalance;
+exports.selectResolvedSearchResultsByQuery = selectResolvedSearchResultsByQuery;
 exports.selectResolvingUris = selectResolvingUris;
 exports.selectSearchBarFocused = selectSearchBarFocused;
 exports.selectSearchOptions = selectSearchOptions;

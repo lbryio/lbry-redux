@@ -90,6 +90,7 @@ export {
 
 export {
   doSearch,
+  doResolvedSearch,
   doUpdateSearchQuery,
   doFocusSearchInput,
   doBlurSearchInput,
@@ -265,9 +266,11 @@ export {
 export { selectSearchState };
 export {
   makeSelectSearchUris,
+  makeSelectResolvedSearchResults,
   selectSearchValue,
   selectSearchOptions,
   selectIsSearching,
+  selectResolvedSearchResultsByQuery,
   selectSearchUrisByQuery,
   selectSearchBarFocused,
   selectSearchSuggestions,

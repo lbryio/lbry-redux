@@ -44,6 +44,22 @@ export const makeSelectSearchUris = (query: string): ((state: State) => Array<st
     byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query]
   );
 
+export const selectResolvedSearchResultsByQuery: (
+  state: State
+) => { [string]: Array<ResolvedSearchResult> } = createSelector(
+  selectState,
+  state => state.resolvedResultsByQuery
+);
+
+export const makeSelectResolvedSearchResults = (
+  query: string
+): ((state: State) => Array<ResolvedSearchResult>) =>
+  // replace statement below is kind of ugly, and repeated in doSearch action
+  createSelector(
+    selectResolvedSearchResultsByQuery,
+    byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query]
+  );
+
 export const selectSearchBarFocused: boolean = createSelector(
   selectState,
   state => state.focused

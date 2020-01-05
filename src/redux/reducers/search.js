@@ -18,6 +18,7 @@ const defaultState = {
   },
   suggestions: {},
   urisByQuery: {},
+  resolvedResultsByQuery: {},
 };
 
 export const searchReducer = handleActions(
@@ -37,6 +38,30 @@ export const searchReducer = handleActions(
     },
 
     [ACTIONS.SEARCH_FAIL]: (state: SearchState): SearchState => ({
+      ...state,
+      searching: false,
+    }),
+
+    [ACTIONS.RESOLVED_SEARCH_START]: (state: SearchState): SearchState => ({
+      ...state,
+      searching: true,
+    }),
+    [ACTIONS.RESOLVED_SEARCH_SUCCESS]: (
+      state: SearchState,
+      action: ResolvedSearchSuccess
+    ): SearchState => {
+      const { query, results } = action.data;
+
+      return {
+        ...state,
+        searching: false,
+        resolvedResultsByQuery: Object.assign({}, state.resolvedResultsByQuery, {
+          [query]: results,
+        }),
+      };
+    },
+
+    [ACTIONS.RESOLVED_SEARCH_FAIL]: (state: SearchState): SearchState => ({
       ...state,
       searching: false,
     }),
