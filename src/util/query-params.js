@@ -36,7 +36,8 @@ export function toQueryString(params: { [string]: string | number }) {
 export const getSearchQueryString = (
   query: string,
   options: any = {},
-  includeUserOptions: boolean = false
+  includeUserOptions: boolean = false,
+  additionalOptions: {} = {}
 ) => {
   const encodedQuery = encodeURIComponent(query);
   const queryParams = [
@@ -65,6 +66,13 @@ export const getSearchQueryString = (
         )}`
       );
     }
+  }
+
+  if (additionalOptions) {
+    Object.keys(additionalOptions).forEach(key => {
+      const option = additionalOptions[key];
+      queryParams.push(`${key}=${option}`);
+    });
   }
 
   return queryParams.join('&');

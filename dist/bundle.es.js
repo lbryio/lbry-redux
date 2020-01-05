@@ -1042,7 +1042,7 @@ function toQueryString(params) {
   return parts.join('&');
 }
 
-const getSearchQueryString = (query, options = {}, includeUserOptions = false) => {
+const getSearchQueryString = (query, options = {}, includeUserOptions = false, additionalOptions = {}) => {
   const encodedQuery = encodeURIComponent(query);
   const queryParams = [`s=${encodedQuery}`, `size=${options.size || DEFAULT_SEARCH_SIZE}`, `from=${options.from || DEFAULT_SEARCH_RESULT_FROM}`];
 
@@ -1054,6 +1054,13 @@ const getSearchQueryString = (query, options = {}, includeUserOptions = false) =
     if (!claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS)) {
       queryParams.push(`mediaType=${[SEARCH_OPTIONS.MEDIA_FILE, SEARCH_OPTIONS.MEDIA_AUDIO, SEARCH_OPTIONS.MEDIA_VIDEO, SEARCH_OPTIONS.MEDIA_TEXT, SEARCH_OPTIONS.MEDIA_IMAGE, SEARCH_OPTIONS.MEDIA_APPLICATION].reduce((acc, currentOption) => options[currentOption] ? `${acc}${currentOption},` : acc, '')}`);
     }
+  }
+
+  if (additionalOptions) {
+    Object.keys(additionalOptions).forEach(key => {
+      const option = additionalOptions[key];
+      queryParams.push(`${key}=${option}`);
+    });
   }
 
   return queryParams.join('&');
@@ -1124,7 +1131,7 @@ function parseURI(URL, requireProto = false) {
 
   rest.forEach(urlPiece => {
     if (urlPiece && urlPiece.includes(' ')) {
-      throw new Error('URL can not include a space');
+      console.error('URL can not include a space');
     }
   });
 
@@ -1170,7 +1177,7 @@ function parseURIModifier(modSeperator, modValue) {
 
   if (modSeperator) {
     if (!modValue) {
-      console.error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
+      throw new Error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
     }
 
     if (modSeperator === '#') {
@@ -1183,15 +1190,15 @@ function parseURIModifier(modSeperator, modValue) {
   }
 
   if (claimId && (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/))) {
-    console.error(__(`Invalid claim ID %claimId%.`, { claimId }));
+    throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
   }
 
   if (claimSequence && !claimSequence.match(/^-?[1-9][0-9]*$/)) {
-    console.error(__('Claim sequence must be a number.'));
+    throw new Error(__('Claim sequence must be a number.'));
   }
 
   if (bidPosition && !bidPosition.match(/^-?[1-9][0-9]*$/)) {
-    console.error(__('Bid position must be a number.'));
+    throw new Error(__('Bid position must be a number.'));
   }
 
   return [claimId, claimSequence, bidPosition];
@@ -1395,11 +1402,11 @@ const selectSearchSuggestions = reselect.createSelector(selectSearchValue, selec
 
 // Creates a query string based on the state in the search reducer
 // Can be overrided by passing in custom sizes/from values for other areas pagination
-const makeSelectQueryWithOptions = (customQuery, customSize, customFrom, isBackgroundSearch = false // If it's a background search, don't use the users settings
-) => reselect.createSelector(selectSearchValue, selectSearchOptions, (query, options) => {
+const makeSelectQueryWithOptions = (customQuery, customSize, customFrom, isBackgroundSearch = false, // If it's a background search, don't use the users settings
+additionalOptions = {}) => reselect.createSelector(selectSearchValue, selectSearchOptions, (query, options) => {
   const size = customSize || options[SEARCH_OPTIONS.RESULT_COUNT];
 
-  const queryString = getSearchQueryString(customQuery || query, _extends$1({}, options, { size, from: customFrom }), !isBackgroundSearch);
+  const queryString = getSearchQueryString(customQuery || query, _extends$1({}, options, { size, from: customFrom }), !isBackgroundSearch, additionalOptions);
 
   return queryString;
 });
@@ -2179,7 +2186,13 @@ const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSe
 
     const { title } = claim.value;
 
-    const searchQuery = getSearchQueryString(title ? title.replace(/\//, ' ') : '');
+    if (!title) {
+      return;
+    }
+
+    const searchQuery = getSearchQueryString(title.replace(/\//, ' '), undefined, undefined, {
+      related_to: claim.claim_id
+    });
 
     let searchUris = searchUrisByQuery[searchQuery];
     if (searchUris) {
@@ -2339,6 +2352,8 @@ function doUpdateBalance() {
             }
           });
         }
+      }).catch(() => {
+        walletBalancePromise = null;
       });
     }
 
@@ -3908,9 +3923,8 @@ const doUpdateSearchQuery = (query, shouldSkipSuggestions) => dispatch => {
   }
 };
 
-const doSearch = (rawQuery, // pass in a query if you don't want to search for what's in the search bar
-size, // only pass in if you don't want to use the users setting (ex: related content)
-from, isBackgroundSearch = false, resolveResults = true) => (dispatch, getState) => {
+const doSearch = (rawQuery, size, // only pass in if you don't want to use the users setting (ex: related content)
+from, isBackgroundSearch = false, options = {}, resolveResults = true) => (dispatch, getState) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
   if (!query) {
@@ -3921,7 +3935,7 @@ from, isBackgroundSearch = false, resolveResults = true) => (dispatch, getState)
   }
 
   const state = getState();
-  const queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch)(state);
+  let queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch, options)(state);
 
   // If we have already searched for something, we don't need to do anything
   const urisForQuery = makeSelectSearchUris(queryWithOptions)(state);
