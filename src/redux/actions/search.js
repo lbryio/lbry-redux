@@ -81,7 +81,8 @@ export const doSearch = (
   isBackgroundSearch: boolean = false,
   options: {
     related_to?: string,
-  } = {}
+  } = {},
+  resolveResults: boolean = true
 ) => (dispatch: Dispatch, getState: GetState) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
@@ -135,7 +136,9 @@ export const doSearch = (
           }
 
           const url = buildURI(urlObj);
-          actions.push(doResolveUri(url));
+          if (resolveResults) {
+            actions.push(doResolveUri(url));
+          }
           uris.push(url);
         }
       });
