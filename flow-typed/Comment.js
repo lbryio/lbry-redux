@@ -1,19 +1,22 @@
 declare type Comment = {
-  author?: string,
-  author_url?: string,
-  claim_index?: number,
-  comment_id?: number,
-  downvotes?: number,
-  message: string,
-  omitted?: number,
-  reply_count?: number,
-  time_posted?: number,
-  upvotes?: number,
-  parent_id?: number,
+  comment: string, // comment body
+  comment_id: string, // sha256 digest
+  timestamp: number, // integer representing unix-time
+  is_hidden: boolean, // claim owner may enable/disable this
+  channel_id?: string,  // claimId of channel signing this comment
+  channel_name?: string,  // name of channel claim
+  channel_url?: string, // full lbry url to signing channel
+  signature?: string, // signature of comment by originating channel
+  signing_ts?: string, // timestamp used when signing this comment
+  is_channel_signature_valid?: boolean, // whether or not the signature could be validated
+  parent_id?: number, // comment_id of comment this is in reply to
+  claim_id?: string, // id linking to the claim this comment
 };
 
+// todo: relate individual comments to their commentId
 declare type CommentsState = {
-  byId: {},
-  isLoading: boolean,
   commentsByUri: { [string]: string },
-}
+  byId: { [string]: Array<Comment> },
+  isLoading: boolean,
+  myComments: ?Set<Comment>,
+};
