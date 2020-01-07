@@ -6,6 +6,7 @@ const defaultState: CommentsState = {
   byId: {},
   commentsByUri: {},
   isLoading: false,
+  myComments: undefined,
 };
 
 export const commentReducer = handleActions(
@@ -55,6 +56,42 @@ export const commentReducer = handleActions(
     },
 
     [ACTIONS.COMMENT_LIST_FAILED]: (state: CommentsState, action: any) => ({
+      ...state,
+      isLoading: false,
+    }),
+    [ACTIONS.COMMENT_ABANDON_STARTED]: (state: CommentsState, action: any) => ({
+      ...state,
+      isLoading: true,
+    }),
+    [ACTIONS.COMMENT_ABANDON_COMPLETED]: (state: CommentsState, action: any) => ({
+      ...state,
+      isLoading: false,
+    }),
+    [ACTIONS.COMMENT_ABANDON_FAILED]: (state: CommentsState, action: any) => ({
+      ...state,
+      isLoading: false,
+    }),
+    [ACTIONS.COMMENT_EDIT_STARTED]: (state: CommentsState, action: any) => ({
+      ...state,
+      isLoading: true,
+    }),
+    [ACTIONS.COMMENT_EDIT_COMPLETED]: (state: CommentsState, action: any) => ({
+      ...state,
+      isLoading: false,
+    }),
+    [ACTIONS.COMMENT_EDIT_FAILED]: (state: CommentsState, action: any) => ({
+      ...state,
+      isLoading: false,
+    }),
+    [ACTIONS.COMMENT_HIDE_STARTED]: (state: CommentsState, action: any) => ({
+      ...state,
+      isLoading: true,
+    }),
+    [ACTIONS.COMMENT_HIDE_COMPLETED]: (state: CommentsState, action: any) => ({
+      ...state,
+      isLoading: false,
+    }),
+    [ACTIONS.COMMENT_HIDE_FAILED]: (state: CommentsState, action: any) => ({
       ...state,
       isLoading: false,
     }),
