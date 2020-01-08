@@ -510,4 +510,5 @@ export const DEFAULT_KNOWN_TAGS = [
   'portugal',
   'dantdm',
   'teaser',
+  'lbry'
 ];
