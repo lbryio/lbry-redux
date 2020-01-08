@@ -268,10 +268,12 @@ export { selectSearchState };
 export {
   makeSelectSearchUris,
   makeSelectResolvedSearchResults,
+  makeSelectResolvedSearchResultsLastPageReached,
   selectSearchValue,
   selectSearchOptions,
   selectIsSearching,
   selectResolvedSearchResultsByQuery,
+  selectResolvedSearchResultsByQueryLastPageReached,
   selectSearchUrisByQuery,
   selectSearchBarFocused,
   selectSearchSuggestions,

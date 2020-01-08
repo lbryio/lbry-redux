@@ -183,11 +183,17 @@ export const doResolvedSearch = (
     state
   );
 
+  // make from null so that we can maintain a reference to the same query for multiple pages and simply append the found results
+  let queryWithoutFrom = makeSelectQueryWithOptions(query, size, null, isBackgroundSearch, options)(
+    state
+  );
+
   // If we have already searched for something, we don't need to do anything
-  const resultsForQuery = makeSelectResolvedSearchResults(queryWithOptions)(state);
-  if (resultsForQuery && !!resultsForQuery.length) {
+  // TODO: Tweak this check for multiple page results
+  /* const resultsForQuery = makeSelectResolvedSearchResults(queryWithOptions)(state);
+  if (resultsForQuery && resultsForQuery.length && resultsForQuery.length > (from * size)) {
     return;
-  }
+  } */
 
   dispatch({
     type: ACTIONS.RESOLVED_SEARCH_START,
@@ -211,8 +217,10 @@ export const doResolvedSearch = (
       dispatch({
         type: ACTIONS.RESOLVED_SEARCH_SUCCESS,
         data: {
-          query: queryWithOptions,
+          query: queryWithoutFrom,
           results,
+          pageSize: size,
+          append: parseInt(from, 10) > parseInt(size, 10) - 1,
         },
       });
     })

@@ -1338,9 +1338,15 @@ reselect.createSelector(selectSearchUrisByQuery, byQuery => byQuery[query ? quer
 
 const selectResolvedSearchResultsByQuery = reselect.createSelector(selectState, state => state.resolvedResultsByQuery);
 
+const selectResolvedSearchResultsByQueryLastPageReached = reselect.createSelector(selectState, state => state.resolvedResultsByQueryLastPageReached);
+
 const makeSelectResolvedSearchResults = query =>
 // replace statement below is kind of ugly, and repeated in doSearch action
 reselect.createSelector(selectResolvedSearchResultsByQuery, byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query]);
+
+const makeSelectResolvedSearchResultsLastPageReached = query =>
+// replace statement below is kind of ugly, and repeated in doSearch action
+reselect.createSelector(selectResolvedSearchResultsByQueryLastPageReached, byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query]);
 
 const selectSearchBarFocused = reselect.createSelector(selectState, state => state.focused);
 
@@ -4049,11 +4055,15 @@ from, isBackgroundSearch = false, options = {}) => (dispatch, getState) => {
   const state = getState();
   let queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch, options)(state);
 
+  // make from null so that we can maintain a reference to the same query for multiple pages and simply append the found results
+  let queryWithoutFrom = makeSelectQueryWithOptions(query, size, null, isBackgroundSearch, options)(state);
+
   // If we have already searched for something, we don't need to do anything
-  const resultsForQuery = makeSelectResolvedSearchResults(queryWithOptions)(state);
-  if (resultsForQuery && !!resultsForQuery.length) {
+  // TODO: Tweak this check for multiple page results
+  /* const resultsForQuery = makeSelectResolvedSearchResults(queryWithOptions)(state);
+  if (resultsForQuery && resultsForQuery.length && resultsForQuery.length > (from * size)) {
     return;
-  }
+  } */
 
   dispatch({
     type: RESOLVED_SEARCH_START
@@ -4075,8 +4085,10 @@ from, isBackgroundSearch = false, options = {}) => (dispatch, getState) => {
     dispatch({
       type: RESOLVED_SEARCH_SUCCESS,
       data: {
-        query: queryWithOptions,
-        results
+        query: queryWithoutFrom,
+        results,
+        pageSize: size,
+        append: parseInt(from, 10) > parseInt(size, 10) - 1
       }
     });
   }).catch(e => {
@@ -5091,7 +5103,8 @@ const defaultState$7 = {
   },
   suggestions: {},
   urisByQuery: {},
-  resolvedResultsByQuery: {}
+  resolvedResultsByQuery: {},
+  resolvedResultsByQueryLastPageReached: {}
 };
 
 const searchReducer = handleActions({
@@ -5115,13 +5128,24 @@ const searchReducer = handleActions({
     searching: true
   }),
   [RESOLVED_SEARCH_SUCCESS]: (state, action) => {
-    const { query, results } = action.data;
+    const resolvedResultsByQuery = Object.assign({}, state.resolvedResultsByQuery);
+    const resolvedResultsByQueryLastPageReached = Object.assign({}, state.resolvedResultsByQueryLastPageReached);
+    const { append, query, results, pageSize } = action.data;
+
+    if (append) {
+      // todo: check for duplicates when concatenating?
+      resolvedResultsByQuery[query] = resolvedResultsByQuery[query] && resolvedResultsByQuery[query].length ? resolvedResultsByQuery[query].concat(results) : results;
+    } else {
+      resolvedResultsByQuery[query] = results;
+    }
+
+    // the returned number of urls is less than the page size, so we're on the last page
+    resolvedResultsByQueryLastPageReached[query] = results.length < pageSize;
 
     return _extends$c({}, state, {
       searching: false,
-      resolvedResultsByQuery: Object.assign({}, state.resolvedResultsByQuery, {
-        [query]: results
-      })
+      resolvedResultsByQuery,
+      resolvedResultsByQueryLastPageReached
     });
   },
 
@@ -5768,6 +5792,7 @@ exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
 exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
 exports.makeSelectResolvedRecommendedContentForUri = makeSelectResolvedRecommendedContentForUri;
 exports.makeSelectResolvedSearchResults = makeSelectResolvedSearchResults;
+exports.makeSelectResolvedSearchResultsLastPageReached = makeSelectResolvedSearchResultsLastPageReached;
 exports.makeSelectSearchDownloadUrlsCount = makeSelectSearchDownloadUrlsCount;
 exports.makeSelectSearchDownloadUrlsForPage = makeSelectSearchDownloadUrlsForPage;
 exports.makeSelectSearchUris = makeSelectSearchUris;
@@ -5861,6 +5886,7 @@ exports.selectReceiveAddress = selectReceiveAddress;
 exports.selectRecentTransactions = selectRecentTransactions;
 exports.selectReservedBalance = selectReservedBalance;
 exports.selectResolvedSearchResultsByQuery = selectResolvedSearchResultsByQuery;
+exports.selectResolvedSearchResultsByQueryLastPageReached = selectResolvedSearchResultsByQueryLastPageReached;
 exports.selectResolvingUris = selectResolvingUris;
 exports.selectSearchBarFocused = selectSearchBarFocused;
 exports.selectSearchOptions = selectSearchOptions;

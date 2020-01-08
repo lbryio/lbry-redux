@@ -29,6 +29,7 @@ declare type SearchState = {
   suggestions: { [string]: Array<SearchSuggestion> },
   urisByQuery: {},
   resolvedResultsByQuery: {},
+  resolvedResultsByQueryLastPageReached: {},
 };
 
 declare type SearchSuccess = {
@@ -75,7 +76,9 @@ declare type ResolvedSearchResult = {
 declare type ResolvedSearchSuccess = {
   type: ACTIONS.RESOLVED_SEARCH_SUCCESS,
   data: {
-    query: string,
+    append: boolean,
+    pageSize: number,
     results: Array<ResolvedSearchResult>,
+    query: string,
   },
 };
