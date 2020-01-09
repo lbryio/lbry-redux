@@ -1,6 +1,7 @@
 declare type Comment = {
   comment: string, // comment body
   comment_id: string, // sha256 digest
+  claim_id: string, // id linking to the claim this comment
   timestamp: number, // integer representing unix-time
   is_hidden: boolean, // claim owner may enable/disable this
   channel_id?: string,  // claimId of channel signing this comment
@@ -10,7 +11,6 @@ declare type Comment = {
   signing_ts?: string, // timestamp used when signing this comment
   is_channel_signature_valid?: boolean, // whether or not the signature could be validated
   parent_id?: number, // comment_id of comment this is in reply to
-  claim_id?: string, // id linking to the claim this comment
 };
 
 // todo: relate individual comments to their commentId
