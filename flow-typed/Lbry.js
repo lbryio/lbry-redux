@@ -125,12 +125,24 @@ declare type ChannelUpdateResponse = GenericTxResponse & {
 };
 
 declare type CommentCreateResponse = Comment;
+declare type CommentEditResponse = Comment;
+
 declare type CommentListResponse = {
   items: Array<Comment>,
   page: number,
   page_size: number,
   total_items: number,
   total_pages: number,
+};
+
+declare type CommentHideResponse = {
+  // keyed by the CommentIds entered
+  [string]: { hidden: boolean },
+};
+
+declare type CommentAbandonResponse = {
+  // keyed by the CommentId given
+  [string]: { abandoned: boolean },
 };
 
 declare type ChannelListResponse = {
