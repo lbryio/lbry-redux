@@ -216,7 +216,9 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
     claims.forEach(claim => {
       // $FlowFixMe
       myChannelClaims.add(claim.claim_id);
-      byId[claim.claim_id] = claim;
+      if (!byId[claim.claim_id]) {
+        byId[claim.claim_id] = claim;
+      }
 
       if (pendingById[claim.claim_id] && claim.confirmations > 0) {
         delete pendingById[claim.claim_id];
@@ -265,7 +267,8 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: State, action: any): 
   const paginatedClaimsByChannel = Object.assign({}, state.paginatedClaimsByChannel);
   // check if count has changed - that means cached pagination will be wrong, so clear it
   const previousCount = paginatedClaimsByChannel[uri] && paginatedClaimsByChannel[uri]['itemCount'];
-  const byChannel = (claimsInChannel === previousCount) ? Object.assign({}, paginatedClaimsByChannel[uri]) : {};
+  const byChannel =
+    claimsInChannel === previousCount ? Object.assign({}, paginatedClaimsByChannel[uri]) : {};
   const allClaimIds = new Set(byChannel.all);
   const currentPageClaimIds = [];
   const byId = Object.assign({}, state.byId);
