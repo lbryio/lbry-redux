@@ -55,9 +55,10 @@ export function doCommentCreate(
       myChannels && myChannels.find(myChannel => myChannel.name === channel);
     const channel_id = namedChannelClaim ? namedChannelClaim.claim_id : null;
     return Lbry.comment_create({
-      comment,
-      claim_id,
-      channel_id,
+      comment: comment,
+      claim_id: claim_id,
+      channel_id: channel_id,
+      parent_id: parent_id,
     })
       .then((result: Comment) => {
         dispatch({
