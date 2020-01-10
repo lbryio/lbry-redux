@@ -134,6 +134,15 @@ const COMMENT_LIST_FAILED = 'COMMENT_LIST_FAILED';
 const COMMENT_CREATE_STARTED = 'COMMENT_CREATE_STARTED';
 const COMMENT_CREATE_COMPLETED = 'COMMENT_CREATE_COMPLETED';
 const COMMENT_CREATE_FAILED = 'COMMENT_CREATE_FAILED';
+const COMMENT_ABANDON_STARTED = 'COMMENT_ABANDON_STARTED';
+const COMMENT_ABANDON_COMPLETED = 'COMMENT_ABANDON_COMPLETED';
+const COMMENT_ABANDON_FAILED = 'COMMENT_ABANDON_FAILED';
+const COMMENT_EDIT_STARTED = 'COMMENT_EDIT_STARTED';
+const COMMENT_EDIT_COMPLETED = 'COMMENT_EDIT_COMPLETED';
+const COMMENT_EDIT_FAILED = 'COMMENT_EDIT_FAILED';
+const COMMENT_HIDE_STARTED = 'COMMENT_HIDE_STARTED';
+const COMMENT_HIDE_COMPLETED = 'COMMENT_HIDE_COMPLETED';
+const COMMENT_HIDE_FAILED = 'COMMENT_HIDE_FAILED';
 
 // Files
 const FILE_LIST_STARTED = 'FILE_LIST_STARTED';
@@ -380,12 +389,12 @@ var action_types = /*#__PURE__*/Object.freeze({
   COMMENT_ABANDON_STARTED: COMMENT_ABANDON_STARTED,
   COMMENT_ABANDON_COMPLETED: COMMENT_ABANDON_COMPLETED,
   COMMENT_ABANDON_FAILED: COMMENT_ABANDON_FAILED,
-  COMMENT_HIDE_STARTED: COMMENT_HIDE_STARTED,
-  COMMENT_HIDE_COMPLETED: COMMENT_HIDE_COMPLETED,
-  COMMENT_HIDE_FAILED: COMMENT_HIDE_FAILED,
   COMMENT_EDIT_STARTED: COMMENT_EDIT_STARTED,
   COMMENT_EDIT_COMPLETED: COMMENT_EDIT_COMPLETED,
   COMMENT_EDIT_FAILED: COMMENT_EDIT_FAILED,
+  COMMENT_HIDE_STARTED: COMMENT_HIDE_STARTED,
+  COMMENT_HIDE_COMPLETED: COMMENT_HIDE_COMPLETED,
+  COMMENT_HIDE_FAILED: COMMENT_HIDE_FAILED,
   FILE_LIST_STARTED: FILE_LIST_STARTED,
   FILE_LIST_SUCCEEDED: FILE_LIST_SUCCEEDED,
   FETCH_FILE_INFO_STARTED: FETCH_FILE_INFO_STARTED,
@@ -925,6 +934,11 @@ const Lbry = {
   // Comments
   comment_list: (params = {}) => daemonCallWithResult('comment_list', params),
   comment_create: (params = {}) => daemonCallWithResult('comment_create', params),
+  // todo: implement these in reducers
+  comment_hide: (params = {}) => daemonCallWithResult('comment_hide', params),
+  comment_abandon: (params = {}) => daemonCallWithResult('comment_abandon', params),
+  comment_edit: (params = {}) => daemonCallWithResult('comment_hide', params),
+
   // Connect to the sdk
   connect: () => {
     if (Lbry.connectPromise === null) {
@@ -1231,6 +1245,18 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
   } = UrlObj,
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
   const { claimId, claimName, contentName } = deprecatedParts;
+
+  {
+    if (claimId) {
+      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
+    }
+    if (claimName) {
+      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
+    }
+    if (contentName) {
+      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
+    }
+  }
 
   if (!claimName && !channelName && !streamName) {
     console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
@@ -4104,9 +4130,10 @@ function doCommentCreate(comment = '', claim_id = '', channel, parent_id) {
     const namedChannelClaim = myChannels && myChannels.find(myChannel => myChannel.name === channel);
     const channel_id = namedChannelClaim ? namedChannelClaim.claim_id : null;
     return lbryProxy.comment_create({
-      comment,
-      claim_id,
-      channel_id
+      comment: comment,
+      claim_id: claim_id,
+      channel_id: channel_id,
+      parent_id: parent_id
     }).then(result => {
       dispatch({
         type: COMMENT_CREATE_COMPLETED,
@@ -4542,9 +4569,11 @@ const handleActions = (actionMap, defaultState) => (state = defaultState, action
 var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$1 = {
-  byId: {},
-  commentsByUri: {},
-  isLoading: false
+  commentById: {}, // commentId -> Comment
+  byId: {}, // ClaimID -> list of comments
+  commentsByUri: {}, // URI -> claimId
+  isLoading: false,
+  myComments: undefined
 };
 
 const commentReducer = handleActions({
@@ -4558,15 +4587,22 @@ const commentReducer = handleActions({
 
   [COMMENT_CREATE_COMPLETED]: (state, action) => {
     const { comment, claimId } = action.data;
+    const commentById = Object.assign({}, state.commentById);
     const byId = Object.assign({}, state.byId);
     const comments = byId[claimId];
-    const newComments = comments.slice();
+    const newCommentIds = comments.slice();
 
-    newComments.unshift(comment);
-    byId[claimId] = newComments;
+    // add the comment by its ID
+    commentById[comment.comment_id] = comment;
+
+    // push the comment_id to the top of ID list
+    newCommentIds.unshift(comment.comment_id);
+    byId[claimId] = newCommentIds;
 
     return _extends$7({}, state, {
-      byId
+      commentById,
+      byId,
+      isLoading: false
     });
   },
 
@@ -4574,21 +4610,58 @@ const commentReducer = handleActions({
 
   [COMMENT_LIST_COMPLETED]: (state, action) => {
     const { comments, claimId, uri } = action.data;
+
+    const commentById = Object.assign({}, state.commentById);
     const byId = Object.assign({}, state.byId);
     const commentsByUri = Object.assign({}, state.commentsByUri);
 
     if (comments) {
-      byId[claimId] = comments;
+      const commentIds = Array(comments.length);
+      // map the comment_ids to the new comments
+      for (let i = 0; i < comments.length; i++) {
+        commentIds[i] = comments[i].comment_id;
+        commentById[commentIds[i]] = comments[i];
+      }
+
+      byId[claimId] = commentIds;
       commentsByUri[uri] = claimId;
     }
     return _extends$7({}, state, {
       byId,
+      commentById,
       commentsByUri,
       isLoading: false
     });
   },
 
   [COMMENT_LIST_FAILED]: (state, action) => _extends$7({}, state, {
+    isLoading: false
+  }),
+  [COMMENT_ABANDON_STARTED]: (state, action) => _extends$7({}, state, {
+    isLoading: true
+  }),
+  [COMMENT_ABANDON_COMPLETED]: (state, action) => _extends$7({}, state, {
+    isLoading: false
+  }),
+  [COMMENT_ABANDON_FAILED]: (state, action) => _extends$7({}, state, {
+    isLoading: false
+  }),
+  [COMMENT_EDIT_STARTED]: (state, action) => _extends$7({}, state, {
+    isLoading: true
+  }),
+  [COMMENT_EDIT_COMPLETED]: (state, action) => _extends$7({}, state, {
+    isLoading: false
+  }),
+  [COMMENT_EDIT_FAILED]: (state, action) => _extends$7({}, state, {
+    isLoading: false
+  }),
+  [COMMENT_HIDE_STARTED]: (state, action) => _extends$7({}, state, {
+    isLoading: true
+  }),
+  [COMMENT_HIDE_COMPLETED]: (state, action) => _extends$7({}, state, {
+    isLoading: false
+  }),
+  [COMMENT_HIDE_FAILED]: (state, action) => _extends$7({}, state, {
     isLoading: false
   })
 }, defaultState$1);
@@ -5470,8 +5543,32 @@ const selectError = reselect.createSelector(selectState$7, state => {
 
 const selectState$8 = state => state.comments || {};
 
-const selectCommentsById = reselect.createSelector(selectState$8, state => state.byId || {});
+const selectCommentsById = reselect.createSelector(selectState$8, state => state.commentById || {});
 
+const selectCommentsByClaimId = reselect.createSelector(selectState$8, selectCommentsById, (state, byId) => {
+  const byClaimId = state.byId || {};
+  const comments = {};
+
+  // for every claimId -> commentId, put comments in the object
+  Object.keys(byClaimId).forEach(claimId => {
+    // get all the commentIds that commented on this ClaimId
+    const commentIds = byClaimId[claimId];
+
+    // map a new array of comments by the claimId
+    comments[claimId] = Array(commentIds === null ? 0 : commentIds.length);
+    for (let i = 0; i < commentIds.length; i++) {
+      comments[claimId][i] = byId[commentIds[i]];
+    }
+  });
+
+  return comments;
+});
+
+// previously this used a mapping from claimId -> Array<Comments>
+/* export const selectCommentsById = createSelector(
+  selectState,
+  state => state.byId || {}
+); */
 const selectCommentsByUri = reselect.createSelector(selectState$8, state => {
   const byUri = state.commentsByUri || {};
   const comments = {};
@@ -5483,12 +5580,13 @@ const selectCommentsByUri = reselect.createSelector(selectState$8, state => {
       comments[uri] = claimId;
     }
   });
+
   return comments;
 });
 
-const makeSelectCommentsForUri = uri => reselect.createSelector(selectCommentsById, selectCommentsByUri, (byId, byUri) => {
+const makeSelectCommentsForUri = uri => reselect.createSelector(selectCommentsByClaimId, selectCommentsByUri, (byClaimId, byUri) => {
   const claimId = byUri[uri];
-  return byId && byId[claimId];
+  return byClaimId && byClaimId[claimId];
 });
 
 //      
