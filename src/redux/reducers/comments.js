@@ -3,8 +3,9 @@ import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
 
 const defaultState: CommentsState = {
-  byId: {},
-  commentsByUri: {},
+  commentById: {}, // commentId -> Comment
+  byId: {}, // ClaimID -> list of comments
+  commentsByUri: {}, // URI -> claimId
   isLoading: false,
   myComments: undefined,
 };
@@ -23,16 +24,23 @@ export const commentReducer = handleActions(
 
     [ACTIONS.COMMENT_CREATE_COMPLETED]: (state: CommentsState, action: any): CommentsState => {
       const { comment, claimId }: any = action.data;
+      const commentById = Object.assign({}, state.commentById);
       const byId = Object.assign({}, state.byId);
       const comments = byId[claimId];
-      const newComments = comments.slice();
+      const newCommentIds = comments.slice();
 
-      newComments.unshift(comment);
-      byId[claimId] = newComments;
+      // add the comment by its ID
+      commentById[comment.comment_id] = comment;
+
+      // push the comment_id to the top of ID list
+      newCommentIds.unshift(comment.comment_id);
+      byId[claimId] = newCommentIds;
 
       return {
         ...state,
+        commentById,
         byId,
+        isLoading: false,
       };
     },
 
@@ -40,16 +48,26 @@ export const commentReducer = handleActions(
 
     [ACTIONS.COMMENT_LIST_COMPLETED]: (state: CommentsState, action: any) => {
       const { comments, claimId, uri } = action.data;
+
+      const commentById = Object.assign({}, state.commentById);
       const byId = Object.assign({}, state.byId);
       const commentsByUri = Object.assign({}, state.commentsByUri);
 
       if (comments) {
-        byId[claimId] = comments;
+        const commentIds = Array(comments.length);
+        // map the comment_ids to the new comments
+        for (let i = 0; i < comments.length; i++) {
+          commentIds[i] = comments[i].comment_id;
+          commentById[commentIds[i]] = comments[i];
+        }
+
+        byId[claimId] = commentIds;
         commentsByUri[uri] = claimId;
       }
       return {
         ...state,
         byId,
+        commentById,
         commentsByUri,
         isLoading: false,
       };
