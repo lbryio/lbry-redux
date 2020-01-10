@@ -16,7 +16,8 @@ declare type Comment = {
 // todo: relate individual comments to their commentId
 declare type CommentsState = {
   commentsByUri: { [string]: string },
-  byId: { [string]: Array<Comment> },
+  byId: { [string]: Array<string> },
+  commentById: { [string]: Comment },
   isLoading: boolean,
-  myComments: ?Set<Comment>,
+  myComments: ?Set<string>,
 };
