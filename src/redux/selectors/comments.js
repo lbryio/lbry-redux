@@ -63,3 +63,6 @@ export const makeSelectCommentsForUri = (uri: string) =>
       return byClaimId && byClaimId[claimId];
     }
   );
+
+// todo: allow SDK to retrieve user comments through comment_list
+// todo: implement selectors for selecting comments owned by user
