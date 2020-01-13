@@ -125,7 +125,7 @@ declare type ChannelUpdateResponse = GenericTxResponse & {
 };
 
 declare type CommentCreateResponse = Comment;
-declare type CommentEditResponse = Comment;
+declare type CommentUpdateResponse = Comment;
 
 declare type CommentListResponse = {
   items: Array<Comment>,

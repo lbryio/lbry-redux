@@ -23,7 +23,7 @@ export const commentReducer = handleActions(
     }),
 
     [ACTIONS.COMMENT_CREATE_COMPLETED]: (state: CommentsState, action: any): CommentsState => {
-      const { comment, claimId }: any = action.data;
+      const { comment, claimId }: { comment: Comment, claimId: string } = action.data;
       const commentById = Object.assign({}, state.commentById);
       const byId = Object.assign({}, state.byId);
       const comments = byId[claimId];
@@ -54,7 +54,11 @@ export const commentReducer = handleActions(
       const commentsByUri = Object.assign({}, state.commentsByUri);
 
       if (comments) {
+        // we use an Array to preserve order of listing
+        // in reality this doesn't matter and we can just
+        // sort comments by their timestamp
         const commentIds = Array(comments.length);
+
         // map the comment_ids to the new comments
         for (let i = 0; i < comments.length; i++) {
           commentIds[i] = comments[i].comment_id;
@@ -81,34 +85,71 @@ export const commentReducer = handleActions(
       ...state,
       isLoading: true,
     }),
-    [ACTIONS.COMMENT_ABANDON_COMPLETED]: (state: CommentsState, action: any) => ({
-      ...state,
-      isLoading: false,
-    }),
+    // remove the existing comment from the id -> comment list and claim -> commentIds
+    [ACTIONS.COMMENT_ABANDON_COMPLETED]: (state: CommentsState, action: any) => {
+      const { comment_id, abandoned } = action.data;
+      const commentById = Object.assign({}, state.commentById);
+      const byId = Object.assign({}, state.byId);
+
+      if (abandoned && comment_id in abandoned) {
+        // messy but necessary for the time being
+        const comment: Comment = commentById[comment_id];
+        const commentIds = byId[comment.claim_id];
+        byId[comment.claim_id] = commentIds.filter(commentId => commentId !== comment_id);
+
+        Object.keys(commentById).forEach(commentId => {
+          if (commentId === comment_id) {
+            delete commentById[commentId];
+          }
+        });
+      }
+      return {
+        ...state,
+        commentById,
+        byId,
+        isLoading: false,
+      };
+    },
+    // do nothing
     [ACTIONS.COMMENT_ABANDON_FAILED]: (state: CommentsState, action: any) => ({
       ...state,
       isLoading: false,
     }),
-    [ACTIONS.COMMENT_EDIT_STARTED]: (state: CommentsState, action: any) => ({
+    // do nothing
+    [ACTIONS.COMMENT_UPDATE_STARTED]: (state: CommentsState, action: any) => ({
       ...state,
       isLoading: true,
     }),
-    [ACTIONS.COMMENT_EDIT_COMPLETED]: (state: CommentsState, action: any) => ({
+    // replace existing comment with comment returned here under its comment_id
+    [ACTIONS.COMMENT_UPDATE_COMPLETED]: (state: CommentsState, action: any) => {
+      const { comment } = action.data;
+      const commentById = Object.assign({}, state.commentById);
+
+      if (comment) {
+        commentById[comment.comment_id] = comment;
+      }
+
+      return {
+        ...state,
+        commentById,
+        isLoading: false,
+      };
+    },
+    // nothing can be done here
+    [ACTIONS.COMMENT_UPDATE_FAILED]: (state: CommentsState, action: any) => ({
       ...state,
       isLoading: false,
     }),
-    [ACTIONS.COMMENT_EDIT_FAILED]: (state: CommentsState, action: any) => ({
-      ...state,
-      isLoading: false,
-    }),
+    // nothing can really be done here
     [ACTIONS.COMMENT_HIDE_STARTED]: (state: CommentsState, action: any) => ({
       ...state,
       isLoading: true,
     }),
     [ACTIONS.COMMENT_HIDE_COMPLETED]: (state: CommentsState, action: any) => ({
-      ...state,
+      ...state, // todo: add HiddenComments state & create selectors
       isLoading: false,
     }),
+    // nothing can be done here
     [ACTIONS.COMMENT_HIDE_FAILED]: (state: CommentsState, action: any) => ({
       ...state,
       isLoading: false,

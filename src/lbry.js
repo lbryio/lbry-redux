@@ -119,10 +119,10 @@ const Lbry: LbryTypes = {
   // Comments
   comment_list: (params = {}) => daemonCallWithResult('comment_list', params),
   comment_create: (params = {}) => daemonCallWithResult('comment_create', params),
-  // todo: implement these in reducers
   comment_hide: (params = {}) => daemonCallWithResult('comment_hide', params),
   comment_abandon: (params = {}) => daemonCallWithResult('comment_abandon', params),
-  comment_edit: (params = {}) => daemonCallWithResult('comment_hide', params),
+  // requires SDK ver. 0.53.0
+  comment_update: (params = {}) => daemonCallWithResult('comment_update', params),
 
   // Connect to the sdk
   connect: () => {
