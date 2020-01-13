@@ -43,7 +43,7 @@ export function doCommentCreate(
   comment: string = '',
   claim_id: string = '',
   channel: ?string,
-  parent_id?: number
+  parent_id?: string,
 ) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
