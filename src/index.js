@@ -121,7 +121,13 @@ export {
 
 export { doToggleTagFollow, doAddTag, doDeleteTag } from 'redux/actions/tags';
 
-export { doCommentList, doCommentCreate } from 'redux/actions/comments';
+export {
+  doCommentList,
+  doCommentCreate,
+  doCommentAbandon,
+  doCommentHide,
+  doCommentUpdate,
+} from 'redux/actions/comments';
 
 export { doToggleBlockChannel } from 'redux/actions/blocked';
 

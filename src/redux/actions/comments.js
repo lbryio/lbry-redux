@@ -43,7 +43,7 @@ export function doCommentCreate(
   comment: string = '',
   claim_id: string = '',
   channel: ?string,
-  parent_id?: string,
+  parent_id?: string
 ) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
@@ -60,7 +60,7 @@ export function doCommentCreate(
       channel_id: channel_id,
       parent_id: parent_id,
     })
-      .then((result: Comment) => {
+      .then((result: CommentCreateResponse) => {
         dispatch({
           type: ACTIONS.COMMENT_CREATE_COMPLETED,
           data: {
@@ -82,4 +82,99 @@ export function doCommentCreate(
         );
       });
   };
+}
+
+export function doCommentHide(comment_id: string) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.COMMENT_HIDE_STARTED,
+    });
+    return Lbry.comment_hide({
+      comment_ids: [comment_id],
+    })
+      .then((result: CommentHideResponse) => {
+        dispatch({
+          type: ACTIONS.COMMENT_HIDE_COMPLETED,
+          data: result,
+        });
+      })
+      .catch(error => {
+        dispatch({
+          type: ACTIONS.COMMENT_HIDE_FAILED,
+          data: error,
+        });
+        dispatch(
+          doToast({
+            message: `SDK Errored when trying to hide Comment with comment_id: "${comment_id}"`,
+            isError: true,
+          })
+        );
+      });
+  };
+}
+
+export function doCommentAbandon(comment_id: string) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.COMMENT_ABANDON_STARTED,
+    });
+    return Lbry.comment_abandon({
+      comment_id: comment_id,
+    })
+      .then((result: CommentAbandonResponse) => {
+        dispatch({
+          type: ACTIONS.COMMENT_ABANDON_COMPLETED,
+          data: {
+            comment_id: comment_id,
+            abandoned: result,
+          },
+        });
+      })
+      .catch(error => {
+        dispatch({
+          type: ACTIONS.COMMENT_ABANDON_FAILED,
+          data: error,
+        });
+        dispatch(
+          doToast({
+            message: `SDK Errored during abandon on Comment w/ ID = "${comment_id}"`,
+            isError: true,
+          })
+        );
+      });
+  };
+}
+
+export function doCommentUpdate(comment_id: string, comment: string) {
+  // if they provided an empty string, they must have wanted to abandon
+  if (comment === '') {
+    return doCommentAbandon(comment_id);
+  } else {
+    return (dispatch: Dispatch) => {
+      dispatch({
+        type: ACTIONS.COMMENT_UPDATE_STARTED,
+      });
+      return Lbry.comment_update({
+        comment_id: comment_id,
+        comment: comment,
+      })
+        .then((result: CommentUpdateResponse) => {
+          dispatch({
+            type: ACTIONS.COMMENT_UPDATE_COMPLETED,
+            data: {
+              comment: result,
+            },
+          });
+        })
+        .catch(error => {
+          dispatch({ type: ACTIONS.COMMENT_UPDATE_FAILED, data: error });
+          dispatch(
+            doToast({
+              message: `SDK Errored during update on Comment w/ ID = ${comment_id}`,
+              isError: true,
+            })
+          );
+        });
+    };
+  }
 }

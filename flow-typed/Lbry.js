@@ -254,6 +254,10 @@ declare type LbryTypes = {
   // Commenting
   comment_list: (params: {}) => Promise<CommentListResponse>,
   comment_create: (params: {}) => Promise<CommentCreateResponse>,
+  comment_update: (params: {}) => Promise<CommentUpdateResponse>,
+  comment_hide: (params: {}) => Promise<CommentHideResponse>,
+  comment_abandon: (params: {}) => Promise<CommentAbandonResponse>,
+
   // Wallet utilities
   wallet_balance: (params: {}) => Promise<BalanceResponse>,
   wallet_decrypt: (prams: {}) => Promise<boolean>,
