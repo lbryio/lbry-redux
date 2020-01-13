@@ -265,7 +265,8 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: State, action: any): 
   const paginatedClaimsByChannel = Object.assign({}, state.paginatedClaimsByChannel);
   // check if count has changed - that means cached pagination will be wrong, so clear it
   const previousCount = paginatedClaimsByChannel[uri] && paginatedClaimsByChannel[uri]['itemCount'];
-  const byChannel = (claimsInChannel === previousCount) ? Object.assign({}, paginatedClaimsByChannel[uri]) : {};
+  const byChannel =
+    claimsInChannel === previousCount ? Object.assign({}, paginatedClaimsByChannel[uri]) : {};
   const allClaimIds = new Set(byChannel.all);
   const currentPageClaimIds = [];
   const byId = Object.assign({}, state.byId);
