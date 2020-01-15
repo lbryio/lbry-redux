@@ -9,23 +9,9 @@ import {
 
 const selectState = state => state.publish || {};
 
-export const selectPublishFormValues = createSelector(
-  selectState,
-  state => {
-    const { pendingPublish, ...formValues } = state;
-    return formValues;
-  }
-);
-
-export const makeSelectPublishFormValue = item =>
-  createSelector(
-    selectState,
-    state => state[item]
-  );
-
 // Is the current uri the same as the uri they clicked "edit" on
 export const selectIsStillEditing = createSelector(
-  selectPublishFormValues,
+  selectState,
   publishState => {
     const { editingURI, uri } = publishState;
 
@@ -52,6 +38,30 @@ export const selectIsStillEditing = createSelector(
   }
 );
 
+export const selectPublishFormValues = createSelector(
+  selectState,
+  selectIsStillEditing,
+  (state, isStillEditing) => {
+    const { language, languages } = state;
+    const { pendingPublish, ...formValues } = state;
+
+    let actualLanguage;
+    // Sets default if editing a claim with a set language
+    if (!language && isStillEditing && languages[0]) {
+      actualLanguage = languages[0];
+    } else {
+      actualLanguage = language || 'en';
+    }
+    return { ...formValues, language: actualLanguage };
+  }
+);
+
+export const makeSelectPublishFormValue = item =>
+  createSelector(
+    selectState,
+    state => state[item]
+  );
+
 export const selectMyClaimForUri = createSelector(
   selectPublishFormValues,
   selectIsStillEditing,
@@ -68,10 +78,10 @@ export const selectMyClaimForUri = createSelector(
     return isStillEditing
       ? claimsById[editClaimId]
       : myClaims.find(claim =>
-          !contentName
-            ? claim.name === claimName
-            : claim.name === contentName || claim.name === claimName
-        );
+        !contentName
+          ? claim.name === claimName
+          : claim.name === contentName || claim.name === claimName
+      );
   }
 );
 
