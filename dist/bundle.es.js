@@ -1223,18 +1223,6 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
   const { claimId, claimName, contentName } = deprecatedParts;
 
-  {
-    if (claimId) {
-      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
-    }
-    if (claimName) {
-      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
-    }
-    if (contentName) {
-      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
-    }
-  }
-
   if (!claimName && !channelName && !streamName) {
     console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
   }
@@ -3470,8 +3458,8 @@ const selectIsStillEditing = reselect.createSelector(selectState$5, publishState
 });
 
 const selectPublishFormValues = reselect.createSelector(selectState$5, selectIsStillEditing, (state, isStillEditing) => {
-  const { language, languages } = state;
-  const formValues = _objectWithoutProperties$2(state, ['pendingPublish']);
+  const { pendingPublish, language, languages } = state,
+        formValues = _objectWithoutProperties$2(state, ['pendingPublish', 'language', 'languages']);
 
   let actualLanguage;
   // Sets default if editing a claim with a set language

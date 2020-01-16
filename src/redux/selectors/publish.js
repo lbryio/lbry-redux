@@ -42,8 +42,7 @@ export const selectPublishFormValues = createSelector(
   selectState,
   selectIsStillEditing,
   (state, isStillEditing) => {
-    const { language, languages } = state;
-    const { pendingPublish, ...formValues } = state;
+    const { pendingPublish, language, languages, ...formValues } = state;
 
     let actualLanguage;
     // Sets default if editing a claim with a set language
