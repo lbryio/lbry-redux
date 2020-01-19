@@ -46,7 +46,7 @@ export const selectPublishFormValues = createSelector(
 
     let actualLanguage;
     // Sets default if editing a claim with a set language
-    if (!language && isStillEditing && languages[0]) {
+    if (!language && isStillEditing && languages && languages[0]) {
       actualLanguage = languages[0];
     } else {
       actualLanguage = language || 'en';
