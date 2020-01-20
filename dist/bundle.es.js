@@ -1246,6 +1246,18 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
   const { claimId, claimName, contentName } = deprecatedParts;
 
+  {
+    if (claimId) {
+      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
+    }
+    if (claimName) {
+      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
+    }
+    if (contentName) {
+      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
+    }
+  }
+
   if (!claimName && !channelName && !streamName) {
     console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
   }
@@ -4166,7 +4178,7 @@ function doCommentHide(comment_id) {
         data: error
       });
       dispatch(doToast({
-        message: `SDK Errored when trying to hide Comment with comment_id: "${comment_id}"`,
+        message: 'There was an error hiding this comment. Please try again later.',
         isError: true
       }));
     });
@@ -4194,7 +4206,7 @@ function doCommentAbandon(comment_id) {
         data: error
       });
       dispatch(doToast({
-        message: `SDK Errored during abandon on Comment w/ ID = "${comment_id}"`,
+        message: 'There was an error hiding this comment. Please try again later.',
         isError: true
       }));
     });
@@ -4223,7 +4235,7 @@ function doCommentUpdate(comment_id, comment) {
       }).catch(error => {
         dispatch({ type: COMMENT_UPDATE_FAILED, data: error });
         dispatch(doToast({
-          message: `SDK Errored during update on Comment w/ ID = ${comment_id}`,
+          message: 'There was an error hiding this comment. Please try again later.',
           isError: true
         }));
       });
@@ -4732,11 +4744,7 @@ const commentReducer = handleActions({
       const commentIds = byId[comment.claim_id];
       byId[comment.claim_id] = commentIds.filter(commentId => commentId !== comment_id);
 
-      Object.keys(commentById).forEach(commentId => {
-        if (commentId === comment_id) {
-          delete commentById[commentId];
-        }
-      });
+      delete commentById[comment_id];
     }
     return _extends$7({}, state, {
       commentById,
@@ -5668,12 +5676,10 @@ const selectCommentsByClaimId = reselect.createSelector(selectState$8, selectCom
   const byClaimId = state.byId || {};
   const comments = {};
 
-  // for every claimId -> commentId, put comments in the object
+  // replace every comment_id in the list with the actual comment object
   Object.keys(byClaimId).forEach(claimId => {
-    // get all the commentIds that commented on this ClaimId
     const commentIds = byClaimId[claimId];
 
-    // map a new array of comments by the claimId
     comments[claimId] = Array(commentIds === null ? 0 : commentIds.length);
     for (let i = 0; i < commentIds.length; i++) {
       comments[claimId][i] = byId[commentIds[i]];
@@ -5707,6 +5713,9 @@ const makeSelectCommentsForUri = uri => reselect.createSelector(selectCommentsBy
   const claimId = byUri[uri];
   return byClaimId && byClaimId[claimId];
 });
+
+// todo: allow SDK to retrieve user comments through comment_list
+// todo: implement selectors for selecting comments owned by user
 
 //      
 

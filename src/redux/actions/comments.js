@@ -105,7 +105,7 @@ export function doCommentHide(comment_id: string) {
         });
         dispatch(
           doToast({
-            message: `SDK Errored when trying to hide Comment with comment_id: "${comment_id}"`,
+            message: 'There was an error hiding this comment. Please try again later.',
             isError: true,
           })
         );
@@ -137,7 +137,7 @@ export function doCommentAbandon(comment_id: string) {
         });
         dispatch(
           doToast({
-            message: `SDK Errored during abandon on Comment w/ ID = "${comment_id}"`,
+            message: 'There was an error hiding this comment. Please try again later.',
             isError: true,
           })
         );
@@ -170,7 +170,7 @@ export function doCommentUpdate(comment_id: string, comment: string) {
           dispatch({ type: ACTIONS.COMMENT_UPDATE_FAILED, data: error });
           dispatch(
             doToast({
-              message: `SDK Errored during update on Comment w/ ID = ${comment_id}`,
+              message: 'There was an error hiding this comment. Please try again later.',
               isError: true,
             })
           );

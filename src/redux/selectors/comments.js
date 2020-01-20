@@ -15,12 +15,10 @@ export const selectCommentsByClaimId = createSelector(
     const byClaimId = state.byId || {};
     const comments = {};
 
-    // for every claimId -> commentId, put comments in the object
+    // replace every comment_id in the list with the actual comment object
     Object.keys(byClaimId).forEach(claimId => {
-      // get all the commentIds that commented on this ClaimId
       const commentIds = byClaimId[claimId];
 
-      // map a new array of comments by the claimId
       comments[claimId] = Array(commentIds === null ? 0 : commentIds.length);
       for (let i = 0; i < commentIds.length; i++) {
         comments[claimId][i] = byId[commentIds[i]];

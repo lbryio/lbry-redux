@@ -97,11 +97,7 @@ export const commentReducer = handleActions(
         const commentIds = byId[comment.claim_id];
         byId[comment.claim_id] = commentIds.filter(commentId => commentId !== comment_id);
 
-        Object.keys(commentById).forEach(commentId => {
-          if (commentId === comment_id) {
-            delete commentById[commentId];
-          }
-        });
+        delete commentById[comment_id];
       }
       return {
         ...state,
