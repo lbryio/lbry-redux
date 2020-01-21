@@ -3749,7 +3749,7 @@ const doPublish = (success, fail) => (dispatch, getState) => {
     locations
   } = publishData;
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
-  const myClaimForUriEditing = myClaimForUri.name === name ? myClaimForUri : null;
+  const myClaimForUriEditing = myClaimForUri && myClaimForUri.name === name ? myClaimForUri : null;
 
   let publishingLicense;
   switch (licenseType) {
