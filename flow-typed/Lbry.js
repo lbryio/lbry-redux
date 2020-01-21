@@ -142,7 +142,7 @@ declare type CommentHideResponse = {
 
 declare type CommentAbandonResponse = {
   // keyed by the CommentId given
-  [string]: { abandoned: boolean },
+  abandoned: boolean,
 };
 
 declare type ChannelListResponse = {

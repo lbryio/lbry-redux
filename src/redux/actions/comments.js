@@ -122,13 +122,20 @@ export function doCommentAbandon(comment_id: string) {
       comment_id: comment_id,
     })
       .then((result: CommentAbandonResponse) => {
-        dispatch({
-          type: ACTIONS.COMMENT_ABANDON_COMPLETED,
-          data: {
-            comment_id: comment_id,
-            abandoned: result,
-          },
-        });
+        // Comment may not be deleted if the signing channel can't be signed.
+        // This will happen if the channel was recently created or abandoned.
+        if (result.abandoned) {
+          dispatch({
+            type: ACTIONS.COMMENT_ABANDON_COMPLETED,
+            data: {
+              comment_id: comment_id,
+            },
+          });
+        } else {
+          dispatch({
+            type: ACTIONS.COMMENT_ABANDON_FAILED,
+          });
+        }
       })
       .catch(error => {
         dispatch({

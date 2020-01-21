@@ -85,20 +85,21 @@ export const commentReducer = handleActions(
       ...state,
       isLoading: true,
     }),
-    // remove the existing comment from the id -> comment list and claim -> commentIds
     [ACTIONS.COMMENT_ABANDON_COMPLETED]: (state: CommentsState, action: any) => {
-      const { comment_id, abandoned } = action.data;
+      const { comment_id } = action.data;
       const commentById = Object.assign({}, state.commentById);
       const byId = Object.assign({}, state.byId);
 
-      if (abandoned && comment_id in abandoned) {
-        // messy but necessary for the time being
-        const comment: Comment = commentById[comment_id];
-        const commentIds = byId[comment.claim_id];
-        byId[comment.claim_id] = commentIds.filter(commentId => commentId !== comment_id);
-
-        delete commentById[comment_id];
+      // to remove the comment and its references
+      const claimId = commentById[comment_id].claim_id;
+      for (let i = 0; i < byId[claimId].length; i++) {
+        if (byId[claimId][i] === comment_id) {
+          byId[claimId].splice(i, 1);
+          break;
+        }
       }
+      delete commentById[comment_id];
+
       return {
         ...state,
         commentById,

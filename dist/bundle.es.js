@@ -4067,7 +4067,7 @@ const doUpdateSearchOptions = newOptions => (dispatch, getState) => {
   }
 };
 
-//
+//      
 
 function savePosition(claimId, outpoint, position) {
   return dispatch => {
@@ -4204,13 +4204,20 @@ function doCommentAbandon(comment_id) {
     return lbryProxy.comment_abandon({
       comment_id: comment_id
     }).then(result => {
-      dispatch({
-        type: COMMENT_ABANDON_COMPLETED,
-        data: {
-          comment_id: comment_id,
-          abandoned: result
-        }
-      });
+      // Comment may not be deleted if the signing channel can't be signed.
+      // This will happen if the channel was recently created or abandoned.
+      if (result.abandoned) {
+        dispatch({
+          type: COMMENT_ABANDON_COMPLETED,
+          data: {
+            comment_id: comment_id
+          }
+        });
+      } else {
+        dispatch({
+          type: COMMENT_ABANDON_FAILED
+        });
+      }
     }).catch(error => {
       dispatch({
         type: COMMENT_ABANDON_FAILED,
@@ -4740,35 +4747,36 @@ const commentReducer = handleActions({
   [COMMENT_LIST_FAILED]: (state, action) => _extends$8({}, state, {
     isLoading: false
   }),
-  [COMMENT_ABANDON_STARTED]: (state, action) => _extends$7({}, state, {
+  [COMMENT_ABANDON_STARTED]: (state, action) => _extends$8({}, state, {
     isLoading: true
   }),
-  // remove the existing comment from the id -> comment list and claim -> commentIds
   [COMMENT_ABANDON_COMPLETED]: (state, action) => {
-    const { comment_id, abandoned } = action.data;
+    const { comment_id } = action.data;
     const commentById = Object.assign({}, state.commentById);
     const byId = Object.assign({}, state.byId);
 
-    if (abandoned && comment_id in abandoned) {
-      // messy but necessary for the time being
-      const comment = commentById[comment_id];
-      const commentIds = byId[comment.claim_id];
-      byId[comment.claim_id] = commentIds.filter(commentId => commentId !== comment_id);
-
-      delete commentById[comment_id];
+    // to remove the comment and its references
+    const claimId = commentById[comment_id].claim_id;
+    for (let i = 0; i < byId[claimId].length; i++) {
+      if (byId[claimId][i] === comment_id) {
+        byId[claimId].splice(i, 1);
+        break;
+      }
     }
-    return _extends$7({}, state, {
+    delete commentById[comment_id];
+
+    return _extends$8({}, state, {
       commentById,
       byId,
       isLoading: false
     });
   },
   // do nothing
-  [COMMENT_ABANDON_FAILED]: (state, action) => _extends$7({}, state, {
+  [COMMENT_ABANDON_FAILED]: (state, action) => _extends$8({}, state, {
     isLoading: false
   }),
   // do nothing
-  [COMMENT_UPDATE_STARTED]: (state, action) => _extends$7({}, state, {
+  [COMMENT_UPDATE_STARTED]: (state, action) => _extends$8({}, state, {
     isLoading: true
   }),
   // replace existing comment with comment returned here under its comment_id
@@ -4780,24 +4788,24 @@ const commentReducer = handleActions({
       commentById[comment.comment_id] = comment;
     }
 
-    return _extends$7({}, state, {
+    return _extends$8({}, state, {
       commentById,
       isLoading: false
     });
   },
   // nothing can be done here
-  [COMMENT_UPDATE_FAILED]: (state, action) => _extends$7({}, state, {
+  [COMMENT_UPDATE_FAILED]: (state, action) => _extends$8({}, state, {
     isLoading: false
   }),
   // nothing can really be done here
-  [COMMENT_HIDE_STARTED]: (state, action) => _extends$7({}, state, {
+  [COMMENT_HIDE_STARTED]: (state, action) => _extends$8({}, state, {
     isLoading: true
   }),
-  [COMMENT_HIDE_COMPLETED]: (state, action) => _extends$7({}, state, { // todo: add HiddenComments state & create selectors
+  [COMMENT_HIDE_COMPLETED]: (state, action) => _extends$8({}, state, { // todo: add HiddenComments state & create selectors
     isLoading: false
   }),
   // nothing can be done here
-  [COMMENT_HIDE_FAILED]: (state, action) => _extends$7({}, state, {
+  [COMMENT_HIDE_FAILED]: (state, action) => _extends$8({}, state, {
     isLoading: false
   })
 }, defaultState$1);
@@ -5638,7 +5646,7 @@ const walletReducer = handleActions({
   })
 }, defaultState$a);
 
-//
+//      
 
 const selectState$6 = state => state.content || {};
 
