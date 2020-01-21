@@ -3748,6 +3748,8 @@ const doPublish = (success, fail) => (dispatch, getState) => {
     tags,
     locations
   } = publishData;
+  // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
+  const myClaimForUriEditing = myClaimForUri.name === name ? myClaimForUri : null;
 
   let publishingLicense;
   switch (licenseType) {
@@ -3791,10 +3793,10 @@ const doPublish = (success, fail) => (dispatch, getState) => {
   }
 
   // Set release time to curret date. On edits, keep original release/transaction time as release_time
-  if (myClaimForUri && myClaimForUri.value.release_time) {
+  if (myClaimForUriEditing && myClaimForUriEditing.value.release_time) {
     publishPayload.release_time = Number(myClaimForUri.value.release_time);
-  } else if (myClaimForUri && myClaimForUri.timestamp) {
-    publishPayload.release_time = Number(myClaimForUri.timestamp);
+  } else if (myClaimForUriEditing && myClaimForUriEditing.timestamp) {
+    publishPayload.release_time = Number(myClaimForUriEditing.timestamp);
   } else {
     publishPayload.release_time = Number(Math.round(Date.now() / 1000));
   }
@@ -3803,8 +3805,8 @@ const doPublish = (success, fail) => (dispatch, getState) => {
     publishPayload.channel_id = channelId;
   }
 
-  if (myClaimForUri && myClaimForUri.value && myClaimForUri.value.locations) {
-    publishPayload.locations = myClaimForUri.value.locations;
+  if (myClaimForUriEditing && myClaimForUriEditing.value && myClaimForUriEditing.value.locations) {
+    publishPayload.locations = myClaimForUriEditing.value.locations;
   }
 
   if (!contentIsFree && fee && fee.currency && Number(fee.amount) > 0) {
