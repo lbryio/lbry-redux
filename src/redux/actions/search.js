@@ -4,6 +4,7 @@ import { buildURI } from 'lbryURI';
 import { doResolveUri } from 'redux/actions/claims';
 import {
   makeSelectSearchUris,
+  makeSelectResolvedSearchResults,
   selectSuggestions,
   makeSelectQueryWithOptions,
   selectSearchValue,
@@ -155,6 +156,77 @@ export const doSearch = (
     .catch(e => {
       dispatch({
         type: ACTIONS.SEARCH_FAIL,
+      });
+    });
+};
+
+export const doResolvedSearch = (
+  rawQuery: string,
+  size: ?number, // only pass in if you don't want to use the users setting (ex: related content)
+  from: ?number,
+  isBackgroundSearch: boolean = false,
+  options: {
+    related_to?: string,
+  } = {}
+) => (dispatch: Dispatch, getState: GetState) => {
+  const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
+
+  if (!query) {
+    dispatch({
+      type: ACTIONS.RESOLVED_SEARCH_FAIL,
+    });
+    return;
+  }
+
+  const state = getState();
+  let queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch, options)(
+    state
+  );
+
+  // make from null so that we can maintain a reference to the same query for multiple pages and simply append the found results
+  let queryWithoutFrom = makeSelectQueryWithOptions(query, size, null, isBackgroundSearch, options)(
+    state
+  );
+
+  // If we have already searched for something, we don't need to do anything
+  // TODO: Tweak this check for multiple page results
+  /* const resultsForQuery = makeSelectResolvedSearchResults(queryWithOptions)(state);
+  if (resultsForQuery && resultsForQuery.length && resultsForQuery.length > (from * size)) {
+    return;
+  } */
+
+  dispatch({
+    type: ACTIONS.RESOLVED_SEARCH_START,
+  });
+
+  if (!state.search.searchQuery && !isBackgroundSearch) {
+    dispatch(doUpdateSearchQuery(query));
+  }
+
+  fetch(`${CONNECTION_STRING}search?resolve=true&${queryWithOptions}`)
+    .then(handleFetchResponse)
+    .then((data: Array<ResolvedSearchResult>) => {
+      const results = [];
+
+      data.forEach(result => {
+        if (result) {
+          results.push(result);
+        }
+      });
+
+      dispatch({
+        type: ACTIONS.RESOLVED_SEARCH_SUCCESS,
+        data: {
+          query: queryWithoutFrom,
+          results,
+          pageSize: size,
+          append: parseInt(from, 10) > parseInt(size, 10) - 1,
+        },
+      });
+    })
+    .catch(e => {
+      dispatch({
+        type: ACTIONS.RESOLVED_SEARCH_FAIL,
       });
     });
 };

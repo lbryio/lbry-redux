@@ -90,6 +90,7 @@ export {
 
 export {
   doSearch,
+  doResolvedSearch,
   doUpdateSearchQuery,
   doFocusSearchInput,
   doBlurSearchInput,
@@ -183,6 +184,7 @@ export {
   makeSelectOmittedCountForChannel,
   makeSelectClaimIsNsfw,
   makeSelectRecommendedContentForUri,
+  makeSelectResolvedRecommendedContentForUri,
   makeSelectFirstRecommendedFileForUri,
   makeSelectChannelForClaimUri,
   makeSelectClaimIsPending,
@@ -265,9 +267,13 @@ export {
 export { selectSearchState };
 export {
   makeSelectSearchUris,
+  makeSelectResolvedSearchResults,
+  makeSelectResolvedSearchResultsLastPageReached,
   selectSearchValue,
   selectSearchOptions,
   selectIsSearching,
+  selectResolvedSearchResultsByQuery,
+  selectResolvedSearchResultsByQueryLastPageReached,
   selectSearchUrisByQuery,
   selectSearchBarFocused,
   selectSearchSuggestions,

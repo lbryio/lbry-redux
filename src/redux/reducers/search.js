@@ -18,6 +18,8 @@ const defaultState = {
   },
   suggestions: {},
   urisByQuery: {},
+  resolvedResultsByQuery: {},
+  resolvedResultsByQueryLastPageReached: {},
 };
 
 export const searchReducer = handleActions(
@@ -37,6 +39,47 @@ export const searchReducer = handleActions(
     },
 
     [ACTIONS.SEARCH_FAIL]: (state: SearchState): SearchState => ({
+      ...state,
+      searching: false,
+    }),
+
+    [ACTIONS.RESOLVED_SEARCH_START]: (state: SearchState): SearchState => ({
+      ...state,
+      searching: true,
+    }),
+    [ACTIONS.RESOLVED_SEARCH_SUCCESS]: (
+      state: SearchState,
+      action: ResolvedSearchSuccess
+    ): SearchState => {
+      const resolvedResultsByQuery = Object.assign({}, state.resolvedResultsByQuery);
+      const resolvedResultsByQueryLastPageReached = Object.assign(
+        {},
+        state.resolvedResultsByQueryLastPageReached
+      );
+      const { append, query, results, pageSize } = action.data;
+
+      if (append) {
+        // todo: check for duplicates when concatenating?
+        resolvedResultsByQuery[query] =
+          resolvedResultsByQuery[query] && resolvedResultsByQuery[query].length
+            ? resolvedResultsByQuery[query].concat(results)
+            : results;
+      } else {
+        resolvedResultsByQuery[query] = results;
+      }
+
+      // the returned number of urls is less than the page size, so we're on the last page
+      resolvedResultsByQueryLastPageReached[query] = results.length < pageSize;
+
+      return {
+        ...state,
+        searching: false,
+        resolvedResultsByQuery,
+        resolvedResultsByQueryLastPageReached,
+      };
+    },
+
+    [ACTIONS.RESOLVED_SEARCH_FAIL]: (state: SearchState): SearchState => ({
       ...state,
       searching: false,
     }),
