@@ -4410,7 +4410,9 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
     claims.forEach(claim => {
       // $FlowFixMe
       myChannelClaims.add(claim.claim_id);
-      byId[claim.claim_id] = claim;
+      if (!byId[claim.claim_id]) {
+        byId[claim.claim_id] = claim;
+      }
 
       if (pendingById[claim.claim_id] && claim.confirmations > 0) {
         delete pendingById[claim.claim_id];
