@@ -43,7 +43,7 @@ const defaultState: PublishState = {
   thumbnailPath: '',
   uploadThumbnailStatus: THUMBNAIL_STATUSES.API_DOWN,
   description: '',
-  language: 'en',
+  language: '',
   nsfw: false,
   channel: CHANNEL_ANONYMOUS,
   channelId: '',
