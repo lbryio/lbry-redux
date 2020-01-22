@@ -15,6 +15,7 @@ const CHANNEL_NEW = 'new';
 const PAGE_SIZE = 20;
 
 var claim = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   MINIMUM_PUBLISH_BID: MINIMUM_PUBLISH_BID,
   CHANNEL_ANONYMOUS: CHANNEL_ANONYMOUS,
   CHANNEL_NEW: CHANNEL_NEW,
@@ -277,6 +278,7 @@ const TOGGLE_BLOCK_CHANNEL = 'TOGGLE_BLOCK_CHANNEL';
 const USER_STATE_POPULATE = 'USER_STATE_POPULATE';
 
 var action_types = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   WINDOW_FOCUSED: WINDOW_FOCUSED,
   DAEMON_READY: DAEMON_READY,
   DAEMON_VERSION_MATCH: DAEMON_VERSION_MATCH,
@@ -522,6 +524,7 @@ const OTHER = 'other';
 const COPYRIGHT = 'copyright';
 
 var licenses = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   CC_LICENSES: CC_LICENSES,
   NONE: NONE,
   PUBLIC_DOMAIN: PUBLIC_DOMAIN,
@@ -552,6 +555,7 @@ const HISTORY = 'user_history';
 const WALLET = 'wallet';
 
 var pages = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   AUTH: AUTH,
   BACKUP: BACKUP,
   CHANNEL: CHANNEL,
@@ -601,6 +605,7 @@ const RECEIVE_INTERESTS_NOTIFICATIONS = 'receiveInterestsNotifications';
 const RECEIVE_CREATOR_NOTIFICATIONS = 'receiveCreatorNotifications';
 
 var settings = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   CREDIT_REQUIRED_ACKNOWLEDGED: CREDIT_REQUIRED_ACKNOWLEDGED,
   NEW_USER_ACKNOWLEDGED: NEW_USER_ACKNOWLEDGED,
   EMAIL_COLLECTION_ACKNOWLEDGED: EMAIL_COLLECTION_ACKNOWLEDGED,
@@ -628,6 +633,7 @@ const TITLE = 'title';
 const FILENAME = 'filename';
 
 var sort_options = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   DATE_NEW: DATE_NEW,
   DATE_OLD: DATE_OLD,
   TITLE: TITLE,
@@ -641,6 +647,7 @@ const COMPLETE = 'complete';
 const MANUAL = 'manual';
 
 var thumbnail_upload_statuses = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   API_DOWN: API_DOWN,
   READY: READY,
   IN_PROGRESS: IN_PROGRESS,
@@ -660,6 +667,7 @@ const UPDATE = 'update';
 const ABANDON = 'abandon';
 
 var transaction_types = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   ALL: ALL,
   SPEND: SPEND,
   RECEIVE: RECEIVE,
@@ -676,6 +684,7 @@ const PAGE_SIZE$1 = 50;
 const LATEST_PAGE_SIZE = 20;
 
 var transaction_list = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   PAGE_SIZE: PAGE_SIZE$1,
   LATEST_PAGE_SIZE: LATEST_PAGE_SIZE
 });
@@ -684,6 +693,7 @@ const SPEECH_STATUS = 'https://spee.ch/api/config/site/publishing';
 const SPEECH_PUBLISH = 'https://spee.ch/api/claim/publish';
 
 var speech_urls = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   SPEECH_STATUS: SPEECH_STATUS,
   SPEECH_PUBLISH: SPEECH_PUBLISH
 });
@@ -729,6 +739,7 @@ const WALLET_DIR = 'wallet_dir';
 const WALLETS = 'wallets';
 
 var daemon_settings = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   ANNOUNCE_HEAD_AND_SD_ONLY: ANNOUNCE_HEAD_AND_SD_ONLY,
   API: API,
   BLOB_DOWNLOAD_TIMEOUT: BLOB_DOWNLOAD_TIMEOUT,
@@ -782,6 +793,7 @@ var daemon_settings = /*#__PURE__*/Object.freeze({
 const WALLET_SERVERS = LBRYUM_SERVERS;
 
 var shared_preferences = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   WALLET_SERVERS: WALLET_SERVERS
 });
 
