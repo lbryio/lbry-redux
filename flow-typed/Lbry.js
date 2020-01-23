@@ -125,12 +125,24 @@ declare type ChannelUpdateResponse = GenericTxResponse & {
 };
 
 declare type CommentCreateResponse = Comment;
+declare type CommentUpdateResponse = Comment;
+
 declare type CommentListResponse = {
   items: Array<Comment>,
   page: number,
   page_size: number,
   total_items: number,
   total_pages: number,
+};
+
+declare type CommentHideResponse = {
+  // keyed by the CommentIds entered
+  [string]: { hidden: boolean },
+};
+
+declare type CommentAbandonResponse = {
+  // keyed by the CommentId given
+  abandoned: boolean,
 };
 
 declare type ChannelListResponse = {
@@ -242,6 +254,10 @@ declare type LbryTypes = {
   // Commenting
   comment_list: (params: {}) => Promise<CommentListResponse>,
   comment_create: (params: {}) => Promise<CommentCreateResponse>,
+  comment_update: (params: {}) => Promise<CommentUpdateResponse>,
+  comment_hide: (params: {}) => Promise<CommentHideResponse>,
+  comment_abandon: (params: {}) => Promise<CommentAbandonResponse>,
+
   // Wallet utilities
   wallet_balance: (params: {}) => Promise<BalanceResponse>,
   wallet_decrypt: (prams: {}) => Promise<boolean>,

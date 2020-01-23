@@ -135,6 +135,15 @@ const COMMENT_LIST_FAILED = 'COMMENT_LIST_FAILED';
 const COMMENT_CREATE_STARTED = 'COMMENT_CREATE_STARTED';
 const COMMENT_CREATE_COMPLETED = 'COMMENT_CREATE_COMPLETED';
 const COMMENT_CREATE_FAILED = 'COMMENT_CREATE_FAILED';
+const COMMENT_ABANDON_STARTED = 'COMMENT_ABANDON_STARTED';
+const COMMENT_ABANDON_COMPLETED = 'COMMENT_ABANDON_COMPLETED';
+const COMMENT_ABANDON_FAILED = 'COMMENT_ABANDON_FAILED';
+const COMMENT_UPDATE_STARTED = 'COMMENT_UPDATE_STARTED';
+const COMMENT_UPDATE_COMPLETED = 'COMMENT_UPDATE_COMPLETED';
+const COMMENT_UPDATE_FAILED = 'COMMENT_UPDATE_FAILED';
+const COMMENT_HIDE_STARTED = 'COMMENT_HIDE_STARTED';
+const COMMENT_HIDE_COMPLETED = 'COMMENT_HIDE_COMPLETED';
+const COMMENT_HIDE_FAILED = 'COMMENT_HIDE_FAILED';
 
 // Files
 const FILE_LIST_STARTED = 'FILE_LIST_STARTED';
@@ -382,6 +391,15 @@ var action_types = /*#__PURE__*/Object.freeze({
   COMMENT_CREATE_STARTED: COMMENT_CREATE_STARTED,
   COMMENT_CREATE_COMPLETED: COMMENT_CREATE_COMPLETED,
   COMMENT_CREATE_FAILED: COMMENT_CREATE_FAILED,
+  COMMENT_ABANDON_STARTED: COMMENT_ABANDON_STARTED,
+  COMMENT_ABANDON_COMPLETED: COMMENT_ABANDON_COMPLETED,
+  COMMENT_ABANDON_FAILED: COMMENT_ABANDON_FAILED,
+  COMMENT_UPDATE_STARTED: COMMENT_UPDATE_STARTED,
+  COMMENT_UPDATE_COMPLETED: COMMENT_UPDATE_COMPLETED,
+  COMMENT_UPDATE_FAILED: COMMENT_UPDATE_FAILED,
+  COMMENT_HIDE_STARTED: COMMENT_HIDE_STARTED,
+  COMMENT_HIDE_COMPLETED: COMMENT_HIDE_COMPLETED,
+  COMMENT_HIDE_FAILED: COMMENT_HIDE_FAILED,
   FILE_LIST_STARTED: FILE_LIST_STARTED,
   FILE_LIST_SUCCEEDED: FILE_LIST_SUCCEEDED,
   FETCH_FILE_INFO_STARTED: FETCH_FILE_INFO_STARTED,
@@ -782,12 +800,12 @@ var daemon_settings = /*#__PURE__*/Object.freeze({
 });
 
 /*
-* How to use this file:
-* Settings exported from here will trigger the setting to be
-* sent to the preference middleware when set using the
-* usual setDaemonSettings and clearDaemonSettings methods.
-*
-* See redux/settings/actions in the app for where this is used.
+ * How to use this file:
+ * Settings exported from here will trigger the setting to be
+ * sent to the preference middleware when set using the
+ * usual setDaemonSettings and clearDaemonSettings methods.
+ *
+ * See redux/settings/actions in the app for where this is used.
  */
 
 const WALLET_SERVERS = LBRYUM_SERVERS;
@@ -934,6 +952,11 @@ const Lbry = {
   // Comments
   comment_list: (params = {}) => daemonCallWithResult('comment_list', params),
   comment_create: (params = {}) => daemonCallWithResult('comment_create', params),
+  comment_hide: (params = {}) => daemonCallWithResult('comment_hide', params),
+  comment_abandon: (params = {}) => daemonCallWithResult('comment_abandon', params),
+  // requires SDK ver. 0.53.0
+  comment_update: (params = {}) => daemonCallWithResult('comment_update', params),
+
   // Connect to the sdk
   connect: () => {
     if (Lbry.connectPromise === null) {
@@ -1240,6 +1263,18 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
   } = UrlObj,
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
   const { claimId, claimName, contentName } = deprecatedParts;
+
+  {
+    if (claimId) {
+      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
+    }
+    if (claimName) {
+      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
+    }
+    if (contentName) {
+      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
+    }
+  }
 
   if (!claimName && !channelName && !streamName) {
     console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
@@ -1565,7 +1600,10 @@ function extractUserState(rawObj) {
 function doPopulateSharedUserState(sharedSettings) {
   return dispatch => {
     const { subscriptions, tags, blocked, settings } = extractUserState(sharedSettings);
-    dispatch({ type: USER_STATE_POPULATE, data: { subscriptions, tags, blocked, settings } });
+    dispatch({
+      type: USER_STATE_POPULATE,
+      data: { subscriptions, tags, blocked, settings }
+    });
   };
 }
 
@@ -4146,6 +4184,8 @@ const doUpdateSearchOptions = newOptions => (dispatch, getState) => {
   }
 };
 
+//      
+
 function savePosition(claimId, outpoint, position) {
   return dispatch => {
     dispatch({
@@ -4223,9 +4263,10 @@ function doCommentCreate(comment = '', claim_id = '', channel, parent_id) {
     const namedChannelClaim = myChannels && myChannels.find(myChannel => myChannel.name === channel);
     const channel_id = namedChannelClaim ? namedChannelClaim.claim_id : null;
     return lbryProxy.comment_create({
-      comment,
-      claim_id,
-      channel_id
+      comment: comment,
+      claim_id: claim_id,
+      channel_id: channel_id,
+      parent_id: parent_id
     }).then(result => {
       dispatch({
         type: COMMENT_CREATE_COMPLETED,
@@ -4245,6 +4286,96 @@ function doCommentCreate(comment = '', claim_id = '', channel, parent_id) {
       }));
     });
   };
+}
+
+function doCommentHide(comment_id) {
+  return dispatch => {
+    dispatch({
+      type: COMMENT_HIDE_STARTED
+    });
+    return lbryProxy.comment_hide({
+      comment_ids: [comment_id]
+    }).then(result => {
+      dispatch({
+        type: COMMENT_HIDE_COMPLETED,
+        data: result
+      });
+    }).catch(error => {
+      dispatch({
+        type: COMMENT_HIDE_FAILED,
+        data: error
+      });
+      dispatch(doToast({
+        message: 'There was an error hiding this comment. Please try again later.',
+        isError: true
+      }));
+    });
+  };
+}
+
+function doCommentAbandon(comment_id) {
+  return dispatch => {
+    dispatch({
+      type: COMMENT_ABANDON_STARTED
+    });
+    return lbryProxy.comment_abandon({
+      comment_id: comment_id
+    }).then(result => {
+      // Comment may not be deleted if the signing channel can't be signed.
+      // This will happen if the channel was recently created or abandoned.
+      if (result.abandoned) {
+        dispatch({
+          type: COMMENT_ABANDON_COMPLETED,
+          data: {
+            comment_id: comment_id
+          }
+        });
+      } else {
+        dispatch({
+          type: COMMENT_ABANDON_FAILED
+        });
+      }
+    }).catch(error => {
+      dispatch({
+        type: COMMENT_ABANDON_FAILED,
+        data: error
+      });
+      dispatch(doToast({
+        message: 'There was an error hiding this comment. Please try again later.',
+        isError: true
+      }));
+    });
+  };
+}
+
+function doCommentUpdate(comment_id, comment) {
+  // if they provided an empty string, they must have wanted to abandon
+  if (comment === '') {
+    return doCommentAbandon(comment_id);
+  } else {
+    return dispatch => {
+      dispatch({
+        type: COMMENT_UPDATE_STARTED
+      });
+      return lbryProxy.comment_update({
+        comment_id: comment_id,
+        comment: comment
+      }).then(result => {
+        dispatch({
+          type: COMMENT_UPDATE_COMPLETED,
+          data: {
+            comment: result
+          }
+        });
+      }).catch(error => {
+        dispatch({ type: COMMENT_UPDATE_FAILED, data: error });
+        dispatch(doToast({
+          message: 'There was an error hiding this comment. Please try again later.',
+          isError: true
+        }));
+      });
+    };
+  }
 }
 
 //      
@@ -4663,9 +4794,11 @@ const handleActions = (actionMap, defaultState) => (state = defaultState, action
 var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$1 = {
-  byId: {},
-  commentsByUri: {},
-  isLoading: false
+  commentById: {}, // commentId -> Comment
+  byId: {}, // ClaimID -> list of comments
+  commentsByUri: {}, // URI -> claimId
+  isLoading: false,
+  myComments: undefined
 };
 
 const commentReducer = handleActions({
@@ -4679,15 +4812,22 @@ const commentReducer = handleActions({
 
   [COMMENT_CREATE_COMPLETED]: (state, action) => {
     const { comment, claimId } = action.data;
+    const commentById = Object.assign({}, state.commentById);
     const byId = Object.assign({}, state.byId);
     const comments = byId[claimId];
-    const newComments = comments.slice();
+    const newCommentIds = comments.slice();
 
-    newComments.unshift(comment);
-    byId[claimId] = newComments;
+    // add the comment by its ID
+    commentById[comment.comment_id] = comment;
+
+    // push the comment_id to the top of ID list
+    newCommentIds.unshift(comment.comment_id);
+    byId[claimId] = newCommentIds;
 
     return _extends$8({}, state, {
-      byId
+      commentById,
+      byId,
+      isLoading: false
     });
   },
 
@@ -4695,21 +4835,96 @@ const commentReducer = handleActions({
 
   [COMMENT_LIST_COMPLETED]: (state, action) => {
     const { comments, claimId, uri } = action.data;
+
+    const commentById = Object.assign({}, state.commentById);
     const byId = Object.assign({}, state.byId);
     const commentsByUri = Object.assign({}, state.commentsByUri);
 
     if (comments) {
-      byId[claimId] = comments;
+      // we use an Array to preserve order of listing
+      // in reality this doesn't matter and we can just
+      // sort comments by their timestamp
+      const commentIds = Array(comments.length);
+
+      // map the comment_ids to the new comments
+      for (let i = 0; i < comments.length; i++) {
+        commentIds[i] = comments[i].comment_id;
+        commentById[commentIds[i]] = comments[i];
+      }
+
+      byId[claimId] = commentIds;
       commentsByUri[uri] = claimId;
     }
     return _extends$8({}, state, {
       byId,
+      commentById,
       commentsByUri,
       isLoading: false
     });
   },
 
   [COMMENT_LIST_FAILED]: (state, action) => _extends$8({}, state, {
+    isLoading: false
+  }),
+  [COMMENT_ABANDON_STARTED]: (state, action) => _extends$8({}, state, {
+    isLoading: true
+  }),
+  [COMMENT_ABANDON_COMPLETED]: (state, action) => {
+    const { comment_id } = action.data;
+    const commentById = Object.assign({}, state.commentById);
+    const byId = Object.assign({}, state.byId);
+
+    // to remove the comment and its references
+    const claimId = commentById[comment_id].claim_id;
+    for (let i = 0; i < byId[claimId].length; i++) {
+      if (byId[claimId][i] === comment_id) {
+        byId[claimId].splice(i, 1);
+        break;
+      }
+    }
+    delete commentById[comment_id];
+
+    return _extends$8({}, state, {
+      commentById,
+      byId,
+      isLoading: false
+    });
+  },
+  // do nothing
+  [COMMENT_ABANDON_FAILED]: (state, action) => _extends$8({}, state, {
+    isLoading: false
+  }),
+  // do nothing
+  [COMMENT_UPDATE_STARTED]: (state, action) => _extends$8({}, state, {
+    isLoading: true
+  }),
+  // replace existing comment with comment returned here under its comment_id
+  [COMMENT_UPDATE_COMPLETED]: (state, action) => {
+    const { comment } = action.data;
+    const commentById = Object.assign({}, state.commentById);
+
+    if (comment) {
+      commentById[comment.comment_id] = comment;
+    }
+
+    return _extends$8({}, state, {
+      commentById,
+      isLoading: false
+    });
+  },
+  // nothing can be done here
+  [COMMENT_UPDATE_FAILED]: (state, action) => _extends$8({}, state, {
+    isLoading: false
+  }),
+  // nothing can really be done here
+  [COMMENT_HIDE_STARTED]: (state, action) => _extends$8({}, state, {
+    isLoading: true
+  }),
+  [COMMENT_HIDE_COMPLETED]: (state, action) => _extends$8({}, state, { // todo: add HiddenComments state & create selectors
+    isLoading: false
+  }),
+  // nothing can be done here
+  [COMMENT_HIDE_FAILED]: (state, action) => _extends$8({}, state, {
     isLoading: false
   })
 }, defaultState$1);
@@ -5581,6 +5796,8 @@ const walletReducer = handleActions({
   })
 }, defaultState$a);
 
+//      
+
 const selectState$6 = state => state.content || {};
 
 const makeSelectContentPositionForUri = uri => reselect.createSelector(selectState$6, makeSelectClaimForUri(uri), (state, claim) => {
@@ -5622,8 +5839,30 @@ const selectError = reselect.createSelector(selectState$7, state => {
 
 const selectState$8 = state => state.comments || {};
 
-const selectCommentsById = reselect.createSelector(selectState$8, state => state.byId || {});
+const selectCommentsById = reselect.createSelector(selectState$8, state => state.commentById || {});
 
+const selectCommentsByClaimId = reselect.createSelector(selectState$8, selectCommentsById, (state, byId) => {
+  const byClaimId = state.byId || {};
+  const comments = {};
+
+  // replace every comment_id in the list with the actual comment object
+  Object.keys(byClaimId).forEach(claimId => {
+    const commentIds = byClaimId[claimId];
+
+    comments[claimId] = Array(commentIds === null ? 0 : commentIds.length);
+    for (let i = 0; i < commentIds.length; i++) {
+      comments[claimId][i] = byId[commentIds[i]];
+    }
+  });
+
+  return comments;
+});
+
+// previously this used a mapping from claimId -> Array<Comments>
+/* export const selectCommentsById = createSelector(
+  selectState,
+  state => state.byId || {}
+); */
 const selectCommentsByUri = reselect.createSelector(selectState$8, state => {
   const byUri = state.commentsByUri || {};
   const comments = {};
@@ -5635,13 +5874,17 @@ const selectCommentsByUri = reselect.createSelector(selectState$8, state => {
       comments[uri] = claimId;
     }
   });
+
   return comments;
 });
 
-const makeSelectCommentsForUri = uri => reselect.createSelector(selectCommentsById, selectCommentsByUri, (byId, byUri) => {
+const makeSelectCommentsForUri = uri => reselect.createSelector(selectCommentsByClaimId, selectCommentsByUri, (byClaimId, byUri) => {
   const claimId = byUri[uri];
-  return byId && byId[claimId];
+  return byClaimId && byClaimId[claimId];
 });
+
+// todo: allow SDK to retrieve user comments through comment_list
+// todo: implement selectors for selecting comments owned by user
 
 //      
 
@@ -5720,8 +5963,11 @@ exports.doCheckPendingPublishes = doCheckPendingPublishes;
 exports.doClaimSearch = doClaimSearch;
 exports.doClearPublish = doClearPublish;
 exports.doClearSupport = doClearSupport;
+exports.doCommentAbandon = doCommentAbandon;
 exports.doCommentCreate = doCommentCreate;
+exports.doCommentHide = doCommentHide;
 exports.doCommentList = doCommentList;
+exports.doCommentUpdate = doCommentUpdate;
 exports.doCreateChannel = doCreateChannel;
 exports.doDeletePurchasedUri = doDeletePurchasedUri;
 exports.doDeleteTag = doDeleteTag;

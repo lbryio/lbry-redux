@@ -43,7 +43,7 @@ export function doCommentCreate(
   comment: string = '',
   claim_id: string = '',
   channel: ?string,
-  parent_id?: number
+  parent_id?: string
 ) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
@@ -55,11 +55,12 @@ export function doCommentCreate(
       myChannels && myChannels.find(myChannel => myChannel.name === channel);
     const channel_id = namedChannelClaim ? namedChannelClaim.claim_id : null;
     return Lbry.comment_create({
-      comment,
-      claim_id,
-      channel_id,
+      comment: comment,
+      claim_id: claim_id,
+      channel_id: channel_id,
+      parent_id: parent_id,
     })
-      .then((result: Comment) => {
+      .then((result: CommentCreateResponse) => {
         dispatch({
           type: ACTIONS.COMMENT_CREATE_COMPLETED,
           data: {
@@ -81,4 +82,106 @@ export function doCommentCreate(
         );
       });
   };
+}
+
+export function doCommentHide(comment_id: string) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.COMMENT_HIDE_STARTED,
+    });
+    return Lbry.comment_hide({
+      comment_ids: [comment_id],
+    })
+      .then((result: CommentHideResponse) => {
+        dispatch({
+          type: ACTIONS.COMMENT_HIDE_COMPLETED,
+          data: result,
+        });
+      })
+      .catch(error => {
+        dispatch({
+          type: ACTIONS.COMMENT_HIDE_FAILED,
+          data: error,
+        });
+        dispatch(
+          doToast({
+            message: 'There was an error hiding this comment. Please try again later.',
+            isError: true,
+          })
+        );
+      });
+  };
+}
+
+export function doCommentAbandon(comment_id: string) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.COMMENT_ABANDON_STARTED,
+    });
+    return Lbry.comment_abandon({
+      comment_id: comment_id,
+    })
+      .then((result: CommentAbandonResponse) => {
+        // Comment may not be deleted if the signing channel can't be signed.
+        // This will happen if the channel was recently created or abandoned.
+        if (result.abandoned) {
+          dispatch({
+            type: ACTIONS.COMMENT_ABANDON_COMPLETED,
+            data: {
+              comment_id: comment_id,
+            },
+          });
+        } else {
+          dispatch({
+            type: ACTIONS.COMMENT_ABANDON_FAILED,
+          });
+        }
+      })
+      .catch(error => {
+        dispatch({
+          type: ACTIONS.COMMENT_ABANDON_FAILED,
+          data: error,
+        });
+        dispatch(
+          doToast({
+            message: 'There was an error hiding this comment. Please try again later.',
+            isError: true,
+          })
+        );
+      });
+  };
+}
+
+export function doCommentUpdate(comment_id: string, comment: string) {
+  // if they provided an empty string, they must have wanted to abandon
+  if (comment === '') {
+    return doCommentAbandon(comment_id);
+  } else {
+    return (dispatch: Dispatch) => {
+      dispatch({
+        type: ACTIONS.COMMENT_UPDATE_STARTED,
+      });
+      return Lbry.comment_update({
+        comment_id: comment_id,
+        comment: comment,
+      })
+        .then((result: CommentUpdateResponse) => {
+          dispatch({
+            type: ACTIONS.COMMENT_UPDATE_COMPLETED,
+            data: {
+              comment: result,
+            },
+          });
+        })
+        .catch(error => {
+          dispatch({ type: ACTIONS.COMMENT_UPDATE_FAILED, data: error });
+          dispatch(
+            doToast({
+              message: 'There was an error hiding this comment. Please try again later.',
+              isError: true,
+            })
+          );
+        });
+    };
+  }
 }
