@@ -135,6 +135,12 @@ export function doCommentAbandon(comment_id: string) {
           dispatch({
             type: ACTIONS.COMMENT_ABANDON_FAILED,
           });
+          dispatch(
+            doToast({
+              message: 'Your channel is still being setup, try again in a few moments.',
+              isError: true,
+            })
+          );
         }
       })
       .catch(error => {

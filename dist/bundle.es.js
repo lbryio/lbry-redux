@@ -4322,6 +4322,10 @@ function doCommentAbandon(comment_id) {
         dispatch({
           type: COMMENT_ABANDON_FAILED
         });
+        dispatch(doToast({
+          message: 'Your channel is still being setup, try again in a few moments.',
+          isError: true
+        }));
       }
     }).catch(error => {
       dispatch({
