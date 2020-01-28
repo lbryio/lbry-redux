@@ -166,15 +166,31 @@ export function doCommentUpdate(comment_id: string, comment: string) {
         comment: comment,
       })
         .then((result: CommentUpdateResponse) => {
-          dispatch({
-            type: ACTIONS.COMMENT_UPDATE_COMPLETED,
-            data: {
-              comment: result,
-            },
-          });
+          if (result != null) {
+            dispatch({
+              type: ACTIONS.COMMENT_UPDATE_COMPLETED,
+              data: {
+                comment: result,
+              },
+            });
+          } else {
+            // the result will return null
+            dispatch({
+              type: ACTIONS.COMENT_UPDATE_FAILED,
+            });
+            dispatch(
+              doToast({
+                message: 'Your channel is still being setup, try again in a few moments.',
+                isError: true,
+              })
+            );
+          }
         })
         .catch(error => {
-          dispatch({ type: ACTIONS.COMMENT_UPDATE_FAILED, data: error });
+          dispatch({
+            type: ACTIONS.COMMENT_UPDATE_FAILED,
+            data: error,
+          });
           dispatch(
             doToast({
               message: 'Unable to edit this comment, please try again later.',
