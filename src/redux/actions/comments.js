@@ -76,7 +76,7 @@ export function doCommentCreate(
         });
         dispatch(
           doToast({
-            message: 'Oops, someone broke comments.',
+            message: 'Unable to create comment, please try again later.',
             isError: true,
           })
         );
@@ -105,7 +105,7 @@ export function doCommentHide(comment_id: string) {
         });
         dispatch(
           doToast({
-            message: 'There was an error hiding this comment. Please try again later.',
+            message: 'Unable to hide this comment, please try again later.',
             isError: true,
           })
         );
@@ -144,7 +144,7 @@ export function doCommentAbandon(comment_id: string) {
         });
         dispatch(
           doToast({
-            message: 'There was an error hiding this comment. Please try again later.',
+            message: 'Unable to delete this comment, please try again later.',
             isError: true,
           })
         );
@@ -177,7 +177,7 @@ export function doCommentUpdate(comment_id: string, comment: string) {
           dispatch({ type: ACTIONS.COMMENT_UPDATE_FAILED, data: error });
           dispatch(
             doToast({
-              message: 'There was an error hiding this comment. Please try again later.',
+              message: 'Unable to edit this comment, please try again later.',
               isError: true,
             })
           );
