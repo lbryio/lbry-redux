@@ -285,7 +285,7 @@ const TOGGLE_BLOCK_CHANNEL = 'TOGGLE_BLOCK_CHANNEL';
 // Sync
 const USER_STATE_POPULATE = 'USER_STATE_POPULATE';
 
-var ACTIONS = /*#__PURE__*/Object.freeze({
+var action_types = /*#__PURE__*/Object.freeze({
   WINDOW_FOCUSED: WINDOW_FOCUSED,
   DAEMON_READY: DAEMON_READY,
   DAEMON_VERSION_MATCH: DAEMON_VERSION_MATCH,
@@ -4351,7 +4351,7 @@ function doCommentUpdate(comment_id, comment) {
         } else {
           // the result will return null
           dispatch({
-            type: undefined
+            type: COMMENT_UPDATE_FAILED
           });
           dispatch(doToast({
             message: 'Your channel is still being setup, try again in a few moments.',
@@ -5916,7 +5916,7 @@ const selectChannelIsBlocked = uri => reselect.createSelector(selectBlockedChann
   return state.includes(uri);
 });
 
-exports.ACTIONS = ACTIONS;
+exports.ACTIONS = action_types;
 exports.CLAIM_VALUES = claim;
 exports.DAEMON_SETTINGS = daemon_settings;
 exports.DEFAULT_FOLLOWED_TAGS = DEFAULT_FOLLOWED_TAGS;

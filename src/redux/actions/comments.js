@@ -182,7 +182,7 @@ export function doCommentUpdate(comment_id: string, comment: string) {
           } else {
             // the result will return null
             dispatch({
-              type: ACTIONS.COMENT_UPDATE_FAILED,
+              type: ACTIONS.COMMENT_UPDATE_FAILED,
             });
             dispatch(
               doToast({
