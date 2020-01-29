@@ -2220,7 +2220,7 @@ claim => {
   return isClaimNsfw(claim);
 });
 
-const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), selectSearchUrisByQuery, (claim, searchUrisByQuery) => {
+const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), selectSearchUrisByQuery, makeSelectClaimIsNsfw(uri), (claim, searchUrisByQuery, isMature) => {
   const atVanityURI = !uri.includes('#');
 
   let recommendedContent;
@@ -2234,9 +2234,11 @@ const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSe
       return;
     }
 
-    const searchQuery = getSearchQueryString(title.replace(/\//, ' '), undefined, undefined, {
-      related_to: claim.claim_id
-    });
+    const options = { related_to: claim.claim_id };
+    if (!isMature) {
+      options['nsfw'] = false;
+    }
+    const searchQuery = getSearchQueryString(title.replace(/\//, ' '), undefined, undefined, options);
 
     let searchUris = searchUrisByQuery[searchQuery];
     if (searchUris) {
