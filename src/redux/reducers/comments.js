@@ -121,10 +121,7 @@ export const commentReducer = handleActions(
     [ACTIONS.COMMENT_UPDATE_COMPLETED]: (state: CommentsState, action: any) => {
       const { comment } = action.data;
       const commentById = Object.assign({}, state.commentById);
-
-      if (comment) {
-        commentById[comment.comment_id] = comment;
-      }
+      commentById[comment.comment_id] = comment;
 
       return {
         ...state,
