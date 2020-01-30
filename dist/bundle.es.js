@@ -1071,9 +1071,11 @@ function toQueryString(params) {
   return parts.join('&');
 }
 
-const getSearchQueryString = (query, options = {}, includeUserOptions = false, additionalOptions = {}) => {
+const getSearchQueryString = (query, options = {}) => {
   const encodedQuery = encodeURIComponent(query);
   const queryParams = [`s=${encodedQuery}`, `size=${options.size || DEFAULT_SEARCH_SIZE}`, `from=${options.from || DEFAULT_SEARCH_RESULT_FROM}`];
+  const { isBackgroundSearch } = options;
+  const includeUserOptions = typeof isBackgroundSearch === 'undefined' ? false : !isBackgroundSearch;
 
   if (includeUserOptions) {
     const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE];
@@ -1084,6 +1086,12 @@ const getSearchQueryString = (query, options = {}, includeUserOptions = false, a
       queryParams.push(`mediaType=${[SEARCH_OPTIONS.MEDIA_FILE, SEARCH_OPTIONS.MEDIA_AUDIO, SEARCH_OPTIONS.MEDIA_VIDEO, SEARCH_OPTIONS.MEDIA_TEXT, SEARCH_OPTIONS.MEDIA_IMAGE, SEARCH_OPTIONS.MEDIA_APPLICATION].reduce((acc, currentOption) => options[currentOption] ? `${acc}${currentOption},` : acc, '')}`);
     }
   }
+
+  const additionalOptions = {};
+  const { related_to } = options;
+  const { nsfw } = options;
+  if (related_to) additionalOptions['related_to'] = related_to;
+  if (typeof nsfw !== 'undefined') additionalOptions['nsfw'] = nsfw;
 
   if (additionalOptions) {
     Object.keys(additionalOptions).forEach(key => {
@@ -1443,11 +1451,11 @@ const selectSearchSuggestions = reselect.createSelector(selectSearchValue, selec
 
 // Creates a query string based on the state in the search reducer
 // Can be overrided by passing in custom sizes/from values for other areas pagination
-const makeSelectQueryWithOptions = (customQuery, customSize, customFrom, isBackgroundSearch = false, // If it's a background search, don't use the users settings
-additionalOptions = {}) => reselect.createSelector(selectSearchValue, selectSearchOptions, (query, options) => {
-  const size = customSize || options[SEARCH_OPTIONS.RESULT_COUNT];
 
-  const queryString = getSearchQueryString(customQuery || query, _extends$1({}, options, { size, from: customFrom }), !isBackgroundSearch, additionalOptions);
+
+const makeSelectQueryWithOptions = (customQuery, options) => reselect.createSelector(selectSearchValue, selectSearchOptions, (query, defaultOptions) => {
+  const searchOptions = _extends$1({}, defaultOptions, options);
+  const queryString = getSearchQueryString(customQuery || query, searchOptions);
 
   return queryString;
 });
@@ -2249,11 +2257,11 @@ const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSe
       return;
     }
 
-    const options = { related_to: claim.claim_id };
+    const options = { related_to: claim.claim_id, isBackgroundSearch: true };
     if (!isMature) {
       options['nsfw'] = false;
     }
-    const searchQuery = getSearchQueryString(title.replace(/\//, ' '), undefined, undefined, options);
+    const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
 
     let searchUris = searchUrisByQuery[searchQuery];
     if (searchUris) {
@@ -2326,7 +2334,7 @@ const makeSelectMyStreamUrlsForPage = (page = 1) => reselect.createSelector(sele
 
 const selectMyStreamUrlsCount = reselect.createSelector(selectMyClaimUrisWithoutChannels, channels => channels.length);
 
-const makeSelectResolvedRecommendedContentForUri = (uri, size) => reselect.createSelector(makeSelectClaimForUri(uri), selectResolvedSearchResultsByQuery, (claim, resolvedResultsByQuery) => {
+const makeSelectResolvedRecommendedContentForUri = (uri, size) => reselect.createSelector(makeSelectClaimForUri(uri), selectResolvedSearchResultsByQuery, makeSelectClaimIsNsfw(uri), (claim, resolvedResultsByQuery, isMature) => {
   const atVanityURI = !uri.includes('#');
 
   let recommendedContent;
@@ -2340,9 +2348,12 @@ const makeSelectResolvedRecommendedContentForUri = (uri, size) => reselect.creat
       return;
     }
 
-    const searchQuery = getSearchQueryString(title.replace(/\//, ' '), { size }, undefined, {
-      related_to: claim.claim_id
-    });
+    const options = { related_to: claim.claim_id, isBackgroundSearch: true };
+    if (!isMature) {
+      options['nsfw'] = false;
+    }
+
+    const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
 
     let results = resolvedResultsByQuery[searchQuery];
     if (results) {
@@ -3968,7 +3979,7 @@ function handleFetchResponse(response) {
   return response.status === 200 ? Promise.resolve(response.json()) : Promise.reject(new Error(response.statusText));
 }
 
-//      
+var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const DEBOUNCED_SEARCH_SUGGESTION_MS = 300;
 
@@ -4025,9 +4036,10 @@ const doUpdateSearchQuery = (query, shouldSkipSuggestions) => dispatch => {
   }
 };
 
-const doSearch = (rawQuery, size, // only pass in if you don't want to use the users setting (ex: related content)
-from, isBackgroundSearch = false, options = {}, resolveResults = true) => (dispatch, getState) => {
+const doSearch = (rawQuery, searchOptions) => (dispatch, getState) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
+  const resolveResults = searchOptions && searchOptions.resolveResults;
+  const isBackgroundSearch = searchOptions && searchOptions.isBackgroundSearch || false;
 
   if (!query) {
     dispatch({
@@ -4037,7 +4049,8 @@ from, isBackgroundSearch = false, options = {}, resolveResults = true) => (dispa
   }
 
   const state = getState();
-  let queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch, options)(state);
+
+  let queryWithOptions = makeSelectQueryWithOptions(query, searchOptions)(state);
 
   // If we have already searched for something, we don't need to do anything
   const urisForQuery = makeSelectSearchUris(queryWithOptions)(state);
@@ -4108,11 +4121,23 @@ from, isBackgroundSearch = false, options = {}) => (dispatch, getState) => {
     return;
   }
 
+  const optionsWithFrom = _extends$7({
+    size,
+    from,
+    isBackgroundSearch
+  }, options);
+
+  const optionsWithoutFrom = _extends$7({
+    size,
+    isBackgroundSearch
+  }, options);
+
   const state = getState();
-  let queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch, options)(state);
+
+  let queryWithOptions = makeSelectQueryWithOptions(query, optionsWithFrom)(state);
 
   // make from null so that we can maintain a reference to the same query for multiple pages and simply append the found results
-  let queryWithoutFrom = makeSelectQueryWithOptions(query, size, null, isBackgroundSearch, options)(state);
+  let queryWithoutFrom = makeSelectQueryWithOptions(query, optionsWithoutFrom)(state);
 
   // If we have already searched for something, we don't need to do anything
   // TODO: Tweak this check for multiple page results
@@ -4162,7 +4187,7 @@ const doBlurSearchInput = () => dispatch => dispatch({
   type: SEARCH_BLUR
 });
 
-const doUpdateSearchOptions = newOptions => (dispatch, getState) => {
+const doUpdateSearchOptions = (newOptions, additionalOptions) => (dispatch, getState) => {
   const state = getState();
   const searchValue = selectSearchValue(state);
 
@@ -4173,7 +4198,7 @@ const doUpdateSearchOptions = newOptions => (dispatch, getState) => {
 
   if (searchValue) {
     // After updating, perform a search with the new options
-    dispatch(doSearch(searchValue));
+    dispatch(doSearch(searchValue, additionalOptions));
   }
 };
 

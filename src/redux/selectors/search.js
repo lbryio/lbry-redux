@@ -165,26 +165,27 @@ export const selectSearchSuggestions: Array<SearchSuggestion> = createSelector(
 
 // Creates a query string based on the state in the search reducer
 // Can be overrided by passing in custom sizes/from values for other areas pagination
+
+type CustomOptions = {
+  isBackgroundSearch?: boolean,
+  size?: number,
+  from?: number,
+  related_to?: string,
+  nsfw?: boolean,
+}
+
 export const makeSelectQueryWithOptions = (
   customQuery: ?string,
-  customSize: ?number,
-  customFrom: ?number,
-  isBackgroundSearch: boolean = false, // If it's a background search, don't use the users settings
-  additionalOptions: {
-    related_to?: string,
-  } = {}
+  options: CustomOptions,
 ) =>
   createSelector(
     selectSearchValue,
     selectSearchOptions,
-    (query, options) => {
-      const size = customSize || options[SEARCH_OPTIONS.RESULT_COUNT];
-
+    (query, defaultOptions) => {
+      const searchOptions = { ...defaultOptions, ...options };
       const queryString = getSearchQueryString(
         customQuery || query,
-        { ...options, size, from: customFrom },
-        !isBackgroundSearch,
-        additionalOptions
+        searchOptions,
       );
 
       return queryString;
