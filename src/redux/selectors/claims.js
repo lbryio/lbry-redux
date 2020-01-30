@@ -114,7 +114,7 @@ export const makeSelectClaimForUri = (uri: string) =>
         valid = true;
       } catch (e) {}
 
-      if (valid) {
+      if (valid && byUri) {
         const claimId = isChannel ? channelClaimId : streamClaimId;
         const pendingClaim = pendingById[claimId];
 
@@ -122,7 +122,21 @@ export const makeSelectClaimForUri = (uri: string) =>
           return pendingClaim;
         }
 
-        return byUri && byUri[normalizeURI(uri)];
+        const claim = byUri[normalizeURI(uri)];
+        if (claim === undefined || claim === null) {
+          // Make sure to return the claim as is so apps can check if it's been resolved before (null) or still needs to be resolved (undefined)
+          return claim;
+        }
+
+        const repostedClaim = claim.reposted_claim;
+        if (repostedClaim) {
+          return {
+            ...repostedClaim,
+            repost_channel_url: claim.canonical_url,
+          };
+        } else {
+          return claim;
+        }
       }
     }
   );
