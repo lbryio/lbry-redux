@@ -2019,8 +2019,10 @@ const makeSelectClaimForUri = uri => reselect.createSelector(selectClaimsByUri, 
 
     const repostedClaim = claim.reposted_claim;
     if (repostedClaim) {
+      const channelUrl = claim.signing_channel && claim.signing_channel.canonical_url;
+
       return _extends$4({}, repostedClaim, {
-        repost_channel_url: claim.canonical_url
+        repost_channel_url: channelUrl
       });
     } else {
       return claim;

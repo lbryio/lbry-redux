@@ -130,9 +130,11 @@ export const makeSelectClaimForUri = (uri: string) =>
 
         const repostedClaim = claim.reposted_claim;
         if (repostedClaim) {
+          const channelUrl = claim.signing_channel && claim.signing_channel.canonical_url;
+
           return {
             ...repostedClaim,
-            repost_channel_url: claim.canonical_url,
+            repost_channel_url: channelUrl,
           };
         } else {
           return claim;
@@ -277,8 +279,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-            ? claim.meta.creation_timestamp * 1000
-            : null);
+          ? claim.meta.creation_timestamp * 1000
+          : null);
       if (!timestamp) {
         return undefined;
       }
@@ -528,11 +530,16 @@ export const makeSelectRecommendedContentForUri = (uri: string) =>
           return;
         }
 
-        const options = { related_to: claim.claim_id }
+        const options = { related_to: claim.claim_id };
         if (!isMature) {
           options['nsfw'] = false;
         }
-        const searchQuery = getSearchQueryString(title.replace(/\//, ' '), undefined, undefined, options);
+        const searchQuery = getSearchQueryString(
+          title.replace(/\//, ' '),
+          undefined,
+          undefined,
+          options
+        );
 
         let searchUris = searchUrisByQuery[searchQuery];
         if (searchUris) {
