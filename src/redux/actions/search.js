@@ -24,12 +24,7 @@ type SearchOptions = {
   nsfw?: boolean,
   isBackgroundSearch?: boolean,
   resolveResults?: boolean,
-}
-
-type AdditionalOptions = {
-  isBackgroundSearch: boolean,
-  nsfw?: boolean,
-}
+};
 
 // We can't use env's because they aren't passed into node_modules
 let CONNECTION_STRING = 'https://lighthouse.lbry.com/';
@@ -89,11 +84,10 @@ export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boole
   }
 };
 
-
-export const doSearch = (
-  rawQuery: string,
-  searchOptions: SearchOptions,
-) => (dispatch: Dispatch, getState: GetState) => {
+export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
   const resolveResults = searchOptions && searchOptions.resolveResults;
   const isBackgroundSearch = (searchOptions && searchOptions.isBackgroundSearch) || false;
@@ -107,9 +101,7 @@ export const doSearch = (
 
   const state = getState();
 
-  let queryWithOptions = makeSelectQueryWithOptions(query, searchOptions)(
-    state
-  );
+  let queryWithOptions = makeSelectQueryWithOptions(query, searchOptions)(state);
 
   // If we have already searched for something, we don't need to do anything
   const urisForQuery = makeSelectSearchUris(queryWithOptions)(state);
@@ -174,9 +166,9 @@ export const doSearch = (
 
 export const doResolvedSearch = (
   rawQuery: string,
-  size: ?number, // only pass in if you don't want to use the users setting (ex: related content)
-  from: ?number,
-  isBackgroundSearch: boolean = false,
+  size?: number, // only pass in if you don't want to use the users setting (ex: related content)
+  from?: number,
+  isBackgroundSearch?: boolean = false,
   options: {
     related_to?: string,
     // nsfw here
@@ -196,24 +188,20 @@ export const doResolvedSearch = (
     from,
     isBackgroundSearch,
     ...options,
-  }
+  };
 
   const optionsWithoutFrom: SearchOptions = {
     size,
     isBackgroundSearch,
     ...options,
-  }
+  };
 
   const state = getState();
 
-  let queryWithOptions = makeSelectQueryWithOptions(query, optionsWithFrom)(
-    state
-  );
+  let queryWithOptions = makeSelectQueryWithOptions(query, optionsWithFrom)(state);
 
   // make from null so that we can maintain a reference to the same query for multiple pages and simply append the found results
-  let queryWithoutFrom = makeSelectQueryWithOptions(query, optionsWithoutFrom)(
-    state
-  );
+  let queryWithoutFrom = makeSelectQueryWithOptions(query, optionsWithoutFrom)(state);
 
   // If we have already searched for something, we don't need to do anything
   // TODO: Tweak this check for multiple page results
@@ -268,10 +256,10 @@ export const doBlurSearchInput = () => (dispatch: Dispatch) =>
     type: ACTIONS.SEARCH_BLUR,
   });
 
-export const doUpdateSearchOptions = (newOptions: SearchOptions, additionalOptions: AdditionalOptions) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
+export const doUpdateSearchOptions = (
+  newOptions: SearchOptions,
+  additionalOptions: SearchOptions
+) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const searchValue = selectSearchValue(state);
 
