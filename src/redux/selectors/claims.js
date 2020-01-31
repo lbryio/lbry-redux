@@ -279,8 +279,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-          ? claim.meta.creation_timestamp * 1000
-          : null);
+            ? claim.meta.creation_timestamp * 1000
+            : null);
       if (!timestamp) {
         return undefined;
       }
@@ -530,16 +530,16 @@ export const makeSelectRecommendedContentForUri = (uri: string) =>
           return;
         }
 
-        const options = { related_to: claim.claim_id };
+        const options: {
+          related_to?: string,
+          nsfw?: boolean,
+          isBackgroundSearch?: boolean,
+        } = { related_to: claim.claim_id, isBackgroundSearch: true };
+
         if (!isMature) {
           options['nsfw'] = false;
         }
-        const searchQuery = getSearchQueryString(
-          title.replace(/\//, ' '),
-          undefined,
-          undefined,
-          options
-        );
+        const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
 
         let searchUris = searchUrisByQuery[searchQuery];
         if (searchUris) {
@@ -671,7 +671,8 @@ export const makeSelectResolvedRecommendedContentForUri = (uri: string, size: nu
   createSelector(
     makeSelectClaimForUri(uri),
     selectResolvedSearchResultsByQuery,
-    (claim, resolvedResultsByQuery) => {
+    makeSelectClaimIsNsfw(uri),
+    (claim, resolvedResultsByQuery, isMature) => {
       const atVanityURI = !uri.includes('#');
 
       let recommendedContent;
@@ -685,9 +686,16 @@ export const makeSelectResolvedRecommendedContentForUri = (uri: string, size: nu
           return;
         }
 
-        const searchQuery = getSearchQueryString(title.replace(/\//, ' '), { size }, undefined, {
-          related_to: claim.claim_id,
-        });
+        const options: {
+          related_to?: string,
+          nsfw?: boolean,
+          isBackgroundSearch?: boolean,
+        } = { related_to: claim.claim_id, isBackgroundSearch: true };
+        if (!isMature) {
+          options['nsfw'] = false;
+        }
+
+        const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
 
         let results = resolvedResultsByQuery[searchQuery];
         if (results) {
