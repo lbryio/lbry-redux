@@ -33,6 +33,7 @@ declare type GenericClaim = {
   type: 'claim' | 'update' | 'support',
   value_type: 'stream' | 'channel',
   signing_channel?: ChannelClaim,
+  repost_channel_url?: string,
   meta: {
     activation_height: number,
     claims_in_channel?: number,

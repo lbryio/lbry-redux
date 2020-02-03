@@ -16,6 +16,8 @@ export const DEFAULT_FOLLOWED_TAGS = [
 export const MATURE_TAGS = ['porn', 'nsfw', 'mature', 'xxx'];
 
 export const DEFAULT_KNOWN_TAGS = [
+  'free speech',
+  'censorship',
   'gaming',
   'pop culture',
   'Entertainment',

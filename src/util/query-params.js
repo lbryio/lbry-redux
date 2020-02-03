@@ -36,8 +36,6 @@ export function toQueryString(params: { [string]: string | number }) {
 export const getSearchQueryString = (
   query: string,
   options: any = {},
-  includeUserOptions: boolean = false,
-  additionalOptions: {} = {}
 ) => {
   const encodedQuery = encodeURIComponent(query);
   const queryParams = [
@@ -45,6 +43,8 @@ export const getSearchQueryString = (
     `size=${options.size || DEFAULT_SEARCH_SIZE}`,
     `from=${options.from || DEFAULT_SEARCH_RESULT_FROM}`,
   ];
+  const { isBackgroundSearch } = options;
+  const includeUserOptions = typeof isBackgroundSearch === 'undefined' ? false : !isBackgroundSearch;
 
   if (includeUserOptions) {
     const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE];
@@ -67,6 +67,12 @@ export const getSearchQueryString = (
       );
     }
   }
+
+  const additionalOptions = {}
+  const { related_to } = options;
+  const { nsfw } = options;
+  if (related_to) additionalOptions['related_to'] = related_to;
+  if (typeof nsfw !== 'undefined') additionalOptions['nsfw'] = nsfw;
 
   if (additionalOptions) {
     Object.keys(additionalOptions).forEach(key => {

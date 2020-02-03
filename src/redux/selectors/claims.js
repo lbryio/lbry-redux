@@ -114,7 +114,7 @@ export const makeSelectClaimForUri = (uri: string) =>
         valid = true;
       } catch (e) {}
 
-      if (valid) {
+      if (valid && byUri) {
         const claimId = isChannel ? channelClaimId : streamClaimId;
         const pendingClaim = pendingById[claimId];
 
@@ -122,7 +122,23 @@ export const makeSelectClaimForUri = (uri: string) =>
           return pendingClaim;
         }
 
-        return byUri && byUri[normalizeURI(uri)];
+        const claim = byUri[normalizeURI(uri)];
+        if (claim === undefined || claim === null) {
+          // Make sure to return the claim as is so apps can check if it's been resolved before (null) or still needs to be resolved (undefined)
+          return claim;
+        }
+
+        const repostedClaim = claim.reposted_claim;
+        if (repostedClaim) {
+          const channelUrl = claim.signing_channel && claim.signing_channel.canonical_url;
+
+          return {
+            ...repostedClaim,
+            repost_channel_url: channelUrl,
+          };
+        } else {
+          return claim;
+        }
       }
     }
   );
@@ -499,7 +515,8 @@ export const makeSelectRecommendedContentForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
     selectSearchUrisByQuery,
-    (claim, searchUrisByQuery) => {
+    makeSelectClaimIsNsfw(uri),
+    (claim, searchUrisByQuery, isMature) => {
       const atVanityURI = !uri.includes('#');
 
       let recommendedContent;
@@ -513,9 +530,16 @@ export const makeSelectRecommendedContentForUri = (uri: string) =>
           return;
         }
 
-        const searchQuery = getSearchQueryString(title.replace(/\//, ' '), undefined, undefined, {
-          related_to: claim.claim_id,
-        });
+        const options: {
+          related_to?: string,
+          nsfw?: boolean,
+          isBackgroundSearch?: boolean,
+        } = { related_to: claim.claim_id, isBackgroundSearch: true };
+
+        if (!isMature) {
+          options['nsfw'] = false;
+        }
+        const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
 
         let searchUris = searchUrisByQuery[searchQuery];
         if (searchUris) {
@@ -647,7 +671,8 @@ export const makeSelectResolvedRecommendedContentForUri = (uri: string, size: nu
   createSelector(
     makeSelectClaimForUri(uri),
     selectResolvedSearchResultsByQuery,
-    (claim, resolvedResultsByQuery) => {
+    makeSelectClaimIsNsfw(uri),
+    (claim, resolvedResultsByQuery, isMature) => {
       const atVanityURI = !uri.includes('#');
 
       let recommendedContent;
@@ -661,9 +686,16 @@ export const makeSelectResolvedRecommendedContentForUri = (uri: string, size: nu
           return;
         }
 
-        const searchQuery = getSearchQueryString(title.replace(/\//, ' '), { size }, undefined, {
-          related_to: claim.claim_id,
-        });
+        const options: {
+          related_to?: string,
+          nsfw?: boolean,
+          isBackgroundSearch?: boolean,
+        } = { related_to: claim.claim_id, isBackgroundSearch: true };
+        if (!isMature) {
+          options['nsfw'] = false;
+        }
+
+        const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
 
         let results = resolvedResultsByQuery[searchQuery];
         if (results) {
