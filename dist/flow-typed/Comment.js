@@ -10,12 +10,14 @@ declare type Comment = {
   signature?: string, // signature of comment by originating channel
   signing_ts?: string, // timestamp used when signing this comment
   is_channel_signature_valid?: boolean, // whether or not the signature could be validated
-  parent_id?: number, // comment_id of comment this is in reply to
+  parent_id?: string, // if present, the comment is a reply
 };
 
-// todo: relate individual comments to their commentId
+// todo: implement --is_mine for comment_list
+// todo: rename byId to commentsByClaimId
 declare type CommentsState = {
   commentsByUri: { [string]: string },
+  repliesByCommentId: { [string]: Array<string> },
   byId: { [string]: Array<string> },
   commentById: { [string]: Comment },
   isLoading: boolean,

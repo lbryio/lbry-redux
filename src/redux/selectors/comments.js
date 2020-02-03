@@ -20,12 +20,13 @@ export const selectRepliesById = createSelector(
     const byCommentId = state.commentById || {};
     const comments = {};
 
-    for (const [parentId, replies] of repliesById) {
+    Object.keys(repliesById).forEach(parentId => {
       comments[parentId] = [];
-      for (const commentId of replies) {
+      for (const commentId of repliesById[parentId]) {
         comments[parentId].push(byCommentId[commentId]);
       }
-    }
+    });
+    return comments;
   }
 );
 
@@ -44,26 +45,23 @@ export const selectRepliesByClaimId = createSelector(
         }
       }
     });
+    return claimThreads;
   }
 );
 
-export const selectCommentsByClaimId = createSelector(
+export const selectAllCommentsByClaimId = createSelector(
   selectState,
   selectCommentsById,
-  selectRepliesByClaimId,
-  (state, commentById, repliesByClaimId) => {
+  (state, commentById) => {
     const byClaimId = state.byId || {};
     const comments = {};
     // replace every comment_id in the list with the actual comment object
     Object.keys(byClaimId).forEach(claimId => {
-      const threads = repliesByClaimId[claimId];
-      const commentIds = byClaimId[claimId];
+      const commentIds = byClaimId[claimId] || [];
 
       comments[claimId] = [];
       for (const commentId of commentIds) {
-        const comment = commentById[commentId];
-        comment.replies = threads[commentId];
-        comments[claimId].push(comment);
+        comments[claimId].push(commentById[commentId]);
       }
     });
 
@@ -78,7 +76,7 @@ export const selectCommentsByClaimId = createSelector(
 ); */
 export const selectCommentsByUri = createSelector(
   selectState,
-  selectCommentsByClaimId,
+  selectAllCommentsByClaimId,
   (state, commentsByClaimId) => {
     const byUri = state.commentsByUri || {};
     const comments = {};
@@ -96,3 +94,16 @@ export const makeSelectCommentsForUri = (uri: string) =>
     selectCommentsByUri,
     byUri => byUri[uri]
   );
+
+export const makeSelectCommentReplyCount = (commentId: string) =>
+  createSelector(
+    selectReplyIdsById,
+    repliesById => (repliesById[commentId] ? repliesById[commentId].length : 0)
+  );
+
+export const makeSelectCommentReplyList = (commentId: string) => {
+  createSelector(
+    selectRepliesById,
+    repliesById => repliesById[commentId]
+  );
+};

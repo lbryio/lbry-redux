@@ -1260,6 +1260,18 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
   const { claimId, claimName, contentName } = deprecatedParts;
 
+  {
+    if (claimId) {
+      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
+    }
+    if (claimName) {
+      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
+    }
+    if (contentName) {
+      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
+    }
+  }
+
   if (!claimName && !channelName && !streamName) {
     console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
   }
@@ -4239,7 +4251,9 @@ const doDeleteTag = name => ({
 
 //      
 
-function doCommentList(uri, page = 1, pageSize = 99999) {
+// if parentId is provided, `uri` is ignored
+function doCommentList(uri, page = 1, pageSize = 99999, // while the desktop app doesn't paginate
+parentId) {
   return (dispatch, getState) => {
     const state = getState();
     const claim = selectClaimsByUri(state)[uri];
@@ -4251,7 +4265,8 @@ function doCommentList(uri, page = 1, pageSize = 99999) {
     lbryProxy.comment_list({
       claim_id: claimId,
       page,
-      page_size: pageSize
+      page_size: pageSize,
+      parentId: parentId
     }).then(result => {
       const { items: comments } = result;
       dispatch({
@@ -4259,7 +4274,8 @@ function doCommentList(uri, page = 1, pageSize = 99999) {
         data: {
           comments,
           claimId: claimId,
-          uri: uri
+          uri: uri,
+          parentId: parentId
         }
       });
     }).catch(error => {
@@ -4291,7 +4307,8 @@ function doCommentCreate(comment = '', claim_id = '', channel, parent_id) {
         type: COMMENT_CREATE_COMPLETED,
         data: {
           comment: result,
-          claimId: claim_id
+          claimId: claim_id,
+          parentId: parent_id
         }
       });
     }).catch(error => {
@@ -4835,6 +4852,7 @@ const defaultState$1 = {
   byId: {}, // ClaimID -> list of comments
   commentsByUri: {}, // URI -> claimId
   isLoading: false,
+  repliesByCommentId: {}, // commentId -> list of commentIds
   myComments: undefined
 };
 
@@ -4848,9 +4866,10 @@ const commentReducer = handleActions({
   }),
 
   [COMMENT_CREATE_COMPLETED]: (state, action) => {
-    const { comment, claimId } = action.data;
+    const { comment, claimId, parentId } = action.data;
     const commentById = Object.assign({}, state.commentById);
     const byId = Object.assign({}, state.byId);
+    const repliesByCommentId = Object.assign({}, state.repliesByCommentId);
     const comments = byId[claimId];
     const newCommentIds = comments.slice();
 
@@ -4860,6 +4879,13 @@ const commentReducer = handleActions({
     // push the comment_id to the top of ID list
     newCommentIds.unshift(comment.comment_id);
     byId[claimId] = newCommentIds;
+
+    if (parentId) {
+      const newReplies = repliesByCommentId[parentId] || [];
+      // unlike regular comments, newest replies should be at the bottom of list
+      newReplies.push(comment.comment_id);
+      repliesByCommentId[parentId] = newReplies;
+    }
 
     return _extends$a({}, state, {
       commentById,
@@ -4871,31 +4897,49 @@ const commentReducer = handleActions({
   [COMMENT_LIST_STARTED]: state => _extends$a({}, state, { isLoading: true }),
 
   [COMMENT_LIST_COMPLETED]: (state, action) => {
-    const { comments, claimId, uri } = action.data;
+    const { comments, claimId, uri, parentId } = action.data;
 
     const commentById = Object.assign({}, state.commentById);
     const byId = Object.assign({}, state.byId);
     const commentsByUri = Object.assign({}, state.commentsByUri);
+    const repliesByCommentId = Object.assign({}, state.repliesByCommentId);
 
     if (comments) {
       // we use an Array to preserve order of listing
       // in reality this doesn't matter and we can just
       // sort comments by their timestamp
       const commentIds = Array(comments.length);
+      const replyThreads = {};
 
       // map the comment_ids to the new comments
       for (let i = 0; i < comments.length; i++) {
-        commentIds[i] = comments[i].comment_id;
-        commentById[commentIds[i]] = comments[i];
+        const comment = comments[i];
+        commentIds[i] = comment.comment_id;
+        commentById[commentIds[i]] = comment;
+
+        if (comment.parent_id) {
+          if (!(comment.parent_id in replyThreads)) {
+            replyThreads[comment.parent_id] = [];
+          }
+          replyThreads[comment.parent_id].push(comment.comment_id);
+        }
       }
 
-      byId[claimId] = commentIds;
+      Object.entries(replyThreads).forEach((parent_id, replyIds) => {
+        repliesByCommentId[parent_id] = replyIds;
+      });
+
       commentsByUri[uri] = claimId;
+      // don't override the entire list with the replies to one comment
+      if (parentId == null) {
+        byId[claimId] = commentIds;
+      }
     }
     return _extends$a({}, state, {
       byId,
       commentById,
       commentsByUri,
+      repliesByCommentId,
       isLoading: false
     });
   },
@@ -4910,20 +4954,36 @@ const commentReducer = handleActions({
     const { comment_id } = action.data;
     const commentById = Object.assign({}, state.commentById);
     const byId = Object.assign({}, state.byId);
+    const repliesByCommentId = Object.assign({}, state.repliesByCommentId);
 
-    // to remove the comment and its references
-    const claimId = commentById[comment_id].claim_id;
-    for (let i = 0; i < byId[claimId].length; i++) {
-      if (byId[claimId][i] === comment_id) {
-        byId[claimId].splice(i, 1);
-        break;
+    const comment = commentById[comment_id];
+
+    // keep record of comment's existence if it has replies
+    if (!(comment.comment_id in repliesByCommentId)) {
+      const claimId = commentById[comment_id].claim_id;
+      for (let i = 0; i < byId[claimId].length; i++) {
+        if (byId[claimId][i] === comment_id) {
+          byId[claimId].splice(i, 1);
+          break;
+        }
       }
     }
+
+    if (comment.parent_id) {
+      for (let i = 0; i < repliesByCommentId[comment.parent_id]; i++) {
+        if (repliesByCommentId[comment.parent_id][i] === comment.comment_id) {
+          repliesByCommentId[comment.parent_id].splice(i, 1);
+          break;
+        }
+      }
+    }
+
     delete commentById[comment_id];
 
     return _extends$a({}, state, {
       commentById,
       byId,
+      repliesByCommentId,
       isLoading: false
     });
   },
@@ -5875,17 +5935,46 @@ const selectState$8 = state => state.comments || {};
 
 const selectCommentsById = reselect.createSelector(selectState$8, state => state.commentById || {});
 
-const selectCommentsByClaimId = reselect.createSelector(selectState$8, selectCommentsById, (state, byId) => {
-  const byClaimId = state.byId || {};
+const selectReplyIdsById = reselect.createSelector(selectState$8, state => state.repliesByCommentId || {});
+
+const selectRepliesById = reselect.createSelector(selectState$8, selectReplyIdsById, (state, repliesById) => {
+  const byCommentId = state.commentById || {};
   const comments = {};
 
+  Object.keys(repliesById).forEach(parentId => {
+    comments[parentId] = [];
+    for (const commentId of repliesById[parentId]) {
+      comments[parentId].push(byCommentId[commentId]);
+    }
+  });
+  return comments;
+});
+
+const selectRepliesByClaimId = reselect.createSelector(selectState$8, selectRepliesById, (state, repliesById) => {
+  const byClaimId = state.byId || {};
+  const claimThreads = {};
+
+  Object.keys(byClaimId).forEach(claimId => {
+    claimThreads[claimId] = {};
+    for (const commentId of byClaimId[claimId]) {
+      if (repliesById[commentId]) {
+        claimThreads[claimId][commentId] = repliesById[commentId];
+      }
+    }
+  });
+  return claimThreads;
+});
+
+const selectAllCommentsByClaimId = reselect.createSelector(selectState$8, selectCommentsById, (state, commentById) => {
+  const byClaimId = state.byId || {};
+  const comments = {};
   // replace every comment_id in the list with the actual comment object
   Object.keys(byClaimId).forEach(claimId => {
-    const commentIds = byClaimId[claimId];
+    const commentIds = byClaimId[claimId] || [];
 
-    comments[claimId] = Array(commentIds === null ? 0 : commentIds.length);
-    for (let i = 0; i < commentIds.length; i++) {
-      comments[claimId][i] = byId[commentIds[i]];
+    comments[claimId] = [];
+    for (const commentId of commentIds) {
+      comments[claimId].push(commentById[commentId]);
     }
   });
 
@@ -5897,28 +5986,18 @@ const selectCommentsByClaimId = reselect.createSelector(selectState$8, selectCom
   selectState,
   state => state.byId || {}
 ); */
-const selectCommentsByUri = reselect.createSelector(selectState$8, state => {
+const selectCommentsByUri = reselect.createSelector(selectState$8, selectAllCommentsByClaimId, (state, commentsByClaimId) => {
   const byUri = state.commentsByUri || {};
   const comments = {};
   Object.keys(byUri).forEach(uri => {
     const claimId = byUri[uri];
-    if (claimId === null) {
-      comments[uri] = null;
-    } else {
-      comments[uri] = claimId;
-    }
+    comments[uri] = commentsByClaimId[claimId];
   });
 
   return comments;
 });
 
-const makeSelectCommentsForUri = uri => reselect.createSelector(selectCommentsByClaimId, selectCommentsByUri, (byClaimId, byUri) => {
-  const claimId = byUri[uri];
-  return byClaimId && byClaimId[claimId];
-});
-
-// todo: allow SDK to retrieve user comments through comment_list
-// todo: implement selectors for selecting comments owned by user
+const makeSelectCommentsForUri = uri => reselect.createSelector(selectCommentsByUri, byUri => byUri[uri]);
 
 //      
 
