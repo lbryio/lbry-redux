@@ -167,7 +167,8 @@ export const doResolvedSearch = (
   isBackgroundSearch: boolean = false,
   options: {
     related_to?: string,
-  } = {}
+  } = {},
+  nsfw: boolean
 ) => (dispatch: Dispatch, getState: GetState) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
@@ -203,7 +204,10 @@ export const doResolvedSearch = (
     dispatch(doUpdateSearchQuery(query));
   }
 
-  fetch(`${CONNECTION_STRING}search?resolve=true&${queryWithOptions}`)
+  const fetchUrl = nsfw
+    ? `${CONNECTION_STRING}search?resolve=true&${queryWithOptions}`
+    : `${CONNECTION_STRING}search?resolve=true&nsfw=false&${queryWithOptions}`;
+  fetch(fetchUrl)
     .then(handleFetchResponse)
     .then((data: Array<ResolvedSearchResult>) => {
       const results = [];
