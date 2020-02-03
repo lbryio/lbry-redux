@@ -4,7 +4,13 @@ import Lbry from 'lbry';
 import { selectClaimsByUri, selectMyChannelClaims } from 'redux/selectors/claims';
 import { doToast } from 'redux/actions/notifications';
 
-export function doCommentList(uri: string, page: number = 1, pageSize: number = 99999) {
+// if parentId is provided, `uri` is ignored
+export function doCommentList(
+  uri: string,
+  page: number = 1,
+  pageSize: number = 99999, // while the desktop app doesn't paginate
+  parentId?: string
+) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimsByUri(state)[uri];
@@ -17,6 +23,7 @@ export function doCommentList(uri: string, page: number = 1, pageSize: number = 
       claim_id: claimId,
       page,
       page_size: pageSize,
+      parentId: parentId,
     })
       .then((result: CommentListResponse) => {
         const { items: comments } = result;
@@ -26,6 +33,7 @@ export function doCommentList(uri: string, page: number = 1, pageSize: number = 
             comments,
             claimId: claimId,
             uri: uri,
+            parentId: parentId,
           },
         });
       })
@@ -66,6 +74,7 @@ export function doCommentCreate(
           data: {
             comment: result,
             claimId: claim_id,
+            parentId: parent_id,
           },
         });
       })
