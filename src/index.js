@@ -234,7 +234,11 @@ export {
   selectMyStreamUrlsCount,
 } from 'redux/selectors/claims';
 
-export { makeSelectCommentsForUri } from 'redux/selectors/comments';
+export {
+  makeSelectCommentsForUri,
+  makeSelectCommentReplyCount,
+  makeSelectCommentReplyList,
+} from 'redux/selectors/comments';
 
 export {
   makeSelectFileInfoForUri,
