@@ -8,20 +8,62 @@ export const selectCommentsById = createSelector(
   state => state.commentById || {}
 );
 
+export const selectReplyIdsById = createSelector(
+  selectState,
+  state => state.repliesByCommentId || {}
+);
+
+export const selectRepliesById = createSelector(
+  selectState,
+  selectReplyIdsById,
+  (state, repliesById) => {
+    const byCommentId = state.commentById || {};
+    const comments = {};
+
+    for (const [parentId, replies] of repliesById) {
+      comments[parentId] = [];
+      for (const commentId of replies) {
+        comments[parentId].push(byCommentId[commentId]);
+      }
+    }
+  }
+);
+
+export const selectRepliesByClaimId = createSelector(
+  selectState,
+  selectRepliesById,
+  (state, repliesById) => {
+    const byClaimId = state.byId || {};
+    const claimThreads = {};
+
+    Object.keys(byClaimId).forEach(claimId => {
+      claimThreads[claimId] = {};
+      for (const commentId of byClaimId[claimId]) {
+        if (repliesById[commentId]) {
+          claimThreads[claimId][commentId] = repliesById[commentId];
+        }
+      }
+    });
+  }
+);
+
 export const selectCommentsByClaimId = createSelector(
   selectState,
   selectCommentsById,
-  (state, byId) => {
+  selectRepliesByClaimId,
+  (state, commentById, repliesByClaimId) => {
     const byClaimId = state.byId || {};
     const comments = {};
-
     // replace every comment_id in the list with the actual comment object
     Object.keys(byClaimId).forEach(claimId => {
+      const threads = repliesByClaimId[claimId];
       const commentIds = byClaimId[claimId];
 
-      comments[claimId] = Array(commentIds === null ? 0 : commentIds.length);
-      for (let i = 0; i < commentIds.length; i++) {
-        comments[claimId][i] = byId[commentIds[i]];
+      comments[claimId] = [];
+      for (const commentId of commentIds) {
+        const comment = commentById[commentId];
+        comment.replies = threads[commentId];
+        comments[claimId].push(comment);
       }
     });
 
@@ -36,16 +78,13 @@ export const selectCommentsByClaimId = createSelector(
 ); */
 export const selectCommentsByUri = createSelector(
   selectState,
-  state => {
+  selectCommentsByClaimId,
+  (state, commentsByClaimId) => {
     const byUri = state.commentsByUri || {};
     const comments = {};
     Object.keys(byUri).forEach(uri => {
       const claimId = byUri[uri];
-      if (claimId === null) {
-        comments[uri] = null;
-      } else {
-        comments[uri] = claimId;
-      }
+      comments[uri] = commentsByClaimId[claimId];
     });
 
     return comments;
@@ -54,13 +93,6 @@ export const selectCommentsByUri = createSelector(
 
 export const makeSelectCommentsForUri = (uri: string) =>
   createSelector(
-    selectCommentsByClaimId,
     selectCommentsByUri,
-    (byClaimId, byUri) => {
-      const claimId = byUri[uri];
-      return byClaimId && byClaimId[claimId];
-    }
+    byUri => byUri[uri]
   );
-
-// todo: allow SDK to retrieve user comments through comment_list
-// todo: implement selectors for selecting comments owned by user
