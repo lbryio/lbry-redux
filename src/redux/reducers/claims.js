@@ -39,6 +39,8 @@ type State = {
   updateChannelError: string,
   updatingChannel: boolean,
   pendingChannelImport: string | boolean,
+  repostLoading: boolean,
+  repostError: ?string,
 };
 
 const reducers = {};
@@ -65,6 +67,8 @@ const defaultState = {
   creatingChannel: false,
   createChannelError: undefined,
   pendingChannelImport: false,
+  repostLoading: false,
+  repostError: undefined,
 };
 
 function handleClaimAction(state: State, action: any): State {
@@ -445,6 +449,47 @@ reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State, action: any): State => {
   return Object.assign({}, state, {
     fetchingClaimSearchByQuery,
   });
+};
+
+reducers[ACTIONS.CLAIM_REPOST_STARTED] = (state: State): State => {
+  return {
+    ...state,
+    repostLoading: true,
+    repostError: null,
+  };
+};
+reducers[ACTIONS.CLAIM_REPOST_COMPLETED] = (state: State, action: any): State => {
+  const { originalClaimId, repostClaim } = action.data;
+  const byId = { ...state.byId };
+  const claimsByUri = { ...state.claimsByUri };
+  const claimThatWasReposted = byId[originalClaimId];
+
+  const repostStub = { ...repostClaim, reposted_claim: claimThatWasReposted };
+  byId[repostStub.claim_id] = repostStub;
+  claimsByUri[repostStub.permanent_url] = repostStub.claim_id;
+
+  return {
+    ...state,
+    byId,
+    claimsByUri,
+    repostLoading: false,
+    repostError: null,
+  };
+};
+reducers[ACTIONS.CLAIM_REPOST_FAILED] = (state: State, action: any): State => {
+  const { error } = action.data;
+
+  return {
+    ...state,
+    repostLoading: false,
+    repostError: error,
+  };
+};
+reducers[ACTIONS.CLEAR_REPOST_ERROR] = (state: State): State => {
+  return {
+    ...state,
+    repostError: null,
+  };
 };
 
 export function claimsReducer(state: State = defaultState, action: any) {

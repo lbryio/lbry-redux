@@ -67,6 +67,8 @@ export {
   doUpdateChannel,
   doClaimSearch,
   doImportChannel,
+  doRepost,
+  doClearRepostError,
 } from 'redux/actions/claims';
 
 export { doDeletePurchasedUri, doPurchaseUri, doFileGet } from 'redux/actions/file';
@@ -232,6 +234,8 @@ export {
   selectChannelImportPending,
   makeSelectMyStreamUrlsForPage,
   selectMyStreamUrlsCount,
+  selectRepostError,
+  selectRepostLoading,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';

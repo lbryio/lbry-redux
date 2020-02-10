@@ -100,16 +100,18 @@ export function doFetchClaimListMine(page: number = 1, pageSize: number = 99999)
       type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED,
     });
 
-    Lbry.stream_list({ page, page_size: pageSize }).then((result: StreamListResponse) => {
-      const claims = result.items;
+    Lbry.claim_list({ page, page_size: pageSize, claim_type: ['stream', 'repost'] }).then(
+      (result: StreamListResponse) => {
+        const claims = result.items;
 
-      dispatch({
-        type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
-        data: {
-          claims,
-        },
-      });
-    });
+        dispatch({
+          type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
+          data: {
+            claims,
+          },
+        });
+      }
+    );
   };
 }
 
@@ -453,5 +455,46 @@ export function doClaimSearch(
     };
 
     Lbry.claim_search(options).then(success, failure);
+  };
+}
+
+export function doRepost(options: StreamRepostOptions) {
+  return (dispatch: Dispatch) => {
+    // $FlowFixMe
+    return new Promise(resolve => {
+      dispatch({
+        type: ACTIONS.CLAIM_REPOST_STARTED,
+      });
+
+      function success(response) {
+        const repostClaim = response.outputs[0];
+        dispatch({
+          type: ACTIONS.CLAIM_REPOST_COMPLETED,
+          data: {
+            originalClaimId: options.claim_id,
+            repostClaim,
+          },
+        });
+
+        resolve();
+      }
+
+      function failure(error) {
+        dispatch({
+          type: ACTIONS.CLAIM_REPOST_FAILED,
+          data: {
+            error: error.message,
+          },
+        });
+      }
+
+      Lbry.stream_repost(options).then(success, failure);
+    });
+  };
+}
+
+export function doClearRepostError() {
+  return {
+    type: ACTIONS.CLEAR_REPOST_ERROR,
   };
 }
