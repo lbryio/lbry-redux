@@ -166,13 +166,13 @@ export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (
 
 export const doResolvedSearch = (
   rawQuery: string,
-  size?: number, // only pass in if you don't want to use the users setting (ex: related content)
-  from?: number,
-  isBackgroundSearch?: boolean = false,
+  size: ?number, // only pass in if you don't want to use the users setting (ex: related content)
+  from: ?number,
+  isBackgroundSearch: boolean = false,
   options: {
     related_to?: string,
-    // nsfw here
-  } = {}
+  } = {},
+  nsfw: boolean
 ) => (dispatch: Dispatch, getState: GetState) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
@@ -218,7 +218,10 @@ export const doResolvedSearch = (
     dispatch(doUpdateSearchQuery(query));
   }
 
-  fetch(`${CONNECTION_STRING}search?resolve=true&${queryWithOptions}`)
+  const fetchUrl = nsfw
+    ? `${CONNECTION_STRING}search?resolve=true&${queryWithOptions}`
+    : `${CONNECTION_STRING}search?resolve=true&nsfw=false&${queryWithOptions}`;
+  fetch(fetchUrl)
     .then(handleFetchResponse)
     .then((data: Array<ResolvedSearchResult>) => {
       const results = [];

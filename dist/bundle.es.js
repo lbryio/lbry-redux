@@ -4112,7 +4112,7 @@ const doSearch = (rawQuery, searchOptions) => (dispatch, getState) => {
 };
 
 const doResolvedSearch = (rawQuery, size, // only pass in if you don't want to use the users setting (ex: related content)
-from, isBackgroundSearch = false, options = {}) => (dispatch, getState) => {
+from, isBackgroundSearch = false, options = {}, nsfw) => (dispatch, getState) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
   if (!query) {
@@ -4155,7 +4155,8 @@ from, isBackgroundSearch = false, options = {}) => (dispatch, getState) => {
     dispatch(doUpdateSearchQuery(query));
   }
 
-  fetch(`${CONNECTION_STRING}search?resolve=true&${queryWithOptions}`).then(handleFetchResponse).then(data => {
+  const fetchUrl = nsfw ? `${CONNECTION_STRING}search?resolve=true&${queryWithOptions}` : `${CONNECTION_STRING}search?resolve=true&nsfw=false&${queryWithOptions}`;
+  fetch(fetchUrl).then(handleFetchResponse).then(data => {
     const results = [];
 
     data.forEach(result => {
