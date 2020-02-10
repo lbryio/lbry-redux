@@ -14,7 +14,7 @@ type SharedData = {
 
 function extractUserState(rawObj: SharedData) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
-    const { subscriptions, tags, blocked, settings} = rawObj.value;
+    const { subscriptions, tags, blocked, settings } = rawObj.value;
 
     return {
       ...(subscriptions ? { subscriptions } : {}),
@@ -30,7 +30,10 @@ function extractUserState(rawObj: SharedData) {
 export function doPopulateSharedUserState(sharedSettings: any) {
   return (dispatch: Dispatch) => {
     const { subscriptions, tags, blocked, settings } = extractUserState(sharedSettings);
-    dispatch({ type: ACTIONS.USER_STATE_POPULATE, data: { subscriptions, tags, blocked, settings } });
+    dispatch({
+      type: ACTIONS.USER_STATE_POPULATE,
+      data: { subscriptions, tags, blocked, settings },
+    });
   };
 }
 

@@ -17,6 +17,15 @@ const DEBOUNCED_SEARCH_SUGGESTION_MS = 300;
 type Dispatch = (action: any) => any;
 type GetState = () => { search: SearchState };
 
+type SearchOptions = {
+  size?: number,
+  from?: number,
+  related_to?: string,
+  nsfw?: boolean,
+  isBackgroundSearch?: boolean,
+  resolveResults?: boolean,
+};
+
 // We can't use env's because they aren't passed into node_modules
 let CONNECTION_STRING = 'https://lighthouse.lbry.com/';
 
@@ -75,17 +84,13 @@ export const doUpdateSearchQuery = (query: string, shouldSkipSuggestions: ?boole
   }
 };
 
-export const doSearch = (
-  rawQuery: string,
-  size: ?number, // only pass in if you don't want to use the users setting (ex: related content)
-  from: ?number,
-  isBackgroundSearch: boolean = false,
-  options: {
-    related_to?: string,
-  } = {},
-  resolveResults: boolean = true
-) => (dispatch: Dispatch, getState: GetState) => {
+export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
   const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
+  const resolveResults = searchOptions && searchOptions.resolveResults;
+  const isBackgroundSearch = (searchOptions && searchOptions.isBackgroundSearch) || false;
 
   if (!query) {
     dispatch({
@@ -95,9 +100,8 @@ export const doSearch = (
   }
 
   const state = getState();
-  let queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch, options)(
-    state
-  );
+
+  let queryWithOptions = makeSelectQueryWithOptions(query, searchOptions)(state);
 
   // If we have already searched for something, we don't need to do anything
   const urisForQuery = makeSelectSearchUris(queryWithOptions)(state);
@@ -179,15 +183,25 @@ export const doResolvedSearch = (
     return;
   }
 
+  const optionsWithFrom: SearchOptions = {
+    size,
+    from,
+    isBackgroundSearch,
+    ...options,
+  };
+
+  const optionsWithoutFrom: SearchOptions = {
+    size,
+    isBackgroundSearch,
+    ...options,
+  };
+
   const state = getState();
-  let queryWithOptions = makeSelectQueryWithOptions(query, size, from, isBackgroundSearch, options)(
-    state
-  );
+
+  let queryWithOptions = makeSelectQueryWithOptions(query, optionsWithFrom)(state);
 
   // make from null so that we can maintain a reference to the same query for multiple pages and simply append the found results
-  let queryWithoutFrom = makeSelectQueryWithOptions(query, size, null, isBackgroundSearch, options)(
-    state
-  );
+  let queryWithoutFrom = makeSelectQueryWithOptions(query, optionsWithoutFrom)(state);
 
   // If we have already searched for something, we don't need to do anything
   // TODO: Tweak this check for multiple page results
@@ -245,10 +259,10 @@ export const doBlurSearchInput = () => (dispatch: Dispatch) =>
     type: ACTIONS.SEARCH_BLUR,
   });
 
-export const doUpdateSearchOptions = (newOptions: SearchOptions) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
+export const doUpdateSearchOptions = (
+  newOptions: SearchOptions,
+  additionalOptions: SearchOptions
+) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const searchValue = selectSearchValue(state);
 
@@ -259,6 +273,6 @@ export const doUpdateSearchOptions = (newOptions: SearchOptions) => (
 
   if (searchValue) {
     // After updating, perform a search with the new options
-    dispatch(doSearch(searchValue));
+    dispatch(doSearch(searchValue, additionalOptions));
   }
 };

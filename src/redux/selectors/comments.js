@@ -5,9 +5,35 @@ const selectState = state => state.comments || {};
 
 export const selectCommentsById = createSelector(
   selectState,
-  state => state.byId || {}
+  state => state.commentById || {}
 );
 
+export const selectCommentsByClaimId = createSelector(
+  selectState,
+  selectCommentsById,
+  (state, byId) => {
+    const byClaimId = state.byId || {};
+    const comments = {};
+
+    // replace every comment_id in the list with the actual comment object
+    Object.keys(byClaimId).forEach(claimId => {
+      const commentIds = byClaimId[claimId];
+
+      comments[claimId] = Array(commentIds === null ? 0 : commentIds.length);
+      for (let i = 0; i < commentIds.length; i++) {
+        comments[claimId][i] = byId[commentIds[i]];
+      }
+    });
+
+    return comments;
+  }
+);
+
+// previously this used a mapping from claimId -> Array<Comments>
+/* export const selectCommentsById = createSelector(
+  selectState,
+  state => state.byId || {}
+); */
 export const selectCommentsByUri = createSelector(
   selectState,
   state => {
@@ -21,16 +47,20 @@ export const selectCommentsByUri = createSelector(
         comments[uri] = claimId;
       }
     });
+
     return comments;
   }
 );
 
 export const makeSelectCommentsForUri = (uri: string) =>
   createSelector(
-    selectCommentsById,
+    selectCommentsByClaimId,
     selectCommentsByUri,
-    (byId, byUri) => {
+    (byClaimId, byUri) => {
       const claimId = byUri[uri];
-      return byId && byId[claimId];
+      return byClaimId && byClaimId[claimId];
     }
   );
+
+// todo: allow SDK to retrieve user comments through comment_list
+// todo: implement selectors for selecting comments owned by user

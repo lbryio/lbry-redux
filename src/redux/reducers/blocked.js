@@ -33,8 +33,7 @@ export const blockedReducer = handleActions(
       const { blocked } = action.data;
       return {
         ...state,
-        blockedChannels:
-          blocked && blocked.length ? blocked : state.blockedChannels,
+        blockedChannels: blocked && blocked.length ? blocked : state.blockedChannels,
       };
     },
   },
