@@ -865,7 +865,7 @@ const Lbry = {
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
   getMediaType: (contentType, fileName) => {
     if (fileName) {
-      const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(jpeg|jpg|png|gif|svg)$/i, 'image'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book'], [/\.(lbry)$/i, 'application']];
+      const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(jpeg|jpg|png|gif|svg)$/i, 'image'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(html|json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book'], [/\.(lbry)$/i, 'application']];
 
       const res = formats.reduce((ret, testpair) => {
         switch (testpair[0].test(ret)) {
@@ -2797,7 +2797,6 @@ function batchActions(...actions) {
 }
 
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 function doResolveUris(uris, returnCachedClaims = false) {
   return (dispatch, getState) => {
     const normalizedUris = uris.map(normalizeURI);
@@ -2868,13 +2867,13 @@ function doResolveUri(uri) {
   return doResolveUris([uri]);
 }
 
-function doFetchClaimListMine(page = 1, pageSize = 99999) {
+function doFetchClaimListMine(page = 1, pageSize = 99999, resolve) {
   return dispatch => {
     dispatch({
       type: FETCH_CLAIM_LIST_MINE_STARTED
     });
 
-    lbryProxy.stream_list({ page, page_size: pageSize }).then(result => {
+    lbryProxy.stream_list({ page, page_size: pageSize, resolve }).then(result => {
       const claims = result.items;
 
       dispatch({
@@ -3129,7 +3128,7 @@ function doImportChannel(certificate) {
   };
 }
 
-function doFetchChannelListMine(page = 1, pageSize = 99999) {
+function doFetchChannelListMine(page = 1, pageSize = 99999, resolve) {
   return dispatch => {
     dispatch({
       type: FETCH_CHANNEL_LIST_STARTED
@@ -3142,7 +3141,7 @@ function doFetchChannelListMine(page = 1, pageSize = 99999) {
       });
     };
 
-    lbryProxy.channel_list({ page, page_size: pageSize }).then(callback);
+    lbryProxy.channel_list({ page, page_size: pageSize, resolve }).then(callback);
   };
 }
 
