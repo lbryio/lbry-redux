@@ -2887,7 +2887,12 @@ function doFetchClaimListMine(page = 1, pageSize = 99999) {
       type: FETCH_CLAIM_LIST_MINE_STARTED
     });
 
-    lbryProxy.claim_list({ page, page_size: pageSize, claim_type: ['stream', 'repost'] }).then(result => {
+    lbryProxy.claim_list({
+      page,
+      page_size: pageSize,
+      claim_type: ['stream', 'repost'],
+      resolve: true
+    }).then(result => {
       const claims = result.items;
 
       dispatch({

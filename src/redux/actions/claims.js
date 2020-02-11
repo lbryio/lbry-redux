@@ -100,18 +100,21 @@ export function doFetchClaimListMine(page: number = 1, pageSize: number = 99999)
       type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED,
     });
 
-    Lbry.claim_list({ page, page_size: pageSize, claim_type: ['stream', 'repost'] }).then(
-      (result: StreamListResponse) => {
-        const claims = result.items;
+    Lbry.claim_list({
+      page,
+      page_size: pageSize,
+      claim_type: ['stream', 'repost'],
+      resolve: true,
+    }).then((result: StreamListResponse) => {
+      const claims = result.items;
 
-        dispatch({
-          type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
-          data: {
-            claims,
-          },
-        });
-      }
-    );
+      dispatch({
+        type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
+        data: {
+          claims,
+        },
+      });
+    });
   };
 }
 
