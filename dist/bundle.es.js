@@ -126,6 +126,10 @@ const CLAIM_SEARCH_FAILED = 'CLAIM_SEARCH_FAILED';
 const CLAIM_SEARCH_BY_TAGS_STARTED = 'CLAIM_SEARCH_BY_TAGS_STARTED';
 const CLAIM_SEARCH_BY_TAGS_COMPLETED = 'CLAIM_SEARCH_BY_TAGS_COMPLETED';
 const CLAIM_SEARCH_BY_TAGS_FAILED = 'CLAIM_SEARCH_BY_TAGS_FAILED';
+const CLAIM_REPOST_STARTED = 'CLAIM_REPOST_STARTED';
+const CLAIM_REPOST_COMPLETED = 'CLAIM_REPOST_COMPLETED';
+const CLAIM_REPOST_FAILED = 'CLAIM_REPOST_FAILED';
+const CLEAR_REPOST_ERROR = 'CLEAR_REPOST_ERROR';
 
 // Comments
 const COMMENT_LIST_STARTED = 'COMMENT_LIST_STARTED';
@@ -383,6 +387,10 @@ var action_types = /*#__PURE__*/Object.freeze({
   CLAIM_SEARCH_BY_TAGS_STARTED: CLAIM_SEARCH_BY_TAGS_STARTED,
   CLAIM_SEARCH_BY_TAGS_COMPLETED: CLAIM_SEARCH_BY_TAGS_COMPLETED,
   CLAIM_SEARCH_BY_TAGS_FAILED: CLAIM_SEARCH_BY_TAGS_FAILED,
+  CLAIM_REPOST_STARTED: CLAIM_REPOST_STARTED,
+  CLAIM_REPOST_COMPLETED: CLAIM_REPOST_COMPLETED,
+  CLAIM_REPOST_FAILED: CLAIM_REPOST_FAILED,
+  CLEAR_REPOST_ERROR: CLEAR_REPOST_ERROR,
   COMMENT_LIST_STARTED: COMMENT_LIST_STARTED,
   COMMENT_LIST_COMPLETED: COMMENT_LIST_COMPLETED,
   COMMENT_LIST_FAILED: COMMENT_LIST_FAILED,
@@ -865,7 +873,7 @@ const Lbry = {
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
   getMediaType: (contentType, fileName) => {
     if (fileName) {
-      const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(jpeg|jpg|png|gif|svg)$/i, 'image'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book'], [/\.(lbry)$/i, 'application']];
+      const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(jpeg|jpg|png|gif|svg)$/i, 'image'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(html|json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book'], [/\.(lbry)$/i, 'application']];
 
       const res = formats.reduce((ret, testpair) => {
         switch (testpair[0].test(ret)) {
@@ -907,6 +915,7 @@ const Lbry = {
   channel_abandon: params => daemonCallWithResult('channel_abandon', params),
   support_create: params => daemonCallWithResult('support_create', params),
   support_list: params => daemonCallWithResult('support_list', params),
+  stream_repost: params => daemonCallWithResult('stream_repost', params),
 
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),
@@ -942,7 +951,6 @@ const Lbry = {
   comment_create: (params = {}) => daemonCallWithResult('comment_create', params),
   comment_hide: (params = {}) => daemonCallWithResult('comment_hide', params),
   comment_abandon: (params = {}) => daemonCallWithResult('comment_abandon', params),
-  // requires SDK ver. 0.53.0
   comment_update: (params = {}) => daemonCallWithResult('comment_update', params),
 
   // Connect to the sdk
@@ -1953,6 +1961,10 @@ const selectCreatingChannel = reselect.createSelector(selectState$2, state => st
 
 const selectCreateChannelError = reselect.createSelector(selectState$2, state => state.createChannelError);
 
+const selectRepostLoading = reselect.createSelector(selectState$2, state => state.repostLoading);
+
+const selectRepostError = reselect.createSelector(selectState$2, state => state.repostError);
+
 const selectClaimsByUri = reselect.createSelector(selectState$2, selectClaimsById, (state, byId) => {
   const byUri = state.claimsByUri || {};
   const claims = {};
@@ -2874,7 +2886,7 @@ function doFetchClaimListMine(page = 1, pageSize = 99999) {
       type: FETCH_CLAIM_LIST_MINE_STARTED
     });
 
-    lbryProxy.stream_list({ page, page_size: pageSize }).then(result => {
+    lbryProxy.claim_list({ page, page_size: pageSize, claim_type: ['stream', 'repost'] }).then(result => {
       const claims = result.items;
 
       dispatch({
@@ -3187,6 +3199,47 @@ function doClaimSearch(options = {
     };
 
     lbryProxy.claim_search(options).then(success, failure);
+  };
+}
+
+function doRepost(options) {
+  return dispatch => {
+    // $FlowFixMe
+    return new Promise(resolve => {
+      dispatch({
+        type: CLAIM_REPOST_STARTED
+      });
+
+      function success(response) {
+        const repostClaim = response.outputs[0];
+        dispatch({
+          type: CLAIM_REPOST_COMPLETED,
+          data: {
+            originalClaimId: options.claim_id,
+            repostClaim
+          }
+        });
+
+        resolve();
+      }
+
+      function failure(error) {
+        dispatch({
+          type: CLAIM_REPOST_FAILED,
+          data: {
+            error: error.message
+          }
+        });
+      }
+
+      lbryProxy.stream_repost(options).then(success, failure);
+    });
+  };
+}
+
+function doClearRepostError() {
+  return {
+    type: CLEAR_REPOST_ERROR
   };
 }
 
@@ -4450,7 +4503,9 @@ const defaultState = {
   updatingChannel: false,
   creatingChannel: false,
   createChannelError: undefined,
-  pendingChannelImport: false
+  pendingChannelImport: false,
+  repostLoading: false,
+  repostError: undefined
 };
 
 function handleClaimAction(state, action) {
@@ -4802,6 +4857,43 @@ reducers[CLAIM_SEARCH_FAILED] = (state, action) => {
 
   return Object.assign({}, state, {
     fetchingClaimSearchByQuery
+  });
+};
+
+reducers[CLAIM_REPOST_STARTED] = state => {
+  return _extends$9({}, state, {
+    repostLoading: true,
+    repostError: null
+  });
+};
+reducers[CLAIM_REPOST_COMPLETED] = (state, action) => {
+  const { originalClaimId, repostClaim } = action.data;
+  const byId = _extends$9({}, state.byId);
+  const claimsByUri = _extends$9({}, state.claimsByUri);
+  const claimThatWasReposted = byId[originalClaimId];
+
+  const repostStub = _extends$9({}, repostClaim, { reposted_claim: claimThatWasReposted });
+  byId[repostStub.claim_id] = repostStub;
+  claimsByUri[repostStub.permanent_url] = repostStub.claim_id;
+
+  return _extends$9({}, state, {
+    byId,
+    claimsByUri,
+    repostLoading: false,
+    repostError: null
+  });
+};
+reducers[CLAIM_REPOST_FAILED] = (state, action) => {
+  const { error } = action.data;
+
+  return _extends$9({}, state, {
+    repostLoading: false,
+    repostError: error
+  });
+};
+reducers[CLEAR_REPOST_ERROR] = state => {
+  return _extends$9({}, state, {
+    repostError: null
   });
 };
 
@@ -5997,6 +6089,7 @@ exports.doCheckAddressIsMine = doCheckAddressIsMine;
 exports.doCheckPendingPublishes = doCheckPendingPublishes;
 exports.doClaimSearch = doClaimSearch;
 exports.doClearPublish = doClearPublish;
+exports.doClearRepostError = doClearRepostError;
 exports.doClearSupport = doClearSupport;
 exports.doCommentAbandon = doCommentAbandon;
 exports.doCommentCreate = doCommentCreate;
@@ -6026,6 +6119,7 @@ exports.doPreferenceSet = doPreferenceSet;
 exports.doPrepareEdit = doPrepareEdit;
 exports.doPublish = doPublish;
 exports.doPurchaseUri = doPurchaseUri;
+exports.doRepost = doRepost;
 exports.doResetThumbnailStatus = doResetThumbnailStatus;
 exports.doResolveUri = doResolveUri;
 exports.doResolveUris = doResolveUris;
@@ -6192,6 +6286,8 @@ exports.selectPurchaseUriErrorMessage = selectPurchaseUriErrorMessage;
 exports.selectPurchasedUris = selectPurchasedUris;
 exports.selectReceiveAddress = selectReceiveAddress;
 exports.selectRecentTransactions = selectRecentTransactions;
+exports.selectRepostError = selectRepostError;
+exports.selectRepostLoading = selectRepostLoading;
 exports.selectReservedBalance = selectReservedBalance;
 exports.selectResolvedSearchResultsByQuery = selectResolvedSearchResultsByQuery;
 exports.selectResolvedSearchResultsByQueryLastPageReached = selectResolvedSearchResultsByQueryLastPageReached;

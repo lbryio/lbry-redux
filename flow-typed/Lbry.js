@@ -204,6 +204,15 @@ declare type StreamListResponse = {
   total_pages: number,
 };
 
+declare type StreamRepostOptions = {
+  name: string,
+  bid: string,
+  claim_id: string,
+  channel_id: string,
+};
+
+declare type StreamRepostResponse = GenericTxResponse;
+
 //
 // Types used in the generic Lbry object that is exported
 //
@@ -240,6 +249,7 @@ declare type LbryTypes = {
   support_create: (params: {}) => Promise<GenericTxResponse>,
   support_list: (params: {}) => Promise<SupportListResponse>,
   support_abandon: (params: {}) => Promise<SupportAbandonResponse>,
+  stream_repost: (params: StreamRepostOptions) => Promise<StreamRepostResponse>,
 
   // File fetching and manipulation
   file_list: (params: {}) => Promise<FileListResponse>,

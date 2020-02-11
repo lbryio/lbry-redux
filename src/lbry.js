@@ -86,6 +86,7 @@ const Lbry: LbryTypes = {
   channel_abandon: params => daemonCallWithResult('channel_abandon', params),
   support_create: params => daemonCallWithResult('support_create', params),
   support_list: params => daemonCallWithResult('support_list', params),
+  stream_repost: params => daemonCallWithResult('stream_repost', params),
 
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),
@@ -121,7 +122,6 @@ const Lbry: LbryTypes = {
   comment_create: (params = {}) => daemonCallWithResult('comment_create', params),
   comment_hide: (params = {}) => daemonCallWithResult('comment_hide', params),
   comment_abandon: (params = {}) => daemonCallWithResult('comment_abandon', params),
-  // requires SDK ver. 0.53.0
   comment_update: (params = {}) => daemonCallWithResult('comment_update', params),
 
   // Connect to the sdk
