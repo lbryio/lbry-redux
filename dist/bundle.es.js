@@ -2010,7 +2010,7 @@ const makeSelectPendingByUri = uri => reselect.createSelector(selectPendingById,
   return pendingById[claimId];
 });
 
-const makeSelectClaimForUri = uri => reselect.createSelector(selectClaimsByUri, selectPendingById, (byUri, pendingById) => {
+const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelector(selectClaimsByUri, selectPendingById, (byUri, pendingById) => {
   // Check if a claim is pending first
   // It won't be in claimsByUri because resolving it will return nothing
 
@@ -2038,10 +2038,11 @@ const makeSelectClaimForUri = uri => reselect.createSelector(selectClaimsByUri, 
     }
 
     const repostedClaim = claim.reposted_claim;
-    if (repostedClaim) {
+    if (repostedClaim && returnRepost) {
       const channelUrl = claim.signing_channel && claim.signing_channel.canonical_url;
 
       return _extends$4({}, repostedClaim, {
+        repost_url: uri,
         repost_channel_url: channelUrl
       });
     } else {
