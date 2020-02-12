@@ -107,7 +107,7 @@ export const makeSelectPendingByUri = (uri: string) =>
     }
   );
 
-export const makeSelectClaimForUri = (uri: string) =>
+export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true) =>
   createSelector(
     selectClaimsByUri,
     selectPendingById,
@@ -139,11 +139,12 @@ export const makeSelectClaimForUri = (uri: string) =>
         }
 
         const repostedClaim = claim.reposted_claim;
-        if (repostedClaim) {
+        if (repostedClaim && returnRepost) {
           const channelUrl = claim.signing_channel && claim.signing_channel.canonical_url;
 
           return {
             ...repostedClaim,
+            repost_url: uri,
             repost_channel_url: channelUrl,
           };
         } else {
