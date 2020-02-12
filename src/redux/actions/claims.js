@@ -385,7 +385,7 @@ export function doImportChannel(certificate: string) {
   };
 }
 
-export function doFetchChannelListMine(page: number = 1, pageSize: number = 99999) {
+export function doFetchChannelListMine(page: number = 1, pageSize: number = 99999, resolve: boolean = false) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_CHANNEL_LIST_STARTED,
@@ -398,7 +398,7 @@ export function doFetchChannelListMine(page: number = 1, pageSize: number = 9999
       });
     };
 
-    Lbry.channel_list({ page, page_size: pageSize }).then(callback);
+    Lbry.channel_list({ page, page_size: pageSize, resolve }).then(callback);
   };
 }
 

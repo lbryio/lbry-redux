@@ -3142,7 +3142,7 @@ function doImportChannel(certificate) {
   };
 }
 
-function doFetchChannelListMine(page = 1, pageSize = 99999) {
+function doFetchChannelListMine(page = 1, pageSize = 99999, resolve = false) {
   return dispatch => {
     dispatch({
       type: FETCH_CHANNEL_LIST_STARTED
@@ -3155,7 +3155,7 @@ function doFetchChannelListMine(page = 1, pageSize = 99999) {
       });
     };
 
-    lbryProxy.channel_list({ page, page_size: pageSize }).then(callback);
+    lbryProxy.channel_list({ page, page_size: pageSize, resolve }).then(callback);
   };
 }
 
