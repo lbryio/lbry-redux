@@ -392,6 +392,7 @@ export function doFetchChannelListMine(page: number = 1, pageSize: number = 9999
     });
 
     const callback = (response: ChannelListResponse) => {
+
       dispatch({
         type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED,
         data: { claims: response.items },
