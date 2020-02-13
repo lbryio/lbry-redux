@@ -211,27 +211,41 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
   const pendingById = Object.assign(state.pendingById);
 
   let myChannelClaims;
-  let byId = Object.assign({}, state.byId);
+  const byId = Object.assign({}, state.byId);
+  const byUri = Object.assign({}, state.claimsByUri);
+  const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
+
   if (!claims.length) {
     // $FlowFixMe
     myChannelClaims = null;
   } else {
     myChannelClaims = new Set(state.myChannelClaims);
     claims.forEach(claim => {
+      const { meta } = claim;
+      const { claims_in_channel: claimsInChannel } = claim.meta;
+      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId } = claim;
+
+      byUri[canonicalUrl] = claimId;
+      byUri[permanentUrl] = claimId;
+      channelClaimCounts[canonicalUrl] = claimsInChannel;
+      channelClaimCounts[permanentUrl] = claimsInChannel;
+
       // $FlowFixMe
-      myChannelClaims.add(claim.claim_id);
-      if (!byId[claim.claim_id]) {
-        byId[claim.claim_id] = claim;
+      myChannelClaims.add(claimId);
+      if (!byId[claimId]) {
+        byId[claimId] = claim;
       }
 
-      if (pendingById[claim.claim_id] && claim.confirmations > 0) {
-        delete pendingById[claim.claim_id];
+      if (pendingById[claimId] && claim.confirmations > 0) {
+        delete pendingById[claimId];
       }
     });
   }
 
   return Object.assign({}, state, {
     byId,
+    claimsByUri: byUri,
+    channelClaimCounts,
     fetchingMyChannels: false,
     myChannelClaims,
     myClaims: concatClaims(myClaims, claims),

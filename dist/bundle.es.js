@@ -2881,13 +2881,13 @@ function doResolveUri(uri) {
   return doResolveUris([uri]);
 }
 
-function doFetchClaimListMine(page = 1, pageSize = 99999) {
+function doFetchClaimListMine(page = 1, pageSize = 99999, resolve = true) {
   return dispatch => {
     dispatch({
       type: FETCH_CLAIM_LIST_MINE_STARTED
     });
 
-    lbryProxy.claim_list({ page, page_size: pageSize, claim_type: ['stream', 'repost'] }).then(result => {
+    lbryProxy.claim_list({ page, page_size: pageSize, claim_type: ['stream', 'repost'], resolve }).then(result => {
       const claims = result.items;
 
       dispatch({
@@ -3142,16 +3142,18 @@ function doImportChannel(certificate) {
   };
 }
 
-function doFetchChannelListMine(page = 1, pageSize = 99999, resolve = false) {
+function doFetchChannelListMine(page = 1, pageSize = 99999, resolve = true) {
   return dispatch => {
     dispatch({
       type: FETCH_CHANNEL_LIST_STARTED
     });
 
     const callback = response => {
+      const { items } = response;
+
       dispatch({
         type: FETCH_CHANNEL_LIST_COMPLETED,
-        data: { claims: response.items }
+        data: { claims: items }
       });
     };
 
@@ -4638,27 +4640,40 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   const pendingById = Object.assign(state.pendingById);
 
   let myChannelClaims;
-  let byId = Object.assign({}, state.byId);
+  const byId = Object.assign({}, state.byId);
+  const byUri = Object.assign({}, state.claimsByUri);
+  const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
+
   if (!claims.length) {
     // $FlowFixMe
     myChannelClaims = null;
   } else {
     myChannelClaims = new Set(state.myChannelClaims);
     claims.forEach(claim => {
+      const { claims_in_channel: claimsInChannel } = claim.meta;
+      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId } = claim;
+
+      byUri[canonicalUrl] = claimId;
+      byUri[permanentUrl] = claimId;
+      channelClaimCounts[canonicalUrl] = claimsInChannel;
+      channelClaimCounts[permanentUrl] = claimsInChannel;
+
       // $FlowFixMe
-      myChannelClaims.add(claim.claim_id);
-      if (!byId[claim.claim_id]) {
-        byId[claim.claim_id] = claim;
+      myChannelClaims.add(claimId);
+      if (!byId[claimId]) {
+        byId[claimId] = claim;
       }
 
-      if (pendingById[claim.claim_id] && claim.confirmations > 0) {
-        delete pendingById[claim.claim_id];
+      if (pendingById[claimId] && claim.confirmations > 0) {
+        delete pendingById[claimId];
       }
     });
   }
 
   return Object.assign({}, state, {
     byId,
+    claimsByUri: byUri,
+    channelClaimCounts,
     fetchingMyChannels: false,
     myChannelClaims,
     myClaims: concatClaims(myClaims, claims)
