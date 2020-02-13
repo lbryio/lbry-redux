@@ -94,7 +94,11 @@ export function doResolveUri(uri: string) {
   return doResolveUris([uri]);
 }
 
-export function doFetchClaimListMine(page: number = 1, pageSize: number = 99999, resolve: boolean = true) {
+export function doFetchClaimListMine(
+  page: number = 1,
+  pageSize: number = 99999,
+  resolve: boolean = true
+) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED,
@@ -385,14 +389,17 @@ export function doImportChannel(certificate: string) {
   };
 }
 
-export function doFetchChannelListMine(page: number = 1, pageSize: number = 99999, resolve: boolean = true) {
+export function doFetchChannelListMine(
+  page: number = 1,
+  pageSize: number = 99999,
+  resolve: boolean = true
+) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_CHANNEL_LIST_STARTED,
     });
 
     const callback = (response: ChannelListResponse) => {
-
       dispatch({
         type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED,
         data: { claims: response.items },
@@ -477,6 +484,7 @@ export function doRepost(options: StreamRepostOptions) {
           },
         });
 
+        dispatch(doFetchClaimListMine(1, 10));
         resolve();
       }
 

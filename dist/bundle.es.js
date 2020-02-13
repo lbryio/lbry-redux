@@ -3149,11 +3149,9 @@ function doFetchChannelListMine(page = 1, pageSize = 99999, resolve = true) {
     });
 
     const callback = response => {
-      const { items } = response;
-
       dispatch({
         type: FETCH_CHANNEL_LIST_COMPLETED,
-        data: { claims: items }
+        data: { claims: response.items }
       });
     };
 
@@ -3223,6 +3221,7 @@ function doRepost(options) {
           }
         });
 
+        dispatch(doFetchClaimListMine(1, 10));
         resolve();
       }
 
