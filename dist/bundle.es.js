@@ -26,6 +26,8 @@ const DAEMON_READY = 'DAEMON_READY';
 const DAEMON_VERSION_MATCH = 'DAEMON_VERSION_MATCH';
 const DAEMON_VERSION_MISMATCH = 'DAEMON_VERSION_MISMATCH';
 const VOLUME_CHANGED = 'VOLUME_CHANGED';
+const SET_WELCOME_VERSION = 'SET_WELCOME_VERSION';
+const SET_ALLOW_ANALYTICS = 'SET_ALLOW_ANALYTICS';
 
 // Navigation
 const CHANGE_AFTER_AUTH_PATH = 'CHANGE_AFTER_AUTH_PATH';
@@ -295,6 +297,8 @@ var action_types = /*#__PURE__*/Object.freeze({
   DAEMON_VERSION_MATCH: DAEMON_VERSION_MATCH,
   DAEMON_VERSION_MISMATCH: DAEMON_VERSION_MISMATCH,
   VOLUME_CHANGED: VOLUME_CHANGED,
+  SET_WELCOME_VERSION: SET_WELCOME_VERSION,
+  SET_ALLOW_ANALYTICS: SET_ALLOW_ANALYTICS,
   CHANGE_AFTER_AUTH_PATH: CHANGE_AFTER_AUTH_PATH,
   WINDOW_SCROLLED: WINDOW_SCROLLED,
   HISTORY_NAVIGATE: HISTORY_NAVIGATE,
@@ -833,9 +837,11 @@ var daemon_settings = /*#__PURE__*/Object.freeze({
  */
 
 const WALLET_SERVERS = LBRYUM_SERVERS;
+const SHARE_USAGE_DATA$1 = SHARE_USAGE_DATA;
 
 var shared_preferences = /*#__PURE__*/Object.freeze({
-  WALLET_SERVERS: WALLET_SERVERS
+  WALLET_SERVERS: WALLET_SERVERS,
+  SHARE_USAGE_DATA: SHARE_USAGE_DATA$1
 });
 
 const SEARCH_TYPES = {
@@ -1608,9 +1614,9 @@ var _extends$2 = Object.assign || function (target) { for (var i = 1; i < argume
 
 function extractUserState(rawObj) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
-    const { subscriptions, tags, blocked, settings } = rawObj.value;
+    const { subscriptions, tags, blocked, settings, app_welcome_version, tv_welcome_version, sharing_3P } = rawObj.value;
 
-    return _extends$2({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, settings ? { settings } : {});
+    return _extends$2({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, tv_welcome_version ? { tv_welcome_version } : {}, sharing_3P ? { sharing_3P } : {});
   }
 
   return {};
@@ -1618,10 +1624,10 @@ function extractUserState(rawObj) {
 
 function doPopulateSharedUserState(sharedSettings) {
   return dispatch => {
-    const { subscriptions, tags, blocked, settings } = extractUserState(sharedSettings);
+    const { subscriptions, tags, blocked, settings, app_welcome_version, tv_welcome_version, sharing_3P } = extractUserState(sharedSettings);
     dispatch({
       type: USER_STATE_POPULATE,
-      data: { subscriptions, tags, blocked, settings }
+      data: { subscriptions, tags, blocked, settings, app_welcome_version, tv_welcome_version, sharing_3P }
     });
   };
 }
