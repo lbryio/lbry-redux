@@ -1627,7 +1627,7 @@ function doPopulateSharedUserState(sharedSettings) {
     const { subscriptions, tags, blocked, settings, app_welcome_version, tv_welcome_version, sharing_3P } = extractUserState(sharedSettings);
     dispatch({
       type: USER_STATE_POPULATE,
-      data: { subscriptions, tags, blocked, settings, app_welcome_version, tv_welcome_version, sharing_3P }
+      data: { subscriptions, tags, blocked, settings, welcomeVersion: app_welcome_version, tvWelcomeVersion: tv_welcome_version, allowAnalytics: sharing_3P }
     });
   };
 }
