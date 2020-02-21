@@ -26,6 +26,8 @@ const DAEMON_READY = 'DAEMON_READY';
 const DAEMON_VERSION_MATCH = 'DAEMON_VERSION_MATCH';
 const DAEMON_VERSION_MISMATCH = 'DAEMON_VERSION_MISMATCH';
 const VOLUME_CHANGED = 'VOLUME_CHANGED';
+const SET_WELCOME_VERSION = 'SET_WELCOME_VERSION';
+const SET_ALLOW_ANALYTICS = 'SET_ALLOW_ANALYTICS';
 
 // Navigation
 const CHANGE_AFTER_AUTH_PATH = 'CHANGE_AFTER_AUTH_PATH';
@@ -295,6 +297,8 @@ var action_types = /*#__PURE__*/Object.freeze({
   DAEMON_VERSION_MATCH: DAEMON_VERSION_MATCH,
   DAEMON_VERSION_MISMATCH: DAEMON_VERSION_MISMATCH,
   VOLUME_CHANGED: VOLUME_CHANGED,
+  SET_WELCOME_VERSION: SET_WELCOME_VERSION,
+  SET_ALLOW_ANALYTICS: SET_ALLOW_ANALYTICS,
   CHANGE_AFTER_AUTH_PATH: CHANGE_AFTER_AUTH_PATH,
   WINDOW_SCROLLED: WINDOW_SCROLLED,
   HISTORY_NAVIGATE: HISTORY_NAVIGATE,
@@ -604,17 +608,31 @@ var pages = /*#__PURE__*/Object.freeze({
 /* hardcoded names still exist for these in reducers/settings.js - only discovered when debugging */
 /* Many SETTINGS are stored in the localStorage by their name -
     be careful about changing the value of a SETTINGS constant, as doing so can invalidate existing SETTINGS */
+
+const SHOW_NSFW = 'showNsfw';
 const CREDIT_REQUIRED_ACKNOWLEDGED = 'credit_required_acknowledged';
 const NEW_USER_ACKNOWLEDGED = 'welcome_acknowledged';
 const EMAIL_COLLECTION_ACKNOWLEDGED = 'email_collection_acknowledged';
+const INVITE_ACKNOWLEDGED = 'invite_acknowledged';
 const LANGUAGE = 'language';
-const SHOW_NSFW = 'showNsfw';
-const SHOW_UNAVAILABLE = 'showUnavailable';
-const INSTANT_PURCHASE_ENABLED = 'instantPurchaseEnabled';
-const INSTANT_PURCHASE_MAX = 'instantPurchaseMax';
+const SHOW_MATURE = 'show_mature';
+const SHOW_ANONYMOUS = 'show_anonymous';
+const SHOW_UNAVAILABLE = 'show_unavailable';
+const INSTANT_PURCHASE_ENABLED = 'instant_purchase_enabled';
+const INSTANT_PURCHASE_MAX = 'instant_purchase_max';
 const THEME = 'theme';
 const THEMES = 'themes';
-const AUTOMATIC_DARK_MODE_ENABLED = 'automaticDarkModeEnabled';
+const AUTOMATIC_DARK_MODE_ENABLED = 'automatic_dark_mode_enabled';
+const AUTOPLAY = 'autoplay';
+const OS_NOTIFICATIONS_ENABLED = 'os_notifications_enabled';
+const AUTO_DOWNLOAD = 'auto_download';
+const AUTO_LAUNCH = 'auto_launch';
+const SUPPORT_OPTION = 'support_option';
+const HIDE_BALANCE = 'hide_balance';
+const HIDE_SPLASH_ANIMATION = 'hide_splash_animation';
+const FLOATING_PLAYER = 'floating_player';
+const DARK_MODE_TIMES = 'dark_mode_times';
+const ENABLE_SYNC = 'enable_sync';
 
 // mobile settings
 const BACKGROUND_PLAY_ENABLED = 'backgroundPlayEnabled';
@@ -627,17 +645,30 @@ const RECEIVE_INTERESTS_NOTIFICATIONS = 'receiveInterestsNotifications';
 const RECEIVE_CREATOR_NOTIFICATIONS = 'receiveCreatorNotifications';
 
 var settings = /*#__PURE__*/Object.freeze({
+  SHOW_NSFW: SHOW_NSFW,
   CREDIT_REQUIRED_ACKNOWLEDGED: CREDIT_REQUIRED_ACKNOWLEDGED,
   NEW_USER_ACKNOWLEDGED: NEW_USER_ACKNOWLEDGED,
   EMAIL_COLLECTION_ACKNOWLEDGED: EMAIL_COLLECTION_ACKNOWLEDGED,
+  INVITE_ACKNOWLEDGED: INVITE_ACKNOWLEDGED,
   LANGUAGE: LANGUAGE,
-  SHOW_NSFW: SHOW_NSFW,
+  SHOW_MATURE: SHOW_MATURE,
+  SHOW_ANONYMOUS: SHOW_ANONYMOUS,
   SHOW_UNAVAILABLE: SHOW_UNAVAILABLE,
   INSTANT_PURCHASE_ENABLED: INSTANT_PURCHASE_ENABLED,
   INSTANT_PURCHASE_MAX: INSTANT_PURCHASE_MAX,
   THEME: THEME,
   THEMES: THEMES,
   AUTOMATIC_DARK_MODE_ENABLED: AUTOMATIC_DARK_MODE_ENABLED,
+  AUTOPLAY: AUTOPLAY,
+  OS_NOTIFICATIONS_ENABLED: OS_NOTIFICATIONS_ENABLED,
+  AUTO_DOWNLOAD: AUTO_DOWNLOAD,
+  AUTO_LAUNCH: AUTO_LAUNCH,
+  SUPPORT_OPTION: SUPPORT_OPTION,
+  HIDE_BALANCE: HIDE_BALANCE,
+  HIDE_SPLASH_ANIMATION: HIDE_SPLASH_ANIMATION,
+  FLOATING_PLAYER: FLOATING_PLAYER,
+  DARK_MODE_TIMES: DARK_MODE_TIMES,
+  ENABLE_SYNC: ENABLE_SYNC,
   BACKGROUND_PLAY_ENABLED: BACKGROUND_PLAY_ENABLED,
   FOREGROUND_NOTIFICATION_ENABLED: FOREGROUND_NOTIFICATION_ENABLED,
   KEEP_DAEMON_RUNNING: KEEP_DAEMON_RUNNING,
@@ -806,9 +837,11 @@ var daemon_settings = /*#__PURE__*/Object.freeze({
  */
 
 const WALLET_SERVERS = LBRYUM_SERVERS;
+const SHARE_USAGE_DATA$1 = SHARE_USAGE_DATA;
 
 var shared_preferences = /*#__PURE__*/Object.freeze({
-  WALLET_SERVERS: WALLET_SERVERS
+  WALLET_SERVERS: WALLET_SERVERS,
+  SHARE_USAGE_DATA: SHARE_USAGE_DATA$1
 });
 
 const SEARCH_TYPES = {
@@ -1581,9 +1614,9 @@ var _extends$2 = Object.assign || function (target) { for (var i = 1; i < argume
 
 function extractUserState(rawObj) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
-    const { subscriptions, tags, blocked, settings } = rawObj.value;
+    const { subscriptions, tags, blocked, settings, app_welcome_version, tv_welcome_version, sharing_3P } = rawObj.value;
 
-    return _extends$2({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, settings ? { settings } : {});
+    return _extends$2({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, tv_welcome_version ? { tv_welcome_version } : {}, sharing_3P ? { sharing_3P } : {});
   }
 
   return {};
@@ -1591,10 +1624,10 @@ function extractUserState(rawObj) {
 
 function doPopulateSharedUserState(sharedSettings) {
   return dispatch => {
-    const { subscriptions, tags, blocked, settings } = extractUserState(sharedSettings);
+    const { subscriptions, tags, blocked, settings, app_welcome_version, tv_welcome_version, sharing_3P } = extractUserState(sharedSettings);
     dispatch({
       type: USER_STATE_POPULATE,
-      data: { subscriptions, tags, blocked, settings }
+      data: { subscriptions, tags, blocked, settings, app_welcome_version, tv_welcome_version, sharing_3P }
     });
   };
 }
