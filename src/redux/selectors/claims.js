@@ -701,13 +701,9 @@ export const makeSelectResolvedRecommendedContentForUri = (uri: string, size: nu
           related_to?: string,
           nsfw?: boolean,
           isBackgroundSearch?: boolean,
-        } = { related_to: claim.claim_id, isBackgroundSearch: true };
-        if (!isMature) {
-          options['nsfw'] = false;
-        }
+        } = { related_to: claim.claim_id, size, isBackgroundSearch: false };
 
         const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
-
         let results = resolvedResultsByQuery[searchQuery];
         if (results) {
           results = results.filter(
