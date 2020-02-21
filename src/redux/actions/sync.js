@@ -10,14 +10,13 @@ type SharedData = {
     blocked?: Array<string>,
     settings?: any,
     app_welcome_version?: number,
-    tv_welcome_version?: number,
     sharing_3P?: boolean,
   },
 };
 
 function extractUserState(rawObj: SharedData) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
-    const { subscriptions, tags, blocked, settings, app_welcome_version, tv_welcome_version, sharing_3P } = rawObj.value;
+    const { subscriptions, tags, blocked, settings, app_welcome_version, sharing_3P } = rawObj.value;
 
     return {
       ...(subscriptions ? { subscriptions } : {}),
@@ -25,7 +24,6 @@ function extractUserState(rawObj: SharedData) {
       ...(blocked ? { blocked } : {}),
       ...(settings ? { settings } : {}),
       ...(app_welcome_version ? { app_welcome_version } : {}),
-      ...(tv_welcome_version ? { tv_welcome_version } : {}),
       ...(sharing_3P ? { sharing_3P} : {}),
     };
   }
@@ -35,10 +33,10 @@ function extractUserState(rawObj: SharedData) {
 
 export function doPopulateSharedUserState(sharedSettings: any) {
   return (dispatch: Dispatch) => {
-    const { subscriptions, tags, blocked, settings, app_welcome_version, tv_welcome_version, sharing_3P } = extractUserState(sharedSettings);
+    const { subscriptions, tags, blocked, settings, app_welcome_version, sharing_3P } = extractUserState(sharedSettings);
     dispatch({
       type: ACTIONS.USER_STATE_POPULATE,
-      data: { subscriptions, tags, blocked, settings, welcomeVersion: app_welcome_version, tvWelcomeVersion: tv_welcome_version, allowAnalytics: sharing_3P },
+      data: { subscriptions, tags, blocked, settings, welcomeVersion: app_welcome_version, allowAnalytics: sharing_3P },
     });
   };
 }
