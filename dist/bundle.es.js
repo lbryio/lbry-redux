@@ -3255,7 +3255,7 @@ function doRepost(options) {
         });
 
         dispatch(doFetchClaimListMine(1, 10));
-        resolve();
+        resolve(repostClaim);
       }
 
       function failure(error) {

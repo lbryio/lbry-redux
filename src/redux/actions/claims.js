@@ -485,7 +485,7 @@ export function doRepost(options: StreamRepostOptions) {
         });
 
         dispatch(doFetchClaimListMine(1, 10));
-        resolve();
+        resolve(repostClaim);
       }
 
       function failure(error) {
