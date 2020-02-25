@@ -50,10 +50,26 @@ export function doCommentCreate(
     dispatch({
       type: ACTIONS.COMMENT_CREATE_STARTED,
     });
+
     const myChannels = selectMyChannelClaims(state);
     const namedChannelClaim =
       myChannels && myChannels.find(myChannel => myChannel.name === channel);
-    const channel_id = namedChannelClaim ? namedChannelClaim.claim_id : null;
+    const channel_id = namedChannelClaim.claim_id;
+
+    if (channel_id == null) {
+      dispatch({
+        type: ACTIONS.COMMENT_CREATE_FAILED,
+        data: {},
+      });
+      dispatch(
+        doToast({
+          message: 'Channel cannot be anonymous, please select a channel and try again.',
+          isError: true,
+        })
+      );
+      return;
+    }
+
     return Lbry.comment_create({
       comment: comment,
       claim_id: claim_id,
