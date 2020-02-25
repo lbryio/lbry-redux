@@ -1614,7 +1614,14 @@ var _extends$2 = Object.assign || function (target) { for (var i = 1; i < argume
 
 function extractUserState(rawObj) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
-    const { subscriptions, tags, blocked, settings, app_welcome_version, sharing_3P } = rawObj.value;
+    const {
+      subscriptions,
+      tags,
+      blocked,
+      settings,
+      app_welcome_version,
+      sharing_3P
+    } = rawObj.value;
 
     return _extends$2({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {});
   }
@@ -1624,10 +1631,24 @@ function extractUserState(rawObj) {
 
 function doPopulateSharedUserState(sharedSettings) {
   return dispatch => {
-    const { subscriptions, tags, blocked, settings, app_welcome_version, sharing_3P } = extractUserState(sharedSettings);
+    const {
+      subscriptions,
+      tags,
+      blocked,
+      settings,
+      app_welcome_version,
+      sharing_3P
+    } = extractUserState(sharedSettings);
     dispatch({
       type: USER_STATE_POPULATE,
-      data: { subscriptions, tags, blocked, settings, welcomeVersion: app_welcome_version, allowAnalytics: sharing_3P }
+      data: {
+        subscriptions,
+        tags,
+        blocked,
+        settings,
+        welcomeVersion: app_welcome_version,
+        allowAnalytics: sharing_3P
+      }
     });
   };
 }
@@ -1687,7 +1708,7 @@ const buildSharedStateMiddleware = (actions, sharedStateFilters, sharedStateCb) 
   }
 
   const actionResult = next(action);
-  // Call `getState` after calling `next` tqo ensure the state has updated in response to the action
+  // Call `getState` after calling `next` to ensure the state has updated in response to the action
   const nextState = getState();
   const shared = {};
 
@@ -4367,9 +4388,23 @@ function doCommentCreate(comment = '', claim_id = '', channel, parent_id) {
     dispatch({
       type: COMMENT_CREATE_STARTED
     });
+
     const myChannels = selectMyChannelClaims(state);
     const namedChannelClaim = myChannels && myChannels.find(myChannel => myChannel.name === channel);
-    const channel_id = namedChannelClaim ? namedChannelClaim.claim_id : null;
+    const channel_id = namedChannelClaim.claim_id;
+
+    if (channel_id == null) {
+      dispatch({
+        type: COMMENT_CREATE_FAILED,
+        data: {}
+      });
+      dispatch(doToast({
+        message: 'Channel cannot be anonymous, please select a channel and try again.',
+        isError: true
+      }));
+      return;
+    }
+
     return lbryProxy.comment_create({
       comment: comment,
       claim_id: claim_id,

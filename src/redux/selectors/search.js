@@ -172,21 +172,15 @@ type CustomOptions = {
   from?: number,
   related_to?: string,
   nsfw?: boolean,
-}
+};
 
-export const makeSelectQueryWithOptions = (
-  customQuery: ?string,
-  options: CustomOptions,
-) =>
+export const makeSelectQueryWithOptions = (customQuery: ?string, options: CustomOptions) =>
   createSelector(
     selectSearchValue,
     selectSearchOptions,
     (query, defaultOptions) => {
       const searchOptions = { ...defaultOptions, ...options };
-      const queryString = getSearchQueryString(
-        customQuery || query,
-        searchOptions,
-      );
+      const queryString = getSearchQueryString(customQuery || query, searchOptions);
 
       return queryString;
     }

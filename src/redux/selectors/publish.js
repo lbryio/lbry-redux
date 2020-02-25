@@ -77,10 +77,10 @@ export const selectMyClaimForUri = createSelector(
     return isStillEditing
       ? claimsById[editClaimId]
       : myClaims.find(claim =>
-        !contentName
-          ? claim.name === claimName
-          : claim.name === contentName || claim.name === claimName
-      );
+          !contentName
+            ? claim.name === claimName
+            : claim.name === contentName || claim.name === claimName
+        );
   }
 );
 
