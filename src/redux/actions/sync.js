@@ -16,7 +16,14 @@ type SharedData = {
 
 function extractUserState(rawObj: SharedData) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
-    const { subscriptions, tags, blocked, settings, app_welcome_version, sharing_3P } = rawObj.value;
+    const {
+      subscriptions,
+      tags,
+      blocked,
+      settings,
+      app_welcome_version,
+      sharing_3P,
+    } = rawObj.value;
 
     return {
       ...(subscriptions ? { subscriptions } : {}),
@@ -24,7 +31,7 @@ function extractUserState(rawObj: SharedData) {
       ...(blocked ? { blocked } : {}),
       ...(settings ? { settings } : {}),
       ...(app_welcome_version ? { app_welcome_version } : {}),
-      ...(sharing_3P ? { sharing_3P} : {}),
+      ...(sharing_3P ? { sharing_3P } : {}),
     };
   }
 
@@ -33,10 +40,24 @@ function extractUserState(rawObj: SharedData) {
 
 export function doPopulateSharedUserState(sharedSettings: any) {
   return (dispatch: Dispatch) => {
-    const { subscriptions, tags, blocked, settings, app_welcome_version, sharing_3P } = extractUserState(sharedSettings);
+    const {
+      subscriptions,
+      tags,
+      blocked,
+      settings,
+      app_welcome_version,
+      sharing_3P,
+    } = extractUserState(sharedSettings);
     dispatch({
       type: ACTIONS.USER_STATE_POPULATE,
-      data: { subscriptions, tags, blocked, settings, welcomeVersion: app_welcome_version, allowAnalytics: sharing_3P },
+      data: {
+        subscriptions,
+        tags,
+        blocked,
+        settings,
+        welcomeVersion: app_welcome_version,
+        allowAnalytics: sharing_3P,
+      },
     });
   };
 }
@@ -78,6 +99,7 @@ export function doPreferenceGet(key: string, success: Function, fail?: Function)
   Lbry.preference_get(options)
     .then(result => {
       if (result) {
+        console.log('result', result);
         const preference = result[key];
         return success(preference);
       }
@@ -85,6 +107,7 @@ export function doPreferenceGet(key: string, success: Function, fail?: Function)
       return success(null);
     })
     .catch(err => {
+      console.log('error', err);
       if (fail) {
         fail(err);
       }
