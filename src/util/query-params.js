@@ -33,10 +33,7 @@ export function toQueryString(params: { [string]: string | number }) {
   return parts.join('&');
 }
 
-export const getSearchQueryString = (
-  query: string,
-  options: any = {},
-) => {
+export const getSearchQueryString = (query: string, options: any = {}) => {
   const encodedQuery = encodeURIComponent(query);
   const queryParams = [
     `s=${encodedQuery}`,
@@ -44,7 +41,8 @@ export const getSearchQueryString = (
     `from=${options.from || DEFAULT_SEARCH_RESULT_FROM}`,
   ];
   const { isBackgroundSearch } = options;
-  const includeUserOptions = typeof isBackgroundSearch === 'undefined' ? false : !isBackgroundSearch;
+  const includeUserOptions =
+    typeof isBackgroundSearch === 'undefined' ? false : !isBackgroundSearch;
 
   if (includeUserOptions) {
     const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE];
@@ -70,7 +68,7 @@ export const getSearchQueryString = (
     }
   }
 
-  const additionalOptions = {}
+  const additionalOptions = {};
   const { related_to } = options;
   const { nsfw } = options;
   if (related_to) additionalOptions['related_to'] = related_to;
