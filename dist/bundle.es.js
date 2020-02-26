@@ -1153,7 +1153,7 @@ const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
-const regexInvalidURI = /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
+const regexInvalidURI = /[ =&#:$@%?;/\\"<>%\{\}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
 const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
@@ -1689,7 +1689,7 @@ const buildSharedStateMiddleware = (actions, sharedStateFilters, sharedStateCb) 
   }
 
   const actionResult = next(action);
-  // Call `getState` after calling `next` tqo ensure the state has updated in response to the action
+  // Call `getState` after calling `next` to ensure the state has updated in response to the action
   const nextState = getState();
   const shared = {};
 
