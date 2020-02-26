@@ -48,23 +48,25 @@ export const getSearchQueryString = (
 
   if (includeUserOptions) {
     const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE];
-    queryParams.push(`claimType=${claimType}`);
+    if (claimType) {
+      queryParams.push(`claimType=${claimType}`);
 
-    // If they are only searching for channels, strip out the media info
-    if (!claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS)) {
-      queryParams.push(
-        `mediaType=${[
-          SEARCH_OPTIONS.MEDIA_FILE,
-          SEARCH_OPTIONS.MEDIA_AUDIO,
-          SEARCH_OPTIONS.MEDIA_VIDEO,
-          SEARCH_OPTIONS.MEDIA_TEXT,
-          SEARCH_OPTIONS.MEDIA_IMAGE,
-          SEARCH_OPTIONS.MEDIA_APPLICATION,
-        ].reduce(
-          (acc, currentOption) => (options[currentOption] ? `${acc}${currentOption},` : acc),
-          ''
-        )}`
-      );
+      // If they are only searching for channels, strip out the media info
+      if (!claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS)) {
+        queryParams.push(
+          `mediaType=${[
+            SEARCH_OPTIONS.MEDIA_FILE,
+            SEARCH_OPTIONS.MEDIA_AUDIO,
+            SEARCH_OPTIONS.MEDIA_VIDEO,
+            SEARCH_OPTIONS.MEDIA_TEXT,
+            SEARCH_OPTIONS.MEDIA_IMAGE,
+            SEARCH_OPTIONS.MEDIA_APPLICATION,
+          ].reduce(
+            (acc, currentOption) => (options[currentOption] ? `${acc}${currentOption},` : acc),
+            ''
+          )}`
+        );
+      }
     }
   }
 
