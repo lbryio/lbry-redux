@@ -616,6 +616,7 @@ const EMAIL_COLLECTION_ACKNOWLEDGED = 'email_collection_acknowledged';
 const INVITE_ACKNOWLEDGED = 'invite_acknowledged';
 const LANGUAGE = 'language';
 const SHOW_MATURE = 'show_mature';
+const SHOW_REPOSTS = 'show_reposts';
 const SHOW_ANONYMOUS = 'show_anonymous';
 const SHOW_UNAVAILABLE = 'show_unavailable';
 const INSTANT_PURCHASE_ENABLED = 'instant_purchase_enabled';
@@ -652,6 +653,7 @@ var settings = /*#__PURE__*/Object.freeze({
   INVITE_ACKNOWLEDGED: INVITE_ACKNOWLEDGED,
   LANGUAGE: LANGUAGE,
   SHOW_MATURE: SHOW_MATURE,
+  SHOW_REPOSTS: SHOW_REPOSTS,
   SHOW_ANONYMOUS: SHOW_ANONYMOUS,
   SHOW_UNAVAILABLE: SHOW_UNAVAILABLE,
   INSTANT_PURCHASE_ENABLED: INSTANT_PURCHASE_ENABLED,
