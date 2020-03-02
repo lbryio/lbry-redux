@@ -3923,7 +3923,8 @@ const doPublish = (success, fail) => (dispatch, getState) => {
     fee,
     uri,
     tags,
-    locations
+    locations,
+    optimize
   } = publishData;
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
   const myClaimForUriEditing = myClaimForUri && myClaimForUri.name === name ? myClaimForUri : null;
@@ -3989,6 +3990,10 @@ const doPublish = (success, fail) => (dispatch, getState) => {
   if (!contentIsFree && fee && fee.currency && Number(fee.amount) > 0) {
     publishPayload.fee_currency = fee.currency;
     publishPayload.fee_amount = creditsToString(fee.amount);
+  }
+
+  if (optimize) {
+    publishPayload.optimize_file = true;
   }
 
   // Only pass file on new uploads, not metadata only edits.
@@ -5465,7 +5470,8 @@ const defaultState$6 = {
   tags: [],
   publishing: false,
   publishSuccess: false,
-  publishError: undefined
+  publishError: undefined,
+  optimize: false
 };
 
 const publishReducer = handleActions({
@@ -5473,7 +5479,8 @@ const publishReducer = handleActions({
     const { data } = action;
     return _extends$e({}, state, data);
   },
-  [CLEAR_PUBLISH]: () => _extends$e({}, defaultState$6),
+  [CLEAR_PUBLISH]: state => _extends$e({}, defaultState$6, { bid: state.bid, optimize: state.optimize
+  }),
   [PUBLISH_START]: state => _extends$e({}, state, {
     publishing: true,
     publishSuccess: false
