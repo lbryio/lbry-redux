@@ -1,7 +1,8 @@
 // @flow
 declare type LbryUrlObj = {
-  // Path and channel will always exist when calling parseURI
+  // Path, channel, and isValid will always exist when calling parseURI
   // But they may not exist when code calls buildURI
+  isValid?: boolean,
   isChannel?: boolean,
   path?: string,
   streamName?: string,

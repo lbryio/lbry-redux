@@ -86,10 +86,10 @@ export const makeSelectClaimIsPending = (uri: string) =>
     pendingById => {
       let claimId;
 
-      try {
-        const { isChannel, channelClaimId, streamClaimId } = parseURI(uri);
+      const { isValid, isChannel, channelClaimId, streamClaimId } = parseURI(uri);
+      if (isValid) {
         claimId = isChannel ? channelClaimId : streamClaimId;
-      } catch (e) {}
+      }
 
       if (claimId) {
         return Boolean(pendingById[claimId]);
@@ -115,16 +115,13 @@ export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true)
       // Check if a claim is pending first
       // It won't be in claimsByUri because resolving it will return nothing
 
-      let valid;
       let channelClaimId;
       let streamClaimId;
       let isChannel;
-      try {
-        ({ isChannel, channelClaimId, streamClaimId } = parseURI(uri));
-        valid = true;
-      } catch (e) {}
+      let isValid;
+      ({ isValid, isChannel, channelClaimId, streamClaimId } = parseURI(uri));
 
-      if (valid && byUri) {
+      if (isValid && byUri) {
         const claimId = isChannel ? channelClaimId : streamClaimId;
         const pendingClaim = pendingById[claimId];
 
@@ -178,22 +175,25 @@ export const selectMyActiveClaims = createSelector(
 
 export const makeSelectClaimIsMine = (rawUri: string) => {
   let uri;
-  try {
-    uri = normalizeURI(rawUri);
-  } catch (e) {}
+  uri = normalizeURI(rawUri);
 
-  return createSelector(
-    selectClaimsByUri,
-    selectMyActiveClaims,
-    (claims, myClaims) => {
-      try {
-        parseURI(uri);
-      } catch (e) {
-        return false;
+  return (
+    uri &&
+    createSelector(
+      selectClaimsByUri,
+      selectMyActiveClaims,
+      (claims, myClaims) => {
+        const { isValid } = parseURI(uri);
+
+        return (
+          isValid &&
+          claims &&
+          claims[uri] &&
+          claims[uri].claim_id &&
+          myClaims.has(claims[uri].claim_id)
+        );
       }
-
-      return claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id);
-    }
+    )
   );
 };
 

@@ -106,8 +106,8 @@ export const selectSearchSuggestions: Array<SearchSuggestion> = createSelector(
     }
 
     let searchSuggestions = [];
-    try {
-      const uri = normalizeURI(query);
+    const uri = normalizeURI(query);
+    if (uri) {
       const { channelName, streamName, isChannel } = parseURI(uri);
       searchSuggestions.push(
         {
@@ -120,7 +120,7 @@ export const selectSearchSuggestions: Array<SearchSuggestion> = createSelector(
           type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE,
         }
       );
-    } catch (e) {
+    } else {
       searchSuggestions.push({
         value: query,
         type: SEARCH_TYPES.SEARCH,
@@ -139,16 +139,16 @@ export const selectSearchSuggestions: Array<SearchSuggestion> = createSelector(
           .filter(suggestion => suggestion !== query)
           .map(suggestion => {
             // determine if it's a channel
-            try {
-              const uri = normalizeURI(suggestion);
-              const { channelName, streamName, isChannel } = parseURI(uri);
+            const uri = normalizeURI(suggestion);
+            if (uri) {
+              const { isValid, channelName, streamName, isChannel } = parseURI(uri);
 
               return {
                 value: uri,
                 shorthand: isChannel ? channelName : streamName,
                 type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE,
               };
-            } catch (e) {
+            } else {
               // search result includes some character that isn't valid in claim names
               return {
                 value: suggestion,
@@ -172,21 +172,15 @@ type CustomOptions = {
   from?: number,
   related_to?: string,
   nsfw?: boolean,
-}
+};
 
-export const makeSelectQueryWithOptions = (
-  customQuery: ?string,
-  options: CustomOptions,
-) =>
+export const makeSelectQueryWithOptions = (customQuery: ?string, options: CustomOptions) =>
   createSelector(
     selectSearchValue,
     selectSearchOptions,
     (query, defaultOptions) => {
       const searchOptions = { ...defaultOptions, ...options };
-      const queryString = getSearchQueryString(
-        customQuery || query,
-        searchOptions,
-      );
+      const queryString = getSearchQueryString(customQuery || query, searchOptions);
 
       return queryString;
     }

@@ -9,7 +9,7 @@
 // - Sean
 
 import * as ACTIONS from 'constants/action_types';
-import { buildURI, parseURI } from 'lbryURI';
+import { buildURI } from 'lbryURI';
 import { concatClaims } from 'util/claim';
 
 type State = {

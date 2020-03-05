@@ -17,7 +17,9 @@ const separateQuerystring = new RegExp(queryStringBreaker);
  * messages for invalid names.
  *
  * Returns a dictionary with keys:
+
  *   - path (string)
+ *   - isValid (boolean)
  *   - isChannel (boolean)
  *   - streamName (string, if present)
  *   - streamClaimId (string, if present)
@@ -60,18 +62,21 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
     secondaryModSeparator,
     secondaryModValue,
   ] = rest;
-
+  let isValid = true;
   // Validate protocol
   if (requireProto && !proto) {
-    throw new Error(__('LBRY URLs must include a protocol prefix (lbry://).'));
+    isValid = false;
+    console.log('LBRY URLs must include a protocol prefix (lbry://).');
   }
 
   // Validate and process name
   if (!streamNameOrChannelName) {
-    throw new Error(__('URL does not include name.'));
+    isValid = false;
+    console.log('URL does not include name.');
   }
 
   rest.forEach(urlPiece => {
+    isValid = false;
     if (urlPiece && urlPiece.includes(' ')) {
       console.error('URL can not include a space');
     }
@@ -83,32 +88,39 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
 
   if (includesChannel) {
     if (!channelName) {
-      throw new Error(__('No channel name after @.'));
+      isValid = false;
+      console.log('No channel name after @.');
     }
 
     if (channelName.length < channelNameMinLength) {
-      throw new Error(
-        __(`Channel names must be at least %channelNameMinLength% characters.`, {
-          channelNameMinLength,
-        })
-      );
+      isValid = false;
+      console.log(`Channel names must be at least %channelNameMinLength% characters.`, {
+        channelNameMinLength,
+      });
     }
   }
 
   // Validate and process modifier
-  const [primaryClaimId, primaryClaimSequence, primaryBidPosition] = parseURIModifier(
+  const [primaryClaimId, primaryClaimSequence, primaryBidPosition, primaryValid] = parseURIModifier(
     primaryModSeparator,
     primaryModValue
   );
-  const [secondaryClaimId, secondaryClaimSequence, secondaryBidPosition] = parseURIModifier(
-    secondaryModSeparator,
-    secondaryModValue
-  );
+  const [
+    secondaryClaimId,
+    secondaryClaimSequence,
+    secondaryBidPosition,
+    secondaryValid,
+  ] = parseURIModifier(secondaryModSeparator, secondaryModValue);
+
+  if ((primaryModSeparator && !primaryValid) || (secondaryModSeparator && !secondaryValid))
+    isValid = false;
+
   const streamName = includesChannel ? possibleStreamName : streamNameOrChannelName;
   const streamClaimId = includesChannel ? secondaryClaimId : primaryClaimId;
   const channelClaimId = includesChannel && primaryClaimId;
 
   return {
+    isValid,
     isChannel,
     path,
     ...(streamName ? { streamName } : {}),
@@ -135,10 +147,12 @@ function parseURIModifier(modSeperator: ?string, modValue: ?string) {
   let claimId;
   let claimSequence;
   let bidPosition;
+  let isValid = true;
 
   if (modSeperator) {
     if (!modValue) {
-      throw new Error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
+      isValid = false;
+      console.log(`No modifier provided after separator %modSeperator%.`, { modSeperator });
     }
 
     if (modSeperator === '#') {
@@ -151,18 +165,21 @@ function parseURIModifier(modSeperator: ?string, modValue: ?string) {
   }
 
   if (claimId && (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/))) {
-    throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
+    isValid = false;
+    console.log(`Invalid claim ID %claimId%.`, { claimId });
   }
 
   if (claimSequence && !claimSequence.match(/^-?[1-9][0-9]*$/)) {
-    throw new Error(__('Claim sequence must be a number.'));
+    isValid = false;
+    console.log('Claim sequence must be a number.');
   }
 
   if (bidPosition && !bidPosition.match(/^-?[1-9][0-9]*$/)) {
-    throw new Error(__('Bid position must be a number.'));
+    isValid = false;
+    console.log('Bid position must be a number.');
   }
 
-  return [claimId, claimSequence, bidPosition];
+  return [claimId, claimSequence, bidPosition, isValid];
 }
 
 /**
@@ -240,6 +257,7 @@ export function buildURI(
 /* Takes a parseable LBRY URL and converts it to standard, canonical format */
 export function normalizeURI(URL: string) {
   const {
+    isValid,
     streamName,
     streamClaimId,
     channelName,
@@ -250,41 +268,35 @@ export function normalizeURI(URL: string) {
     secondaryBidPosition,
   } = parseURI(URL);
 
-  return buildURI({
-    streamName,
-    streamClaimId,
-    channelName,
-    channelClaimId,
-    primaryClaimSequence,
-    primaryBidPosition,
-    secondaryClaimSequence,
-    secondaryBidPosition,
-  });
+  return (
+    isValid &&
+    buildURI({
+      streamName,
+      streamClaimId,
+      channelName,
+      channelClaimId,
+      primaryClaimSequence,
+      primaryBidPosition,
+      secondaryClaimSequence,
+      secondaryBidPosition,
+    })
+  );
 }
 
-export function isURIValid(URL: string): boolean {
-  try {
-    parseURI(normalizeURI(URL));
-  } catch (error) {
-    return false;
-  }
-
-  return true;
+export function isURIValid(URL: string) {
+  let isValid;
+  ({ isValid } = parseURI(normalizeURI(URL)));
+  return isValid;
 }
 
 export function isNameValid(claimName: string) {
   return !regexInvalidURI.test(claimName);
 }
 
-export function isURIClaimable(URL: string) {
-  let parts;
-  try {
-    parts = parseURI(normalizeURI(URL));
-  } catch (error) {
-    return false;
-  }
+export function isURIClaimable(URL: string): boolean {
+  const { isValid, parts } = parseURI(normalizeURI(URL));
 
-  return parts && parts.streamName && !parts.streamClaimId && !parts.isChannel;
+  return isValid && parts && parts.streamName && !parts.streamClaimId && !parts.isChannel;
 }
 
 export function convertToShareLink(URL: string) {
