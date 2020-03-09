@@ -28,6 +28,7 @@ type PublishState = {
   otherLicenseDescription: string,
   licenseUrl: string,
   tags: Array<string>,
+  optimize: boolean,
 };
 
 const defaultState: PublishState = {
@@ -58,6 +59,7 @@ const defaultState: PublishState = {
   publishing: false,
   publishSuccess: false,
   publishError: undefined,
+  optimize: false,
 };
 
 export const publishReducer = handleActions(
@@ -69,8 +71,8 @@ export const publishReducer = handleActions(
         ...data,
       };
     },
-    [ACTIONS.CLEAR_PUBLISH]: (): PublishState => ({
-      ...defaultState,
+    [ACTIONS.CLEAR_PUBLISH]: (state: PublishState): PublishState => ({
+      ...defaultState, bid: state.bid, optimize: state.optimize,
     }),
     [ACTIONS.PUBLISH_START]: (state: PublishState): PublishState => ({
       ...state,

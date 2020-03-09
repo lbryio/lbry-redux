@@ -264,6 +264,7 @@ export const doPublish = (success: Function, fail: Function) => (
     uri,
     tags,
     locations,
+    optimize,
   } = publishData;
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
   const myClaimForUriEditing = myClaimForUri && myClaimForUri.name === name ? myClaimForUri : null;
@@ -301,6 +302,7 @@ export const doPublish = (success: Function, fail: Function) => (
     tags: Array<string>,
     locations?: Array<any>,
     blocking: boolean,
+    optimize_file?: boolean,
   } = {
     name,
     title,
@@ -348,6 +350,10 @@ export const doPublish = (success: Function, fail: Function) => (
   if (!contentIsFree && fee && (fee.currency && Number(fee.amount) > 0)) {
     publishPayload.fee_currency = fee.currency;
     publishPayload.fee_amount = creditsToString(fee.amount);
+  }
+
+  if (optimize) {
+    publishPayload.optimize_file = true;
   }
 
   // Only pass file on new uploads, not metadata only edits.
