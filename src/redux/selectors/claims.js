@@ -290,8 +290,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-          ? claim.meta.creation_timestamp * 1000
-          : null);
+            ? claim.meta.creation_timestamp * 1000
+            : null);
       if (!timestamp) {
         return undefined;
       }
@@ -377,7 +377,7 @@ export const selectMyClaimUrisWithoutChannels = createSelector(
           return b.timestamp - a.timestamp;
         }
       })
-      .map(claim => `lbry://${claim.name}#${claim.claim_id}`)
+      .map(claim => claim.canonical_url)
 );
 
 export const selectAllMyClaimsByOutpoint = createSelector(

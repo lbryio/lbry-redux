@@ -184,14 +184,14 @@ export const doResolvedSearch = (
   }
 
   const optionsWithFrom: SearchOptions = {
-    size,
-    from,
+    ...(size ? { size } : {}),
+    ...(from ? { from } : {}),
     isBackgroundSearch,
     ...options,
   };
 
   const optionsWithoutFrom: SearchOptions = {
-    size,
+    ...(size ? { size } : {}),
     isBackgroundSearch,
     ...options,
   };

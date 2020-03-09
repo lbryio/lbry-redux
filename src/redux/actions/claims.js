@@ -104,6 +104,7 @@ export function doFetchClaimListMine(
       type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED,
     });
 
+    // $FlowFixMe
     Lbry.claim_list({ page, page_size: pageSize, claim_type: ['stream', 'repost'], resolve }).then(
       (result: StreamListResponse) => {
         const claims = result.items;
