@@ -2206,7 +2206,7 @@ const selectMyClaimUrisWithoutChannels = reselect.createSelector(selectMyClaimsW
   } else {
     return b.timestamp - a.timestamp;
   }
-}).map(claim => `lbry://${claim.name}#${claim.claim_id}`));
+}).map(claim => claim.canonical_url));
 
 const selectAllMyClaimsByOutpoint = reselect.createSelector(selectMyClaimsRaw, claims => new Set(claims && claims.length ? claims.map(claim => `${claim.txid}:${claim.nout}`) : null));
 
@@ -2920,6 +2920,7 @@ function doFetchClaimListMine(page = 1, pageSize = 99999, resolve = true) {
       type: FETCH_CLAIM_LIST_MINE_STARTED
     });
 
+    // $FlowFixMe
     lbryProxy.claim_list({ page, page_size: pageSize, claim_type: ['stream', 'repost'], resolve }).then(result => {
       const claims = result.items;
 
@@ -4210,14 +4211,11 @@ from, isBackgroundSearch = false, options = {}, nsfw) => (dispatch, getState) =>
     return;
   }
 
-  const optionsWithFrom = _extends$8({
-    size,
-    from,
+  const optionsWithFrom = _extends$8({}, size ? { size } : {}, from ? { from } : {}, {
     isBackgroundSearch
   }, options);
 
-  const optionsWithoutFrom = _extends$8({
-    size,
+  const optionsWithoutFrom = _extends$8({}, size ? { size } : {}, {
     isBackgroundSearch
   }, options);
 
