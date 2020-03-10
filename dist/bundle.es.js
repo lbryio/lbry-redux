@@ -6345,6 +6345,7 @@ exports.selectFileListPublishedSort = selectFileListPublishedSort;
 exports.selectFilteredTransactionCount = selectFilteredTransactionCount;
 exports.selectFilteredTransactions = selectFilteredTransactions;
 exports.selectFollowedTags = selectFollowedTags;
+exports.selectFollowedTagsList = selectFollowedTagsList;
 exports.selectGettingNewAddress = selectGettingNewAddress;
 exports.selectHasTransactions = selectHasTransactions;
 exports.selectIsFetchingClaimListMine = selectIsFetchingClaimListMine;

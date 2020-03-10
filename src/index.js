@@ -333,6 +333,7 @@ export {
 
 export {
   selectFollowedTags,
+  selectFollowedTagsList,
   selectUnfollowedTags,
   makeSelectIsFollowingTag,
 } from 'redux/selectors/tags';
