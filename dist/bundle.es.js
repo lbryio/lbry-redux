@@ -1052,7 +1052,7 @@ function apiCall(method, params, resolve, reject) {
     })
   };
 
-  return fetch(Lbry.daemonConnectionString, options).then(checkAndParse).then(response => {
+  return fetch(Lbry.daemonConnectionString + '?m=' + method, options).then(checkAndParse).then(response => {
     const error = response.error || response.result && response.result.error;
 
     if (error) {

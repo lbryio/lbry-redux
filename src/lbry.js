@@ -191,7 +191,7 @@ export function apiCall(method: string, params: ?{}, resolve: Function, reject: 
     }),
   };
 
-  return fetch(Lbry.daemonConnectionString, options)
+  return fetch(Lbry.daemonConnectionString + '?m=' + method, options)
     .then(checkAndParse)
     .then(response => {
       const error = response.error || (response.result && response.result.error);
