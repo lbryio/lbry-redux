@@ -715,7 +715,7 @@ export const makeSelectResolvedRecommendedContentForUri = (
         isBackgroundSearch?: boolean,
       } = { related_to: claim ? claim.claim_id : claimId, size, isBackgroundSearch: false };
 
-      const searchQuery = getSearchQueryString(claimTitle.replace(/\//, ' '), options);
+      const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
       let results = resolvedResultsByQuery[searchQuery];
       if (results) {
         results = results.filter(
