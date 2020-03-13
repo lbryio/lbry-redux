@@ -2415,7 +2415,7 @@ const makeSelectResolvedRecommendedContentForUri = (uri, size, claimId, claimNam
   if (claim) {
     // always grab full URL - this can change once search returns canonical
     currentUri = buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
-    const { title } = claim.value;
+    title = claim.value ? claim.value.title : null;
   } else {
     // for cases on mobile where the claim may not have been resolved ()
     currentUri = buildURI({ streamClaimId: claimId, streamName: claimName });
