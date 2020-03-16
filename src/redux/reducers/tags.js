@@ -14,7 +14,7 @@ function getDefaultKnownTags() {
 }
 
 const defaultState: TagState = {
-  followedTags: DEFAULT_FOLLOWED_TAGS,
+  followedTags: [],
   knownTags: getDefaultKnownTags(),
 };
 
@@ -70,10 +70,16 @@ export const tagsReducer = handleActions(
       action: { data: { tags: ?Array<string> } }
     ) => {
       const { tags } = action.data;
+      if (Array.isArray(tags)) {
+        return {
+          ...state,
+          followedTags: tags,
+        };
+      }
       return {
         ...state,
-        followedTags: tags && tags.length ? tags : DEFAULT_FOLLOWED_TAGS,
       };
+
     },
   },
   defaultState
