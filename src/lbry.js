@@ -73,9 +73,9 @@ const Lbry: LbryTypes = {
   version: () => daemonCallWithResult('version', {}),
 
   // Claim fetching and manipulation
-  resolve: params => daemonCallWithResult('resolve', params),
+  resolve: (params, connectionStringOverride = null) => daemonCallWithResult('resolve', params, connectionStringOverride),
   get: params => daemonCallWithResult('get', params),
-  claim_search: params => daemonCallWithResult('claim_search', params),
+  claim_search: (params, connectionStringOverride = null) => daemonCallWithResult('claim_search', params, connectionStringOverride),
   claim_list: params => daemonCallWithResult('claim_list', params),
   channel_create: params => daemonCallWithResult('channel_create', params),
   channel_update: params => daemonCallWithResult('channel_update', params),
@@ -178,7 +178,7 @@ function checkAndParse(response) {
   });
 }
 
-export function apiCall(method: string, params: ?{}, resolve: Function, reject: Function) {
+export function apiCall(method: string, params: ?{}, resolve: Function, reject: Function, connectionStringOverride = null) {
   const counter = new Date().getTime();
   const options = {
     method: 'POST',
@@ -191,7 +191,8 @@ export function apiCall(method: string, params: ?{}, resolve: Function, reject: 
     }),
   };
 
-  return fetch(Lbry.daemonConnectionString + '?m=' + method, options)
+  const connectionString = connectionStringOverride ? connectionStringOverride : Lbry.daemonConnectionString;
+  return fetch(connectionString + '?m=' + method, options)
     .then(checkAndParse)
     .then(response => {
       const error = response.error || (response.result && response.result.error);
@@ -204,7 +205,7 @@ export function apiCall(method: string, params: ?{}, resolve: Function, reject: 
     .catch(reject);
 }
 
-function daemonCallWithResult(name: string, params: ?{} = {}) {
+function daemonCallWithResult(name: string, params: ?{} = {}, connectionStringOverride = null) {
   return new Promise((resolve, reject) => {
     apiCall(
       name,
@@ -212,7 +213,8 @@ function daemonCallWithResult(name: string, params: ?{} = {}) {
       result => {
         resolve(result);
       },
-      reject
+      reject,
+      connectionStringOverride
     );
   });
 }
