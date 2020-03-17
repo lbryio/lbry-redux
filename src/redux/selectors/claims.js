@@ -678,7 +678,13 @@ export const selectMyStreamUrlsCount = createSelector(
   channels => channels.length
 );
 
-export const makeSelectResolvedRecommendedContentForUri = (uri: string, size: number) =>
+export const makeSelectResolvedRecommendedContentForUri = (
+  uri: string,
+  size: number,
+  claimId: string,
+  claimName: string,
+  claimTitle: string
+) =>
   createSelector(
     makeSelectClaimForUri(uri),
     selectResolvedSearchResultsByQuery,
@@ -686,32 +692,37 @@ export const makeSelectResolvedRecommendedContentForUri = (uri: string, size: nu
     (claim, resolvedResultsByQuery, isMature) => {
       const atVanityURI = !uri.includes('#');
 
+      let currentUri;
       let recommendedContent;
+      let title;
       if (claim) {
         // always grab full URL - this can change once search returns canonical
-        const currentUri = buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
+        currentUri = buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
+        title = claim.value ? claim.value.title : null;
+      } else {
+        // for cases on mobile where the claim may not have been resolved ()
+        currentUri = buildURI({ streamClaimId: claimId, streamName: claimName });
+        title = claimTitle;
+      }
 
-        const { title } = claim.value;
+      if (!title) {
+        return;
+      }
 
-        if (!title) {
-          return;
-        }
+      const options: {
+        related_to?: string,
+        nsfw?: boolean,
+        isBackgroundSearch?: boolean,
+      } = { related_to: claim ? claim.claim_id : claimId, size, isBackgroundSearch: false };
 
-        const options: {
-          related_to?: string,
-          nsfw?: boolean,
-          isBackgroundSearch?: boolean,
-        } = { related_to: claim.claim_id, size, isBackgroundSearch: false };
-
-        const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
-        let results = resolvedResultsByQuery[searchQuery];
-        if (results) {
-          results = results.filter(
-            result =>
-              buildURI({ streamClaimId: result.claimId, streamName: result.name }) !== currentUri
-          );
-          recommendedContent = results;
-        }
+      const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
+      let results = resolvedResultsByQuery[searchQuery];
+      if (results) {
+        results = results.filter(
+          result =>
+            buildURI({ streamClaimId: result.claimId, streamName: result.name }) !== currentUri
+        );
+        recommendedContent = results;
       }
 
       return recommendedContent;
