@@ -15,7 +15,7 @@ import { creditsToString } from 'util/format-credits';
 import { batchActions } from 'util/batch-actions';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 
-export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean = false, connectionStringOverride: string = null) {
+export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean = false) {
   return (dispatch: Dispatch, getState: GetState) => {
     const normalizedUris = uris.map(normalizeURI);
     const state = getState();
@@ -47,7 +47,7 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
       },
     } = {};
 
-    Lbry.resolve({ urls: urisToResolve }, connectionStringOverride).then((result: ResolveResponse) => {
+    Lbry.resolve({ urls: urisToResolve }).then((result: ResolveResponse) => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
           stream: null,
@@ -90,8 +90,8 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
   };
 }
 
-export function doResolveUri(uri: string, connectionStringOverride: string = null) {
-  return doResolveUris([uri], connectionStringOverride);
+export function doResolveUri(uri: string) {
+  return doResolveUris([uri]);
 }
 
 export function doFetchClaimListMine(
@@ -426,8 +426,7 @@ export function doClaimSearch(
     no_totals: true,
     page_size: 10,
     page: 1,
-  },
-  connectionStringOverride: string = null
+  }
 ) {
   const query = createNormalizedClaimSearchKey(options);
   return (dispatch: Dispatch) => {
@@ -464,7 +463,7 @@ export function doClaimSearch(
       });
     };
 
-    Lbry.claim_search(options, connectionStringOverride).then(success, failure);
+    Lbry.claim_search(options).then(success, failure);
   };
 }
 

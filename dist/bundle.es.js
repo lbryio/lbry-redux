@@ -884,6 +884,8 @@ const Lbry = {
   isConnected: false,
   connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
+  alternateConnectionString: '',
+  methodsUsingAlternateConnectionString: [],
   apiRequestHeaders: { 'Content-Type': 'application/json-rpc' },
 
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
@@ -937,9 +939,9 @@ const Lbry = {
   version: () => daemonCallWithResult('version', {}),
 
   // Claim fetching and manipulation
-  resolve: (params, connectionStringOverride = null) => daemonCallWithResult('resolve', params, connectionStringOverride),
+  resolve: params => daemonCallWithResult('resolve', params),
   get: params => daemonCallWithResult('get', params),
-  claim_search: (params, connectionStringOverride = null) => daemonCallWithResult('claim_search', params, connectionStringOverride),
+  claim_search: params => daemonCallWithResult('claim_search', params),
   claim_list: params => daemonCallWithResult('claim_list', params),
   channel_create: params => daemonCallWithResult('channel_create', params),
   channel_update: params => daemonCallWithResult('channel_update', params),
@@ -1039,7 +1041,7 @@ function checkAndParse(response) {
   });
 }
 
-function apiCall(method, params, resolve, reject, connectionStringOverride = null) {
+function apiCall(method, params, resolve, reject) {
   const counter = new Date().getTime();
   const options = {
     method: 'POST',
@@ -1052,7 +1054,7 @@ function apiCall(method, params, resolve, reject, connectionStringOverride = nul
     })
   };
 
-  const connectionString = connectionStringOverride ? connectionStringOverride : Lbry.daemonConnectionString;
+  const connectionString = Lbry.methodsUsingAlternateConnectionString.includes(method) ? Lbry.alternateConnectionString : Lbry.daemonConnectionString;
   return fetch(connectionString + '?m=' + method, options).then(checkAndParse).then(response => {
     const error = response.error || response.result && response.result.error;
 
@@ -1063,11 +1065,11 @@ function apiCall(method, params, resolve, reject, connectionStringOverride = nul
   }).catch(reject);
 }
 
-function daemonCallWithResult(name, params = {}, connectionStringOverride = null) {
+function daemonCallWithResult(name, params = {}) {
   return new Promise((resolve, reject) => {
     apiCall(name, params, result => {
       resolve(result);
-    }, reject, connectionStringOverride);
+    }, reject);
   });
 }
 
@@ -2871,7 +2873,7 @@ function batchActions(...actions) {
 
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function doResolveUris(uris, returnCachedClaims = false, connectionStringOverride = null) {
+function doResolveUris(uris, returnCachedClaims = false) {
   return (dispatch, getState) => {
     const normalizedUris = uris.map(normalizeURI);
     const state = getState();
@@ -2897,7 +2899,7 @@ function doResolveUris(uris, returnCachedClaims = false, connectionStringOverrid
 
     const resolveInfo = {};
 
-    lbryProxy.resolve({ urls: urisToResolve }, connectionStringOverride).then(result => {
+    lbryProxy.resolve({ urls: urisToResolve }).then(result => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
           stream: null,
@@ -2937,8 +2939,8 @@ function doResolveUris(uris, returnCachedClaims = false, connectionStringOverrid
   };
 }
 
-function doResolveUri(uri, connectionStringOverride = null) {
-  return doResolveUris([uri], connectionStringOverride);
+function doResolveUri(uri) {
+  return doResolveUris([uri]);
 }
 
 function doFetchClaimListMine(page = 1, pageSize = 99999, resolve = true) {
@@ -3224,7 +3226,7 @@ function doClaimSearch(options = {
   no_totals: true,
   page_size: 10,
   page: 1
-}, connectionStringOverride = null) {
+}) {
   const query = createNormalizedClaimSearchKey(options);
   return dispatch => {
     dispatch({
@@ -3260,7 +3262,7 @@ function doClaimSearch(options = {
       });
     };
 
-    lbryProxy.claim_search(options, connectionStringOverride).then(success, failure);
+    lbryProxy.claim_search(options).then(success, failure);
   };
 }
 

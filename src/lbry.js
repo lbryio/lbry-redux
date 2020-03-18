@@ -11,6 +11,8 @@ const Lbry: LbryTypes = {
   isConnected: false,
   connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
+  alternateConnectionString: '',
+  methodsUsingAlternateConnectionString: [],
   apiRequestHeaders: { 'Content-Type': 'application/json-rpc' },
 
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
@@ -73,9 +75,9 @@ const Lbry: LbryTypes = {
   version: () => daemonCallWithResult('version', {}),
 
   // Claim fetching and manipulation
-  resolve: (params, connectionStringOverride = null) => daemonCallWithResult('resolve', params, connectionStringOverride),
+  resolve: params => daemonCallWithResult('resolve', params),
   get: params => daemonCallWithResult('get', params),
-  claim_search: (params, connectionStringOverride = null) => daemonCallWithResult('claim_search', params, connectionStringOverride),
+  claim_search: params => daemonCallWithResult('claim_search', params),
   claim_list: params => daemonCallWithResult('claim_list', params),
   channel_create: params => daemonCallWithResult('channel_create', params),
   channel_update: params => daemonCallWithResult('channel_update', params),
@@ -178,7 +180,7 @@ function checkAndParse(response) {
   });
 }
 
-export function apiCall(method: string, params: ?{}, resolve: Function, reject: Function, connectionStringOverride = null) {
+export function apiCall(method: string, params: ?{}, resolve: Function, reject: Function) {
   const counter = new Date().getTime();
   const options = {
     method: 'POST',
@@ -191,7 +193,9 @@ export function apiCall(method: string, params: ?{}, resolve: Function, reject: 
     }),
   };
 
-  const connectionString = connectionStringOverride ? connectionStringOverride : Lbry.daemonConnectionString;
+  const connectionString = Lbry.methodsUsingAlternateConnectionString.includes(method)
+    ? Lbry.alternateConnectionString
+    : Lbry.daemonConnectionString;
   return fetch(connectionString + '?m=' + method, options)
     .then(checkAndParse)
     .then(response => {
@@ -205,7 +209,7 @@ export function apiCall(method: string, params: ?{}, resolve: Function, reject: 
     .catch(reject);
 }
 
-function daemonCallWithResult(name: string, params: ?{} = {}, connectionStringOverride = null) {
+function daemonCallWithResult(name: string, params: ?{} = {}) {
   return new Promise((resolve, reject) => {
     apiCall(
       name,
@@ -213,8 +217,7 @@ function daemonCallWithResult(name: string, params: ?{} = {}, connectionStringOv
       result => {
         resolve(result);
       },
-      reject,
-      connectionStringOverride
+      reject
     );
   });
 }
