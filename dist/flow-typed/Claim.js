@@ -43,6 +43,7 @@ declare type GenericClaim = {
     expiration_height: number,
     is_controlling: boolean,
     support_amount: string,
+    reposted: number,
     trending_global: number,
     trending_group: number,
     trending_local: number,
