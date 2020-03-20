@@ -884,6 +884,8 @@ const Lbry = {
   isConnected: false,
   connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
+  alternateConnectionString: '',
+  methodsUsingAlternateConnectionString: [],
   apiRequestHeaders: { 'Content-Type': 'application/json-rpc' },
 
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
@@ -1052,7 +1054,8 @@ function apiCall(method, params, resolve, reject) {
     })
   };
 
-  return fetch(Lbry.daemonConnectionString + '?m=' + method, options).then(checkAndParse).then(response => {
+  const connectionString = Lbry.methodsUsingAlternateConnectionString.includes(method) ? Lbry.alternateConnectionString : Lbry.daemonConnectionString;
+  return fetch(connectionString + '?m=' + method, options).then(checkAndParse).then(response => {
     const error = response.error || response.result && response.result.error;
 
     if (error) {

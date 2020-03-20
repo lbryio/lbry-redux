@@ -221,6 +221,8 @@ declare type LbryTypes = {
   connectPromise: ?Promise<any>,
   connect: () => void,
   daemonConnectionString: string,
+  alternateConnectionString: string,
+  methodsUsingAlternateConnectionString: Array<string>,
   apiRequestHeaders: { [key: string]: string },
   setDaemonConnectionString: string => void,
   setApiHeader: (string, string) => void,
