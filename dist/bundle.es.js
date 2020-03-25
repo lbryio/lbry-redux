@@ -62,6 +62,10 @@ const FETCH_SUPPORTS_STARTED = 'FETCH_SUPPORTS_STARTED';
 const FETCH_SUPPORTS_COMPLETED = 'FETCH_SUPPORTS_COMPLETED';
 const ABANDON_SUPPORT_STARTED = 'ABANDON_SUPPORT_STARTED';
 const ABANDON_SUPPORT_COMPLETED = 'ABANDON_SUPPORT_COMPLETED';
+const ABANDON_CLAIM_SUPPORT_STARTED = 'ABANDON_CLAIM_SUPPORT_STARTED';
+const ABANDON_CLAIM_SUPPORT_COMPLETED = 'ABANDON_CLAIM_SUPPORT_COMPLETED';
+const ABANDON_CLAIM_SUPPORT_FAILED = 'ABANDON_CLAIM_SUPPORT_FAILED';
+const PENDING_SUPPORTS_UPDATED = 'PENDING_SUPPORTS_UPDATED';
 const UPDATE_BALANCE = 'UPDATE_BALANCE';
 const UPDATE_TOTAL_BALANCE = 'UPDATE_TOTAL_BALANCE';
 const CHECK_ADDRESS_IS_MINE_STARTED = 'CHECK_ADDRESS_IS_MINE_STARTED';
@@ -327,6 +331,10 @@ var action_types = /*#__PURE__*/Object.freeze({
   FETCH_SUPPORTS_COMPLETED: FETCH_SUPPORTS_COMPLETED,
   ABANDON_SUPPORT_STARTED: ABANDON_SUPPORT_STARTED,
   ABANDON_SUPPORT_COMPLETED: ABANDON_SUPPORT_COMPLETED,
+  ABANDON_CLAIM_SUPPORT_STARTED: ABANDON_CLAIM_SUPPORT_STARTED,
+  ABANDON_CLAIM_SUPPORT_COMPLETED: ABANDON_CLAIM_SUPPORT_COMPLETED,
+  ABANDON_CLAIM_SUPPORT_FAILED: ABANDON_CLAIM_SUPPORT_FAILED,
+  PENDING_SUPPORTS_UPDATED: PENDING_SUPPORTS_UPDATED,
   UPDATE_BALANCE: UPDATE_BALANCE,
   UPDATE_TOTAL_BALANCE: UPDATE_TOTAL_BALANCE,
   CHECK_ADDRESS_IS_MINE_STARTED: CHECK_ADDRESS_IS_MINE_STARTED,
@@ -1791,6 +1799,15 @@ const selectWalletEncryptPending = reselect.createSelector(selectState$1, state 
 
 const selectWalletEncryptSucceeded = reselect.createSelector(selectState$1, state => state.walletEncryptSucceded);
 
+const selectPendingSupportTransactions = reselect.createSelector(selectState$1, state => state.pendingSupportTransactions);
+
+const makeSelectPendingAmountByUri = uri => reselect.createSelector(selectClaimIdsByUri, selectPendingSupportTransactions, (claimIdsByUri, pendingSupports) => {
+  const uriEntry = Object.entries(claimIdsByUri).find(([u, cid]) => u === uri);
+  const claimId = uriEntry && uriEntry[1];
+  const pendingSupport = claimId && pendingSupports[claimId];
+  return pendingSupport ? pendingSupport.effective : undefined;
+});
+
 const selectWalletEncryptResult = reselect.createSelector(selectState$1, state => state.walletEncryptResult);
 
 const selectWalletDecryptPending = reselect.createSelector(selectState$1, state => state.walletDecryptPending);
@@ -1993,28 +2010,12 @@ function createNormalizedClaimSearchKey(options) {
   return query;
 }
 
-function concatClaims(claimList = [], concatClaimList = []) {
-  if (!claimList || claimList.length === 0) {
-    if (!concatClaimList) {
-      return [];
-    }
-    return concatClaimList.slice();
-  }
-
-  const claims = claimList.slice();
-  concatClaimList.forEach(claim => {
-    if (!claims.some(item => item.claim_id === claim.claim_id)) {
-      claims.push(claim);
-    }
-  });
-
-  return claims;
-}
-
 var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 const selectState$2 = state => state.claims || {};
 
 const selectClaimsById = reselect.createSelector(selectState$2, state => state.byId || {});
+
+const selectClaimIdsByUri = reselect.createSelector(selectState$2, state => state.claimsByUri || {});
 
 const selectCurrentChannelPage = reselect.createSelector(selectState$2, state => state.currentChannelPage || 1);
 
@@ -2112,7 +2113,21 @@ const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelec
   }
 });
 
-const selectMyClaimsRaw = reselect.createSelector(selectState$2, state => state.myClaims);
+const selectMyClaimsRaw = reselect.createSelector(selectState$2, selectClaimsById, (state, byId) => {
+  const ids = state.myClaims;
+  if (!ids) {
+    return ids;
+  }
+
+  const claims = [];
+  ids.forEach(id => {
+    if (byId[id]) {
+      // I'm not sure why this check is necessary, but it ought to be a quick fix for https://github.com/lbryio/lbry-desktop/issues/544
+      claims.push(byId[id]);
+    }
+  });
+  return claims;
+});
 
 const selectAbandoningIds = reselect.createSelector(selectState$2, state => Object.keys(state.abandoningById || {}));
 
@@ -2799,6 +2814,34 @@ function doWalletUnlock(password) {
   };
 }
 
+function doSupportAbandonForClaim(claimId, claimType, keep, preview) {
+  return dispatch => {
+    if (!preview) {
+      dispatch({
+        type: ABANDON_CLAIM_SUPPORT_STARTED
+      });
+    }
+    const params = { claim_id: claimId };
+    if (preview) params['preview'] = true;
+    if (keep) params['keep'] = keep;
+    return lbryProxy.support_abandon(params).then(res => {
+      if (!preview) {
+        dispatch({
+          type: ABANDON_CLAIM_SUPPORT_COMPLETED,
+          data: { claimId, txid: res.txid, effective: res.outputs[0].amount, type: claimType } // add to pendingSupportTransactions,
+        });
+        dispatch(doCheckPendingTxs());
+      }
+      return res;
+    }).catch(e => {
+      dispatch({
+        type: ABANDON_CLAIM_SUPPORT_FAILED,
+        data: e.message
+      });
+    });
+  };
+}
+
 function doWalletReconnect() {
   return dispatch => {
     dispatch({
@@ -2867,6 +2910,62 @@ function doUpdateBlockHeight() {
     }
   });
 }
+
+// Calls transaction_show on txes until any pending txes are confirmed
+const doCheckPendingTxs = () => (dispatch, getState) => {
+  const state = getState();
+  const pendingTxsById = selectPendingSupportTransactions(state); // {}
+  if (!Object.keys(pendingTxsById).length) {
+    return;
+  }
+  let txCheckInterval;
+  const checkTxList = () => {
+    const state = getState();
+    const pendingTxs = selectPendingSupportTransactions(state); // {}
+    const promises = [];
+    const newPendingTxes = {};
+    const types = new Set([]);
+    let changed = false;
+    Object.entries(pendingTxs).forEach(([claim, data]) => {
+      promises.push(lbryProxy.transaction_show({ txid: data.txid }));
+      types.add(data.type);
+    });
+
+    Promise.all(promises).then(txShows => {
+      txShows.forEach(result => {
+        if (result.height <= 0) {
+          const entries = Object.entries(pendingTxs);
+          const match = entries.find(entry => entry[1].txid === result.txid);
+          newPendingTxes[match[0]] = match[1];
+        } else {
+          changed = true;
+        }
+      });
+    }).then(() => {
+      if (changed) {
+        dispatch({
+          type: PENDING_SUPPORTS_UPDATED,
+          data: newPendingTxes
+        });
+        if (types.has('channel')) {
+          dispatch(doFetchChannelListMine());
+        }
+        if (types.has('stream')) {
+          dispatch(doFetchClaimListMine());
+        }
+      }
+      if (Object.keys(newPendingTxes).length === 0) clearInterval(txCheckInterval);
+    });
+
+    if (!Object.keys(pendingTxsById).length) {
+      clearInterval(txCheckInterval);
+    }
+  };
+
+  txCheckInterval = setInterval(() => {
+    checkTxList();
+  }, 30000);
+};
 
 // https://github.com/reactjs/redux/issues/911
 function batchActions(...actions) {
@@ -4681,19 +4780,23 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById = Object.assign({}, state.pendingById);
-  const myClaims = state.myClaims ? state.myClaims.slice() : [];
+  let myClaimIds = new Set(state.myClaims);
 
   claims.forEach(claim => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
-
+    const { claim_id: claimId } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
       if (claim.confirmations < 1) {
-        pendingById[claim.claim_id] = claim;
-        delete byId[claim.claim_id];
-        delete byUri[claim.claim_id];
+        pendingById[claimId] = claim;
+        delete byId[claimId];
+        delete byUri[claimId];
       } else {
-        byId[claim.claim_id] = claim;
-        byUri[uri] = claim.claim_id;
+        byId[claimId] = claim;
+        byUri[uri] = claimId;
+      }
+      myClaimIds.add(claimId);
+      if (pendingById[claimId] && claim.confirmations > 0) {
+        delete pendingById[claimId];
       }
     }
   });
@@ -4708,7 +4811,7 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
 
   return Object.assign({}, state, {
     isFetchingClaimListMine: false,
-    myClaims: concatClaims(myClaims, claims),
+    myClaims: myClaimIds,
     byId,
     claimsByUri: byUri,
     pendingById
@@ -4720,8 +4823,8 @@ reducers[FETCH_CHANNEL_LIST_STARTED] = state => Object.assign({}, state, { fetch
 reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   const { claims } = action.data;
   const myClaims = state.myClaims || [];
+  let myClaimIds = new Set(state.myClaims);
   const pendingById = Object.assign(state.pendingById);
-
   let myChannelClaims;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
@@ -4747,6 +4850,11 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
         byId[claimId] = claim;
       }
 
+      myClaimIds.add(claimId);
+      if (pendingById[claimId] && claim.confirmations > 0) {
+        delete pendingById[claimId];
+      }
+
       if (pendingById[claimId] && claim.confirmations > 0) {
         delete pendingById[claimId];
       }
@@ -4759,7 +4867,7 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
     channelClaimCounts,
     fetchingMyChannels: false,
     myChannelClaims,
-    myClaims: concatClaims(myClaims, claims)
+    myClaims: myClaimIds
   });
 };
 
@@ -5805,7 +5913,8 @@ const defaultState$a = {
   walletLockSucceded: null,
   walletLockResult: null,
   transactionListFilter: 'all',
-  walletReconnecting: false
+  walletReconnecting: false,
+  pendingSupportTransactions: {}
 };
 
 const walletReducer = handleActions({
@@ -5865,6 +5974,24 @@ const walletReducer = handleActions({
     return _extends$i({}, state, {
       supports: byOutpoint,
       abandoningSupportsById: currentlyAbandoning
+    });
+  },
+
+  [ABANDON_CLAIM_SUPPORT_COMPLETED]: (state, action) => {
+    const { claimId, type, txid, effective } = action.data;
+    const pendingtxs = Object.assign({}, state.pendingSupportTransactions);
+
+    pendingtxs[claimId] = { txid, type, effective };
+
+    return _extends$i({}, state, {
+      pendingSupportTransactions: pendingtxs
+    });
+  },
+
+  [PENDING_SUPPORTS_UPDATED]: (state, action) => {
+
+    return _extends$i({}, state, {
+      pendingSupportTransactions: action.data
     });
   },
 
@@ -6245,6 +6372,7 @@ exports.doSetDraftTransactionAddress = doSetDraftTransactionAddress;
 exports.doSetDraftTransactionAmount = doSetDraftTransactionAmount;
 exports.doSetFileListSort = doSetFileListSort;
 exports.doSetTransactionListFilter = doSetTransactionListFilter;
+exports.doSupportAbandonForClaim = doSupportAbandonForClaim;
 exports.doToast = doToast;
 exports.doToggleBlockChannel = doToggleBlockChannel;
 exports.doToggleTagFollow = doToggleTagFollow;
@@ -6301,6 +6429,7 @@ exports.makeSelectMyStreamUrlsForPage = makeSelectMyStreamUrlsForPage;
 exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
 exports.makeSelectOmittedCountForChannel = makeSelectOmittedCountForChannel;
+exports.makeSelectPendingAmountByUri = makeSelectPendingAmountByUri;
 exports.makeSelectPendingByUri = makeSelectPendingByUri;
 exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
@@ -6343,6 +6472,7 @@ exports.selectBlocks = selectBlocks;
 exports.selectChannelClaimCounts = selectChannelClaimCounts;
 exports.selectChannelImportPending = selectChannelImportPending;
 exports.selectChannelIsBlocked = selectChannelIsBlocked;
+exports.selectClaimIdsByUri = selectClaimIdsByUri;
 exports.selectClaimSearchByQuery = selectClaimSearchByQuery;
 exports.selectClaimSearchByQueryLastPageReached = selectClaimSearchByQueryLastPageReached;
 exports.selectClaimsBalance = selectClaimsBalance;
@@ -6395,6 +6525,7 @@ exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
 exports.selectMyStreamUrlsCount = selectMyStreamUrlsCount;
 exports.selectPendingById = selectPendingById;
 exports.selectPendingClaims = selectPendingClaims;
+exports.selectPendingSupportTransactions = selectPendingSupportTransactions;
 exports.selectPlayingUri = selectPlayingUri;
 exports.selectPublishFormValues = selectPublishFormValues;
 exports.selectPurchaseUriErrorMessage = selectPurchaseUriErrorMessage;

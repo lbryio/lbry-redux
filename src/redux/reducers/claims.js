@@ -10,7 +10,6 @@
 
 import * as ACTIONS from 'constants/action_types';
 import { buildURI, parseURI } from 'lbryURI';
-import { concatClaims } from 'util/claim';
 
 type State = {
   createChannelError: ?string,
@@ -167,19 +166,23 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
-  const myClaims = state.myClaims ? state.myClaims.slice() : [];
+  let myClaimIds = new Set(state.myClaims);
 
   claims.forEach((claim: Claim) => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
-
+    const { claim_id: claimId } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
       if (claim.confirmations < 1) {
-        pendingById[claim.claim_id] = claim;
-        delete byId[claim.claim_id];
-        delete byUri[claim.claim_id];
+        pendingById[claimId] = claim;
+        delete byId[claimId];
+        delete byUri[claimId];
       } else {
-        byId[claim.claim_id] = claim;
-        byUri[uri] = claim.claim_id;
+        byId[claimId] = claim;
+        byUri[uri] = claimId;
+      }
+      myClaimIds.add(claimId);
+      if (pendingById[claimId] && claim.confirmations > 0) {
+        delete pendingById[claimId];
       }
     }
   });
@@ -195,7 +198,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
 
   return Object.assign({}, state, {
     isFetchingClaimListMine: false,
-    myClaims: concatClaims(myClaims, claims),
+    myClaims: myClaimIds,
     byId,
     claimsByUri: byUri,
     pendingById,
@@ -208,8 +211,8 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = (state: State): State =>
 reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): State => {
   const { claims }: { claims: Array<ChannelClaim> } = action.data;
   const myClaims = state.myClaims || [];
+  let myClaimIds = new Set(state.myClaims);
   const pendingById = Object.assign(state.pendingById);
-
   let myChannelClaims;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
@@ -236,6 +239,11 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
         byId[claimId] = claim;
       }
 
+      myClaimIds.add(claimId);
+      if (pendingById[claimId] && claim.confirmations > 0) {
+        delete pendingById[claimId];
+      }
+
       if (pendingById[claimId] && claim.confirmations > 0) {
         delete pendingById[claimId];
       }
@@ -248,7 +256,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
     channelClaimCounts,
     fetchingMyChannels: false,
     myChannelClaims,
-    myClaims: concatClaims(myClaims, claims),
+    myClaims: myClaimIds,
   });
 };
 

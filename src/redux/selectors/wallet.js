@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 import * as TRANSACTIONS from 'constants/transaction_types';
 import { PAGE_SIZE, LATEST_PAGE_SIZE } from 'constants/transaction_list';
-
+import { selectClaimIdsByUri } from 'redux/selectors/claims';
 export const selectState = state => state.wallet || {};
 
 export const selectWalletState = selectState;
@@ -19,6 +19,22 @@ export const selectWalletEncryptPending = createSelector(
 export const selectWalletEncryptSucceeded = createSelector(
   selectState,
   state => state.walletEncryptSucceded
+);
+
+export const selectPendingSupportTransactions = createSelector(
+  selectState,
+  state => state.pendingSupportTransactions
+);
+
+export const makeSelectPendingAmountByUri = (uri) => createSelector(
+  selectClaimIdsByUri,
+  selectPendingSupportTransactions,
+  (claimIdsByUri, pendingSupports) => {
+    const uriEntry = Object.entries(claimIdsByUri).find(([u, cid]) => u === uri);
+    const claimId = uriEntry && uriEntry[1];
+    const pendingSupport = claimId && pendingSupports[claimId];
+    return pendingSupport ? pendingSupport.effective : undefined;
+  }
 );
 
 export const selectWalletEncryptResult = createSelector(
