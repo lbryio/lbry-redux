@@ -2354,12 +2354,17 @@ const makeSelectFirstRecommendedFileForUri = uri => reselect.createSelector(make
 // accepts a regular claim uri lbry://something
 // returns the channel uri that created this claim lbry://@channel
 const makeSelectChannelForClaimUri = (uri, includePrefix = false) => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
-  if (!claim || !claim.signing_channel || !claim.signing_channel.canonical_url) {
+  if (!claim || !claim.signing_channel) {
     return null;
   }
 
-  const { canonical_url: canonicalUrl } = claim.signing_channel;
-  return includePrefix ? canonicalUrl : canonicalUrl.slice('lbry://'.length);
+  const { canonical_url: canonicalUrl, permanent_url: permanentUrl } = claim.signing_channel;
+
+  if (canonicalUrl) {
+    return includePrefix ? canonicalUrl : canonicalUrl.slice('lbry://'.length);
+  } else {
+    return includePrefix ? permanentUrl : permanentUrl.slice('lbry://'.length);
+  }
 });
 
 const makeSelectTagsForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => {

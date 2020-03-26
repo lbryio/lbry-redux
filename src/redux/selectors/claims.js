@@ -576,12 +576,17 @@ export const makeSelectChannelForClaimUri = (uri: string, includePrefix: boolean
   createSelector(
     makeSelectClaimForUri(uri),
     (claim: ?Claim) => {
-      if (!claim || !claim.signing_channel || !claim.signing_channel.canonical_url) {
+      if (!claim || !claim.signing_channel) {
         return null;
       }
 
-      const { canonical_url: canonicalUrl } = claim.signing_channel;
-      return includePrefix ? canonicalUrl : canonicalUrl.slice('lbry://'.length);
+      const { canonical_url: canonicalUrl, permanent_url: permanentUrl } = claim.signing_channel;
+
+      if (canonicalUrl) {
+        return includePrefix ? canonicalUrl : canonicalUrl.slice('lbry://'.length);
+      } else {
+        return includePrefix ? permanentUrl : permanentUrl.slice('lbry://'.length);
+      }
     }
   );
 
