@@ -2354,7 +2354,7 @@ const makeSelectFirstRecommendedFileForUri = uri => reselect.createSelector(make
 // accepts a regular claim uri lbry://something
 // returns the channel uri that created this claim lbry://@channel
 const makeSelectChannelForClaimUri = (uri, includePrefix = false) => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
-  if (!claim || !claim.signing_channel) {
+  if (!claim || !claim.signing_channel || !claim.is_channel_signature_valid) {
     return null;
   }
 
