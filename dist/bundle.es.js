@@ -5492,6 +5492,10 @@ function _objectWithoutProperties$3(obj, keys) { var target = {}; for (var i in 
 const defaultState$6 = {
   editingURI: undefined,
   filePath: undefined,
+  checkFileDur: 0,
+  checkFileSize: 0,
+  checkFileVid: false,
+  canOptimize: undefined,
   contentIsFree: true,
   fee: {
     amount: 1,

@@ -9,6 +9,10 @@ type PublishState = {
   editingURI: ?string,
   filePath: ?string,
   contentIsFree: boolean,
+  canOptimize: ?boolean,
+  checkFileDur: number,
+  checkFileSize: number,
+  checkFileVid: boolean,
   fee: {
     amount: number,
     currency: string,
@@ -34,6 +38,10 @@ type PublishState = {
 const defaultState: PublishState = {
   editingURI: undefined,
   filePath: undefined,
+  checkFileDur: 0,
+  checkFileSize: 0,
+  checkFileVid: false,
+  canOptimize: undefined,
   contentIsFree: true,
   fee: {
     amount: 1,
@@ -72,7 +80,9 @@ export const publishReducer = handleActions(
       };
     },
     [ACTIONS.CLEAR_PUBLISH]: (state: PublishState): PublishState => ({
-      ...defaultState, bid: state.bid, optimize: state.optimize,
+      ...defaultState,
+      bid: state.bid,
+      optimize: state.optimize,
     }),
     [ACTIONS.PUBLISH_START]: (state: PublishState): PublishState => ({
       ...state,
