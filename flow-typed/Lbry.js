@@ -187,7 +187,7 @@ declare type WalletListResponse = Array<{
 declare type WalletStatusResponse = {
   is_encrypted: boolean,
   is_locked: boolean,
-  is_synced: boolean,
+  is_syncing: boolean,
 };
 
 declare type SyncApplyResponse = {
