@@ -4951,11 +4951,16 @@ reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
 };
 
 reducers[CLAIM_SEARCH_FAILED] = (state, action) => {
+  const { query } = action.data;
+  const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
-  delete fetchingClaimSearchByQuery[action.data.query];
+
+  delete fetchingClaimSearchByQuery[query];
+  claimSearchByQuery[query] = null;
 
   return Object.assign({}, state, {
-    fetchingClaimSearchByQuery
+    fetchingClaimSearchByQuery,
+    claimSearchByQuery
   });
 };
 
