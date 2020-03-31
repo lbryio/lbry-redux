@@ -9,10 +9,9 @@ type PublishState = {
   editingURI: ?string,
   filePath: ?string,
   contentIsFree: boolean,
-  canOptimize: ?boolean,
-  checkFileDur: number,
-  checkFileSize: number,
-  checkFileVid: boolean,
+  fileDur: number,
+  fileSize: number,
+  fileVid: boolean,
   fee: {
     amount: number,
     currency: string,
@@ -38,10 +37,9 @@ type PublishState = {
 const defaultState: PublishState = {
   editingURI: undefined,
   filePath: undefined,
-  checkFileDur: 0,
-  checkFileSize: 0,
-  checkFileVid: false,
-  canOptimize: undefined,
+  fileDur: 0,
+  fileSize: 0,
+  fileVid: false,
   contentIsFree: true,
   fee: {
     amount: 1,

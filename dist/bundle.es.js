@@ -5492,10 +5492,9 @@ function _objectWithoutProperties$3(obj, keys) { var target = {}; for (var i in 
 const defaultState$6 = {
   editingURI: undefined,
   filePath: undefined,
-  checkFileDur: 0,
-  checkFileSize: 0,
-  checkFileVid: false,
-  canOptimize: undefined,
+  fileDur: 0,
+  fileSize: 0,
+  fileVid: false,
   contentIsFree: true,
   fee: {
     amount: 1,
@@ -5529,7 +5528,9 @@ const publishReducer = handleActions({
     const { data } = action;
     return _extends$e({}, state, data);
   },
-  [CLEAR_PUBLISH]: state => _extends$e({}, defaultState$6, { bid: state.bid, optimize: state.optimize
+  [CLEAR_PUBLISH]: state => _extends$e({}, defaultState$6, {
+    bid: state.bid,
+    optimize: state.optimize
   }),
   [PUBLISH_START]: state => _extends$e({}, state, {
     publishing: true,
