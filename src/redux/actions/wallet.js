@@ -345,9 +345,15 @@ export function doWalletLock() {
 
 export function doSupportAbandonForClaim(claimId, claimType, keep,  preview) {
   return dispatch => {
-    dispatch({
-      type: ACTIONS.ABANDON_CLAIM_SUPPORT_STARTED,
-    });
+    if (preview) {
+      dispatch({
+        type: ACTIONS.ABANDON_CLAIM_SUPPORT_PREVIEW,
+      });
+    } else {
+      dispatch({
+        type: ACTIONS.ABANDON_CLAIM_SUPPORT_STARTED,
+      });
+    }
 
     const params = {claim_id: claimId};
     if (preview) params['preview'] = true;

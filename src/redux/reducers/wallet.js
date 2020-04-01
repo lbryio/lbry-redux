@@ -157,6 +157,13 @@ export const walletReducer = handleActions(
       };
     },
 
+    [ACTIONS.ABANDON_CLAIM_SUPPORT_PREVIEW]: (state: WalletState, action: any): WalletState => {
+      return {
+        ...state,
+        abandonClaimSupportError: undefined,
+      };
+    },
+
     [ACTIONS.ABANDON_CLAIM_SUPPORT_COMPLETED]: (state: WalletState, action: any): WalletState => {
       const { claimId, type, txid, effective }: { claimId: string, type: string, txid: string, effective: string } = action.data;
       const pendingtxs = Object.assign({}, state.pendingSupportTransactions);

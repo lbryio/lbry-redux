@@ -65,6 +65,7 @@ const ABANDON_SUPPORT_COMPLETED = 'ABANDON_SUPPORT_COMPLETED';
 const ABANDON_CLAIM_SUPPORT_STARTED = 'ABANDON_CLAIM_SUPPORT_STARTED';
 const ABANDON_CLAIM_SUPPORT_COMPLETED = 'ABANDON_CLAIM_SUPPORT_COMPLETED';
 const ABANDON_CLAIM_SUPPORT_FAILED = 'ABANDON_CLAIM_SUPPORT_FAILED';
+const ABANDON_CLAIM_SUPPORT_PREVIEW = 'ABANDON_CLAIM_SUPPORT_PREVIEW';
 const PENDING_SUPPORTS_UPDATED = 'PENDING_SUPPORTS_UPDATED';
 const UPDATE_BALANCE = 'UPDATE_BALANCE';
 const UPDATE_TOTAL_BALANCE = 'UPDATE_TOTAL_BALANCE';
@@ -334,6 +335,7 @@ var action_types = /*#__PURE__*/Object.freeze({
   ABANDON_CLAIM_SUPPORT_STARTED: ABANDON_CLAIM_SUPPORT_STARTED,
   ABANDON_CLAIM_SUPPORT_COMPLETED: ABANDON_CLAIM_SUPPORT_COMPLETED,
   ABANDON_CLAIM_SUPPORT_FAILED: ABANDON_CLAIM_SUPPORT_FAILED,
+  ABANDON_CLAIM_SUPPORT_PREVIEW: ABANDON_CLAIM_SUPPORT_PREVIEW,
   PENDING_SUPPORTS_UPDATED: PENDING_SUPPORTS_UPDATED,
   UPDATE_BALANCE: UPDATE_BALANCE,
   UPDATE_TOTAL_BALANCE: UPDATE_TOTAL_BALANCE,
@@ -2823,9 +2825,15 @@ function doWalletUnlock(password) {
 
 function doSupportAbandonForClaim(claimId, claimType, keep, preview) {
   return dispatch => {
-    dispatch({
-      type: ABANDON_CLAIM_SUPPORT_STARTED
-    });
+    if (preview) {
+      dispatch({
+        type: ABANDON_CLAIM_SUPPORT_PREVIEW
+      });
+    } else {
+      dispatch({
+        type: ABANDON_CLAIM_SUPPORT_STARTED
+      });
+    }
 
     const params = { claim_id: claimId };
     if (preview) params['preview'] = true;
@@ -5985,6 +5993,12 @@ const walletReducer = handleActions({
   },
 
   [ABANDON_CLAIM_SUPPORT_STARTED]: (state, action) => {
+    return _extends$i({}, state, {
+      abandonClaimSupportError: undefined
+    });
+  },
+
+  [ABANDON_CLAIM_SUPPORT_PREVIEW]: (state, action) => {
     return _extends$i({}, state, {
       abandonClaimSupportError: undefined
     });
