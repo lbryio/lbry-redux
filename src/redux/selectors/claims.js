@@ -16,6 +16,11 @@ export const selectClaimsById = createSelector(
   state => state.byId || {}
 );
 
+export const selectClaimIdsByUri = createSelector(
+  selectState,
+  state => state.claimsByUri || {}
+);
+
 export const selectCurrentChannelPage = createSelector(
   selectState,
   state => state.currentChannelPage || 1
@@ -156,7 +161,22 @@ export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true)
 
 export const selectMyClaimsRaw = createSelector(
   selectState,
-  state => state.myClaims
+  selectClaimsById,
+  (state, byId) => {
+    const ids = state.myClaims;
+    if (!ids) {
+      return ids;
+    }
+
+    const claims = [];
+    ids.forEach(id => {
+      if (byId[id]) {
+        // I'm not sure why this check is necessary, but it ought to be a quick fix for https://github.com/lbryio/lbry-desktop/issues/544
+        claims.push(byId[id]);
+      }
+    });
+    return claims;
+  }
 );
 
 export const selectAbandoningIds = createSelector(

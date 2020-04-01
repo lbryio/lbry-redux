@@ -120,6 +120,7 @@ export {
   doSetTransactionListFilter,
   doUpdateBlockHeight,
   doClearSupport,
+  doSupportAbandonForClaim,
 } from 'redux/actions/wallet';
 
 export { doToggleTagFollow, doAddTag, doDeleteTag } from 'redux/actions/tags';
@@ -236,6 +237,7 @@ export {
   selectMyStreamUrlsCount,
   selectRepostError,
   selectRepostLoading,
+  selectClaimIdsByUri,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';
@@ -329,6 +331,8 @@ export {
   makeSelectFilteredTransactionsForPage,
   selectFilteredTransactionCount,
   selectIsWalletReconnecting,
+  selectPendingSupportTransactions,
+  makeSelectPendingAmountByUri,
 } from 'redux/selectors/wallet';
 
 export {

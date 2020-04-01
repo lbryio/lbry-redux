@@ -14,6 +14,8 @@ type ActionResult = {
   result: any,
 };
 
+
+
 type WalletState = {
   balance: any,
   totalBalance: any,
@@ -43,6 +45,7 @@ type WalletState = {
   walletLockSucceded: ?boolean,
   walletLockResult: ?boolean,
   walletReconnecting: boolean,
+  pendingSupportTransactions: {}, // { claimId: {txid: 123, amount 12.3}, }
 };
 
 const defaultState = {
@@ -76,6 +79,7 @@ const defaultState = {
   walletLockResult: null,
   transactionListFilter: 'all',
   walletReconnecting: false,
+  pendingSupportTransactions: {},
 };
 
 export const walletReducer = handleActions(
@@ -141,6 +145,26 @@ export const walletReducer = handleActions(
         ...state,
         supports: byOutpoint,
         abandoningSupportsById: currentlyAbandoning,
+      };
+    },
+
+    [ACTIONS.ABANDON_CLAIM_SUPPORT_COMPLETED]: (state: WalletState, action: any): WalletState => {
+      const { claimId, type, txid, effective }: { claimId: string, type: string, txid: string, effective: string } = action.data;
+      const pendingtxs = Object.assign({}, state.pendingSupportTransactions);
+
+      pendingtxs[claimId] = {txid, type, effective};
+
+      return {
+        ...state,
+        pendingSupportTransactions: pendingtxs,
+      };
+    },
+
+    [ACTIONS.PENDING_SUPPORTS_UPDATED]: (state: WalletState, action: any): WalletState => {
+
+      return {
+        ...state,
+        pendingSupportTransactions: action.data,
       };
     },
 
