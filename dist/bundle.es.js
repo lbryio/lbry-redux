@@ -1801,6 +1801,8 @@ const selectWalletEncryptSucceeded = reselect.createSelector(selectState$1, stat
 
 const selectPendingSupportTransactions = reselect.createSelector(selectState$1, state => state.pendingSupportTransactions);
 
+const selectAbandonClaimSupportError = reselect.createSelector(selectState$1, state => state.abandonClaimSupportError);
+
 const makeSelectPendingAmountByUri = uri => reselect.createSelector(selectClaimIdsByUri, selectPendingSupportTransactions, (claimIdsByUri, pendingSupports) => {
   const uriEntry = Object.entries(claimIdsByUri).find(([u, cid]) => u === uri);
   const claimId = uriEntry && uriEntry[1];
@@ -2821,11 +2823,10 @@ function doWalletUnlock(password) {
 
 function doSupportAbandonForClaim(claimId, claimType, keep, preview) {
   return dispatch => {
-    if (!preview) {
-      dispatch({
-        type: ABANDON_CLAIM_SUPPORT_STARTED
-      });
-    }
+    dispatch({
+      type: ABANDON_CLAIM_SUPPORT_STARTED
+    });
+
     const params = { claim_id: claimId };
     if (preview) params['preview'] = true;
     if (keep) params['keep'] = keep;
@@ -5919,7 +5920,8 @@ const defaultState$a = {
   walletLockResult: null,
   transactionListFilter: 'all',
   walletReconnecting: false,
-  pendingSupportTransactions: {}
+  pendingSupportTransactions: {},
+  abandonClaimSupportError: undefined
 };
 
 const walletReducer = handleActions({
@@ -5982,6 +5984,12 @@ const walletReducer = handleActions({
     });
   },
 
+  [ABANDON_CLAIM_SUPPORT_STARTED]: (state, action) => {
+    return _extends$i({}, state, {
+      abandonClaimSupportError: undefined
+    });
+  },
+
   [ABANDON_CLAIM_SUPPORT_COMPLETED]: (state, action) => {
     const { claimId, type, txid, effective } = action.data;
     const pendingtxs = Object.assign({}, state.pendingSupportTransactions);
@@ -5989,7 +5997,14 @@ const walletReducer = handleActions({
     pendingtxs[claimId] = { txid, type, effective };
 
     return _extends$i({}, state, {
-      pendingSupportTransactions: pendingtxs
+      pendingSupportTransactions: pendingtxs,
+      abandonClaimSupportError: undefined
+    });
+  },
+
+  [ABANDON_CLAIM_SUPPORT_FAILED]: (state, action) => {
+    return _extends$i({}, state, {
+      abandonClaimSupportError: action.data
     });
   },
 
@@ -6466,6 +6481,7 @@ exports.regexAddress = regexAddress;
 exports.regexInvalidURI = regexInvalidURI;
 exports.savePosition = savePosition;
 exports.searchReducer = searchReducer;
+exports.selectAbandonClaimSupportError = selectAbandonClaimSupportError;
 exports.selectAbandoningIds = selectAbandoningIds;
 exports.selectAllClaimsByChannel = selectAllClaimsByChannel;
 exports.selectAllFetchingChannelClaims = selectAllFetchingChannelClaims;

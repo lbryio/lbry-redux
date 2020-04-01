@@ -26,6 +26,11 @@ export const selectPendingSupportTransactions = createSelector(
   state => state.pendingSupportTransactions
 );
 
+export const selectAbandonClaimSupportError = createSelector(
+  selectState,
+  state => state.abandonClaimSupportError
+);
+
 export const makeSelectPendingAmountByUri = (uri) => createSelector(
   selectClaimIdsByUri,
   selectPendingSupportTransactions,
