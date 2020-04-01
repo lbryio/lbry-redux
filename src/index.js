@@ -332,6 +332,7 @@ export {
   selectFilteredTransactionCount,
   selectIsWalletReconnecting,
   selectPendingSupportTransactions,
+  selectAbandonClaimSupportError,
   makeSelectPendingAmountByUri,
 } from 'redux/selectors/wallet';
 
