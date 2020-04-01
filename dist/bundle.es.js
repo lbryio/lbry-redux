@@ -2237,15 +2237,19 @@ const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaim
 
 const selectMyClaimsWithoutChannels = reselect.createSelector(selectMyClaims, myClaims => myClaims.filter(claim => !claim.name.match(/^@/)).sort((a, b) => a.timestamp - b.timestamp));
 
-const selectMyClaimUrisWithoutChannels = reselect.createSelector(selectMyClaimsWithoutChannels, myClaims => myClaims.sort((a, b) => {
-  if (!a.timestamp) {
-    return -1;
-  } else if (!b.timestamp) {
-    return 1;
-  } else {
-    return b.timestamp - a.timestamp;
-  }
-}).map(claim => claim.canonical_url));
+const selectMyClaimUrisWithoutChannels = reselect.createSelector(selectMyClaimsWithoutChannels, myClaims => {
+  return myClaims.sort((a, b) => {
+    if (a.height < 1) {
+      return -1;
+    } else if (b.height < 1) {
+      return 1;
+    } else {
+      return b.timestamp - a.timestamp;
+    }
+  }).map(claim => {
+    return claim.canonical_url || claim.permanent_url;
+  });
+});
 
 const selectAllMyClaimsByOutpoint = reselect.createSelector(selectMyClaimsRaw, claims => new Set(claims && claims.length ? claims.map(claim => `${claim.txid}:${claim.nout}`) : null));
 
@@ -2424,6 +2428,7 @@ const selectUpdateChannelError = reselect.createSelector(selectState$2, state =>
 const makeSelectMyStreamUrlsForPage = (page = 1) => reselect.createSelector(selectMyClaimUrisWithoutChannels, urls => {
   const start = (Number(page) - 1) * Number(PAGE_SIZE);
   const end = Number(page) * Number(PAGE_SIZE);
+
   return urls && urls.length ? urls.slice(start, end) : [];
 });
 

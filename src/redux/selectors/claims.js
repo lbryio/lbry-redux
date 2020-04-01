@@ -310,8 +310,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-            ? claim.meta.creation_timestamp * 1000
-            : null);
+          ? claim.meta.creation_timestamp * 1000
+          : null);
       if (!timestamp) {
         return undefined;
       }
@@ -386,18 +386,21 @@ export const selectMyClaimsWithoutChannels = createSelector(
 
 export const selectMyClaimUrisWithoutChannels = createSelector(
   selectMyClaimsWithoutChannels,
-  myClaims =>
-    myClaims
+  myClaims => {
+    return myClaims
       .sort((a, b) => {
-        if (!a.timestamp) {
+        if (a.height < 1) {
           return -1;
-        } else if (!b.timestamp) {
+        } else if (b.height < 1) {
           return 1;
         } else {
           return b.timestamp - a.timestamp;
         }
       })
-      .map(claim => claim.canonical_url)
+      .map(claim => {
+        return claim.canonical_url || claim.permanent_url;
+      });
+  }
 );
 
 export const selectAllMyClaimsByOutpoint = createSelector(
@@ -694,6 +697,7 @@ export const makeSelectMyStreamUrlsForPage = (page: number = 1) =>
     urls => {
       const start = (Number(page) - 1) * Number(PAGE_SIZE);
       const end = Number(page) * Number(PAGE_SIZE);
+
       return urls && urls.length ? urls.slice(start, end) : [];
     }
   );
