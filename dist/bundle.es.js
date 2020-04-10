@@ -58,6 +58,10 @@ const GET_NEW_ADDRESS_STARTED = 'GET_NEW_ADDRESS_STARTED';
 const GET_NEW_ADDRESS_COMPLETED = 'GET_NEW_ADDRESS_COMPLETED';
 const FETCH_TRANSACTIONS_STARTED = 'FETCH_TRANSACTIONS_STARTED';
 const FETCH_TRANSACTIONS_COMPLETED = 'FETCH_TRANSACTIONS_COMPLETED';
+const FETCH_TXO_PAGE_STARTED = 'FETCH_TXO_PAGE_STARTED';
+const FETCH_TXO_PAGE_COMPLETED = 'FETCH_TXO_PAGE_COMPLETED';
+const FETCH_TXO_PAGE_FAILED = 'FETCH_TXO_PAGE_FAILED';
+const UPDATE_TXO_FETCH_PARAMS = 'UPDATE_TXO_FETCH_PARAMS';
 const FETCH_SUPPORTS_STARTED = 'FETCH_SUPPORTS_STARTED';
 const FETCH_SUPPORTS_COMPLETED = 'FETCH_SUPPORTS_COMPLETED';
 const ABANDON_SUPPORT_STARTED = 'ABANDON_SUPPORT_STARTED';
@@ -328,6 +332,10 @@ var action_types = /*#__PURE__*/Object.freeze({
   GET_NEW_ADDRESS_COMPLETED: GET_NEW_ADDRESS_COMPLETED,
   FETCH_TRANSACTIONS_STARTED: FETCH_TRANSACTIONS_STARTED,
   FETCH_TRANSACTIONS_COMPLETED: FETCH_TRANSACTIONS_COMPLETED,
+  FETCH_TXO_PAGE_STARTED: FETCH_TXO_PAGE_STARTED,
+  FETCH_TXO_PAGE_COMPLETED: FETCH_TXO_PAGE_COMPLETED,
+  FETCH_TXO_PAGE_FAILED: FETCH_TXO_PAGE_FAILED,
+  UPDATE_TXO_FETCH_PARAMS: UPDATE_TXO_FETCH_PARAMS,
   FETCH_SUPPORTS_STARTED: FETCH_SUPPORTS_STARTED,
   FETCH_SUPPORTS_COMPLETED: FETCH_SUPPORTS_COMPLETED,
   ABANDON_SUPPORT_STARTED: ABANDON_SUPPORT_STARTED,
@@ -747,6 +755,71 @@ const LATEST_PAGE_SIZE = 20;
 var transaction_list = /*#__PURE__*/Object.freeze({
   PAGE_SIZE: PAGE_SIZE$1,
   LATEST_PAGE_SIZE: LATEST_PAGE_SIZE
+});
+
+const ACTIVE = 'active'; // spent, active, all
+const TYPE = 'type'; // all, payment, support, channel, stream, repost
+const SUB_TYPE = 'subtype'; // other, purchase, tip
+const PAGE_SIZE$2 = 'page_size';
+const PAGE = 'page';
+const ALL$1 = 'all';
+// dropdown types
+const SENT = 'sent';
+const RECEIVED = 'received';
+const SUPPORT$1 = 'support';
+const CHANNEL$2 = 'channel';
+const PUBLISH$2 = 'publish';
+const REPOST = 'repost';
+const DROPDOWN_TYPES = [ALL$1, SENT, RECEIVED, SUPPORT$1, CHANNEL$2, PUBLISH$2, REPOST];
+// dropdown subtypes
+const TIP$1 = 'tip';
+const PURCHASE = 'purchase';
+const PAYMENT = 'payment';
+const DROPDOWN_SUBTYPES = [ALL$1, TIP$1, PURCHASE, PAYMENT];
+
+// rpc params
+const TX_TYPE = 'type'; // = other, stream, repost, channel, support, purchase
+const IS_SPENT = 'is_spent';
+const IS_NOT_SPENT = 'is_not_spent';
+const IS_MY_INPUT = 'is_my_input';
+const IS_MY_OUTPUT = 'is_my_output';
+const IS_NOT_MY_INPUT = 'is_not_my_input';
+const IS_NOT_MY_OUTPUT = 'is_not_my_output'; // use to further distinguish payments to self / from self.
+
+// sdk unique types
+const OTHER$1 = 'other';
+const STREAM = 'stream';
+
+const PAGE_SIZE_DEFAULT = 20;
+
+var txo_list = /*#__PURE__*/Object.freeze({
+  ACTIVE: ACTIVE,
+  TYPE: TYPE,
+  SUB_TYPE: SUB_TYPE,
+  PAGE_SIZE: PAGE_SIZE$2,
+  PAGE: PAGE,
+  ALL: ALL$1,
+  SENT: SENT,
+  RECEIVED: RECEIVED,
+  SUPPORT: SUPPORT$1,
+  CHANNEL: CHANNEL$2,
+  PUBLISH: PUBLISH$2,
+  REPOST: REPOST,
+  DROPDOWN_TYPES: DROPDOWN_TYPES,
+  TIP: TIP$1,
+  PURCHASE: PURCHASE,
+  PAYMENT: PAYMENT,
+  DROPDOWN_SUBTYPES: DROPDOWN_SUBTYPES,
+  TX_TYPE: TX_TYPE,
+  IS_SPENT: IS_SPENT,
+  IS_NOT_SPENT: IS_NOT_SPENT,
+  IS_MY_INPUT: IS_MY_INPUT,
+  IS_MY_OUTPUT: IS_MY_OUTPUT,
+  IS_NOT_MY_INPUT: IS_NOT_MY_INPUT,
+  IS_NOT_MY_OUTPUT: IS_NOT_MY_OUTPUT,
+  OTHER: OTHER$1,
+  STREAM: STREAM,
+  PAGE_SIZE_DEFAULT: PAGE_SIZE_DEFAULT
 });
 
 const SPEECH_STATUS = 'https://spee.ch/api/config/site/publishing';
@@ -1966,6 +2039,18 @@ const selectFilteredTransactions = reselect.createSelector(selectTransactionItem
   });
 });
 
+const selectTxoPageParams = reselect.createSelector(selectState$1, state => state.txoFetchParams);
+
+const selectTxoPage = reselect.createSelector(selectState$1, state => state.txoPage && state.txoPage.items || []);
+
+const selectTxoPageNumber = reselect.createSelector(selectState$1, state => state.txoPage && state.txoPage.page || 1);
+
+const selectTxoItemCount = reselect.createSelector(selectState$1, state => state.txoPage && state.txoPage.total_items || 1);
+
+const selectFetchingTxosError = reselect.createSelector(selectState$1, state => state.fetchingTxosError);
+
+const selectIsFetchingTxos = reselect.createSelector(selectState$1, state => state.fetchingTxos);
+
 const makeSelectFilteredTransactionsForPage = (page = 1) => reselect.createSelector(selectFilteredTransactions, filteredTransactions => {
   const start = (Number(page) - 1) * Number(PAGE_SIZE$1);
   const end = Number(page) * Number(PAGE_SIZE$1);
@@ -2591,6 +2676,40 @@ function doFetchTransactions(page = 1, pageSize = 99999) {
   };
 }
 
+function doFetchTxoPage() {
+  return (dispatch, getState) => {
+    dispatch({
+      type: FETCH_TXO_PAGE_STARTED
+    });
+
+    const state = getState();
+    const queryParams = selectTxoPageParams(state);
+
+    lbryProxy.txo_list(queryParams).then(res => {
+      dispatch({
+        type: FETCH_TXO_PAGE_COMPLETED,
+        data: res
+      });
+    }).catch(e => {
+      dispatch({
+        type: FETCH_TXO_PAGE_COMPLETED,
+        data: e.message
+      });
+    });
+  };
+}
+
+function doUpdateTxoPageParams(params) {
+  return dispatch => {
+    dispatch({
+      type: UPDATE_TXO_FETCH_PARAMS,
+      data: params
+    });
+
+    dispatch(doFetchTxoPage());
+  };
+}
+
 function doFetchSupports(page = 1, pageSize = 99999) {
   return dispatch => {
     dispatch({
@@ -3081,6 +3200,77 @@ function doFetchClaimListMine(page = 1, pageSize = 99999, resolve = true) {
   };
 }
 
+function doAbandonTxo(txo, cb) {
+  return dispatch => {
+    const isClaim = txo.type === 'claim';
+    const isSupport = txo.type === 'support' && txo.is_my_input === true;
+    const isTip = txo.type === 'support' && txo.is_my_input === false;
+
+    const data = isClaim ? { claimId: txo.claim_id } : { outpoint: `${txo.txid}:${txo.nout}` };
+
+    const startedActionType = isClaim ? ABANDON_CLAIM_STARTED : ABANDON_SUPPORT_STARTED;
+    const completedActionType = isClaim ? ABANDON_CLAIM_SUCCEEDED : ABANDON_SUPPORT_COMPLETED;
+
+    dispatch({
+      type: startedActionType,
+      data
+    });
+
+    const errorCallback = () => {
+      dispatch(doToast({
+        message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
+        isError: true
+      }));
+    };
+
+    const successCallback = () => {
+      dispatch({
+        type: completedActionType,
+        data
+      });
+
+      let abandonMessage;
+      if (isClaim) {
+        abandonMessage = 'Successfully abandoned your claim.';
+      } else if (isSupport) {
+        abandonMessage = 'Successfully abandoned your support.';
+      } else {
+        abandonMessage = 'Successfully unlocked your tip!';
+      }
+      if (cb) cb();
+
+      dispatch(doToast({
+        message: abandonMessage
+      }));
+    };
+
+    const abandonParams = {
+      blocking: true
+    };
+    if (isClaim) {
+      abandonParams['claim_id'] = txo.claim_id;
+    } else {
+      abandonParams['txid'] = txo.txid;
+      abandonParams['nout'] = txo.nout;
+    }
+
+    let method;
+    if (isSupport || isTip) {
+      method = 'support_abandon';
+    } else if (isClaim) {
+      const { normalized_name: claimName } = txo;
+      method = claimName.startsWith('@') ? 'channel_abandon' : 'stream_abandon';
+    }
+
+    if (!method) {
+      console.error('No "method" chosen for claim or support abandon');
+      return;
+    }
+
+    lbryProxy[method](abandonParams).then(successCallback, errorCallback);
+  };
+}
+
 function doAbandonClaim(txid, nout) {
   const outpoint = `${txid}:${nout}`;
 
@@ -3134,13 +3324,7 @@ function doAbandonClaim(txid, nout) {
       dispatch(doToast({
         message: abandonMessage
       }));
-
-      // After abandoning, fetch transactions to show the new abandon transaction
-      // Only fetch the latest few transactions since we don't care about old ones
-      // Not very robust, but better than calling the entire list for large wallets
-      const page = 1;
-      const pageSize = 10;
-      dispatch(doFetchTransactions(page, pageSize));
+      dispatch(doFetchTxoPage());
     };
 
     const abandonParams = {
@@ -4825,7 +5009,7 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
 
   return Object.assign({}, state, {
     isFetchingClaimListMine: false,
-    myClaims: myClaimIds,
+    myClaims: Array.from(myClaimIds),
     byId,
     claimsByUri: byUri,
     pendingById
@@ -4880,8 +5064,8 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
     claimsByUri: byUri,
     channelClaimCounts,
     fetchingMyChannels: false,
-    myChannelClaims,
-    myClaims: myClaimIds
+    myChannelClaims: Array.from(myChannelClaims),
+    myClaims: Array.from(myClaimIds)
   });
 };
 
@@ -4960,6 +5144,7 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   const { claimId } = action.data;
   const byId = Object.assign({}, state.byId);
   const newMyClaims = state.myClaims ? state.myClaims.slice() : [];
+  const newMyChannelClaims = state.myChannelClaims ? state.myChannelClaims.slice() : [];
   const claimsByUri = Object.assign({}, state.claimsByUri);
 
   Object.keys(claimsByUri).forEach(uri => {
@@ -4967,11 +5152,14 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
       delete claimsByUri[uri];
     }
   });
-  const myClaims = newMyClaims.filter(i => i.claim_id && i.claim_id !== claimId);
+  const myClaims = newMyClaims.filter(i => i !== claimId);
+  const myChannelClaims = newMyChannelClaims.filter(i => i !== claimId);
+
   delete byId[claimId];
 
   return Object.assign({}, state, {
     myClaims,
+    myChannelClaims,
     byId,
     claimsByUri
   });
@@ -4995,7 +5183,7 @@ reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
   return Object.assign({}, state, {
     byId,
     pendingById,
-    myChannelClaims,
+    myChannelClaims: Array.from(myChannelClaims),
     creatingChannel: false
   });
 };
@@ -5907,6 +6095,7 @@ const defaultState$a = {
   latestBlock: undefined,
   transactions: {},
   fetchingTransactions: false,
+  fetchingTransactionsError: undefined,
   supports: {},
   fetchingSupports: false,
   abandoningSupportsByOutpoint: {},
@@ -5928,6 +6117,10 @@ const defaultState$a = {
   walletLockResult: null,
   transactionListFilter: 'all',
   walletReconnecting: false,
+  txoFetchParams: {},
+  txoPage: {},
+  fetchingTxos: false,
+  fetchingTxosError: undefined,
   pendingSupportTransactions: {},
   abandonClaimSupportError: undefined
 };
@@ -5948,6 +6141,34 @@ const walletReducer = handleActions({
     return _extends$i({}, state, {
       transactions: byId,
       fetchingTransactions: false
+    });
+  },
+
+  [FETCH_TXO_PAGE_STARTED]: state => {
+    return _extends$i({}, state, {
+      fetchingTxos: true,
+      fetchingTxosError: undefined
+    });
+  },
+
+  [FETCH_TXO_PAGE_COMPLETED]: (state, action) => {
+    return _extends$i({}, state, {
+      txoPage: action.data,
+      fetchingTxos: false
+    });
+  },
+
+  [FETCH_TXO_PAGE_FAILED]: (state, action) => {
+    return _extends$i({}, state, {
+      txoPage: {},
+      fetchingTxos: false,
+      fetchingTxosError: action.data
+    });
+  },
+
+  [UPDATE_TXO_FETCH_PARAMS]: (state, action) => {
+    return _extends$i({}, state, {
+      txoFetchParams: action.data
     });
   },
 
@@ -6344,6 +6565,7 @@ exports.SORT_OPTIONS = sort_options;
 exports.SPEECH_URLS = speech_urls;
 exports.THUMBNAIL_STATUSES = thumbnail_upload_statuses;
 exports.TRANSACTIONS = transaction_types;
+exports.TXO_LIST = txo_list;
 exports.TX_LIST = transaction_list;
 exports.apiCall = apiCall;
 exports.batchActions = batchActions;
@@ -6357,6 +6579,7 @@ exports.convertToShareLink = convertToShareLink;
 exports.createNormalizedClaimSearchKey = createNormalizedClaimSearchKey;
 exports.creditsToString = creditsToString;
 exports.doAbandonClaim = doAbandonClaim;
+exports.doAbandonTxo = doAbandonTxo;
 exports.doAddTag = doAddTag;
 exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doBlurSearchInput = doBlurSearchInput;
@@ -6383,6 +6606,7 @@ exports.doFetchClaimsByChannel = doFetchClaimsByChannel;
 exports.doFetchFileInfo = doFetchFileInfo;
 exports.doFetchFileInfosAndPublishedClaims = doFetchFileInfosAndPublishedClaims;
 exports.doFetchTransactions = doFetchTransactions;
+exports.doFetchTxoPage = doFetchTxoPage;
 exports.doFileGet = doFileGet;
 exports.doFileList = doFileList;
 exports.doFocusSearchInput = doFocusSearchInput;
@@ -6416,6 +6640,7 @@ exports.doUpdateChannel = doUpdateChannel;
 exports.doUpdatePublishForm = doUpdatePublishForm;
 exports.doUpdateSearchOptions = doUpdateSearchOptions;
 exports.doUpdateSearchQuery = doUpdateSearchQuery;
+exports.doUpdateTxoPageParams = doUpdateTxoPageParams;
 exports.doUploadThumbnail = doUploadThumbnail;
 exports.doWalletDecrypt = doWalletDecrypt;
 exports.doWalletEncrypt = doWalletEncrypt;
@@ -6529,6 +6754,7 @@ exports.selectFailedPurchaseUris = selectFailedPurchaseUris;
 exports.selectFetchingClaimSearch = selectFetchingClaimSearch;
 exports.selectFetchingClaimSearchByQuery = selectFetchingClaimSearchByQuery;
 exports.selectFetchingMyChannels = selectFetchingMyChannels;
+exports.selectFetchingTxosError = selectFetchingTxosError;
 exports.selectFileInfosByOutpoint = selectFileInfosByOutpoint;
 exports.selectFileInfosDownloaded = selectFileInfosDownloaded;
 exports.selectFileListDownloadedSort = selectFileListDownloadedSort;
@@ -6543,6 +6769,7 @@ exports.selectIsFetchingClaimListMine = selectIsFetchingClaimListMine;
 exports.selectIsFetchingFileList = selectIsFetchingFileList;
 exports.selectIsFetchingFileListDownloadedOrPublished = selectIsFetchingFileListDownloadedOrPublished;
 exports.selectIsFetchingTransactions = selectIsFetchingTransactions;
+exports.selectIsFetchingTxos = selectIsFetchingTxos;
 exports.selectIsResolvingPublishUris = selectIsResolvingPublishUris;
 exports.selectIsSearching = selectIsSearching;
 exports.selectIsSendingSupport = selectIsSendingSupport;
@@ -6590,6 +6817,10 @@ exports.selectTotalSupports = selectTotalSupports;
 exports.selectTransactionItems = selectTransactionItems;
 exports.selectTransactionListFilter = selectTransactionListFilter;
 exports.selectTransactionsById = selectTransactionsById;
+exports.selectTxoItemCount = selectTxoItemCount;
+exports.selectTxoPage = selectTxoPage;
+exports.selectTxoPageNumber = selectTxoPageNumber;
+exports.selectTxoPageParams = selectTxoPageParams;
 exports.selectUnfollowedTags = selectUnfollowedTags;
 exports.selectUpdateChannelError = selectUpdateChannelError;
 exports.selectUpdatingChannel = selectUpdatingChannel;

@@ -7,6 +7,7 @@ import * as SORT_OPTIONS from 'constants/sort_options';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import * as TRANSACTIONS from 'constants/transaction_types';
 import * as TX_LIST from 'constants/transaction_list';
+import * as TXO_LIST from 'constants/txo_list';
 import * as SPEECH_URLS from 'constants/speech_urls';
 import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
@@ -27,6 +28,7 @@ export {
   DAEMON_SETTINGS,
   TRANSACTIONS,
   TX_LIST,
+  TXO_LIST,
   SORT_OPTIONS,
   PAGES,
   DEFAULT_KNOWN_TAGS,
@@ -60,6 +62,7 @@ export {
   doFetchClaimsByChannel,
   doFetchClaimListMine,
   doAbandonClaim,
+  doAbandonTxo,
   doResolveUris,
   doResolveUri,
   doFetchChannelListMine,
@@ -106,6 +109,8 @@ export {
   doUpdateBalance,
   doBalanceSubscribe,
   doFetchTransactions,
+  doFetchTxoPage,
+  doUpdateTxoPageParams,
   doGetNewAddress,
   doCheckAddressIsMine,
   doSendDraftTransaction,
@@ -327,6 +332,12 @@ export {
   selectWalletUnlockResult,
   selectTransactionListFilter,
   selectFilteredTransactions,
+  selectTxoPageParams,
+  selectTxoPage,
+  selectTxoPageNumber,
+  selectTxoItemCount,
+  selectIsFetchingTxos,
+  selectFetchingTxosError,
   makeSelectLatestTransactions,
   makeSelectFilteredTransactionsForPage,
   selectFilteredTransactionCount,

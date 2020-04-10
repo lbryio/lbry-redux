@@ -14,8 +14,6 @@ type ActionResult = {
   result: any,
 };
 
-
-
 type WalletState = {
   balance: any,
   totalBalance: any,
@@ -28,6 +26,7 @@ type WalletState = {
   supports: { [string]: Support },
   abandoningSupportsByOutpoint: { [string]: boolean },
   fetchingTransactions: boolean,
+  fetchingTransactionsError: string,
   gettingNewAddress: boolean,
   draftTransaction: any,
   sendingSupport: boolean,
@@ -45,6 +44,10 @@ type WalletState = {
   walletLockSucceded: ?boolean,
   walletLockResult: ?boolean,
   walletReconnecting: boolean,
+  txoFetchParams: {},
+  txoPage: any,
+  fetchingTxos: boolean,
+  fetchingTxosError?: string,
   pendingSupportTransactions: {}, // { claimId: {txid: 123, amount 12.3}, }
   abandonClaimSupportError?: string,
 };
@@ -59,6 +62,7 @@ const defaultState = {
   latestBlock: undefined,
   transactions: {},
   fetchingTransactions: false,
+  fetchingTransactionsError: undefined,
   supports: {},
   fetchingSupports: false,
   abandoningSupportsByOutpoint: {},
@@ -80,6 +84,10 @@ const defaultState = {
   walletLockResult: null,
   transactionListFilter: 'all',
   walletReconnecting: false,
+  txoFetchParams: {},
+  txoPage: {},
+  fetchingTxos: false,
+  fetchingTxosError: undefined,
   pendingSupportTransactions: {},
   abandonClaimSupportError: undefined,
 };
@@ -103,6 +111,38 @@ export const walletReducer = handleActions(
         ...state,
         transactions: byId,
         fetchingTransactions: false,
+      };
+    },
+
+    [ACTIONS.FETCH_TXO_PAGE_STARTED]: (state: WalletState) => {
+      return {
+        ...state,
+        fetchingTxos: true,
+        fetchingTxosError: undefined,
+      };
+    },
+
+    [ACTIONS.FETCH_TXO_PAGE_COMPLETED]: (state: WalletState, action) => {
+      return {
+        ...state,
+        txoPage: action.data,
+        fetchingTxos: false,
+      };
+    },
+
+    [ACTIONS.FETCH_TXO_PAGE_FAILED]: (state: WalletState, action) => {
+      return {
+        ...state,
+        txoPage: {},
+        fetchingTxos: false,
+        fetchingTxosError: action.data,
+      };
+    },
+
+    [ACTIONS.UPDATE_TXO_FETCH_PARAMS]: (state: WalletState, action) => {
+      return {
+        ...state,
+        txoFetchParams: action.data,
       };
     },
 
