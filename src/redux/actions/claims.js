@@ -1,5 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
+import * as TXO_STATES from 'constants/abandon_txo_states';
 import Lbry from 'lbry';
 import { normalizeURI } from 'lbryURI';
 import { doToast } from 'redux/actions/notifications';
@@ -120,8 +121,9 @@ export function doFetchClaimListMine(
   };
 }
 
-export function doAbandonTxo(txo: Txo, cb: any => void) {
+export function doAbandonTxo(txo: Txo, cb: string => void) {
   return (dispatch: Dispatch) => {
+    if (cb) cb(TXO_STATES.PENDING);
     const isClaim = txo.type === 'claim';
     const isSupport = txo.type === 'support' && txo.is_my_input === true;
     const isTip = txo.type === 'support' && txo.is_my_input === false;
@@ -141,6 +143,7 @@ export function doAbandonTxo(txo: Txo, cb: any => void) {
     });
 
     const errorCallback = () => {
+      if (cb) cb(TXO_STATES.ERROR);
       dispatch(
         doToast({
           message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
@@ -163,7 +166,7 @@ export function doAbandonTxo(txo: Txo, cb: any => void) {
       } else {
         abandonMessage = 'Successfully unlocked your tip!';
       }
-      if (cb) cb();
+      if (cb) cb(TXO_STATES.DONE);
 
       dispatch(
         doToast({

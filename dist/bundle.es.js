@@ -757,6 +757,18 @@ var transaction_list = /*#__PURE__*/Object.freeze({
   LATEST_PAGE_SIZE: LATEST_PAGE_SIZE
 });
 
+const PENDING = 'pending';
+const DONE = 'done';
+const READY$1 = 'ready';
+const ERROR = 'error';
+
+var abandon_txo_states = /*#__PURE__*/Object.freeze({
+  PENDING: PENDING,
+  DONE: DONE,
+  READY: READY$1,
+  ERROR: ERROR
+});
+
 const ACTIVE = 'active'; // spent, active, all
 const TYPE = 'type'; // all, payment, support, channel, stream, repost
 const SUB_TYPE = 'subtype'; // other, purchase, tip
@@ -3202,6 +3214,7 @@ function doFetchClaimListMine(page = 1, pageSize = 99999, resolve = true) {
 
 function doAbandonTxo(txo, cb) {
   return dispatch => {
+    if (cb) cb(PENDING);
     const isClaim = txo.type === 'claim';
     const isSupport = txo.type === 'support' && txo.is_my_input === true;
     const isTip = txo.type === 'support' && txo.is_my_input === false;
@@ -3217,6 +3230,7 @@ function doAbandonTxo(txo, cb) {
     });
 
     const errorCallback = () => {
+      if (cb) cb(ERROR);
       dispatch(doToast({
         message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
         isError: true
@@ -3237,7 +3251,7 @@ function doAbandonTxo(txo, cb) {
       } else {
         abandonMessage = 'Successfully unlocked your tip!';
       }
-      if (cb) cb();
+      if (cb) cb(DONE);
 
       dispatch(doToast({
         message: abandonMessage
@@ -6565,6 +6579,7 @@ exports.SORT_OPTIONS = sort_options;
 exports.SPEECH_URLS = speech_urls;
 exports.THUMBNAIL_STATUSES = thumbnail_upload_statuses;
 exports.TRANSACTIONS = transaction_types;
+exports.TXO_ABANDON_STATES = abandon_txo_states;
 exports.TXO_LIST = txo_list;
 exports.TX_LIST = transaction_list;
 exports.apiCall = apiCall;
