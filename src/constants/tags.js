@@ -494,4 +494,7 @@ export const DEFAULT_KNOWN_TAGS = [
   'dantdm',
   'teaser',
   'lbry',
+  'coronavirus',
+  'covidcuts',
+  'covid-19'
 ];
