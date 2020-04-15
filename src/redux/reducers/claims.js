@@ -220,7 +220,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
 
   if (!claims.length) {
     // $FlowFixMe
-    myChannelClaims = null;
+    myChannelClaims = [];
   } else {
     myChannelClaims = new Set(state.myChannelClaims);
     claims.forEach(claim => {
