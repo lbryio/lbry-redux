@@ -1,5 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
+import * as TXO_STATES from 'constants/abandon_txo_states';
 import Lbry from 'lbry';
 import { normalizeURI } from 'lbryURI';
 import { doToast } from 'redux/actions/notifications';
@@ -9,7 +10,7 @@ import {
   selectClaimsByUri,
   selectMyChannelClaims,
 } from 'redux/selectors/claims';
-import { doFetchTransactions } from 'redux/actions/wallet';
+import { doFetchTxoPage } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { batchActions } from 'util/batch-actions';
@@ -120,6 +121,91 @@ export function doFetchClaimListMine(
   };
 }
 
+export function doAbandonTxo(txo: Txo, cb: string => void) {
+  return (dispatch: Dispatch) => {
+    if (cb) cb(TXO_STATES.PENDING);
+    const isClaim = txo.type === 'claim';
+    const isSupport = txo.type === 'support' && txo.is_my_input === true;
+    const isTip = txo.type === 'support' && txo.is_my_input === false;
+
+    const data = isClaim ? { claimId: txo.claim_id } : { outpoint: `${txo.txid}:${txo.nout}` };
+
+    const startedActionType = isClaim
+      ? ACTIONS.ABANDON_CLAIM_STARTED
+      : ACTIONS.ABANDON_SUPPORT_STARTED;
+    const completedActionType = isClaim
+      ? ACTIONS.ABANDON_CLAIM_SUCCEEDED
+      : ACTIONS.ABANDON_SUPPORT_COMPLETED;
+
+    dispatch({
+      type: startedActionType,
+      data,
+    });
+
+    const errorCallback = () => {
+      if (cb) cb(TXO_STATES.ERROR);
+      dispatch(
+        doToast({
+          message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
+          isError: true,
+        })
+      );
+    };
+
+    const successCallback = () => {
+      dispatch({
+        type: completedActionType,
+        data,
+      });
+
+      let abandonMessage;
+      if (isClaim) {
+        abandonMessage = __('Successfully abandoned your claim.');
+      } else if (isSupport) {
+        abandonMessage = __('Successfully abandoned your support.');
+      } else {
+        abandonMessage = __('Successfully unlocked your tip!');
+      }
+      if (cb) cb(TXO_STATES.DONE);
+
+      dispatch(
+        doToast({
+          message: abandonMessage,
+        })
+      );
+    };
+
+    const abandonParams: {
+      claim_id?: string,
+      txid?: string,
+      nout?: number,
+    } = {
+      blocking: true,
+    };
+    if (isClaim) {
+      abandonParams['claim_id'] = txo.claim_id;
+    } else {
+      abandonParams['txid'] = txo.txid;
+      abandonParams['nout'] = txo.nout;
+    }
+
+    let method;
+    if (isSupport || isTip) {
+      method = 'support_abandon';
+    } else if (isClaim) {
+      const { normalized_name: claimName } = txo;
+      method = claimName.startsWith('@') ? 'channel_abandon' : 'stream_abandon';
+    }
+
+    if (!method) {
+      console.error('No "method" chosen for claim or support abandon');
+      return;
+    }
+
+    Lbry[method](abandonParams).then(successCallback, errorCallback);
+  };
+}
+
 export function doAbandonClaim(txid: string, nout: number) {
   const outpoint = `${txid}:${nout}`;
 
@@ -171,11 +257,11 @@ export function doAbandonClaim(txid: string, nout: number) {
 
       let abandonMessage;
       if (isClaim) {
-        abandonMessage = 'Successfully abandoned your claim.';
+        abandonMessage = __('Successfully abandoned your claim.');
       } else if (supportToAbandon) {
-        abandonMessage = 'Successfully abandoned your support.';
+        abandonMessage = __('Successfully abandoned your support.');
       } else {
-        abandonMessage = 'Successfully unlocked your tip!';
+        abandonMessage = __('Successfully unlocked your tip!');
       }
 
       dispatch(
@@ -183,13 +269,7 @@ export function doAbandonClaim(txid: string, nout: number) {
           message: abandonMessage,
         })
       );
-
-      // After abandoning, fetch transactions to show the new abandon transaction
-      // Only fetch the latest few transactions since we don't care about old ones
-      // Not very robust, but better than calling the entire list for large wallets
-      const page = 1;
-      const pageSize = 10;
-      dispatch(doFetchTransactions(page, pageSize));
+      dispatch(doFetchTxoPage());
     };
 
     const abandonParams = {

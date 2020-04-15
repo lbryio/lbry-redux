@@ -1,7 +1,7 @@
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import { doToast } from 'redux/actions/notifications';
-import { selectBalance, selectPendingSupportTransactions } from 'redux/selectors/wallet';
+import { selectBalance, selectPendingSupportTransactions, selectTxoPageParams } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { selectMyClaimsRaw } from 'redux/selectors/claims';
 import { doFetchChannelListMine, doFetchClaimListMine } from 'redux/actions/claims';
@@ -69,6 +69,42 @@ export function doFetchTransactions(page = 1, pageSize = 99999) {
           },
         });
       });
+  };
+}
+
+export function doFetchTxoPage() {
+  return (dispatch, getState) => {
+    dispatch({
+      type: ACTIONS.FETCH_TXO_PAGE_STARTED,
+    });
+
+    const state = getState();
+    const queryParams = selectTxoPageParams(state);
+
+    Lbry.txo_list(queryParams)
+      .then(res => {
+        dispatch({
+          type: ACTIONS.FETCH_TXO_PAGE_COMPLETED,
+          data: res,
+        });
+      })
+      .catch(e => {
+        dispatch({
+          type: ACTIONS.FETCH_TXO_PAGE_COMPLETED,
+          data: e.message,
+        });
+      });
+  };
+}
+
+export function doUpdateTxoPageParams(params: TxoListParams) {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.UPDATE_TXO_FETCH_PARAMS,
+      data: params,
+    });
+
+    dispatch(doFetchTxoPage());
   };
 }
 
@@ -431,6 +467,7 @@ export function doWalletStatus() {
     });
   };
 }
+
 
 export function doSetTransactionListFilter(filterOption) {
   return {

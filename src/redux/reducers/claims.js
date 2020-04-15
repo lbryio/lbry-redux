@@ -18,8 +18,8 @@ type State = {
   byId: { [string]: Claim },
   resolvingUris: Array<string>,
   pendingById: { [string]: Claim },
-  myClaims: ?Array<Claim>,
-  myChannelClaims: ?Set<string>,
+  myClaims: ?Array<string>,
+  myChannelClaims: ?Array<string>,
   abandoningById: { [string]: boolean },
   fetchingChannelClaims: { [string]: number },
   fetchingMyChannels: boolean,
@@ -198,7 +198,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
 
   return Object.assign({}, state, {
     isFetchingClaimListMine: false,
-    myClaims: myClaimIds,
+    myClaims: Array.from(myClaimIds),
     byId,
     claimsByUri: byUri,
     pendingById,
@@ -255,8 +255,8 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
     claimsByUri: byUri,
     channelClaimCounts,
     fetchingMyChannels: false,
-    myChannelClaims,
-    myClaims: myClaimIds,
+    myChannelClaims: Array.from(myChannelClaims),
+    myClaims: Array.from(myClaimIds),
   });
 };
 
@@ -342,6 +342,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
   const { claimId }: { claimId: string } = action.data;
   const byId = Object.assign({}, state.byId);
   const newMyClaims = state.myClaims ? state.myClaims.slice() : [];
+  const newMyChannelClaims = state.myChannelClaims ? state.myChannelClaims.slice() : [];
   const claimsByUri = Object.assign({}, state.claimsByUri);
 
   Object.keys(claimsByUri).forEach(uri => {
@@ -349,11 +350,14 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
       delete claimsByUri[uri];
     }
   });
-  const myClaims = newMyClaims.filter(i => i.claim_id && i.claim_id !== claimId);
+  const myClaims = newMyClaims.filter(i => i !== claimId);
+  const myChannelClaims = newMyChannelClaims.filter(i => i !== claimId);
+
   delete byId[claimId];
 
   return Object.assign({}, state, {
     myClaims,
+    myChannelClaims,
     byId,
     claimsByUri,
   });
@@ -378,7 +382,7 @@ reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State 
   return Object.assign({}, state, {
     byId,
     pendingById,
-    myChannelClaims,
+    myChannelClaims: Array.from(myChannelClaims),
     creatingChannel: false,
   });
 };
