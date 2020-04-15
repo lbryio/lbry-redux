@@ -3245,11 +3245,11 @@ function doAbandonTxo(txo, cb) {
 
       let abandonMessage;
       if (isClaim) {
-        abandonMessage = 'Successfully abandoned your claim.';
+        abandonMessage = __('Successfully abandoned your claim.');
       } else if (isSupport) {
-        abandonMessage = 'Successfully abandoned your support.';
+        abandonMessage = __('Successfully abandoned your support.');
       } else {
-        abandonMessage = 'Successfully unlocked your tip!';
+        abandonMessage = __('Successfully unlocked your tip!');
       }
       if (cb) cb(DONE);
 
@@ -3328,11 +3328,11 @@ function doAbandonClaim(txid, nout) {
 
       let abandonMessage;
       if (isClaim) {
-        abandonMessage = 'Successfully abandoned your claim.';
+        abandonMessage = __('Successfully abandoned your claim.');
       } else if (supportToAbandon) {
-        abandonMessage = 'Successfully abandoned your support.';
+        abandonMessage = __('Successfully abandoned your support.');
       } else {
-        abandonMessage = 'Successfully unlocked your tip!';
+        abandonMessage = __('Successfully unlocked your tip!');
       }
 
       dispatch(doToast({
