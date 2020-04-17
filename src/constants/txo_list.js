@@ -26,6 +26,7 @@ export const IS_MY_INPUT = 'is_my_input';
 export const IS_MY_OUTPUT = 'is_my_output';
 export const IS_NOT_MY_INPUT = 'is_not_my_input';
 export const IS_NOT_MY_OUTPUT = 'is_not_my_output'; // use to further distinguish payments to self / from self.
+export const IS_MY_INPUT_OR_OUTPUT = 'is_my_input_or_output';
 export const EXCLUDE_INTERNAL_TRANSFERS = 'exclude_internal_transfers';
 
 // sdk unique types
