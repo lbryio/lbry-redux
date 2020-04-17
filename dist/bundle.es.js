@@ -797,6 +797,7 @@ const IS_MY_INPUT = 'is_my_input';
 const IS_MY_OUTPUT = 'is_my_output';
 const IS_NOT_MY_INPUT = 'is_not_my_input';
 const IS_NOT_MY_OUTPUT = 'is_not_my_output'; // use to further distinguish payments to self / from self.
+const IS_MY_INPUT_OR_OUTPUT = 'is_my_input_or_output';
 const EXCLUDE_INTERNAL_TRANSFERS = 'exclude_internal_transfers';
 
 // sdk unique types
@@ -830,6 +831,7 @@ var txo_list = /*#__PURE__*/Object.freeze({
   IS_MY_OUTPUT: IS_MY_OUTPUT,
   IS_NOT_MY_INPUT: IS_NOT_MY_INPUT,
   IS_NOT_MY_OUTPUT: IS_NOT_MY_OUTPUT,
+  IS_MY_INPUT_OR_OUTPUT: IS_MY_INPUT_OR_OUTPUT,
   EXCLUDE_INTERNAL_TRANSFERS: EXCLUDE_INTERNAL_TRANSFERS,
   OTHER: OTHER$1,
   STREAM: STREAM,
