@@ -2701,7 +2701,7 @@ function doFetchTxoPage() {
     const state = getState();
     const queryParams = selectTxoPageParams(state);
 
-    lbryProxy.txo_list(queryParams).then(res => {
+    lbryProxy.utxo_release().then(() => lbryProxy.txo_list(queryParams)).then(res => {
       dispatch({
         type: FETCH_TXO_PAGE_COMPLETED,
         data: res
