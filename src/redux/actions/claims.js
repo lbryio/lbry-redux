@@ -1,6 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
-import * as TXO_STATES from 'constants/abandon_txo_states';
+import * as ABANDON_STATES from 'constants/abandon_states';
 import Lbry from 'lbry';
 import { normalizeURI } from 'lbryURI';
 import { doToast } from 'redux/actions/notifications';
@@ -35,6 +35,11 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
       return;
     }
 
+    const options: { include_is_my_output?: boolean } = {};
+
+    if (urisToResolve.length === 1) {
+      options.include_is_my_output = true;
+    }
     dispatch({
       type: ACTIONS.RESOLVE_URIS_STARTED,
       data: { uris: normalizedUris },
@@ -48,7 +53,7 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
       },
     } = {};
 
-    Lbry.resolve({ urls: urisToResolve }).then((result: ResolveResponse) => {
+    return Lbry.resolve({ urls: urisToResolve, ...options }).then((result: ResolveResponse) => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
           stream: null,
@@ -87,6 +92,7 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
         type: ACTIONS.RESOLVE_URIS_COMPLETED,
         data: { resolveInfo },
       });
+      return result;
     });
   };
 }
@@ -106,24 +112,26 @@ export function doFetchClaimListMine(
     });
 
     // $FlowFixMe
-    Lbry.claim_list({ page, page_size: pageSize, claim_type: ['stream', 'repost'], resolve }).then(
-      (result: StreamListResponse) => {
-        const claims = result.items;
-
-        dispatch({
-          type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
-          data: {
-            claims,
-          },
-        });
-      }
-    );
+    Lbry.claim_list({
+      page: page,
+      page_size: pageSize,
+      claim_type: ['stream', 'repost'],
+      resolve,
+    }).then((result: StreamListResponse) => {
+      dispatch({
+        type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
+        data: {
+          result,
+          resolve,
+        },
+      });
+    });
   };
 }
 
 export function doAbandonTxo(txo: Txo, cb: string => void) {
   return (dispatch: Dispatch) => {
-    if (cb) cb(TXO_STATES.PENDING);
+    if (cb) cb(ABANDON_STATES.PENDING);
     const isClaim = txo.type === 'claim';
     const isSupport = txo.type === 'support' && txo.is_my_input === true;
     const isTip = txo.type === 'support' && txo.is_my_input === false;
@@ -143,7 +151,7 @@ export function doAbandonTxo(txo: Txo, cb: string => void) {
     });
 
     const errorCallback = () => {
-      if (cb) cb(TXO_STATES.ERROR);
+      if (cb) cb(ABANDON_STATES.ERROR);
       dispatch(
         doToast({
           message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
@@ -166,7 +174,7 @@ export function doAbandonTxo(txo: Txo, cb: string => void) {
       } else {
         abandonMessage = __('Successfully unlocked your tip!');
       }
-      if (cb) cb(TXO_STATES.DONE);
+      if (cb) cb(ABANDON_STATES.DONE);
 
       dispatch(
         doToast({
@@ -206,7 +214,7 @@ export function doAbandonTxo(txo: Txo, cb: string => void) {
   };
 }
 
-export function doAbandonClaim(txid: string, nout: number) {
+export function doAbandonClaim(txid: string, nout: number, cb: string => void) {
   const outpoint = `${txid}:${nout}`;
 
   return (dispatch: Dispatch, getState: GetState) => {
@@ -247,6 +255,7 @@ export function doAbandonClaim(txid: string, nout: number) {
           isError: true,
         })
       );
+      if (cb) cb(ABANDON_STATES.ERROR);
     };
 
     const successCallback = () => {
@@ -254,6 +263,7 @@ export function doAbandonClaim(txid: string, nout: number) {
         type: completedActionType,
         data,
       });
+      if (cb) cb(ABANDON_STATES.DONE);
 
       let abandonMessage;
       if (isClaim) {
@@ -307,6 +317,7 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
       valid_channel_signature: true,
       page: page || 1,
       order_by: ['release_time'],
+      include_is_my_output: true,
     }).then((result: ClaimSearchResponse) => {
       const { items: claims, total_items: claimsInChannel, page: returnedPage } = result;
 
@@ -579,6 +590,30 @@ export function doRepost(options: StreamRepostOptions) {
       }
 
       Lbry.stream_repost(options).then(success, failure);
+    });
+  };
+}
+
+export function doCheckPublishNameAvailability(name: string) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.CHECK_PUBLISH_NAME_STARTED,
+    });
+
+    return Lbry.claim_list({ name: name }).then(result => {
+      dispatch({
+        type: ACTIONS.CHECK_PUBLISH_NAME_COMPLETED,
+      });
+      if (result.items.length) {
+        dispatch({
+          type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
+          data: {
+            result,
+            resolve: false,
+          },
+        });
+      }
+      return !(result && result.items && result.items.length);
     });
   };
 }

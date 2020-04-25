@@ -141,6 +141,10 @@ const CLAIM_REPOST_STARTED = 'CLAIM_REPOST_STARTED';
 const CLAIM_REPOST_COMPLETED = 'CLAIM_REPOST_COMPLETED';
 const CLAIM_REPOST_FAILED = 'CLAIM_REPOST_FAILED';
 const CLEAR_REPOST_ERROR = 'CLEAR_REPOST_ERROR';
+const CHECK_PUBLISH_NAME_STARTED = 'CHECK_PUBLISH_NAME_STARTED';
+const CHECK_PUBLISH_NAME_COMPLETED = 'CHECK_PUBLISH_NAME_COMPLETED';
+const UPDATE_PENDING_CLAIMS = 'UPDATE_PENDING_CLAIMS';
+const UPDATE_CONFIRMED_CLAIMS = 'UPDATE_CONFIRMED_CLAIMS';
 
 // Comments
 const COMMENT_LIST_STARTED = 'COMMENT_LIST_STARTED';
@@ -413,6 +417,10 @@ var action_types = /*#__PURE__*/Object.freeze({
   CLAIM_REPOST_COMPLETED: CLAIM_REPOST_COMPLETED,
   CLAIM_REPOST_FAILED: CLAIM_REPOST_FAILED,
   CLEAR_REPOST_ERROR: CLEAR_REPOST_ERROR,
+  CHECK_PUBLISH_NAME_STARTED: CHECK_PUBLISH_NAME_STARTED,
+  CHECK_PUBLISH_NAME_COMPLETED: CHECK_PUBLISH_NAME_COMPLETED,
+  UPDATE_PENDING_CLAIMS: UPDATE_PENDING_CLAIMS,
+  UPDATE_CONFIRMED_CLAIMS: UPDATE_CONFIRMED_CLAIMS,
   COMMENT_LIST_STARTED: COMMENT_LIST_STARTED,
   COMMENT_LIST_COMPLETED: COMMENT_LIST_COMPLETED,
   COMMENT_LIST_FAILED: COMMENT_LIST_FAILED,
@@ -762,7 +770,7 @@ const DONE = 'done';
 const READY$1 = 'ready';
 const ERROR = 'error';
 
-var abandon_txo_states = /*#__PURE__*/Object.freeze({
+var abandon_states = /*#__PURE__*/Object.freeze({
   PENDING: PENDING,
   DONE: DONE,
   READY: READY$1,
@@ -2251,7 +2259,7 @@ const makeSelectClaimIsMine = rawUri => {
       return false;
     }
 
-    return claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id);
+    return claims && claims[uri] && (claims[uri].is_my_output || claims[uri].claim_id && myClaims.has(claims[uri].claim_id));
   });
 };
 
@@ -2327,6 +2335,14 @@ const makeSelectCoverForUri = uri => reselect.createSelector(makeSelectClaimForU
 });
 
 const selectIsFetchingClaimListMine = reselect.createSelector(selectState$2, state => state.isFetchingClaimListMine);
+
+const selectMyClaimsPage = reselect.createSelector(selectState$2, state => state.myClaimsPageResults || []);
+
+const selectMyClaimsPageNumber = reselect.createSelector(selectState$2, state => state.claimListMinePage && state.claimListMinePage.items || [], state => state.txoPage && state.txoPage.page || 1);
+
+const selectMyClaimsPageItemCount = reselect.createSelector(selectState$2, state => state.myClaimsPageTotalResults || 1);
+
+const selectFetchingMyClaimsPageError = reselect.createSelector(selectState$2, state => state.fetchingClaimListMinePageError);
 
 const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaimsById, selectAbandoningIds, selectPendingClaims, (myClaimIds, byId, abandoningIds, pendingClaims) => {
   const claims = [];
@@ -3145,6 +3161,11 @@ function doResolveUris(uris, returnCachedClaims = false) {
       return;
     }
 
+    const options = {};
+
+    if (urisToResolve.length === 1) {
+      options.include_is_my_output = true;
+    }
     dispatch({
       type: RESOLVE_URIS_STARTED,
       data: { uris: normalizedUris }
@@ -3152,7 +3173,7 @@ function doResolveUris(uris, returnCachedClaims = false) {
 
     const resolveInfo = {};
 
-    lbryProxy.resolve({ urls: urisToResolve }).then(result => {
+    return lbryProxy.resolve(_extends$5({ urls: urisToResolve }, options)).then(result => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
           stream: null,
@@ -3188,6 +3209,7 @@ function doResolveUris(uris, returnCachedClaims = false) {
         type: RESOLVE_URIS_COMPLETED,
         data: { resolveInfo }
       });
+      return result;
     });
   };
 }
@@ -3203,13 +3225,17 @@ function doFetchClaimListMine(page = 1, pageSize = 99999, resolve = true) {
     });
 
     // $FlowFixMe
-    lbryProxy.claim_list({ page, page_size: pageSize, claim_type: ['stream', 'repost'], resolve }).then(result => {
-      const claims = result.items;
-
+    lbryProxy.claim_list({
+      page: page,
+      page_size: pageSize,
+      claim_type: ['stream', 'repost'],
+      resolve
+    }).then(result => {
       dispatch({
         type: FETCH_CLAIM_LIST_MINE_COMPLETED,
         data: {
-          claims
+          result,
+          resolve
         }
       });
     });
@@ -3289,7 +3315,7 @@ function doAbandonTxo(txo, cb) {
   };
 }
 
-function doAbandonClaim(txid, nout) {
+function doAbandonClaim(txid, nout, cb) {
   const outpoint = `${txid}:${nout}`;
 
   return (dispatch, getState) => {
@@ -3322,6 +3348,7 @@ function doAbandonClaim(txid, nout) {
         message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
         isError: true
       }));
+      if (cb) cb(ERROR);
     };
 
     const successCallback = () => {
@@ -3329,6 +3356,7 @@ function doAbandonClaim(txid, nout) {
         type: completedActionType,
         data
       });
+      if (cb) cb(DONE);
 
       let abandonMessage;
       if (isClaim) {
@@ -3379,7 +3407,8 @@ function doFetchClaimsByChannel(uri, page = 1) {
       channel: uri,
       valid_channel_signature: true,
       page: page || 1,
-      order_by: ['release_time']
+      order_by: ['release_time'],
+      include_is_my_output: true
     }).then(result => {
       const { items: claims, total_items: claimsInChannel, page: returnedPage } = result;
 
@@ -3618,6 +3647,30 @@ function doRepost(options) {
       }
 
       lbryProxy.stream_repost(options).then(success, failure);
+    });
+  };
+}
+
+function doCheckPublishNameAvailability(name) {
+  return dispatch => {
+    dispatch({
+      type: CHECK_PUBLISH_NAME_STARTED
+    });
+
+    return lbryProxy.claim_list({ name: name }).then(result => {
+      dispatch({
+        type: CHECK_PUBLISH_NAME_COMPLETED
+      });
+      if (result.items.length) {
+        dispatch({
+          type: FETCH_CLAIM_LIST_MINE_COMPLETED,
+          data: {
+            result,
+            resolve: false
+          }
+        });
+      }
+      return !(result && result.items && result.items.length);
     });
   };
 }
@@ -3946,13 +3999,10 @@ function doFileList(page = 1, pageSize = 99999) {
   };
 }
 
-function doFetchFileInfosAndPublishedClaims() {
+function doFetchFileInfos() {
   return (dispatch, getState) => {
     const state = getState();
-    const isFetchingClaimListMine = selectIsFetchingClaimListMine(state);
     const isFetchingFileInfo = selectIsFetchingFileList(state);
-
-    if (!isFetchingClaimListMine) dispatch(doFetchClaimListMine());
     if (!isFetchingFileInfo) dispatch(doFileList());
   };
 }
@@ -4352,37 +4402,34 @@ const doPublish = (success, fail) => (dispatch, getState) => {
 
 // Calls claim_list_mine until any pending publishes are confirmed
 const doCheckPendingPublishes = onConfirmed => (dispatch, getState) => {
-  const state = getState();
-  const pendingById = selectPendingById(state);
-
-  if (!Object.keys(pendingById).length) {
-    return;
-  }
-
   let publishCheckInterval;
 
   const checkFileList = () => {
-    lbryProxy.stream_list({ page: 1, page_size: 10 }).then(result => {
+    const state = getState();
+    const pendingById = selectPendingById(state);
+    lbryProxy.claim_list({ page: 1, page_size: 10 }).then(result => {
       const claims = result.items;
-
+      const claimsToConfirm = [];
       claims.forEach(claim => {
-        // If it's confirmed, check if it was pending previously
         if (claim.confirmations > 0 && pendingById[claim.claim_id]) {
           delete pendingById[claim.claim_id];
+          claimsToConfirm.push(claim);
           if (onConfirmed) {
             onConfirmed(claim);
           }
         }
       });
-
-      dispatch({
-        type: FETCH_CLAIM_LIST_MINE_COMPLETED,
-        data: {
-          claims
-        }
-      });
-
-      if (!Object.keys(pendingById).length) {
+      if (claimsToConfirm.length) {
+        dispatch({
+          type: UPDATE_CONFIRMED_CLAIMS,
+          data: {
+            claims: claimsToConfirm
+          }
+        });
+      }
+      return Object.keys(pendingById).length;
+    }).then(len => {
+      if (!len) {
         clearInterval(publishCheckInterval);
       }
     });
@@ -4903,7 +4950,13 @@ const defaultState = {
   createChannelError: undefined,
   pendingChannelImport: false,
   repostLoading: false,
-  repostError: undefined
+  repostError: undefined,
+  fetchingClaimListMinePageError: undefined,
+  myClaimsPageResults: [],
+  myClaimsPageNumber: undefined,
+  myClaimsPageTotalResults: undefined,
+  isFetchingClaimListMine: false,
+  isCheckingNameForPublish: false
 };
 
 function handleClaimAction(state, action) {
@@ -4989,16 +5042,22 @@ reducers[FETCH_CLAIM_LIST_MINE_STARTED] = state => Object.assign({}, state, {
 });
 
 reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
-  const { claims } = action.data;
+  const { result, resolve } = action.data;
+  const claims = result.items;
+  const page = result.page;
+  const totalItems = result.total_items;
+
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById = Object.assign({}, state.pendingById);
   let myClaimIds = new Set(state.myClaims);
+  let urlPage = [];
 
   claims.forEach(claim => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
     const { claim_id: claimId } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
+      urlPage.push(uri);
       if (claim.confirmations < 1) {
         pendingById[claimId] = claim;
         delete byId[claimId];
@@ -5008,26 +5067,31 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
         byUri[uri] = claimId;
       }
       myClaimIds.add(claimId);
-      if (pendingById[claimId] && claim.confirmations > 0) {
+      if (!resolve && pendingById[claimId] && claim.confirmations > 0) {
         delete pendingById[claimId];
       }
     }
   });
 
-  // Remove old pending publishes
-  Object.values(pendingById)
-  // $FlowFixMe
-  .filter(pendingClaim => byId[pendingClaim.claim_id]).forEach(pendingClaim => {
+  // Remove old pending publishes if resolve if false (resolve=true means confirmations on updates are not 0)
+  if (!resolve) {
+    Object.values(pendingById)
     // $FlowFixMe
-    delete pendingById[pendingClaim.claim_id];
-  });
+    .filter(pendingClaim => byId[pendingClaim.claim_id]).forEach(pendingClaim => {
+      // $FlowFixMe
+      delete pendingById[pendingClaim.claim_id];
+    });
+  }
 
   return Object.assign({}, state, {
     isFetchingClaimListMine: false,
     myClaims: Array.from(myClaimIds),
     byId,
     claimsByUri: byUri,
-    pendingById
+    pendingById,
+    myClaimsPageResults: urlPage,
+    myClaimsPageNumber: page,
+    myClaimsPageTotalResults: totalItems
   });
 };
 
@@ -5152,6 +5216,55 @@ reducers[ABANDON_CLAIM_STARTED] = (state, action) => {
 
   return Object.assign({}, state, {
     abandoningById
+  });
+};
+
+reducers[UPDATE_PENDING_CLAIMS] = (state, action) => {
+  const { claims } = action.data;
+  const byId = Object.assign({}, state.byId);
+  const byUri = Object.assign({}, state.claimsByUri);
+  const pendingById = Object.assign({}, state.pendingById);
+  let myClaimIds = new Set(state.myClaims);
+
+  claims.forEach(claim => {
+    const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
+    const { claim_id: claimId } = claim;
+    if (claim.type && claim.type.match(/claim|update/)) {
+      pendingById[claimId] = claim;
+      delete byId[claimId];
+      byUri[uri] = claimId;
+    }
+    myClaimIds.add(claimId);
+  });
+  return Object.assign({}, state, {
+    myClaims: Array.from(myClaimIds),
+    byId,
+    claimsByUri: byUri,
+    pendingById
+  });
+};
+
+reducers[UPDATE_CONFIRMED_CLAIMS] = (state, action) => {
+  const { claims } = action.data;
+  const byId = Object.assign({}, state.byId);
+  const byUri = Object.assign({}, state.claimsByUri);
+  const pendingById = Object.assign({}, state.pendingById);
+  let myClaimIds = new Set(state.myClaims);
+
+  claims.forEach(claim => {
+    const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
+    const { claim_id: claimId } = claim;
+    if (claim.type && claim.type.match(/claim|update/)) {
+      delete pendingById[claimId];
+      byId[claimId] = claim;
+    }
+    myClaimIds.add(claimId);
+  });
+  return Object.assign({}, state, {
+    myClaims: Array.from(myClaimIds),
+    byId,
+    claimsByUri: byUri,
+    pendingById
   });
 };
 
@@ -6563,6 +6676,7 @@ const selectChannelIsBlocked = uri => reselect.createSelector(selectBlockedChann
   return state.includes(uri);
 });
 
+exports.ABANDON_STATES = abandon_states;
 exports.ACTIONS = action_types;
 exports.CLAIM_VALUES = claim;
 exports.DAEMON_SETTINGS = daemon_settings;
@@ -6580,7 +6694,6 @@ exports.SORT_OPTIONS = sort_options;
 exports.SPEECH_URLS = speech_urls;
 exports.THUMBNAIL_STATUSES = thumbnail_upload_statuses;
 exports.TRANSACTIONS = transaction_types;
-exports.TXO_ABANDON_STATES = abandon_txo_states;
 exports.TXO_LIST = txo_list;
 exports.TX_LIST = transaction_list;
 exports.apiCall = apiCall;
@@ -6601,6 +6714,7 @@ exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
 exports.doCheckPendingPublishes = doCheckPendingPublishes;
+exports.doCheckPublishNameAvailability = doCheckPublishNameAvailability;
 exports.doClaimSearch = doClaimSearch;
 exports.doClearPublish = doClearPublish;
 exports.doClearRepostError = doClearRepostError;
@@ -6620,7 +6734,7 @@ exports.doFetchChannelListMine = doFetchChannelListMine;
 exports.doFetchClaimListMine = doFetchClaimListMine;
 exports.doFetchClaimsByChannel = doFetchClaimsByChannel;
 exports.doFetchFileInfo = doFetchFileInfo;
-exports.doFetchFileInfosAndPublishedClaims = doFetchFileInfosAndPublishedClaims;
+exports.doFetchFileInfos = doFetchFileInfos;
 exports.doFetchTransactions = doFetchTransactions;
 exports.doFetchTxoPage = doFetchTxoPage;
 exports.doFileGet = doFileGet;
@@ -6770,6 +6884,7 @@ exports.selectFailedPurchaseUris = selectFailedPurchaseUris;
 exports.selectFetchingClaimSearch = selectFetchingClaimSearch;
 exports.selectFetchingClaimSearchByQuery = selectFetchingClaimSearchByQuery;
 exports.selectFetchingMyChannels = selectFetchingMyChannels;
+exports.selectFetchingMyClaimsPageError = selectFetchingMyClaimsPageError;
 exports.selectFetchingTxosError = selectFetchingTxosError;
 exports.selectFileInfosByOutpoint = selectFileInfosByOutpoint;
 exports.selectFileInfosDownloaded = selectFileInfosDownloaded;
@@ -6798,6 +6913,9 @@ exports.selectMyClaimForUri = selectMyClaimForUri;
 exports.selectMyClaimUrisWithoutChannels = selectMyClaimUrisWithoutChannels;
 exports.selectMyClaims = selectMyClaims;
 exports.selectMyClaimsOutpoints = selectMyClaimsOutpoints;
+exports.selectMyClaimsPage = selectMyClaimsPage;
+exports.selectMyClaimsPageItemCount = selectMyClaimsPageItemCount;
+exports.selectMyClaimsPageNumber = selectMyClaimsPageNumber;
 exports.selectMyClaimsRaw = selectMyClaimsRaw;
 exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
 exports.selectMyStreamUrlsCount = selectMyStreamUrlsCount;

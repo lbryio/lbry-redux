@@ -1,7 +1,6 @@
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
-import { doFetchClaimListMine } from 'redux/actions/claims';
-import { selectClaimsByUri, selectIsFetchingClaimListMine } from 'redux/selectors/claims';
+import { selectClaimsByUri } from 'redux/selectors/claims';
 import { selectIsFetchingFileList, selectUrisLoading } from 'redux/selectors/file_info';
 
 export function doFetchFileInfo(uri) {
@@ -58,13 +57,10 @@ export function doFileList(page = 1, pageSize = 99999) {
   };
 }
 
-export function doFetchFileInfosAndPublishedClaims() {
+export function doFetchFileInfos() {
   return (dispatch, getState) => {
     const state = getState();
-    const isFetchingClaimListMine = selectIsFetchingClaimListMine(state);
     const isFetchingFileInfo = selectIsFetchingFileList(state);
-
-    if (!isFetchingClaimListMine) dispatch(doFetchClaimListMine());
     if (!isFetchingFileInfo) dispatch(doFileList());
   };
 }
