@@ -4124,6 +4124,23 @@ const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => disp
     }, doError(error)));
   };
 
+  const doUpload = data => {
+    return fetch(SPEECH_PUBLISH, {
+      method: 'POST',
+      body: data
+    }).then(res => res.text()).then(text => text.length ? JSON.parse(text) : {}).then(json => {
+      return json.success ? dispatch({
+        type: UPDATE_PUBLISH_FORM,
+        data: {
+          uploadThumbnailStatus: COMPLETE,
+          thumbnail: `${json.data.url}.${fileExt}`
+        }
+      }) : uploadError(json.message || __('Thumbnail upload service may be down, try again later.'));
+    }).catch(err => {
+      uploadError(err.message);
+    });
+  };
+
   dispatch({
     type: UPDATE_PUBLISH_FORM,
     data: { uploadThumbnailStatus: IN_PROGRESS }
@@ -4140,17 +4157,7 @@ const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => disp
       data.append('name', name);
       // $FlowFixMe
       data.append('file', { uri: 'file://' + filePath, type: fileType, name: fileName });
-
-      return fetch(SPEECH_PUBLISH, {
-        method: 'POST',
-        body: data
-      }).then(response => response.json()).then(json => json.success ? dispatch({
-        type: UPDATE_PUBLISH_FORM,
-        data: {
-          uploadThumbnailStatus: COMPLETE,
-          thumbnail: `${json.data.url}.${fileExt}`
-        }
-      }) : uploadError(json.message)).catch(err => uploadError(err.message));
+      return doUpload(data);
     });
   } else {
     if (filePath && fs && path) {
@@ -4172,17 +4179,7 @@ const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => disp
     data.append('name', name);
     // $FlowFixMe
     data.append('file', file);
-
-    return fetch(SPEECH_PUBLISH, {
-      method: 'POST',
-      body: data
-    }).then(response => response.json()).then(json => json.success ? dispatch({
-      type: UPDATE_PUBLISH_FORM,
-      data: {
-        uploadThumbnailStatus: COMPLETE,
-        thumbnail: `${json.data.url}${fileExt}`
-      }
-    }) : uploadError(json.message)).catch(err => uploadError(err.message));
+    return doUpload(data);
   }
 };
 

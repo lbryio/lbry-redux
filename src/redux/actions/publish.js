@@ -94,6 +94,31 @@ export const doUploadThumbnail = (
     );
   };
 
+  const doUpload = data => {
+    return fetch(SPEECH_PUBLISH, {
+      method: 'POST',
+      body: data,
+    })
+      .then(res => res.text())
+      .then(text => (text.length ? JSON.parse(text) : {}))
+      .then(json => {
+        return json.success
+          ? dispatch({
+            type: ACTIONS.UPDATE_PUBLISH_FORM,
+            data: {
+              uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+              thumbnail: `${json.data.url}.${fileExt}`,
+            },
+          })
+          : uploadError(
+            json.message || __('Thumbnail upload service may be down, try again later.')
+          );
+      })
+      .catch(err => {
+        uploadError(err.message);
+      });
+  };
+
   dispatch({
     type: ACTIONS.UPDATE_PUBLISH_FORM,
     data: { uploadThumbnailStatus: THUMBNAIL_STATUSES.IN_PROGRESS },
@@ -110,24 +135,7 @@ export const doUploadThumbnail = (
       data.append('name', name);
       // $FlowFixMe
       data.append('file', { uri: 'file://' + filePath, type: fileType, name: fileName });
-
-      return fetch(SPEECH_PUBLISH, {
-        method: 'POST',
-        body: data,
-      })
-        .then(response => response.json())
-        .then(json =>
-          json.success
-            ? dispatch({
-                type: ACTIONS.UPDATE_PUBLISH_FORM,
-                data: {
-                  uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-                  thumbnail: `${json.data.url}.${fileExt}`,
-                },
-              })
-            : uploadError(json.message)
-        )
-        .catch(err => uploadError(err.message));
+      return doUpload(data);
     });
   } else {
     if (filePath && fs && path) {
@@ -150,24 +158,7 @@ export const doUploadThumbnail = (
     data.append('name', name);
     // $FlowFixMe
     data.append('file', file);
-
-    return fetch(SPEECH_PUBLISH, {
-      method: 'POST',
-      body: data,
-    })
-      .then(response => response.json())
-      .then(json =>
-        json.success
-          ? dispatch({
-              type: ACTIONS.UPDATE_PUBLISH_FORM,
-              data: {
-                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-                thumbnail: `${json.data.url}${fileExt}`,
-              },
-            })
-          : uploadError(json.message)
-      )
-      .catch(err => uploadError(err.message));
+    return doUpload(data);
   }
 };
 
