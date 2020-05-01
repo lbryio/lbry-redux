@@ -40,6 +40,12 @@ type State = {
   pendingChannelImport: string | boolean,
   repostLoading: boolean,
   repostError: ?string,
+  fetchingClaimListMinePageError: ?string,
+  myClaimsPageResults: Array<string>,
+  myClaimsPageNumber: ?number,
+  myClaimsPageTotalResults: ?number,
+  isFetchingClaimListMine: boolean,
+  isCheckingNameForPublish: boolean,
 };
 
 const reducers = {};
@@ -68,6 +74,12 @@ const defaultState = {
   pendingChannelImport: false,
   repostLoading: false,
   repostError: undefined,
+  fetchingClaimListMinePageError: undefined,
+  myClaimsPageResults: [],
+  myClaimsPageNumber: undefined,
+  myClaimsPageTotalResults: undefined,
+  isFetchingClaimListMine: false,
+  isCheckingNameForPublish: false,
 };
 
 function handleClaimAction(state: State, action: any): State {
@@ -162,16 +174,22 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: State): State =>
   });
 
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any): State => {
-  const { claims }: { claims: Array<Claim> } = action.data;
+  const { result, resolve }: { result: ClaimListResponse, resolve: boolean } = action.data;
+  const claims = result.items;
+  const page = result.page;
+  const totalItems = result.total_items;
+
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
   let myClaimIds = new Set(state.myClaims);
+  let urlPage = [];
 
   claims.forEach((claim: Claim) => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
     const { claim_id: claimId } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
+      urlPage.push(uri);
       if (claim.confirmations < 1) {
         pendingById[claimId] = claim;
         delete byId[claimId];
@@ -181,20 +199,22 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
         byUri[uri] = claimId;
       }
       myClaimIds.add(claimId);
-      if (pendingById[claimId] && claim.confirmations > 0) {
+      if (!resolve && pendingById[claimId] && claim.confirmations > 0) {
         delete pendingById[claimId];
       }
     }
   });
 
-  // Remove old pending publishes
-  Object.values(pendingById)
-    // $FlowFixMe
-    .filter(pendingClaim => byId[pendingClaim.claim_id])
-    .forEach(pendingClaim => {
+  // Remove old pending publishes if resolve if false (resolve=true means confirmations on updates are not 0)
+  if (!resolve) {
+    Object.values(pendingById)
       // $FlowFixMe
-      delete pendingById[pendingClaim.claim_id];
-    });
+      .filter(pendingClaim => byId[pendingClaim.claim_id])
+      .forEach(pendingClaim => {
+        // $FlowFixMe
+        delete pendingById[pendingClaim.claim_id];
+      });
+  }
 
   return Object.assign({}, state, {
     isFetchingClaimListMine: false,
@@ -202,6 +222,9 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
     byId,
     claimsByUri: byUri,
     pendingById,
+    myClaimsPageResults: urlPage,
+    myClaimsPageNumber: page,
+    myClaimsPageTotalResults: totalItems,
   });
 };
 
@@ -335,6 +358,55 @@ reducers[ACTIONS.ABANDON_CLAIM_STARTED] = (state: State, action: any): State => 
 
   return Object.assign({}, state, {
     abandoningById,
+  });
+};
+
+reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => {
+  const { claims }: { claims: Array<GenericClaim> } = action.data;
+  const byId = Object.assign({}, state.byId);
+  const byUri = Object.assign({}, state.claimsByUri);
+  const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
+  let myClaimIds = new Set(state.myClaims);
+
+  claims.forEach((claim: Claim) => {
+    const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
+    const { claim_id: claimId } = claim;
+    if (claim.type && claim.type.match(/claim|update/)) {
+      pendingById[claimId] = claim;
+      delete byId[claimId];
+      byUri[uri] = claimId;
+    }
+    myClaimIds.add(claimId);
+  });
+  return Object.assign({}, state, {
+    myClaims: Array.from(myClaimIds),
+    byId,
+    claimsByUri: byUri,
+    pendingById,
+  });
+};
+
+reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: State, action: any): State => {
+  const { claims }: { claims: Array<GenericClaim> } = action.data;
+  const byId = Object.assign({}, state.byId);
+  const byUri = Object.assign({}, state.claimsByUri);
+  const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
+  let myClaimIds = new Set(state.myClaims);
+
+  claims.forEach((claim: Claim) => {
+    const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
+    const { claim_id: claimId } = claim;
+    if (claim.type && claim.type.match(/claim|update/)) {
+      delete pendingById[claimId];
+      byId[claimId] = claim;
+    }
+    myClaimIds.add(claimId);
+  });
+  return Object.assign({}, state, {
+    myClaims: Array.from(myClaimIds),
+    byId,
+    claimsByUri: byUri,
+    pendingById,
   });
 };
 

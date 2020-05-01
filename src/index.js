@@ -7,7 +7,7 @@ import * as SORT_OPTIONS from 'constants/sort_options';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import * as TRANSACTIONS from 'constants/transaction_types';
 import * as TX_LIST from 'constants/transaction_list';
-import * as TXO_ABANDON_STATES from 'constants/abandon_txo_states';
+import * as ABANDON_STATES from 'constants/abandon_states';
 import * as TXO_LIST from 'constants/txo_list';
 import * as SPEECH_URLS from 'constants/speech_urls';
 import * as DAEMON_SETTINGS from 'constants/daemon_settings';
@@ -30,7 +30,7 @@ export {
   TRANSACTIONS,
   TX_LIST,
   TXO_LIST,
-  TXO_ABANDON_STATES,
+  ABANDON_STATES,
   SORT_OPTIONS,
   PAGES,
   DEFAULT_KNOWN_TAGS,
@@ -74,6 +74,7 @@ export {
   doImportChannel,
   doRepost,
   doClearRepostError,
+  doCheckPublishNameAvailability,
 } from 'redux/actions/claims';
 
 export { doDeletePurchasedUri, doPurchaseUri, doFileGet } from 'redux/actions/file';
@@ -81,7 +82,7 @@ export { doDeletePurchasedUri, doPurchaseUri, doFileGet } from 'redux/actions/fi
 export {
   doFetchFileInfo,
   doFileList,
-  doFetchFileInfosAndPublishedClaims,
+  doFetchFileInfos,
   doSetFileListSort,
 } from 'redux/actions/file_info';
 
@@ -245,6 +246,10 @@ export {
   selectRepostError,
   selectRepostLoading,
   selectClaimIdsByUri,
+  selectMyClaimsPage,
+  selectMyClaimsPageNumber,
+  selectMyClaimsPageItemCount,
+  selectFetchingMyClaimsPageError,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';

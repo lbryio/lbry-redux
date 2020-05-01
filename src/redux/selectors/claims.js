@@ -212,7 +212,11 @@ export const makeSelectClaimIsMine = (rawUri: string) => {
         return false;
       }
 
-      return claims && claims[uri] && claims[uri].claim_id && myClaims.has(claims[uri].claim_id);
+      return (
+        claims &&
+        claims[uri] &&
+        (claims[uri].is_my_output || (claims[uri].claim_id && myClaims.has(claims[uri].claim_id)))
+      );
     }
   );
 };
@@ -310,8 +314,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-          ? claim.meta.creation_timestamp * 1000
-          : null);
+            ? claim.meta.creation_timestamp * 1000
+            : null);
       if (!timestamp) {
         return undefined;
       }
@@ -358,6 +362,28 @@ export const makeSelectCoverForUri = (uri: string) =>
 export const selectIsFetchingClaimListMine = createSelector(
   selectState,
   state => state.isFetchingClaimListMine
+);
+
+export const selectMyClaimsPage = createSelector(
+  selectState,
+  state => state.myClaimsPageResults || []
+);
+
+export const selectMyClaimsPageNumber = createSelector(
+  selectState,
+  state => (state.claimListMinePage && state.claimListMinePage.items) || [],
+
+  state => (state.txoPage && state.txoPage.page) || 1
+);
+
+export const selectMyClaimsPageItemCount = createSelector(
+  selectState,
+  state => state.myClaimsPageTotalResults || 1
+);
+
+export const selectFetchingMyClaimsPageError = createSelector(
+  selectState,
+  state => state.fetchingClaimListMinePageError
 );
 
 export const selectMyClaims = createSelector(

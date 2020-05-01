@@ -359,40 +359,39 @@ export const doCheckPendingPublishes = (onConfirmed: Function) => (
   dispatch: Dispatch,
   getState: GetState
 ) => {
-  const state = getState();
-  const pendingById = selectPendingById(state);
-
-  if (!Object.keys(pendingById).length) {
-    return;
-  }
-
   let publishCheckInterval;
 
   const checkFileList = () => {
-    Lbry.stream_list({ page: 1, page_size: 10 }).then(result => {
-      const claims = result.items;
-
-      claims.forEach(claim => {
-        // If it's confirmed, check if it was pending previously
-        if (claim.confirmations > 0 && pendingById[claim.claim_id]) {
-          delete pendingById[claim.claim_id];
-          if (onConfirmed) {
-            onConfirmed(claim);
+    const state = getState();
+    const pendingById = selectPendingById(state);
+    Lbry.claim_list({ page: 1, page_size: 10 })
+      .then(result => {
+        const claims = result.items;
+        const claimsToConfirm = [];
+        claims.forEach(claim => {
+          if (claim.confirmations > 0 && pendingById[claim.claim_id]) {
+            delete pendingById[claim.claim_id];
+            claimsToConfirm.push(claim);
+            if (onConfirmed) {
+              onConfirmed(claim);
+            }
           }
+        });
+        if (claimsToConfirm.length) {
+          dispatch({
+            type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
+            data: {
+              claims: claimsToConfirm,
+            },
+          });
+        }
+        return Object.keys(pendingById).length;
+      })
+      .then((len) => {
+        if (!len) {
+          clearInterval(publishCheckInterval);
         }
       });
-
-      dispatch({
-        type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
-        data: {
-          claims,
-        },
-      });
-
-      if (!Object.keys(pendingById).length) {
-        clearInterval(publishCheckInterval);
-      }
-    });
   };
 
   publishCheckInterval = setInterval(() => {
