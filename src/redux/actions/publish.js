@@ -107,7 +107,7 @@ export const doUploadThumbnail = (
             type: ACTIONS.UPDATE_PUBLISH_FORM,
             data: {
               uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-              thumbnail: `${json.data.url}.${fileExt}`,
+              thumbnail: json.data.serveUrl,
             },
           })
           : uploadError(

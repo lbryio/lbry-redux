@@ -4133,7 +4133,7 @@ const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => disp
         type: UPDATE_PUBLISH_FORM,
         data: {
           uploadThumbnailStatus: COMPLETE,
-          thumbnail: `${json.data.url}.${fileExt}`
+          thumbnail: json.data.serveUrl
         }
       }) : uploadError(json.message || __('Thumbnail upload service may be down, try again later.'));
     }).catch(err => {
