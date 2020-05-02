@@ -346,7 +346,7 @@ export const makeSelectThumbnailForUri = (uri: string) =>
     makeSelectClaimForUri(uri),
     claim => {
       const thumbnail = claim && claim.value && claim.value.thumbnail;
-      return thumbnail && thumbnail.url ? thumbnail.url.trim() : undefined;
+      return thumbnail && thumbnail.url ? thumbnail.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
     }
   );
 
@@ -355,7 +355,7 @@ export const makeSelectCoverForUri = (uri: string) =>
     makeSelectClaimForUri(uri),
     claim => {
       const cover = claim && claim.value && claim.value.cover;
-      return cover && cover.url ? cover.url.trim() : undefined;
+      return cover && cover.url ? cover.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
     }
   );
 

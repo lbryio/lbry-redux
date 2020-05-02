@@ -2326,12 +2326,12 @@ const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectCla
 
 const makeSelectThumbnailForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const thumbnail = claim && claim.value && claim.value.thumbnail;
-  return thumbnail && thumbnail.url ? thumbnail.url.trim() : undefined;
+  return thumbnail && thumbnail.url ? thumbnail.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
 });
 
 const makeSelectCoverForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const cover = claim && claim.value && claim.value.cover;
-  return cover && cover.url ? cover.url.trim() : undefined;
+  return cover && cover.url ? cover.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
 });
 
 const selectIsFetchingClaimListMine = reselect.createSelector(selectState$2, state => state.isFetchingClaimListMine);
