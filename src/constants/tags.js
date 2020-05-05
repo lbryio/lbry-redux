@@ -33,7 +33,6 @@ export const DEFAULT_KNOWN_TAGS = [
   'comedy',
   'games',
   'film & animation',
-  'whothinks',
   'game',
   'weapons',
   'blockchain',
