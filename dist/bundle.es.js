@@ -145,6 +145,10 @@ const CHECK_PUBLISH_NAME_STARTED = 'CHECK_PUBLISH_NAME_STARTED';
 const CHECK_PUBLISH_NAME_COMPLETED = 'CHECK_PUBLISH_NAME_COMPLETED';
 const UPDATE_PENDING_CLAIMS = 'UPDATE_PENDING_CLAIMS';
 const UPDATE_CONFIRMED_CLAIMS = 'UPDATE_CONFIRMED_CLAIMS';
+const ADD_FILES_REFLECTING = 'ADD_FILES_REFLECTING';
+const UPDATE_FILES_REFLECTING = 'UPDATE_FILES_REFLECTING';
+const TOGGLE_CHECKING_REFLECTING = 'TOGGLE_CHECKING_REFLECTING';
+const TOGGLE_CHECKING_PENDING = 'TOGGLE_CHECKING_PENDING';
 
 // Comments
 const COMMENT_LIST_STARTED = 'COMMENT_LIST_STARTED';
@@ -421,6 +425,10 @@ var action_types = /*#__PURE__*/Object.freeze({
   CHECK_PUBLISH_NAME_COMPLETED: CHECK_PUBLISH_NAME_COMPLETED,
   UPDATE_PENDING_CLAIMS: UPDATE_PENDING_CLAIMS,
   UPDATE_CONFIRMED_CLAIMS: UPDATE_CONFIRMED_CLAIMS,
+  ADD_FILES_REFLECTING: ADD_FILES_REFLECTING,
+  UPDATE_FILES_REFLECTING: UPDATE_FILES_REFLECTING,
+  TOGGLE_CHECKING_REFLECTING: TOGGLE_CHECKING_REFLECTING,
+  TOGGLE_CHECKING_PENDING: TOGGLE_CHECKING_PENDING,
   COMMENT_LIST_STARTED: COMMENT_LIST_STARTED,
   COMMENT_LIST_COMPLETED: COMMENT_LIST_COMPLETED,
   COMMENT_LIST_FAILED: COMMENT_LIST_FAILED,
@@ -2184,6 +2192,7 @@ const makeSelectPendingByUri = uri => reselect.createSelector(selectPendingById,
   const claimId = isChannel ? channelClaimId : streamClaimId;
   return pendingById[claimId];
 });
+const selectReflectingById = reselect.createSelector(selectState$2, state => state.reflectingById);
 
 const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelector(selectClaimsByUri, selectPendingById, (byUri, pendingById) => {
   // Check if a claim is pending first
@@ -2545,6 +2554,11 @@ const makeSelectSupportsForUri = uri => reselect.createSelector(selectSupportsBy
 const selectUpdatingChannel = reselect.createSelector(selectState$2, state => state.updatingChannel);
 
 const selectUpdateChannelError = reselect.createSelector(selectState$2, state => state.updateChannelError);
+
+const makeSelectReflectingClaimForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), selectReflectingById, (claim, reflectingById) => {
+  const claimId = claim && claim.claimId;
+  return reflectingById[claimId];
+});
 
 const makeSelectMyStreamUrlsForPage = (page = 1) => reselect.createSelector(selectMyClaimUrisWithoutChannels, urls => {
   const start = (Number(page) - 1) * Number(PAGE_SIZE);
@@ -4114,6 +4128,8 @@ const selectTakeOverAmount = reselect.createSelector(selectState$5, selectMyClai
 
 var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
 const doResetThumbnailStatus = () => dispatch => {
   dispatch({
     type: UPDATE_PUBLISH_FORM,
@@ -4400,7 +4416,82 @@ const doPublish = (success, fail) => (dispatch, getState) => {
   return lbryProxy.publish(publishPayload).then(success, fail);
 };
 
-// Calls claim_list_mine until any pending publishes are confirmed
+// Calls file_list until any reflecting files are done
+const doCheckReflectingFiles = () => (dispatch, getState) => {
+  const state = getState();
+  const { checkingReflector } = state.claims;
+  let reflectorCheckInterval;
+
+  const checkFileList = (() => {
+    var _ref = _asyncToGenerator(function* () {
+      const state = getState();
+      const reflectingById = selectReflectingById(state);
+      const ids = Object.keys(reflectingById);
+
+      const newReflectingById = {};
+      const promises = [];
+      // TODO: just use file_list({claim_id: Array<claimId>})
+      if (Object.keys(reflectingById).length) {
+        ids.forEach(function (claimId) {
+          promises.push(lbryProxy.file_list({ claim_id: claimId }));
+        });
+
+        Promise.all(promises).then(function (results) {
+          results.forEach(function (res) {
+            const fileListItem = res.items[0];
+            const fileClaimId = fileListItem.claim_id;
+            const {
+              is_fully_reflected: done,
+              uploading_to_reflector: uploading,
+              reflector_progress: progress
+            } = fileListItem;
+            if (uploading) {
+              newReflectingById[fileClaimId] = {
+                fileListItem: fileListItem,
+                progress,
+                stalled: !done && !uploading
+              };
+            }
+          });
+        }).then(function () {
+          dispatch({
+            type: UPDATE_FILES_REFLECTING,
+            data: newReflectingById
+          });
+          if (!Object.keys(newReflectingById).length) {
+            dispatch({
+              type: TOGGLE_CHECKING_REFLECTING,
+              data: false
+            });
+            clearInterval(reflectorCheckInterval);
+          }
+        });
+      } else {
+        dispatch({
+          type: TOGGLE_CHECKING_REFLECTING,
+          data: false
+        });
+        clearInterval(reflectorCheckInterval);
+      }
+    });
+
+    return function checkFileList() {
+      return _ref.apply(this, arguments);
+    };
+  })();
+  // do it once...
+  checkFileList();
+  // then start the interval if it's not already started
+  if (!checkingReflector) {
+    dispatch({
+      type: TOGGLE_CHECKING_REFLECTING,
+      data: true
+    });
+    reflectorCheckInterval = setInterval(() => {
+      checkFileList();
+    }, 5000);
+  }
+};
 const doCheckPendingPublishes = onConfirmed => (dispatch, getState) => {
   let publishCheckInterval;
 
@@ -4940,6 +5031,7 @@ const defaultState = {
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
+  reflectingById: {},
   claimSearchError: false,
   claimSearchByQuery: {},
   claimSearchByQueryLastPageReached: {},
@@ -4956,7 +5048,9 @@ const defaultState = {
   myClaimsPageNumber: undefined,
   myClaimsPageTotalResults: undefined,
   isFetchingClaimListMine: false,
-  isCheckingNameForPublish: false
+  isCheckingNameForPublish: false,
+  checkingPending: false,
+  checkingReflecting: false
 };
 
 function handleClaimAction(state, action) {
@@ -5437,6 +5531,38 @@ reducers[CLEAR_REPOST_ERROR] = state => {
   return _extends$9({}, state, {
     repostError: null
   });
+};
+reducers[ADD_FILES_REFLECTING] = (state, action) => {
+  const pendingClaim = action.data;
+  const { reflectingById } = state;
+  const claimId = pendingClaim && pendingClaim.claim_id;
+
+  reflectingById[claimId] = { fileListItem: pendingClaim, progress: 0, stalled: false };
+
+  return Object.assign({}, state, _extends$9({}, state, {
+    reflectingById: reflectingById
+  }));
+};
+reducers[UPDATE_FILES_REFLECTING] = (state, action) => {
+  const newReflectingById = action.data;
+
+  return Object.assign({}, state, _extends$9({}, state, {
+    reflectingById: newReflectingById
+  }));
+};
+reducers[TOGGLE_CHECKING_REFLECTING] = (state, action) => {
+  const checkingReflecting = action.data;
+
+  return Object.assign({}, state, _extends$9({}, state, {
+    checkingReflecting
+  }));
+};
+reducers[TOGGLE_CHECKING_PENDING] = (state, action) => {
+  const checking = action.data;
+
+  return Object.assign({}, state, _extends$9({}, state, {
+    checkingPending: checking
+  }));
 };
 
 function claimsReducer(state = defaultState, action) {
@@ -6715,6 +6841,7 @@ exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
 exports.doCheckPendingPublishes = doCheckPendingPublishes;
 exports.doCheckPublishNameAvailability = doCheckPublishNameAvailability;
+exports.doCheckReflectingFiles = doCheckReflectingFiles;
 exports.doClaimSearch = doClaimSearch;
 exports.doClearPublish = doClearPublish;
 exports.doClearRepostError = doClearRepostError;
@@ -6824,6 +6951,7 @@ exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
 exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
 exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
+exports.makeSelectReflectingClaimForUri = makeSelectReflectingClaimForUri;
 exports.makeSelectResolvedRecommendedContentForUri = makeSelectResolvedRecommendedContentForUri;
 exports.makeSelectResolvedSearchResults = makeSelectResolvedSearchResults;
 exports.makeSelectResolvedSearchResultsLastPageReached = makeSelectResolvedSearchResultsLastPageReached;
@@ -6928,6 +7056,7 @@ exports.selectPurchaseUriErrorMessage = selectPurchaseUriErrorMessage;
 exports.selectPurchasedUris = selectPurchasedUris;
 exports.selectReceiveAddress = selectReceiveAddress;
 exports.selectRecentTransactions = selectRecentTransactions;
+exports.selectReflectingById = selectReflectingById;
 exports.selectRepostError = selectRepostError;
 exports.selectRepostLoading = selectRepostLoading;
 exports.selectReservedBalance = selectReservedBalance;

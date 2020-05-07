@@ -18,6 +18,7 @@ type State = {
   byId: { [string]: Claim },
   resolvingUris: Array<string>,
   pendingById: { [string]: Claim },
+  reflectingById: { [string]: ReflectingUpdate },
   myClaims: ?Array<string>,
   myChannelClaims: ?Array<string>,
   abandoningById: { [string]: boolean },
@@ -46,6 +47,8 @@ type State = {
   myClaimsPageTotalResults: ?number,
   isFetchingClaimListMine: boolean,
   isCheckingNameForPublish: boolean,
+  checkingPending: boolean,
+  checkingReflecting: boolean,
 };
 
 const reducers = {};
@@ -63,6 +66,7 @@ const defaultState = {
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
+  reflectingById: {},
   claimSearchError: false,
   claimSearchByQuery: {},
   claimSearchByQueryLastPageReached: {},
@@ -80,6 +84,8 @@ const defaultState = {
   myClaimsPageTotalResults: undefined,
   isFetchingClaimListMine: false,
   isCheckingNameForPublish: false,
+  checkingPending: false,
+  checkingReflecting: false,
 };
 
 function handleClaimAction(state: State, action: any): State {
@@ -362,7 +368,7 @@ reducers[ACTIONS.ABANDON_CLAIM_STARTED] = (state: State, action: any): State => 
 };
 
 reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => {
-  const { claims }: { claims: Array<GenericClaim> } = action.data;
+  const { claims }: { claims: Array<Claim> } = action.data;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
@@ -387,13 +393,13 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => 
 };
 
 reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: State, action: any): State => {
-  const { claims }: { claims: Array<GenericClaim> } = action.data;
+  const { claims }: { claims: Array<Claim> } = action.data;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
   let myClaimIds = new Set(state.myClaims);
 
-  claims.forEach((claim: Claim) => {
+  claims.forEach((claim: GenericClaim) => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
     const { claim_id: claimId } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
@@ -593,6 +599,42 @@ reducers[ACTIONS.CLEAR_REPOST_ERROR] = (state: State): State => {
     ...state,
     repostError: null,
   };
+};
+reducers[ACTIONS.ADD_FILES_REFLECTING] = (state: State, action): State => {
+  const pendingClaim = action.data;
+  const { reflectingById } = state;
+  const claimId = pendingClaim && pendingClaim.claim_id;
+
+  reflectingById[claimId] = { fileListItem: pendingClaim, progress: 0, stalled: false };
+
+  return Object.assign({}, state, {
+    ...state,
+    reflectingById: reflectingById,
+  });
+};
+reducers[ACTIONS.UPDATE_FILES_REFLECTING] = (state: State, action): State => {
+  const newReflectingById = action.data;
+
+  return Object.assign({}, state, {
+    ...state,
+    reflectingById: newReflectingById,
+  });
+};
+reducers[ACTIONS.TOGGLE_CHECKING_REFLECTING] = (state: State, action): State => {
+  const checkingReflecting = action.data;
+
+  return Object.assign({}, state, {
+    ...state,
+    checkingReflecting,
+  });
+};
+reducers[ACTIONS.TOGGLE_CHECKING_PENDING] = (state: State, action): State => {
+  const checking = action.data;
+
+  return Object.assign({}, state, {
+    ...state,
+    checkingPending: checking,
+  });
 };
 
 export function claimsReducer(state: State = defaultState, action: any) {

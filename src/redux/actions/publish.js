@@ -12,6 +12,7 @@ import {
   selectMyChannelClaims,
   selectPendingById,
   selectMyClaimsWithoutChannels,
+  selectReflectingById,
 } from 'redux/selectors/claims';
 import { selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/publish';
 
@@ -354,7 +355,78 @@ export const doPublish = (success: Function, fail: Function) => (
   return Lbry.publish(publishPayload).then(success, fail);
 };
 
-// Calls claim_list_mine until any pending publishes are confirmed
+// Calls file_list until any reflecting files are done
+export const doCheckReflectingFiles = () => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const { checkingReflector } = state.claims;
+  let reflectorCheckInterval;
+
+  const checkFileList = async() => {
+    const state = getState();
+    const reflectingById = selectReflectingById(state);
+    const ids = Object.keys(reflectingById);
+
+    const newReflectingById = {};
+    const promises = [];
+    // TODO: just use file_list({claim_id: Array<claimId>})
+    if (Object.keys(reflectingById).length) {
+      ids.forEach(claimId => {
+        promises.push(Lbry.file_list({ claim_id: claimId }));
+      });
+
+      Promise.all(promises)
+        .then(results => {
+          results.forEach(res => {
+            const fileListItem = res.items[0];
+            const fileClaimId = fileListItem.claim_id;
+            const {
+              is_fully_reflected: done,
+              uploading_to_reflector: uploading,
+              reflector_progress: progress,
+            } = fileListItem;
+            if (uploading) {
+              newReflectingById[fileClaimId] = {
+                fileListItem: fileListItem,
+                progress,
+                stalled: !done && !uploading,
+              };
+            }
+          });
+        })
+        .then(() => {
+          dispatch({
+            type: ACTIONS.UPDATE_FILES_REFLECTING,
+            data: newReflectingById,
+          });
+          if (!Object.keys(newReflectingById).length) {
+            dispatch({
+              type: ACTIONS.TOGGLE_CHECKING_REFLECTING,
+              data: false,
+            });
+            clearInterval(reflectorCheckInterval);
+          }
+        });
+    } else {
+      dispatch({
+        type: ACTIONS.TOGGLE_CHECKING_REFLECTING,
+        data: false,
+      });
+      clearInterval(reflectorCheckInterval);
+    }
+  };
+  // do it once...
+  checkFileList();
+  // then start the interval if it's not already started
+  if (!checkingReflector) {
+    dispatch({
+      type: ACTIONS.TOGGLE_CHECKING_REFLECTING,
+      data: true,
+    });
+    reflectorCheckInterval = setInterval(() => {
+      checkFileList();
+    }, 5000);
+  }
+};
 export const doCheckPendingPublishes = (onConfirmed: Function) => (
   dispatch: Dispatch,
   getState: GetState
@@ -387,7 +459,7 @@ export const doCheckPendingPublishes = (onConfirmed: Function) => (
         }
         return Object.keys(pendingById).length;
       })
-      .then((len) => {
+      .then(len => {
         if (!len) {
           clearInterval(publishCheckInterval);
         }
