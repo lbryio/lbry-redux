@@ -60,6 +60,8 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
     secondaryModSeparator,
     secondaryModValue,
   ] = rest;
+  const searchParams = new URLSearchParams(qs || '');
+  const startTime = searchParams.get('t');
 
   // Validate protocol
   if (requireProto && !proto) {
@@ -121,6 +123,7 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
       : {}),
     ...(primaryBidPosition ? { primaryBidPosition: parseInt(primaryBidPosition, 10) } : {}),
     ...(secondaryBidPosition ? { secondaryBidPosition: parseInt(secondaryBidPosition, 10) } : {}),
+    ...(startTime ? { startTime: parseInt(startTime, 10) } : {}),
 
     // The values below should not be used for new uses of parseURI
     // They will not work properly with canonical_urls
@@ -184,6 +187,7 @@ export function buildURI(
     primaryBidPosition,
     secondaryClaimSequence,
     secondaryBidPosition,
+    startTime,
     ...deprecatedParts
   } = UrlObj;
   const { claimId, claimName, contentName } = deprecatedParts;
@@ -233,7 +237,8 @@ export function buildURI(
     (secondaryClaimName ? `/${secondaryClaimName}` : '') +
     (secondaryClaimId ? `#${secondaryClaimId}` : '') +
     (secondaryClaimSequence ? `:${secondaryClaimSequence}` : '') +
-    (secondaryBidPosition ? `${secondaryBidPosition}` : '')
+    (secondaryBidPosition ? `${secondaryBidPosition}` : '') +
+    (startTime ? `?t=${startTime}` : '')
   );
 }
 
@@ -248,6 +253,7 @@ export function normalizeURI(URL: string) {
     primaryBidPosition,
     secondaryClaimSequence,
     secondaryBidPosition,
+    startTime,
   } = parseURI(URL);
 
   return buildURI({
@@ -259,6 +265,7 @@ export function normalizeURI(URL: string) {
     primaryBidPosition,
     secondaryClaimSequence,
     secondaryBidPosition,
+    startTime,
   });
 }
 
