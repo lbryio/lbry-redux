@@ -39,6 +39,7 @@ export const DEFAULT_KNOWN_TAGS = [
   'video game',
   'sports',
   'walkthrough',
+  'lbrytvpaidbeta',
   'art',
   'pc',
   'minecraft',
