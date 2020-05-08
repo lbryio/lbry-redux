@@ -75,6 +75,7 @@ export {
   doRepost,
   doClearRepostError,
   doCheckPublishNameAvailability,
+  doPurchaseList,
 } from 'redux/actions/claims';
 
 export { doDeletePurchasedUri, doPurchaseUri, doFileGet } from 'redux/actions/file';
@@ -213,6 +214,8 @@ export {
   makeSelectCanonicalUrlForUri,
   makeSelectPermanentUrlForUri,
   makeSelectSupportsForUri,
+  makeSelectMyPurchasesForPage,
+  makeSelectClaimWasPurchased,
   selectPendingById,
   selectReflectingById,
   selectClaimsById,
@@ -253,6 +256,10 @@ export {
   selectMyClaimsPageNumber,
   selectMyClaimsPageItemCount,
   selectFetchingMyClaimsPageError,
+  selectMyPurchases,
+  selectIsFetchingMyPurchases,
+  selectFetchingMyPurchasesError,
+  selectMyPurchasesCount,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';

@@ -3,12 +3,10 @@
 declare type Claim = StreamClaim | ChannelClaim;
 
 declare type ChannelClaim = GenericClaim & {
-  is_channel_signature_valid?: boolean, // we may have signed channels in the future
   value: ChannelMetadata,
 };
 
 declare type StreamClaim = GenericClaim & {
-  is_channel_signature_valid?: boolean,
   value: StreamMetadata,
 };
 
@@ -23,7 +21,8 @@ declare type GenericClaim = {
   decoded_claim: boolean, // Not available currently https://github.com/lbryio/lbry/issues/2044
   timestamp?: number, // date of last transaction
   height: number, // block height the tx was confirmed
-  is_mine: boolean,
+  is_channel_signature_valid?: boolean,
+  is_my_output: true,
   name: string,
   normalized_name: string, // `name` normalized via unicode NFD spec,
   nout: number, // index number for an output of a tx
@@ -34,6 +33,7 @@ declare type GenericClaim = {
   value_type: 'stream' | 'channel',
   signing_channel?: ChannelClaim,
   repost_channel_url?: string,
+  purchase_receipt?: PurchaseReceipt,
   meta: {
     activation_height: number,
     claims_in_channel?: number,
@@ -120,4 +120,16 @@ declare type Fee = {
   amount: string,
   currency: string,
   address: string,
+};
+
+declare type PurchaseReceipt = {
+  address: string,
+  amount: string,
+  claim_id: string,
+  confirmations: number,
+  height: number,
+  nout: number,
+  timestamp: number,
+  txid: string,
+  type: 'purchase',
 };

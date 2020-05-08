@@ -6,9 +6,10 @@ import {
 } from 'redux/selectors/search';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
-import { isClaimNsfw, createNormalizedClaimSearchKey } from 'util/claim';
+import { isClaimNsfw, createNormalizedClaimSearchKey, filterClaims } from 'util/claim';
 import { getSearchQueryString } from 'util/query-params';
 import { PAGE_SIZE } from 'constants/claim';
+
 const selectState = state => state.claims || {};
 
 export const selectClaimsById = createSelector(
@@ -225,6 +226,55 @@ export const makeSelectClaimIsMine = (rawUri: string) => {
   );
 };
 
+export const selectMyPurchases = createSelector(
+  selectState,
+  state => state.myPurchases
+);
+
+export const selectMyPurchasesCount = createSelector(
+  selectState,
+  state => state.myPurchasesPageTotalResults
+);
+
+export const selectIsFetchingMyPurchases = createSelector(
+  selectState,
+  state => state.fetchingMyPurchases
+);
+
+export const selectFetchingMyPurchasesError = createSelector(
+  selectState,
+  state => state.fetchingMyPurchasesError
+);
+
+export const makeSelectMyPurchasesForPage = (query: ?string, page: number = 1) =>
+  createSelector(
+    selectMyPurchases,
+    selectClaimsByUri,
+    (myPurchases: Array<string>, claimsByUri: { [string]: Claim }) => {
+      if (!myPurchases) {
+        return undefined;
+      }
+
+      const fileInfos = myPurchases.map(uri => claimsByUri[uri]);
+      const matchingFileInfos = filterClaims(fileInfos, query);
+      const start = (Number(page) - 1) * Number(PAGE_SIZE);
+      const end = Number(page) * Number(PAGE_SIZE);
+      return matchingFileInfos && matchingFileInfos.length
+        ? matchingFileInfos
+          .slice(start, end)
+          .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
+        : [];
+    }
+  );
+
+export const makeSelectClaimWasPurchased = (uri: string) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    claim => {
+      return claim && claim.purchase_receipt !== undefined;
+    }
+  );
+
 export const selectAllFetchingChannelClaims = createSelector(
   selectState,
   state => state.fetchingChannelClaims || {}
@@ -318,8 +368,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-          ? claim.meta.creation_timestamp * 1000
-          : null);
+            ? claim.meta.creation_timestamp * 1000
+            : null);
       if (!timestamp) {
         return undefined;
       }
@@ -694,7 +744,7 @@ export const makeSelectSupportsForUri = (uri: string) =>
     selectSupportsByOutpoint,
     makeSelectClaimForUri(uri),
     (byOutpoint, claim: ?StreamClaim) => {
-      if (!claim || !claim.is_mine) {
+      if (!claim || !claim.is_my_output) {
         return null;
       }
 
