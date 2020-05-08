@@ -94,6 +94,7 @@ export {
   doPrepareEdit,
   doPublish,
   doCheckPendingPublishes,
+  doCheckReflectingFiles,
 } from 'redux/actions/publish';
 
 export {
@@ -206,12 +207,14 @@ export {
   makeSelectChannelForClaimUri,
   makeSelectClaimIsPending,
   makeSelectPendingByUri,
+  makeSelectReflectingClaimForUri,
   makeSelectClaimsInChannelForCurrentPageState,
   makeSelectShortUrlForUri,
   makeSelectCanonicalUrlForUri,
   makeSelectPermanentUrlForUri,
   makeSelectSupportsForUri,
   selectPendingById,
+  selectReflectingById,
   selectClaimsById,
   selectClaimsByUri,
   selectAllClaimsByChannel,

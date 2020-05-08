@@ -111,6 +111,10 @@ export const makeSelectPendingByUri = (uri: string) =>
       return pendingById[claimId];
     }
   );
+export const selectReflectingById = createSelector(
+  selectState,
+  state => state.reflectingById
+);
 
 export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true) =>
   createSelector(
@@ -314,8 +318,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-            ? claim.meta.creation_timestamp * 1000
-            : null);
+          ? claim.meta.creation_timestamp * 1000
+          : null);
       if (!timestamp) {
         return undefined;
       }
@@ -716,6 +720,16 @@ export const selectUpdateChannelError = createSelector(
   selectState,
   state => state.updateChannelError
 );
+
+export const makeSelectReflectingClaimForUri = (uri: string) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    selectReflectingById,
+    (claim, reflectingById) => {
+      const claimId = claim && claim.claimId;
+      return reflectingById[claimId];
+    }
+  );
 
 export const makeSelectMyStreamUrlsForPage = (page: number = 1) =>
   createSelector(

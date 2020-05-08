@@ -20,6 +20,7 @@ declare type FileListItem = {
   outpoint: string,
   points_paid: number,
   protobuf: string,
+  reflector_progress: number,
   sd_hash: string,
   status: string,
   stopped: false,
@@ -29,10 +30,12 @@ declare type FileListItem = {
   suggested_file_name: string,
   total_bytes: number,
   total_bytes_lower_bound: number,
+  is_fully_reflected: boolean,
   // TODO: sdk plans to change `tx`
   // It isn't currently used by the apps
   tx: {},
   txid: string,
+  uploading_to_reflector: boolean,
   written_bytes: number,
 };
 
