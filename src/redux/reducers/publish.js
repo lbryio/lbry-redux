@@ -6,6 +6,7 @@ import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { CHANNEL_ANONYMOUS } from 'constants/claim';
 
 type PublishState = {
+  mode: ?string,
   editingURI: ?string,
   filePath: ?string,
   contentIsFree: boolean,
@@ -35,6 +36,7 @@ type PublishState = {
 };
 
 const defaultState: PublishState = {
+  mode: '',
   editingURI: undefined,
   filePath: undefined,
   fileDur: 0,
