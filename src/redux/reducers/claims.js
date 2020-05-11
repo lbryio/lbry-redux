@@ -25,6 +25,11 @@ type State = {
   fetchingChannelClaims: { [string]: number },
   fetchingMyChannels: boolean,
   fetchingClaimSearchByQuery: { [string]: boolean },
+  myPurchases: ?Array<string>,
+  myPurchasesPageNumber: ?number,
+  myPurchasesPageTotalResults: ?number,
+  fetchingMyPurchases: boolean,
+  fetchingMyPurchasesError: ?string,
   claimSearchByQuery: { [string]: Array<string> },
   claimSearchByQueryLastPageReached: { [string]: Array<boolean> },
   creatingChannel: boolean,
@@ -59,10 +64,13 @@ const defaultState = {
   channelClaimCounts: {},
   fetchingChannelClaims: {},
   resolvingUris: [],
-  // This should not be a Set
-  // Storing sets in reducers can cause issues
   myChannelClaims: undefined,
   myClaims: undefined,
+  myPurchases: undefined,
+  myPurchasesPageNumber: undefined,
+  myPurchasesPageTotalResults: undefined,
+  fetchingMyPurchases: false,
+  fetchingMyPurchasesError: undefined,
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
@@ -83,6 +91,7 @@ const defaultState = {
   myClaimsPageNumber: undefined,
   myClaimsPageTotalResults: undefined,
   isFetchingClaimListMine: false,
+  isFetchingMyPurchases: false,
   isCheckingNameForPublish: false,
   checkingPending: false,
   checkingReflecting: false,
@@ -189,13 +198,13 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
   let myClaimIds = new Set(state.myClaims);
-  let urlPage = [];
+  let urlsForCurrentPage = [];
 
   claims.forEach((claim: Claim) => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
     const { claim_id: claimId } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
-      urlPage.push(uri);
+      urlsForCurrentPage.push(uri);
       if (claim.confirmations < 1) {
         pendingById[claimId] = claim;
         delete byId[claimId];
@@ -228,7 +237,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
     byId,
     claimsByUri: byUri,
     pendingById,
-    myClaimsPageResults: urlPage,
+    myClaimsPageResults: urlsForCurrentPage,
     myClaimsPageNumber: page,
     myClaimsPageTotalResults: totalItems,
   });
@@ -374,6 +383,7 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => 
   const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
   let myClaimIds = new Set(state.myClaims);
 
+  // $FlowFixMe
   claims.forEach((claim: Claim) => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
     const { claim_id: claimId } = claim;
@@ -635,6 +645,59 @@ reducers[ACTIONS.TOGGLE_CHECKING_PENDING] = (state: State, action): State => {
     ...state,
     checkingPending: checking,
   });
+};
+
+reducers[ACTIONS.PURCHASE_LIST_STARTED] = (state: State): State => {
+  return {
+    ...state,
+    fetchingMyPurchases: true,
+    fetchingMyPurchasesError: null,
+  };
+};
+
+reducers[ACTIONS.PURCHASE_LIST_COMPLETED] = (state: State, action: any): State => {
+  const { result }: { result: PurchaseListResponse, resolve: boolean } = action.data;
+  const page = result.page;
+  const totalItems = result.total_items;
+
+  let byId = Object.assign({}, state.byId);
+  let byUri = Object.assign({}, state.claimsByUri);
+  let urlsForCurrentPage = [];
+
+  result.items.forEach(item => {
+    if (!item.claim) {
+      // Abandoned claim
+      return;
+    }
+
+    const { claim, ...purchaseInfo } = item;
+    claim.purchase_receipt = purchaseInfo;
+    const claimId = claim.claim_id;
+    const uri = claim.canonical_url;
+
+    byId[claimId] = claim;
+    byUri[uri] = claimId;
+    urlsForCurrentPage.push(uri);
+  });
+
+  return Object.assign({}, state, {
+    byId,
+    claimsByUri: byUri,
+    myPurchases: urlsForCurrentPage,
+    myPurchasesPageNumber: page,
+    myPurchasesPageTotalResults: totalItems,
+    fetchingMyPurchases: false,
+  });
+};
+
+reducers[ACTIONS.PURCHASE_LIST_FAILED] = (state: State, action: any): State => {
+  const { error } = action.data;
+
+  return {
+    ...state,
+    fetchingMyPurchases: false,
+    fetchingMyPurchasesError: error,
+  };
 };
 
 export function claimsReducer(state: State = defaultState, action: any) {

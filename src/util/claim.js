@@ -51,3 +51,20 @@ export function concatClaims(
 
   return claims;
 }
+
+export function filterClaims(claims: Array<Claim>, query: ?string): Array<Claim> {
+  if (query) {
+    const queryMatchRegExp = new RegExp(query, 'i');
+    return claims.filter(claim => {
+      const { value } = claim;
+
+      return (
+        (value.title && value.title.match(queryMatchRegExp)) ||
+        (claim.signing_channel && claim.signing_channel.name.match(queryMatchRegExp)) ||
+        (claim.name && claim.name.match(queryMatchRegExp))
+      );
+    });
+  }
+
+  return claims;
+}

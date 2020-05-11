@@ -35,7 +35,9 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
       return;
     }
 
-    const options: { include_is_my_output?: boolean } = {};
+    const options: { include_is_my_output?: boolean, include_purchase_receipt: boolean } = {
+      include_purchase_receipt: true,
+    };
 
     if (urisToResolve.length === 1) {
       options.include_is_my_output = true;
@@ -318,6 +320,7 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
       page: page || 1,
       order_by: ['release_time'],
       include_is_my_output: true,
+      include_purchase_receipt: true,
     }).then((result: ClaimSearchResponse) => {
       const { items: claims, total_items: claimsInChannel, page: returnedPage } = result;
 
@@ -554,7 +557,10 @@ export function doClaimSearch(
       });
     };
 
-    Lbry.claim_search(options).then(success, failure);
+    Lbry.claim_search({
+      ...options,
+      include_purchase_receipt: true,
+    }).then(success, failure);
   };
 }
 
@@ -621,5 +627,37 @@ export function doCheckPublishNameAvailability(name: string) {
 export function doClearRepostError() {
   return {
     type: ACTIONS.CLEAR_REPOST_ERROR,
+  };
+}
+
+export function doPurchaseList(page: number = 1, pageSize: number = 99999) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.PURCHASE_LIST_STARTED,
+    });
+
+    const success = (result: PurchaseListResponse) => {
+      return dispatch({
+        type: ACTIONS.PURCHASE_LIST_COMPLETED,
+        data: {
+          result,
+        },
+      });
+    };
+
+    const failure = error => {
+      dispatch({
+        type: ACTIONS.PURCHASE_LIST_FAILED,
+        data: {
+          error: error.message,
+        },
+      });
+    };
+
+    Lbry.purchase_list({
+      page: page,
+      page_size: pageSize,
+      resolve: true,
+    }).then(success, failure);
   };
 }

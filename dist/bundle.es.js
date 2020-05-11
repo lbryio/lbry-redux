@@ -149,6 +149,9 @@ const ADD_FILES_REFLECTING = 'ADD_FILES_REFLECTING';
 const UPDATE_FILES_REFLECTING = 'UPDATE_FILES_REFLECTING';
 const TOGGLE_CHECKING_REFLECTING = 'TOGGLE_CHECKING_REFLECTING';
 const TOGGLE_CHECKING_PENDING = 'TOGGLE_CHECKING_PENDING';
+const PURCHASE_LIST_STARTED = 'PURCHASE_LIST_STARTED';
+const PURCHASE_LIST_COMPLETED = 'PURCHASE_LIST_COMPLETED';
+const PURCHASE_LIST_FAILED = 'PURCHASE_LIST_FAILED';
 
 // Comments
 const COMMENT_LIST_STARTED = 'COMMENT_LIST_STARTED';
@@ -429,6 +432,9 @@ var action_types = /*#__PURE__*/Object.freeze({
   UPDATE_FILES_REFLECTING: UPDATE_FILES_REFLECTING,
   TOGGLE_CHECKING_REFLECTING: TOGGLE_CHECKING_REFLECTING,
   TOGGLE_CHECKING_PENDING: TOGGLE_CHECKING_PENDING,
+  PURCHASE_LIST_STARTED: PURCHASE_LIST_STARTED,
+  PURCHASE_LIST_COMPLETED: PURCHASE_LIST_COMPLETED,
+  PURCHASE_LIST_FAILED: PURCHASE_LIST_FAILED,
   COMMENT_LIST_STARTED: COMMENT_LIST_STARTED,
   COMMENT_LIST_COMPLETED: COMMENT_LIST_COMPLETED,
   COMMENT_LIST_FAILED: COMMENT_LIST_FAILED,
@@ -1090,6 +1096,7 @@ const Lbry = {
   transaction_list: (params = {}) => daemonCallWithResult('transaction_list', params),
   utxo_release: (params = {}) => daemonCallWithResult('utxo_release', params),
   support_abandon: (params = {}) => daemonCallWithResult('support_abandon', params),
+  purchase_list: (params = {}) => daemonCallWithResult('purchase_list', params),
 
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
@@ -2136,7 +2143,21 @@ function createNormalizedClaimSearchKey(options) {
   return query;
 }
 
+function filterClaims(claims, query) {
+  if (query) {
+    const queryMatchRegExp = new RegExp(query, 'i');
+    return claims.filter(claim => {
+      const { value } = claim;
+
+      return value.title && value.title.match(queryMatchRegExp) || claim.signing_channel && claim.signing_channel.name.match(queryMatchRegExp) || claim.name && claim.name.match(queryMatchRegExp);
+    });
+  }
+
+  return claims;
+}
+
 var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 const selectState$2 = state => state.claims || {};
 
 const selectClaimsById = reselect.createSelector(selectState$2, state => state.byId || {});
@@ -2276,6 +2297,30 @@ const makeSelectClaimIsMine = rawUri => {
     return claims && claims[uri] && (claims[uri].is_my_output || claims[uri].claim_id && myClaims.has(claims[uri].claim_id));
   });
 };
+
+const selectMyPurchases = reselect.createSelector(selectState$2, state => state.myPurchases);
+
+const selectMyPurchasesCount = reselect.createSelector(selectState$2, state => state.myPurchasesPageTotalResults);
+
+const selectIsFetchingMyPurchases = reselect.createSelector(selectState$2, state => state.fetchingMyPurchases);
+
+const selectFetchingMyPurchasesError = reselect.createSelector(selectState$2, state => state.fetchingMyPurchasesError);
+
+const makeSelectMyPurchasesForPage = (query, page = 1) => reselect.createSelector(selectMyPurchases, selectClaimsByUri, (myPurchases, claimsByUri) => {
+  if (!myPurchases) {
+    return undefined;
+  }
+
+  const fileInfos = myPurchases.map(uri => claimsByUri[uri]);
+  const matchingFileInfos = filterClaims(fileInfos, query);
+  const start = (Number(page) - 1) * Number(PAGE_SIZE);
+  const end = Number(page) * Number(PAGE_SIZE);
+  return matchingFileInfos && matchingFileInfos.length ? matchingFileInfos.slice(start, end).map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url) : [];
+});
+
+const makeSelectClaimWasPurchased = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+  return claim && claim.purchase_receipt !== undefined;
+});
 
 const selectAllFetchingChannelClaims = reselect.createSelector(selectState$2, state => state.fetchingChannelClaims || {});
 
@@ -2540,7 +2585,7 @@ const makeSelectCanonicalUrlForUri = uri => reselect.createSelector(makeSelectCl
 const makeSelectPermanentUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.permanent_url);
 
 const makeSelectSupportsForUri = uri => reselect.createSelector(selectSupportsByOutpoint, makeSelectClaimForUri(uri), (byOutpoint, claim) => {
-  if (!claim || !claim.is_mine) {
+  if (!claim || !claim.is_my_output) {
     return null;
   }
 
@@ -3180,7 +3225,9 @@ function doResolveUris(uris, returnCachedClaims = false) {
       return;
     }
 
-    const options = {};
+    const options = {
+      include_purchase_receipt: true
+    };
 
     if (urisToResolve.length === 1) {
       options.include_is_my_output = true;
@@ -3427,7 +3474,8 @@ function doFetchClaimsByChannel(uri, page = 1) {
       valid_channel_signature: true,
       page: page || 1,
       order_by: ['release_time'],
-      include_is_my_output: true
+      include_is_my_output: true,
+      include_purchase_receipt: true
     }).then(result => {
       const { items: claims, total_items: claimsInChannel, page: returnedPage } = result;
 
@@ -3630,7 +3678,9 @@ function doClaimSearch(options = {
       });
     };
 
-    lbryProxy.claim_search(options).then(success, failure);
+    lbryProxy.claim_search(_extends$5({}, options, {
+      include_purchase_receipt: true
+    })).then(success, failure);
   };
 }
 
@@ -3697,6 +3747,38 @@ function doCheckPublishNameAvailability(name) {
 function doClearRepostError() {
   return {
     type: CLEAR_REPOST_ERROR
+  };
+}
+
+function doPurchaseList(page = 1, pageSize = 99999) {
+  return dispatch => {
+    dispatch({
+      type: PURCHASE_LIST_STARTED
+    });
+
+    const success = result => {
+      return dispatch({
+        type: PURCHASE_LIST_COMPLETED,
+        data: {
+          result
+        }
+      });
+    };
+
+    const failure = error => {
+      dispatch({
+        type: PURCHASE_LIST_FAILED,
+        data: {
+          error: error.message
+        }
+      });
+    };
+
+    lbryProxy.purchase_list({
+      page: page,
+      page_size: pageSize,
+      resolve: true
+    }).then(success, failure);
   };
 }
 
@@ -3820,6 +3902,7 @@ function filterFileInfos(fileInfos, query) {
     const queryMatchRegExp = new RegExp(query, 'i');
     return fileInfos.filter(fileInfo => {
       const { metadata } = fileInfo;
+
       return metadata.title && metadata.title.match(queryMatchRegExp) || fileInfo.channel_name && fileInfo.channel_name.match(queryMatchRegExp) || fileInfo.claim_name && fileInfo.claim_name.match(queryMatchRegExp);
     });
   }
@@ -5021,6 +5104,8 @@ const doToggleBlockChannel = uri => ({
 
 var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _objectWithoutProperties$3(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
 const reducers = {};
 const defaultState = {
   byId: {},
@@ -5029,10 +5114,13 @@ const defaultState = {
   channelClaimCounts: {},
   fetchingChannelClaims: {},
   resolvingUris: [],
-  // This should not be a Set
-  // Storing sets in reducers can cause issues
   myChannelClaims: undefined,
   myClaims: undefined,
+  myPurchases: undefined,
+  myPurchasesPageNumber: undefined,
+  myPurchasesPageTotalResults: undefined,
+  fetchingMyPurchases: false,
+  fetchingMyPurchasesError: undefined,
   fetchingMyChannels: false,
   abandoningById: {},
   pendingById: {},
@@ -5053,6 +5141,7 @@ const defaultState = {
   myClaimsPageNumber: undefined,
   myClaimsPageTotalResults: undefined,
   isFetchingClaimListMine: false,
+  isFetchingMyPurchases: false,
   isCheckingNameForPublish: false,
   checkingPending: false,
   checkingReflecting: false
@@ -5150,13 +5239,13 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
   const byUri = Object.assign({}, state.claimsByUri);
   const pendingById = Object.assign({}, state.pendingById);
   let myClaimIds = new Set(state.myClaims);
-  let urlPage = [];
+  let urlsForCurrentPage = [];
 
   claims.forEach(claim => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
     const { claim_id: claimId } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
-      urlPage.push(uri);
+      urlsForCurrentPage.push(uri);
       if (claim.confirmations < 1) {
         pendingById[claimId] = claim;
         delete byId[claimId];
@@ -5188,7 +5277,7 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
     byId,
     claimsByUri: byUri,
     pendingById,
-    myClaimsPageResults: urlPage,
+    myClaimsPageResults: urlsForCurrentPage,
     myClaimsPageNumber: page,
     myClaimsPageTotalResults: totalItems
   });
@@ -5325,6 +5414,7 @@ reducers[UPDATE_PENDING_CLAIMS] = (state, action) => {
   const pendingById = Object.assign({}, state.pendingById);
   let myClaimIds = new Set(state.myClaims);
 
+  // $FlowFixMe
   claims.forEach(claim => {
     const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
     const { claim_id: claimId } = claim;
@@ -5568,6 +5658,58 @@ reducers[TOGGLE_CHECKING_PENDING] = (state, action) => {
   return Object.assign({}, state, _extends$9({}, state, {
     checkingPending: checking
   }));
+};
+
+reducers[PURCHASE_LIST_STARTED] = state => {
+  return _extends$9({}, state, {
+    fetchingMyPurchases: true,
+    fetchingMyPurchasesError: null
+  });
+};
+
+reducers[PURCHASE_LIST_COMPLETED] = (state, action) => {
+  const { result } = action.data;
+  const page = result.page;
+  const totalItems = result.total_items;
+
+  let byId = Object.assign({}, state.byId);
+  let byUri = Object.assign({}, state.claimsByUri);
+  let urlsForCurrentPage = [];
+
+  result.items.forEach(item => {
+    if (!item.claim) {
+      // Abandoned claim
+      return;
+    }
+
+    const { claim } = item,
+          purchaseInfo = _objectWithoutProperties$3(item, ['claim']);
+    claim.purchase_receipt = purchaseInfo;
+    const claimId = claim.claim_id;
+    const uri = claim.canonical_url;
+
+    byId[claimId] = claim;
+    byUri[uri] = claimId;
+    urlsForCurrentPage.push(uri);
+  });
+
+  return Object.assign({}, state, {
+    byId,
+    claimsByUri: byUri,
+    myPurchases: urlsForCurrentPage,
+    myPurchasesPageNumber: page,
+    myPurchasesPageTotalResults: totalItems,
+    fetchingMyPurchases: false
+  });
+};
+
+reducers[PURCHASE_LIST_FAILED] = (state, action) => {
+  const { error } = action.data;
+
+  return _extends$9({}, state, {
+    fetchingMyPurchases: false,
+    fetchingMyPurchasesError: error
+  });
 };
 
 function claimsReducer(state = defaultState, action) {
@@ -6061,7 +6203,7 @@ const notificationsReducer = handleActions({
 
 var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _objectWithoutProperties$3(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+function _objectWithoutProperties$4(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 const defaultState$6 = {
   editingURI: undefined,
@@ -6118,7 +6260,7 @@ const publishReducer = handleActions({
     publishSuccess: true
   }),
   [DO_PREPARE_EDIT]: (state, action) => {
-    const publishData = _objectWithoutProperties$3(action.data, []);
+    const publishData = _objectWithoutProperties$4(action.data, []);
     const { channel, name, uri } = publishData;
 
     // The short uri is what is presented to the user
@@ -6879,6 +7021,7 @@ exports.doPreferenceGet = doPreferenceGet;
 exports.doPreferenceSet = doPreferenceSet;
 exports.doPrepareEdit = doPrepareEdit;
 exports.doPublish = doPublish;
+exports.doPurchaseList = doPurchaseList;
 exports.doPurchaseUri = doPurchaseUri;
 exports.doRepost = doRepost;
 exports.doResetThumbnailStatus = doResetThumbnailStatus;
@@ -6924,6 +7067,7 @@ exports.makeSelectClaimForUri = makeSelectClaimForUri;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;
 exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
 exports.makeSelectClaimIsPending = makeSelectClaimIsPending;
+exports.makeSelectClaimWasPurchased = makeSelectClaimWasPurchased;
 exports.makeSelectClaimsInChannelForCurrentPageState = makeSelectClaimsInChannelForCurrentPageState;
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
 exports.makeSelectCommentsForUri = makeSelectCommentsForUri;
@@ -6946,6 +7090,7 @@ exports.makeSelectLoadingForUri = makeSelectLoadingForUri;
 exports.makeSelectMediaTypeForUri = makeSelectMediaTypeForUri;
 exports.makeSelectMetadataForUri = makeSelectMetadataForUri;
 exports.makeSelectMetadataItemForUri = makeSelectMetadataItemForUri;
+exports.makeSelectMyPurchasesForPage = makeSelectMyPurchasesForPage;
 exports.makeSelectMyStreamUrlsForPage = makeSelectMyStreamUrlsForPage;
 exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
@@ -7018,6 +7163,7 @@ exports.selectFetchingClaimSearch = selectFetchingClaimSearch;
 exports.selectFetchingClaimSearchByQuery = selectFetchingClaimSearchByQuery;
 exports.selectFetchingMyChannels = selectFetchingMyChannels;
 exports.selectFetchingMyClaimsPageError = selectFetchingMyClaimsPageError;
+exports.selectFetchingMyPurchasesError = selectFetchingMyPurchasesError;
 exports.selectFetchingTxosError = selectFetchingTxosError;
 exports.selectFileInfosByOutpoint = selectFileInfosByOutpoint;
 exports.selectFileInfosDownloaded = selectFileInfosDownloaded;
@@ -7032,6 +7178,7 @@ exports.selectHasTransactions = selectHasTransactions;
 exports.selectIsFetchingClaimListMine = selectIsFetchingClaimListMine;
 exports.selectIsFetchingFileList = selectIsFetchingFileList;
 exports.selectIsFetchingFileListDownloadedOrPublished = selectIsFetchingFileListDownloadedOrPublished;
+exports.selectIsFetchingMyPurchases = selectIsFetchingMyPurchases;
 exports.selectIsFetchingTransactions = selectIsFetchingTransactions;
 exports.selectIsFetchingTxos = selectIsFetchingTxos;
 exports.selectIsResolvingPublishUris = selectIsResolvingPublishUris;
@@ -7051,6 +7198,8 @@ exports.selectMyClaimsPageItemCount = selectMyClaimsPageItemCount;
 exports.selectMyClaimsPageNumber = selectMyClaimsPageNumber;
 exports.selectMyClaimsRaw = selectMyClaimsRaw;
 exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
+exports.selectMyPurchases = selectMyPurchases;
+exports.selectMyPurchasesCount = selectMyPurchasesCount;
 exports.selectMyStreamUrlsCount = selectMyStreamUrlsCount;
 exports.selectPendingById = selectPendingById;
 exports.selectPendingClaims = selectPendingClaims;
