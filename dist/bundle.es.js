@@ -1025,7 +1025,7 @@ const Lbry = {
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
   getMediaType: (contentType, fileName) => {
     if (fileName) {
-      const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(jpeg|jpg|png|gif|svg)$/i, 'image'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(html|json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book'], [/\.(lbry)$/i, 'application']];
+      const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(jpeg|jpg|png|gif|svg|webp)$/i, 'image'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(html|json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book'], [/\.(lbry)$/i, 'application']];
 
       const res = formats.reduce((ret, testpair) => {
         switch (testpair[0].test(ret)) {
@@ -1318,6 +1318,8 @@ function parseURI(URL, requireProto = false) {
   const [proto, ...rest] = regexMatch.slice(1).map(match => match || null);
   const path = rest.join('');
   const [streamNameOrChannelName, primaryModSeparator, primaryModValue, pathSep, possibleStreamName, secondaryModSeparator, secondaryModValue] = rest;
+  const searchParams = new URLSearchParams(qs || '');
+  const startTime = searchParams.get('t');
 
   // Validate protocol
   if (requireProto && !proto) {
@@ -1361,7 +1363,7 @@ function parseURI(URL, requireProto = false) {
   return _extends({
     isChannel,
     path
-  }, streamName ? { streamName } : {}, streamClaimId ? { streamClaimId } : {}, channelName ? { channelName } : {}, channelClaimId ? { channelClaimId } : {}, primaryClaimSequence ? { primaryClaimSequence: parseInt(primaryClaimSequence, 10) } : {}, secondaryClaimSequence ? { secondaryClaimSequence: parseInt(secondaryClaimSequence, 10) } : {}, primaryBidPosition ? { primaryBidPosition: parseInt(primaryBidPosition, 10) } : {}, secondaryBidPosition ? { secondaryBidPosition: parseInt(secondaryBidPosition, 10) } : {}, {
+  }, streamName ? { streamName } : {}, streamClaimId ? { streamClaimId } : {}, channelName ? { channelName } : {}, channelClaimId ? { channelClaimId } : {}, primaryClaimSequence ? { primaryClaimSequence: parseInt(primaryClaimSequence, 10) } : {}, secondaryClaimSequence ? { secondaryClaimSequence: parseInt(secondaryClaimSequence, 10) } : {}, primaryBidPosition ? { primaryBidPosition: parseInt(primaryBidPosition, 10) } : {}, secondaryBidPosition ? { secondaryBidPosition: parseInt(secondaryBidPosition, 10) } : {}, startTime ? { startTime: parseInt(startTime, 10) } : {}, {
 
     // The values below should not be used for new uses of parseURI
     // They will not work properly with canonical_urls
@@ -1418,9 +1420,10 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
     primaryClaimSequence,
     primaryBidPosition,
     secondaryClaimSequence,
-    secondaryBidPosition
+    secondaryBidPosition,
+    startTime
   } = UrlObj,
-        deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition']);
+        deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition', 'startTime']);
   const { claimId, claimName, contentName } = deprecatedParts;
 
   if (!claimName && !channelName && !streamName) {
@@ -1436,7 +1439,7 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
   return (includeProto ? protoDefault : '') +
   // primaryClaimName will always exist here because we throw above if there is no "name" value passed in
   // $FlowFixMe
-  primaryClaimName + (primaryClaimId ? `#${primaryClaimId}` : '') + (primaryClaimSequence ? `:${primaryClaimSequence}` : '') + (primaryBidPosition ? `${primaryBidPosition}` : '') + (secondaryClaimName ? `/${secondaryClaimName}` : '') + (secondaryClaimId ? `#${secondaryClaimId}` : '') + (secondaryClaimSequence ? `:${secondaryClaimSequence}` : '') + (secondaryBidPosition ? `${secondaryBidPosition}` : '');
+  primaryClaimName + (primaryClaimId ? `#${primaryClaimId}` : '') + (primaryClaimSequence ? `:${primaryClaimSequence}` : '') + (primaryBidPosition ? `${primaryBidPosition}` : '') + (secondaryClaimName ? `/${secondaryClaimName}` : '') + (secondaryClaimId ? `#${secondaryClaimId}` : '') + (secondaryClaimSequence ? `:${secondaryClaimSequence}` : '') + (secondaryBidPosition ? `${secondaryBidPosition}` : '') + (startTime ? `?t=${startTime}` : '');
 }
 
 /* Takes a parseable LBRY URL and converts it to standard, canonical format */
@@ -1449,7 +1452,8 @@ function normalizeURI(URL) {
     primaryClaimSequence,
     primaryBidPosition,
     secondaryClaimSequence,
-    secondaryBidPosition
+    secondaryBidPosition,
+    startTime
   } = parseURI(URL);
 
   return buildURI({
@@ -1460,7 +1464,8 @@ function normalizeURI(URL) {
     primaryClaimSequence,
     primaryBidPosition,
     secondaryClaimSequence,
-    secondaryBidPosition
+    secondaryBidPosition,
+    startTime
   });
 }
 
