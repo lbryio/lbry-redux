@@ -158,7 +158,6 @@ export { claimsReducer } from 'redux/reducers/claims';
 export { commentReducer } from 'redux/reducers/comments';
 export { contentReducer } from 'redux/reducers/content';
 export { fileInfoReducer } from 'redux/reducers/file_info';
-export { fileReducer } from 'redux/reducers/file';
 export { notificationsReducer } from 'redux/reducers/notifications';
 export { publishReducer } from 'redux/reducers/publish';
 export { searchReducer } from 'redux/reducers/search';
@@ -170,14 +169,6 @@ export { walletReducer } from 'redux/reducers/wallet';
 export { makeSelectContentPositionForUri } from 'redux/selectors/content';
 
 export { selectToast, selectError } from 'redux/selectors/notifications';
-
-export {
-  selectFailedPurchaseUris,
-  selectPurchasedUris,
-  selectPurchaseUriErrorMessage,
-  selectLastPurchasedUri,
-  makeSelectStreamingUrlForUri,
-} from 'redux/selectors/file';
 
 export {
   makeSelectClaimForUri,
@@ -260,6 +251,7 @@ export {
   selectIsFetchingMyPurchases,
   selectFetchingMyPurchasesError,
   selectMyPurchasesCount,
+  selectPurchaseUriSuccess,
 } from 'redux/selectors/claims';
 
 export { makeSelectCommentsForUri } from 'redux/selectors/comments';
@@ -287,6 +279,7 @@ export {
   makeSelectSearchDownloadUrlsForPage,
   makeSelectSearchDownloadUrlsCount,
   selectDownloadUrlsCount,
+  makeSelectStreamingUrlForUri,
 } from 'redux/selectors/file_info';
 
 export {

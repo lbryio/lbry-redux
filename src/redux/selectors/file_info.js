@@ -234,12 +234,12 @@ export const makeSelectSearchDownloadUrlsForPage = (query, page = 1) =>
 
       return matchingFileInfos && matchingFileInfos.length
         ? matchingFileInfos.slice(start, end).map(fileInfo =>
-          buildURI({
-            streamName: fileInfo.claim_name,
-            channelName: fileInfo.channel_name,
-            channelClaimId: fileInfo.channel_claim_id,
-          })
-        )
+            buildURI({
+              streamName: fileInfo.claim_name,
+              channelName: fileInfo.channel_name,
+              channelClaimId: fileInfo.channel_claim_id,
+            })
+          )
         : [];
     }
   );
@@ -249,5 +249,13 @@ export const makeSelectSearchDownloadUrlsCount = query =>
     selectFileInfosDownloaded,
     fileInfos => {
       return fileInfos && fileInfos.length ? filterFileInfos(fileInfos, query).length : 0;
+    }
+  );
+
+export const makeSelectStreamingUrlForUri = uri =>
+  createSelector(
+    makeSelectFileInfoForUri(uri),
+    fileInfo => {
+      return fileInfo && fileInfo.streaming_url;
     }
   );

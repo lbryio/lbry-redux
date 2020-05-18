@@ -11,6 +11,7 @@ declare type FileListItem = {
   claim_id: string,
   claim_name: string,
   completed: false,
+  content_fee?: {},
   download_directory: string,
   download_path: string,
   file_name: string,
