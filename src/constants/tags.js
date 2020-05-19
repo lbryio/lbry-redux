@@ -13,7 +13,28 @@ export const DEFAULT_FOLLOWED_TAGS = [
   'technology',
 ];
 
-export const MATURE_TAGS = ['porn', 'nsfw', 'mature', 'xxx'];
+export const MATURE_TAGS = [
+  'porn',
+  'porno',
+  'nsfw',
+  'mature',
+  'xxx',
+  'sex',
+  'creampie',
+  'blowjob',
+  'handjob',
+  'vagina',
+  'boobs',
+  'big boobgs',
+  'big dick',
+  'pussy',
+  'cumshot',
+  'anal',
+  'hard fucking',
+  'ass',
+  'fuck',
+  'hentai',
+];
 
 export const DEFAULT_KNOWN_TAGS = [
   'free speech',
