@@ -191,7 +191,7 @@ const SET_FILE_LIST_SORT = 'SET_FILE_LIST_SORT';
 const PURCHASE_URI_STARTED = 'PURCHASE_URI_STARTED';
 const PURCHASE_URI_COMPLETED = 'PURCHASE_URI_COMPLETED';
 const PURCHASE_URI_FAILED = 'PURCHASE_URI_FAILED';
-const DELETE_PURCHASED_URI = 'DELETE_PURCHASED_URI';
+const CLEAR_PURCHASED_URI_SUCCESS = 'CLEAR_PURCHASED_URI_SUCCESS';
 
 // Search
 const SEARCH_START = 'SEARCH_START';
@@ -470,7 +470,7 @@ var action_types = /*#__PURE__*/Object.freeze({
   PURCHASE_URI_STARTED: PURCHASE_URI_STARTED,
   PURCHASE_URI_COMPLETED: PURCHASE_URI_COMPLETED,
   PURCHASE_URI_FAILED: PURCHASE_URI_FAILED,
-  DELETE_PURCHASED_URI: DELETE_PURCHASED_URI,
+  CLEAR_PURCHASED_URI_SUCCESS: CLEAR_PURCHASED_URI_SUCCESS,
   SEARCH_START: SEARCH_START,
   SEARCH_SUCCESS: SEARCH_SUCCESS,
   SEARCH_FAIL: SEARCH_FAIL,
@@ -4030,10 +4030,9 @@ function doPurchaseUri(uri, costInfo, saveFile = true, onSuccess) {
   };
 }
 
-function doDeletePurchasedUri(uri) {
+function doClearPurchasedUriSuccess() {
   return {
-    type: DELETE_PURCHASED_URI,
-    data: { uri }
+    type: CLEAR_PURCHASED_URI_SUCCESS
   };
 }
 
@@ -5731,6 +5730,12 @@ reducers[PURCHASE_URI_FAILED] = state => {
   });
 };
 
+reducers[CLEAR_PURCHASED_URI_SUCCESS] = state => {
+  return _extends$9({}, state, {
+    purchaseUriSuccess: false
+  });
+};
+
 function claimsReducer(state = defaultState, action) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
@@ -6937,6 +6942,7 @@ exports.doCheckPublishNameAvailability = doCheckPublishNameAvailability;
 exports.doCheckReflectingFiles = doCheckReflectingFiles;
 exports.doClaimSearch = doClaimSearch;
 exports.doClearPublish = doClearPublish;
+exports.doClearPurchasedUriSuccess = doClearPurchasedUriSuccess;
 exports.doClearRepostError = doClearRepostError;
 exports.doClearSupport = doClearSupport;
 exports.doCommentAbandon = doCommentAbandon;
@@ -6945,7 +6951,6 @@ exports.doCommentHide = doCommentHide;
 exports.doCommentList = doCommentList;
 exports.doCommentUpdate = doCommentUpdate;
 exports.doCreateChannel = doCreateChannel;
-exports.doDeletePurchasedUri = doDeletePurchasedUri;
 exports.doDeleteTag = doDeleteTag;
 exports.doDismissError = doDismissError;
 exports.doDismissToast = doDismissToast;

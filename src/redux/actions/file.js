@@ -123,9 +123,8 @@ export function doPurchaseUri(
   };
 }
 
-export function doDeletePurchasedUri(uri: string) {
+export function doClearPurchasedUriSuccess() {
   return {
-    type: ACTIONS.DELETE_PURCHASED_URI,
-    data: { uri },
+    type: ACTIONS.CLEAR_PURCHASED_URI_SUCCESS,
   };
 }

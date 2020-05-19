@@ -70,7 +70,7 @@ declare type PurchaseUriStarted = {
 };
 
 declare type DeletePurchasedUri = {
-  type: ACTIONS.DELETE_PURCHASED_URI,
+  type: ACTIONS.CLEAR_PURCHASED_URI_SUCCESS,
   data: {
     uri: string,
   },

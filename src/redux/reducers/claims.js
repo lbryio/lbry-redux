@@ -733,6 +733,13 @@ reducers[ACTIONS.PURCHASE_URI_FAILED] = (state: State): State => {
   };
 };
 
+reducers[ACTIONS.CLEAR_PURCHASED_URI_SUCCESS] = (state: State): State => {
+  return {
+    ...state,
+    purchaseUriSuccess: false,
+  };
+};
+
 export function claimsReducer(state: State = defaultState, action: any) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);

@@ -78,7 +78,7 @@ export {
   doPurchaseList,
 } from 'redux/actions/claims';
 
-export { doDeletePurchasedUri, doPurchaseUri, doFileGet } from 'redux/actions/file';
+export { doClearPurchasedUriSuccess, doPurchaseUri, doFileGet } from 'redux/actions/file';
 
 export {
   doFetchFileInfo,
