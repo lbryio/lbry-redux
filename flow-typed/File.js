@@ -12,7 +12,7 @@ declare type FileListItem = {
   claim_name: string,
   completed: false,
   content_fee?: { txid: string },
-  purchase_receipt?: { txid: string },
+  purchase_receipt?: { txid: string, amount: string },
   download_directory: string,
   download_path: string,
   file_name: string,
