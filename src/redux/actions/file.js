@@ -49,7 +49,7 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: Get
             type: ACTIONS.FETCH_FILE_INFO_COMPLETED,
             data: {
               fileInfo: streamInfo,
-              outpoint: streamInfo.outpoint,
+              outpoint: outpoint,
             },
           });
 

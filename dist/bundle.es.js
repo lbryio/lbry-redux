@@ -3968,7 +3968,7 @@ function doFileGet(uri, saveFile = true, onSuccess) {
           type: FETCH_FILE_INFO_COMPLETED,
           data: {
             fileInfo: streamInfo,
-            outpoint: streamInfo.outpoint
+            outpoint: outpoint
           }
         });
 
