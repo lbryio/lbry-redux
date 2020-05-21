@@ -231,6 +231,11 @@ export const selectMyPurchases = createSelector(
   state => state.myPurchases
 );
 
+export const selectPurchaseUriSuccess = createSelector(
+  selectState,
+  state => state.purchaseUriSuccess
+);
+
 export const selectMyPurchasesCount = createSelector(
   selectState,
   state => state.myPurchasesPageTotalResults
@@ -253,6 +258,11 @@ export const makeSelectMyPurchasesForPage = (query: ?string, page: number = 1) =
     (myPurchases: Array<string>, claimsByUri: { [string]: Claim }) => {
       if (!myPurchases) {
         return undefined;
+      }
+
+      if (!query) {
+        // ensure no duplicates from double purchase bugs
+        return [...new Set(myPurchases)];
       }
 
       const fileInfos = myPurchases.map(uri => claimsByUri[uri]);
@@ -400,7 +410,9 @@ export const makeSelectThumbnailForUri = (uri: string) =>
     makeSelectClaimForUri(uri),
     claim => {
       const thumbnail = claim && claim.value && claim.value.thumbnail;
-      return thumbnail && thumbnail.url ? thumbnail.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
+      return thumbnail && thumbnail.url
+        ? thumbnail.url.trim().replace(/^http:\/\//i, 'https://')
+        : undefined;
     }
   );
 

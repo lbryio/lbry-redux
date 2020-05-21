@@ -25,6 +25,7 @@ type State = {
   fetchingChannelClaims: { [string]: number },
   fetchingMyChannels: boolean,
   fetchingClaimSearchByQuery: { [string]: boolean },
+  purchaseUriSuccess: boolean,
   myPurchases: ?Array<string>,
   myPurchasesPageNumber: ?number,
   myPurchasesPageTotalResults: ?number,
@@ -69,6 +70,7 @@ const defaultState = {
   myPurchases: undefined,
   myPurchasesPageNumber: undefined,
   myPurchasesPageTotalResults: undefined,
+  purchaseUriSuccess: false,
   fetchingMyPurchases: false,
   fetchingMyPurchasesError: undefined,
   fetchingMyChannels: false,
@@ -697,6 +699,44 @@ reducers[ACTIONS.PURCHASE_LIST_FAILED] = (state: State, action: any): State => {
     ...state,
     fetchingMyPurchases: false,
     fetchingMyPurchasesError: error,
+  };
+};
+
+reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (state: State, action: any): State => {
+  const { uri, purchaseReceipt } = action.data;
+
+  let byId = Object.assign({}, state.byId);
+  let byUri = Object.assign({}, state.claimsByUri);
+  let myPurchases = state.myPurchases ? state.myPurchases.slice() : [];
+  let urlsForCurrentPage = [];
+
+  const claimId = byUri[uri];
+  if (claimId) {
+    let claim = byId[claimId];
+    claim.purchase_receipt = purchaseReceipt;
+  }
+
+  myPurchases.push(uri);
+
+  return {
+    ...state,
+    byId,
+    myPurchases,
+    purchaseUriSuccess: true,
+  };
+};
+
+reducers[ACTIONS.PURCHASE_URI_FAILED] = (state: State): State => {
+  return {
+    ...state,
+    purchaseUriSuccess: false,
+  };
+};
+
+reducers[ACTIONS.CLEAR_PURCHASED_URI_SUCCESS] = (state: State): State => {
+  return {
+    ...state,
+    purchaseUriSuccess: false,
   };
 };
 

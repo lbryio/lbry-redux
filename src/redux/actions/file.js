@@ -3,8 +3,11 @@ import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
-import { makeSelectFileInfoForUri, selectDownloadingByOutpoint } from 'redux/selectors/file_info';
-import { makeSelectStreamingUrlForUri } from 'redux/selectors/file';
+import {
+  makeSelectFileInfoForUri,
+  selectDownloadingByOutpoint,
+  makeSelectStreamingUrlForUri,
+} from 'redux/selectors/file_info';
 import { makeSelectClaimForUri } from 'redux/selectors/claims';
 
 type Dispatch = (action: any) => any;
@@ -28,7 +31,6 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: Get
       .then((streamInfo: GetResponse) => {
         const timeout =
           streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
-
         if (timeout) {
           dispatch({
             type: ACTIONS.FETCH_FILE_INFO_FAILED,
@@ -37,16 +39,17 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: Get
 
           dispatch(doToast({ message: `File timeout for uri ${uri}`, isError: true }));
         } else {
-          // purchase was completed successfully
-          dispatch({
-            type: ACTIONS.PURCHASE_URI_COMPLETED,
-            data: { uri },
-          });
+          if (streamInfo.purchase_receipt || streamInfo.content_fee) {
+            dispatch({
+              type: ACTIONS.PURCHASE_URI_COMPLETED,
+              data: { uri, purchaseReceipt: streamInfo.purchase_receipt || streamInfo.content_fee },
+            });
+          }
           dispatch({
             type: ACTIONS.FETCH_FILE_INFO_COMPLETED,
             data: {
               fileInfo: streamInfo,
-              outpoint: streamInfo.outpoint,
+              outpoint: outpoint,
             },
           });
 
@@ -55,10 +58,10 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: Get
           }
         }
       })
-      .catch(() => {
+      .catch(error => {
         dispatch({
           type: ACTIONS.PURCHASE_URI_FAILED,
-          data: { uri },
+          data: { uri, error },
         });
 
         dispatch({
@@ -120,9 +123,8 @@ export function doPurchaseUri(
   };
 }
 
-export function doDeletePurchasedUri(uri: string) {
+export function doClearPurchasedUriSuccess() {
   return {
-    type: ACTIONS.DELETE_PURCHASED_URI,
-    data: { uri },
+    type: ACTIONS.CLEAR_PURCHASED_URI_SUCCESS,
   };
 }
