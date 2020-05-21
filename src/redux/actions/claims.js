@@ -15,6 +15,7 @@ import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { batchActions } from 'util/batch-actions';
 import { createNormalizedClaimSearchKey } from 'util/claim';
+import { PAGE_SIZE } from 'constants/claim';
 
 export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean = false) {
   return (dispatch: Dispatch, getState: GetState) => {
@@ -630,7 +631,7 @@ export function doClearRepostError() {
   };
 }
 
-export function doPurchaseList(page: number = 1, pageSize: number = 99999) {
+export function doPurchaseList(page: number = 1, pageSize: number = PAGE_SIZE) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.PURCHASE_LIST_STARTED,

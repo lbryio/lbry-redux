@@ -2313,6 +2313,11 @@ const makeSelectMyPurchasesForPage = (query, page = 1) => reselect.createSelecto
     return undefined;
   }
 
+  if (!query) {
+    // ensure no duplicates from double purchase bugs
+    return [...new Set(myPurchases)];
+  }
+
   const fileInfos = myPurchases.map(uri => claimsByUri[uri]);
   const matchingFileInfos = filterClaims(fileInfos, query);
   const start = (Number(page) - 1) * Number(PAGE_SIZE);
@@ -3752,7 +3757,7 @@ function doClearRepostError() {
   };
 }
 
-function doPurchaseList(page = 1, pageSize = 99999) {
+function doPurchaseList(page = 1, pageSize = PAGE_SIZE) {
   return dispatch => {
     dispatch({
       type: PURCHASE_LIST_STARTED

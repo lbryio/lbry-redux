@@ -260,6 +260,11 @@ export const makeSelectMyPurchasesForPage = (query: ?string, page: number = 1) =
         return undefined;
       }
 
+      if (!query) {
+        // ensure no duplicates from double purchase bugs
+        return [...new Set(myPurchases)];
+      }
+
       const fileInfos = myPurchases.map(uri => claimsByUri[uri]);
       const matchingFileInfos = filterClaims(fileInfos, query);
       const start = (Number(page) - 1) * Number(PAGE_SIZE);
