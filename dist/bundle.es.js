@@ -6821,6 +6821,8 @@ const selectState$7 = state => state.comments || {};
 
 const selectCommentsById = reselect.createSelector(selectState$7, state => state.commentById || {});
 
+const selectIsFetchingComments = reselect.createSelector(selectState$7, state => state.isLoading);
+
 const selectCommentsByClaimId = reselect.createSelector(selectState$7, selectCommentsById, (state, byId) => {
   const byClaimId = state.byId || {};
   const comments = {};
@@ -7130,6 +7132,7 @@ exports.selectFollowedTagsList = selectFollowedTagsList;
 exports.selectGettingNewAddress = selectGettingNewAddress;
 exports.selectHasTransactions = selectHasTransactions;
 exports.selectIsFetchingClaimListMine = selectIsFetchingClaimListMine;
+exports.selectIsFetchingComments = selectIsFetchingComments;
 exports.selectIsFetchingFileList = selectIsFetchingFileList;
 exports.selectIsFetchingFileListDownloadedOrPublished = selectIsFetchingFileListDownloadedOrPublished;
 exports.selectIsFetchingMyPurchases = selectIsFetchingMyPurchases;

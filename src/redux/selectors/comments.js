@@ -8,6 +8,11 @@ export const selectCommentsById = createSelector(
   state => state.commentById || {}
 );
 
+export const selectIsFetchingComments = createSelector(
+  selectState,
+  state => state.isLoading
+);
+
 export const selectCommentsByClaimId = createSelector(
   selectState,
   selectCommentsById,

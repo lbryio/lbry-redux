@@ -254,7 +254,7 @@ export {
   selectPurchaseUriSuccess,
 } from 'redux/selectors/claims';
 
-export { makeSelectCommentsForUri } from 'redux/selectors/comments';
+export { makeSelectCommentsForUri, selectIsFetchingComments } from 'redux/selectors/comments';
 
 export {
   makeSelectFileInfoForUri,
