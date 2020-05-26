@@ -2665,7 +2665,7 @@ function numberWithCommas(x) {
 }
 
 function formatCredits(amount, precision, shortFormat = false) {
-  if (!amount) return '--';
+  if (typeof amount === "undefined") return '--';
 
   let actualAmount = parseFloat(amount);
   let actualPrecision = parseFloat(precision);
