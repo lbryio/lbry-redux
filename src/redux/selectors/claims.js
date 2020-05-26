@@ -785,10 +785,10 @@ export const selectUpdateChannelError = createSelector(
 
 export const makeSelectReflectingClaimForUri = (uri: string) =>
   createSelector(
-    makeSelectClaimForUri(uri),
+    selectClaimIdsByUri,
     selectReflectingById,
-    (claim, reflectingById) => {
-      const claimId = claim && claim.claimId;
+    (claimIdsByUri, reflectingById) => {
+      const claimId = claimIdsByUri[normalizeURI(uri)];
       return reflectingById[claimId];
     }
   );
