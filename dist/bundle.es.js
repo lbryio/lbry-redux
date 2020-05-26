@@ -2612,8 +2612,8 @@ const selectUpdatingChannel = reselect.createSelector(selectState$2, state => st
 
 const selectUpdateChannelError = reselect.createSelector(selectState$2, state => state.updateChannelError);
 
-const makeSelectReflectingClaimForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), selectReflectingById, (claim, reflectingById) => {
-  const claimId = claim && claim.claimId;
+const makeSelectReflectingClaimForUri = uri => reselect.createSelector(selectClaimIdsByUri, selectReflectingById, (claimIdsByUri, reflectingById) => {
+  const claimId = claimIdsByUri[normalizeURI(uri)];
   return reflectingById[claimId];
 });
 
