@@ -5,8 +5,6 @@ function numberWithCommas(x) {
 }
 
 export function formatCredits(amount, precision, shortFormat = false) {
-  if (!amount) return '--';
-
   let actualAmount = parseFloat(amount);
   let actualPrecision = parseFloat(precision);
   let suffix = '';
