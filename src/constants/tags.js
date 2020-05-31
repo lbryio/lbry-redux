@@ -517,6 +517,7 @@ export const DEFAULT_KNOWN_TAGS = [
   'teaser',
   'lbry',
   'coronavirus',
+  '2020protests',
   'covidcuts',
   'covid-19',
 ];
