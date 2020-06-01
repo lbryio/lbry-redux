@@ -115,6 +115,7 @@ const ABANDON_CLAIM_STARTED = 'ABANDON_CLAIM_STARTED';
 const ABANDON_CLAIM_SUCCEEDED = 'ABANDON_CLAIM_SUCCEEDED';
 const FETCH_CHANNEL_LIST_STARTED = 'FETCH_CHANNEL_LIST_STARTED';
 const FETCH_CHANNEL_LIST_COMPLETED = 'FETCH_CHANNEL_LIST_COMPLETED';
+const FETCH_CHANNEL_LIST_FAILED = 'FETCH_CHANNEL_LIST_FAILED';
 const CREATE_CHANNEL_STARTED = 'CREATE_CHANNEL_STARTED';
 const CREATE_CHANNEL_COMPLETED = 'CREATE_CHANNEL_COMPLETED';
 const CREATE_CHANNEL_FAILED = 'CREATE_CHANNEL_FAILED';
@@ -399,6 +400,7 @@ var action_types = /*#__PURE__*/Object.freeze({
   ABANDON_CLAIM_SUCCEEDED: ABANDON_CLAIM_SUCCEEDED,
   FETCH_CHANNEL_LIST_STARTED: FETCH_CHANNEL_LIST_STARTED,
   FETCH_CHANNEL_LIST_COMPLETED: FETCH_CHANNEL_LIST_COMPLETED,
+  FETCH_CHANNEL_LIST_FAILED: FETCH_CHANNEL_LIST_FAILED,
   CREATE_CHANNEL_STARTED: CREATE_CHANNEL_STARTED,
   CREATE_CHANNEL_COMPLETED: CREATE_CHANNEL_COMPLETED,
   CREATE_CHANNEL_FAILED: CREATE_CHANNEL_FAILED,
@@ -3655,7 +3657,14 @@ function doFetchChannelListMine(page = 1, pageSize = 99999, resolve = true) {
       });
     };
 
-    lbryProxy.channel_list({ page, page_size: pageSize, resolve }).then(callback);
+    const failure = error => {
+      dispatch({
+        type: FETCH_CHANNEL_LIST_FAILED,
+        data: error
+      });
+    };
+
+    lbryProxy.channel_list({ page, page_size: pageSize, resolve }).then(callback, failure);
   };
 }
 
@@ -5342,6 +5351,12 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
     fetchingMyChannels: false,
     myChannelClaims: myChannelClaims ? Array.from(myChannelClaims) : null,
     myClaims: Array.from(myClaimIds)
+  });
+};
+
+reducers[FETCH_CHANNEL_LIST_FAILED] = (state, action) => {
+  return Object.assign({}, state, {
+    fetchingMyChannels: false
   });
 };
 

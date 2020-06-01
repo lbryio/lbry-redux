@@ -300,6 +300,12 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
   });
 };
 
+reducers[ACTIONS.FETCH_CHANNEL_LIST_FAILED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    fetchingMyChannels: false,
+  });
+};
+
 reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED] = (state: State, action: any): State => {
   const { uri, page } = action.data;
   const fetchingChannelClaims = Object.assign({}, state.fetchingChannelClaims);

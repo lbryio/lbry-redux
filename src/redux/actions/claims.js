@@ -502,7 +502,14 @@ export function doFetchChannelListMine(
       });
     };
 
-    Lbry.channel_list({ page, page_size: pageSize, resolve }).then(callback);
+    const failure = error => {
+      dispatch({
+        type: ACTIONS.FETCH_CHANNEL_LIST_FAILED,
+        data: error,
+      });
+    };
+
+    Lbry.channel_list({ page, page_size: pageSize, resolve }).then(callback, failure);
   };
 }
 
