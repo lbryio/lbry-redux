@@ -25,7 +25,7 @@ export const MATURE_TAGS = [
   'handjob',
   'vagina',
   'boobs',
-  'big boobgs',
+  'big boobs',
   'big dick',
   'pussy',
   'cumshot',
