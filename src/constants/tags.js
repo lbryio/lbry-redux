@@ -36,7 +36,7 @@ export const MATURE_TAGS = [
   'hentai',
 ];
 
-export const DEFAULT_KNOWN_TAGS = [
+const DEFAULT_ENGLISH_KNOWN_TAGS = [
   'free speech',
   'censorship',
   'gaming',
@@ -521,3 +521,25 @@ export const DEFAULT_KNOWN_TAGS = [
   'covidcuts',
   'covid-19',
 ];
+
+const DEFAULT_SPANISH_KNOWN_TAGS = [
+  'español',
+  'tecnología',
+  'criptomonedas',
+  'economía',
+  'bitcoin',
+  'educación',
+  'videojuegos',
+  'música',
+  'noticias',
+  'ciencia',
+  'deportes',
+  'latinoamérica',
+  'latam',
+  'conspiración',
+  'humor',
+  'política',
+  'tutoriales',
+];
+
+export const DEFAULT_KNOWN_TAGS = [...DEFAULT_ENGLISH_KNOWN_TAGS, ...DEFAULT_SPANISH_KNOWN_TAGS];
