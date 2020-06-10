@@ -1,7 +1,11 @@
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 import { doToast } from 'redux/actions/notifications';
-import { selectBalance, selectPendingSupportTransactions, selectTxoPageParams } from 'redux/selectors/wallet';
+import {
+  selectBalance,
+  selectPendingSupportTransactions,
+  selectTxoPageParams,
+} from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { selectMyClaimsRaw } from 'redux/selectors/claims';
 import { doFetchChannelListMine, doFetchClaimListMine } from 'redux/actions/claims';
@@ -98,7 +102,7 @@ export function doFetchTxoPage() {
   };
 }
 
-export function doUpdateTxoPageParams(params: TxoListParams) {
+export function doUpdateTxoPageParams(params) {
   return dispatch => {
     dispatch({
       type: ACTIONS.UPDATE_TXO_FETCH_PARAMS,
@@ -236,16 +240,16 @@ export function doSetDraftTransactionAddress(address) {
   };
 }
 
-export function doSendTip(amount, claimId, isSupport, successCallback, errorCallback) {
+export function doSendTip(params, isSupport, successCallback, errorCallback) {
   return (dispatch, getState) => {
     const state = getState();
     const balance = selectBalance(state);
     const myClaims = selectMyClaimsRaw(state);
 
     const shouldSupport =
-      isSupport || (myClaims ? myClaims.find(claim => claim.claim_id === claimId) : false);
+      isSupport || (myClaims ? myClaims.find(claim => claim.claim_id === params.claim_id) : false);
 
-    if (balance - amount <= 0) {
+    if (balance - params.amount <= 0) {
       dispatch(
         doToast({
           message: __('Insufficient credits'),
@@ -259,8 +263,8 @@ export function doSendTip(amount, claimId, isSupport, successCallback, errorCall
       dispatch(
         doToast({
           message: shouldSupport
-            ? __('You deposited %amount% LBC as a support!', { amount })
-            : __('You sent %amount% LBC as a tip, Mahalo!', { amount }),
+            ? __('You deposited %amount% LBC as a support!', { amount: params.amount })
+            : __('You sent %amount% LBC as a tip, Mahalo!', { amount: params.amount }),
           linkText: __('History'),
           linkTarget: __('/wallet'),
         })
@@ -300,10 +304,10 @@ export function doSendTip(amount, claimId, isSupport, successCallback, errorCall
     });
 
     Lbry.support_create({
-      claim_id: claimId,
-      amount: creditsToString(amount),
+      ...params,
       tip: !shouldSupport,
       blocking: true,
+      amount: creditsToString(params.amount),
     }).then(success, error);
   };
 }
@@ -380,7 +384,7 @@ export function doWalletLock() {
   };
 }
 
-export function doSupportAbandonForClaim(claimId, claimType, keep,  preview) {
+export function doSupportAbandonForClaim(claimId, claimType, keep, preview) {
   return dispatch => {
     if (preview) {
       dispatch({
@@ -392,27 +396,26 @@ export function doSupportAbandonForClaim(claimId, claimType, keep,  preview) {
       });
     }
 
-    const params = {claim_id: claimId};
+    const params = { claim_id: claimId };
     if (preview) params['preview'] = true;
     if (keep) params['keep'] = keep;
-    return (
-      Lbry.support_abandon(params)
-        .then((res) => {
-          if (!preview) {
-            dispatch({
-              type: ACTIONS.ABANDON_CLAIM_SUPPORT_COMPLETED,
-              data: { claimId, txid: res.txid, effective: res.outputs[0].amount, type: claimType}, // add to pendingSupportTransactions,
-            });
-            dispatch(doCheckPendingTxs());
-          }
-          return res;
-        })
-        .catch(e => {
+    return Lbry.support_abandon(params)
+      .then(res => {
+        if (!preview) {
           dispatch({
-            type: ACTIONS.ABANDON_CLAIM_SUPPORT_FAILED,
-            data: e.message,
+            type: ACTIONS.ABANDON_CLAIM_SUPPORT_COMPLETED,
+            data: { claimId, txid: res.txid, effective: res.outputs[0].amount, type: claimType }, // add to pendingSupportTransactions,
           });
-        }));
+          dispatch(doCheckPendingTxs());
+        }
+        return res;
+      })
+      .catch(e => {
+        dispatch({
+          type: ACTIONS.ABANDON_CLAIM_SUPPORT_FAILED,
+          data: e.message,
+        });
+      });
   };
 }
 
@@ -469,7 +472,6 @@ export function doWalletStatus() {
   };
 }
 
-
 export function doSetTransactionListFilter(filterOption) {
   return {
     type: ACTIONS.SET_TRANSACTION_LIST_FILTER,
@@ -490,10 +492,7 @@ export function doUpdateBlockHeight() {
 }
 
 // Calls transaction_show on txes until any pending txes are confirmed
-export const doCheckPendingTxs = () => (
-  dispatch,
-  getState
-) => {
+export const doCheckPendingTxs = () => (dispatch, getState) => {
   const state = getState();
   const pendingTxsById = selectPendingSupportTransactions(state); // {}
   if (!Object.keys(pendingTxsById).length) {
@@ -508,35 +507,37 @@ export const doCheckPendingTxs = () => (
     const types = new Set([]);
     let changed = false;
     Object.entries(pendingTxs).forEach(([claim, data]) => {
-      promises.push(Lbry.transaction_show({txid: data.txid}));
+      promises.push(Lbry.transaction_show({ txid: data.txid }));
       types.add(data.type);
     });
 
-    Promise.all(promises).then(txShows => {
-      txShows.forEach(result => {
-        if (result.height <= 0) {
-          const entries = Object.entries(pendingTxs);
-          const match = entries.find((entry) => entry[1].txid === result.txid);
-          newPendingTxes[match[0]] = match[1];
-        } else {
-          changed = true;
-        }
-      });
-    }).then(() => {
-      if (changed) {
-        dispatch({
-          type: ACTIONS.PENDING_SUPPORTS_UPDATED,
-          data: newPendingTxes,
+    Promise.all(promises)
+      .then(txShows => {
+        txShows.forEach(result => {
+          if (result.height <= 0) {
+            const entries = Object.entries(pendingTxs);
+            const match = entries.find(entry => entry[1].txid === result.txid);
+            newPendingTxes[match[0]] = match[1];
+          } else {
+            changed = true;
+          }
         });
-        if (types.has('channel')) {
-          dispatch(doFetchChannelListMine());
+      })
+      .then(() => {
+        if (changed) {
+          dispatch({
+            type: ACTIONS.PENDING_SUPPORTS_UPDATED,
+            data: newPendingTxes,
+          });
+          if (types.has('channel')) {
+            dispatch(doFetchChannelListMine());
+          }
+          if (types.has('stream')) {
+            dispatch(doFetchClaimListMine());
+          }
         }
-        if (types.has('stream')) {
-          dispatch(doFetchClaimListMine());
-        }
-      }
-      if (Object.keys(newPendingTxes).length === 0) clearInterval(txCheckInterval);
-    });
+        if (Object.keys(newPendingTxes).length === 0) clearInterval(txCheckInterval);
+      });
 
     if (!Object.keys(pendingTxsById).length) {
       clearInterval(txCheckInterval);
