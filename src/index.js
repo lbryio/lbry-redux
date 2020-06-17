@@ -76,6 +76,7 @@ export {
   doClearRepostError,
   doCheckPublishNameAvailability,
   doPurchaseList,
+  doCheckPendingClaims,
 } from 'redux/actions/claims';
 
 export { doClearPurchasedUriSuccess, doPurchaseUri, doFileGet } from 'redux/actions/file';
@@ -94,7 +95,6 @@ export {
   doUploadThumbnail,
   doPrepareEdit,
   doPublish,
-  doCheckPendingPublishes,
   doCheckReflectingFiles,
 } from 'redux/actions/publish';
 
@@ -198,7 +198,6 @@ export {
   makeSelectFirstRecommendedFileForUri,
   makeSelectChannelForClaimUri,
   makeSelectClaimIsPending,
-  makeSelectPendingByUri,
   makeSelectReflectingClaimForUri,
   makeSelectClaimsInChannelForCurrentPageState,
   makeSelectShortUrlForUri,
@@ -207,7 +206,6 @@ export {
   makeSelectSupportsForUri,
   makeSelectMyPurchasesForPage,
   makeSelectClaimWasPurchased,
-  selectPendingById,
   selectReflectingById,
   selectClaimsById,
   selectClaimsByUri,
@@ -217,9 +215,9 @@ export {
   selectMyActiveClaims,
   selectAllFetchingChannelClaims,
   selectIsFetchingClaimListMine,
-  selectPendingClaims,
   selectMyClaims,
   selectMyClaimsWithoutChannels,
+  selectMyChannelUrls,
   selectMyClaimUrisWithoutChannels,
   selectAllMyClaimsByOutpoint,
   selectMyClaimsOutpoints,
