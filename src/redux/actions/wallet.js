@@ -169,8 +169,8 @@ export function doSendDraftTransaction(address, amount) {
     if (balance - amount <= 0) {
       dispatch(
         doToast({
-          title: 'Insufficient credits',
-          message: 'Insufficient credits',
+          title: __('Insufficient credits'),
+          message: __('Insufficient credits'),
         })
       );
       return;
@@ -187,8 +187,8 @@ export function doSendDraftTransaction(address, amount) {
         });
         dispatch(
           doToast({
-            message: `You sent ${amount} LBC`,
-            linkText: 'History',
+            message: __('You sent ${amount} LBC'),
+            linkText: __('History'),
             linkTarget: '/wallet',
           })
         );
@@ -199,7 +199,7 @@ export function doSendDraftTransaction(address, amount) {
         });
         dispatch(
           doToast({
-            message: 'Transaction failed',
+            message: __('Transaction failed'),
             isError: true,
           })
         );
@@ -213,7 +213,7 @@ export function doSendDraftTransaction(address, amount) {
       });
       dispatch(
         doToast({
-          message: 'Transaction failed',
+          message: __('Transaction failed'),
           isError: true,
         })
       );
@@ -266,7 +266,7 @@ export function doSendTip(params, isSupport, successCallback, errorCallback) {
             ? __('You deposited %amount% LBC as a support!', { amount: params.amount })
             : __('You sent %amount% LBC as a tip, Mahalo!', { amount: params.amount }),
           linkText: __('History'),
-          linkTarget: __('/wallet'),
+          linkTarget: '/wallet',
         })
       );
 
