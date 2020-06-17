@@ -9,6 +9,7 @@ import {
   selectResolvingUris,
   selectClaimsByUri,
   selectMyChannelClaims,
+  selectPendingIds,
 } from 'redux/selectors/claims';
 import { doFetchTxoPage } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
@@ -338,7 +339,7 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
   };
 }
 
-export function doCreateChannel(name: string, amount: number, optionalParams: any) {
+export function doCreateChannel(name: string, amount: number, optionalParams: any, cb: any) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CREATE_CHANNEL_STARTED,
@@ -395,6 +396,11 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
             type: ACTIONS.CREATE_CHANNEL_COMPLETED,
             data: { channelClaim },
           });
+          dispatch({
+            type: ACTIONS.UPDATE_PENDING_CLAIMS,
+            data: [channelClaim],
+          });
+          dispatch(doCheckPendingClaims(cb));
           return channelClaim;
         })
         .catch(error => {
@@ -408,7 +414,7 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
   };
 }
 
-export function doUpdateChannel(params: any) {
+export function doUpdateChannel(params: any, cb: any) {
   return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
       type: ACTIONS.UPDATE_CHANNEL_STARTED,
@@ -454,7 +460,15 @@ export function doUpdateChannel(params: any) {
           type: ACTIONS.UPDATE_CHANNEL_COMPLETED,
           data: { channelClaim },
         });
+        dispatch({
+          type: ACTIONS.UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [channelClaim],
+          },
+        });
+        dispatch(doCheckPendingClaims(cb));
       })
+      .then()
       .catch(error => {
         dispatch({
           type: ACTIONS.UPDATE_CHANNEL_FAILED,
@@ -669,3 +683,48 @@ export function doPurchaseList(page: number = 1, pageSize: number = PAGE_SIZE) {
     }).then(success, failure);
   };
 }
+
+export const doCheckPendingClaims = (onConfirmed: Function) => (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
+  let claimCheckInterval;
+
+  const checkClaimList = () => {
+    const state = getState();
+    const pendingIdSet = new Set(selectPendingIds(state));
+    Lbry.claim_list({ page: 1, page_size: 10 })
+      .then(result => {
+        const claims = result.items;
+        const claimsToConfirm = [];
+        claims.forEach(claim => {
+          const { claim_id: claimId } = claim;
+          if (claim.confirmations > 0 && pendingIdSet.has(claimId)) {
+            pendingIdSet.delete(claimId);
+            claimsToConfirm.push(claim);
+            if (onConfirmed) {
+              onConfirmed(claim);
+            }
+          }
+        });
+        if (claimsToConfirm.length) {
+          dispatch({
+            type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
+            data: {
+              claims: claimsToConfirm,
+            },
+          });
+        }
+        return pendingIdSet.size;
+      })
+      .then(len => {
+        if (!len) {
+          clearInterval(claimCheckInterval);
+        }
+      });
+  };
+
+  claimCheckInterval = setInterval(() => {
+    checkClaimList();
+  }, 30000);
+};

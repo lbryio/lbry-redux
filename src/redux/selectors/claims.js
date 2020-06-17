@@ -6,7 +6,7 @@ import {
 } from 'redux/selectors/search';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
-import { isClaimNsfw, createNormalizedClaimSearchKey, filterClaims } from 'util/claim';
+import { isClaimNsfw, filterClaims } from 'util/claim';
 import { getSearchQueryString } from 'util/query-params';
 import { PAGE_SIZE } from 'constants/claim';
 
@@ -48,10 +48,9 @@ export const selectRepostError = createSelector(
 );
 
 export const selectClaimsByUri = createSelector(
-  selectState,
+  selectClaimIdsByUri,
   selectClaimsById,
-  (state, byId) => {
-    const byUri = state.claimsByUri || {};
+  (byUri, byId) => {
     const claims = {};
 
     Object.keys(byUri).forEach(uri => {
@@ -76,42 +75,25 @@ export const selectAllClaimsByChannel = createSelector(
   state => state.paginatedClaimsByChannel || {}
 );
 
-export const selectPendingById = createSelector(
+export const selectPendingIds = createSelector(
   selectState,
-  state => state.pendingById || {}
-);
-
-export const selectPendingClaims = createSelector(
-  selectState,
-  state => Object.values(state.pendingById || [])
+  state => state.pendingIds || []
 );
 
 export const makeSelectClaimIsPending = (uri: string) =>
   createSelector(
-    selectPendingById,
-    pendingById => {
-      let claimId;
-
-      try {
-        const { isChannel, channelClaimId, streamClaimId } = parseURI(uri);
-        claimId = isChannel ? channelClaimId : streamClaimId;
-      } catch (e) {}
+    selectClaimIdsByUri,
+    selectPendingIds,
+    (idsByUri, pendingIds) => {
+      const claimId = idsByUri(normalizeURI(uri));
 
       if (claimId) {
-        return Boolean(pendingById[claimId]);
+        return pendingIds.some(i => i === claimId);
       }
+      return false;
     }
   );
 
-export const makeSelectPendingByUri = (uri: string) =>
-  createSelector(
-    selectPendingById,
-    pendingById => {
-      const { isChannel, channelClaimId, streamClaimId } = parseURI(uri);
-      const claimId = isChannel ? channelClaimId : streamClaimId;
-      return pendingById[claimId];
-    }
-  );
 export const selectReflectingById = createSelector(
   selectState,
   state => state.reflectingById
@@ -119,30 +101,21 @@ export const selectReflectingById = createSelector(
 
 export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true) =>
   createSelector(
-    selectClaimsByUri,
-    selectPendingById,
-    (byUri, pendingById) => {
-      // Check if a claim is pending first
-      // It won't be in claimsByUri because resolving it will return nothing
-
-      let valid;
+    selectClaimIdsByUri,
+    selectClaimsById,
+    (byUri, byId) => {
+      let validUri;
       let channelClaimId;
       let streamClaimId;
       let isChannel;
       try {
         ({ isChannel, channelClaimId, streamClaimId } = parseURI(uri));
-        valid = true;
+        validUri = true;
       } catch (e) {}
 
-      if (valid && byUri) {
-        const claimId = isChannel ? channelClaimId : streamClaimId;
-        const pendingClaim = pendingById[claimId];
-
-        if (pendingClaim) {
-          return pendingClaim;
-        }
-
-        const claim = byUri[normalizeURI(uri)];
+      if (validUri && byUri) {
+        const claimId = uri && byUri[normalizeURI(uri)];
+        const claim = byId[claimId];
         if (claim === undefined || claim === null) {
           // Make sure to return the claim as is so apps can check if it's been resolved before (null) or still needs to be resolved (undefined)
           return claim;
@@ -456,8 +429,7 @@ export const selectMyClaims = createSelector(
   selectMyActiveClaims,
   selectClaimsById,
   selectAbandoningIds,
-  selectPendingClaims,
-  (myClaimIds, byId, abandoningIds, pendingClaims) => {
+  (myClaimIds, byId, abandoningIds) => {
     const claims = [];
 
     myClaimIds.forEach(id => {
@@ -466,7 +438,7 @@ export const selectMyClaims = createSelector(
       if (claim && abandoningIds.indexOf(id) === -1) claims.push(claim);
     });
 
-    return [...claims, ...pendingClaims];
+    return [...claims];
   }
 );
 
@@ -493,6 +465,11 @@ export const selectMyClaimUrisWithoutChannels = createSelector(
         return claim.canonical_url || claim.permanent_url;
       });
   }
+);
+
+export const selectMyChannelUrls = createSelector(
+  selectState,
+  state => state.myChannelUrls
 );
 
 export const selectAllMyClaimsByOutpoint = createSelector(
