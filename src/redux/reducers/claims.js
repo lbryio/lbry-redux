@@ -21,7 +21,6 @@ type State = {
   reflectingById: { [string]: ReflectingUpdate },
   myClaims: ?Array<string>,
   myChannelClaims: ?Array<string>,
-  myChannelUrls: ?Array<string>,
   abandoningById: { [string]: boolean },
   fetchingChannelClaims: { [string]: number },
   fetchingMyChannels: boolean,
@@ -67,7 +66,6 @@ const defaultState = {
   fetchingChannelClaims: {},
   resolvingUris: [],
   myChannelClaims: undefined,
-  myChannelUrls: undefined,
   myClaims: undefined,
   myPurchases: undefined,
   myPurchasesPageNumber: undefined,
@@ -123,7 +121,7 @@ function handleClaimAction(state: State, action: any): State {
 
     if (stream) {
       if (pendingIds.includes(stream.claim_id)) {
-        byId[stream.claim_id] = mergeClaim(stream, byId[stream.claim_id]);// merge them
+        byId[stream.claim_id] = mergeClaim(stream, byId[stream.claim_id]);
       } else {
         byId[stream.claim_id] = stream;
       }
@@ -214,7 +212,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
   const pendingIdSet = new Set(pendingIds);
 
   claims.forEach((claim: Claim) => {
-    const { permanent_url: permanentUri, claim_id: claimId  } = claim;
+    const { permanent_url: permanentUri, claim_id: claimId } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
       urlsForCurrentPage.push(permanentUri);
       if (claim.confirmations < 1) {
@@ -225,7 +223,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
       if (pendingIds.includes(claimId)) {
         byId[claimId] = mergeClaim(claim, byId[claimId]);
       } else {
-        byId[claimId] = claim;// just add
+        byId[claimId] = claim;
       }
       byUri[permanentUri] = claimId;
       myClaimIds.add(claimId);
@@ -253,7 +251,6 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
   let myClaimIds = new Set(state.myClaims);
   const pendingIds = state.pendingIds || [];
   let myChannelClaims;
-  let myChannelUrls = [];
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
@@ -261,10 +258,8 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
   if (!claims.length) {
     // $FlowFixMe
     myChannelClaims = null;
-    myChannelUrls = null;
   } else {
     myChannelClaims = new Set(state.myChannelClaims);
-    myChannelUrls = [];
     claims.forEach(claim => {
       const { meta } = claim;
       const { claims_in_channel: claimsInChannel } = claim.meta;
@@ -280,7 +275,6 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
       if (!pendingIds.some(c => c === claimId)) {
         byId[claimId] = claim;
       }
-      myChannelUrls.push(permanentUrl);
       myClaimIds.add(claimId);
     });
   }
@@ -292,7 +286,6 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
     fetchingMyChannels: false,
     myChannelClaims: myChannelClaims ? Array.from(myChannelClaims) : null,
     myClaims: myClaimIds ? Array.from(myClaimIds) : null,
-    myChannelUrls,
   });
 };
 

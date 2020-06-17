@@ -2204,7 +2204,7 @@ const selectAllClaimsByChannel = reselect.createSelector(selectState$2, state =>
 const selectPendingIds = reselect.createSelector(selectState$2, state => state.pendingIds || []);
 
 const makeSelectClaimIsPending = uri => reselect.createSelector(selectClaimIdsByUri, selectPendingIds, (idsByUri, pendingIds) => {
-  const claimId = idsByUri(normalizeURI(uri));
+  const claimId = idsByUri[normalizeURI(uri)];
 
   if (claimId) {
     return pendingIds.some(i => i === claimId);
@@ -2423,8 +2423,6 @@ const selectMyClaimUrisWithoutChannels = reselect.createSelector(selectMyClaimsW
   });
 });
 
-const selectMyChannelUrls = reselect.createSelector(selectState$2, state => state.myChannelUrls);
-
 const selectAllMyClaimsByOutpoint = reselect.createSelector(selectMyClaimsRaw, claims => new Set(claims && claims.length ? claims.map(claim => `${claim.txid}:${claim.nout}`) : null));
 
 const selectMyClaimsOutpoints = reselect.createSelector(selectMyClaims, myClaims => {
@@ -2453,6 +2451,8 @@ const selectMyChannelClaims = reselect.createSelector(selectState$2, selectClaim
 
   return claims;
 });
+
+const selectMyChannelUrls = reselect.createSelector(selectMyChannelClaims, claims => claims ? claims.map(claim => claim.canonical_url || claim.permanent_url) : undefined);
 
 const selectResolvingUris = reselect.createSelector(selectState$2, state => state.resolvingUris || []);
 
@@ -2857,8 +2857,8 @@ function doSendDraftTransaction(address, amount) {
 
     if (balance - amount <= 0) {
       dispatch(doToast({
-        title: 'Insufficient credits',
-        message: 'Insufficient credits'
+        title: __('Insufficient credits'),
+        message: __('Insufficient credits')
       }));
       return;
     }
@@ -2873,8 +2873,8 @@ function doSendDraftTransaction(address, amount) {
           type: SEND_TRANSACTION_COMPLETED
         });
         dispatch(doToast({
-          message: `You sent ${amount} LBC`,
-          linkText: 'History',
+          message: __('You sent ${amount} LBC'),
+          linkText: __('History'),
           linkTarget: '/wallet'
         }));
       } else {
@@ -2883,7 +2883,7 @@ function doSendDraftTransaction(address, amount) {
           data: { error: response }
         });
         dispatch(doToast({
-          message: 'Transaction failed',
+          message: __('Transaction failed'),
           isError: true
         }));
       }
@@ -2895,7 +2895,7 @@ function doSendDraftTransaction(address, amount) {
         data: { error: error.message }
       });
       dispatch(doToast({
-        message: 'Transaction failed',
+        message: __('Transaction failed'),
         isError: true
       }));
     };
@@ -2941,7 +2941,7 @@ function doSendTip(params, isSupport, successCallback, errorCallback) {
       dispatch(doToast({
         message: shouldSupport ? __('You deposited %amount% LBC as a support!', { amount: params.amount }) : __('You sent %amount% LBC as a tip, Mahalo!', { amount: params.amount }),
         linkText: __('History'),
-        linkTarget: __('/wallet')
+        linkTarget: '/wallet'
       }));
 
       dispatch({
@@ -3534,7 +3534,9 @@ function doCreateChannel(name, amount, optionalParams, cb) {
       });
       dispatch({
         type: UPDATE_PENDING_CLAIMS,
-        data: [channelClaim]
+        data: {
+          claims: [channelClaim]
+        }
       });
       dispatch(doCheckPendingClaims(cb));
       return channelClaim;
@@ -3600,6 +3602,7 @@ function doUpdateChannel(params, cb) {
         }
       });
       dispatch(doCheckPendingClaims(cb));
+      return Boolean(result.outputs[0]);
     }).then().catch(error => {
       dispatch({
         type: UPDATE_CHANNEL_FAILED,
@@ -5128,7 +5131,6 @@ const defaultState = {
   fetchingChannelClaims: {},
   resolvingUris: [],
   myChannelClaims: undefined,
-  myChannelUrls: undefined,
   myClaims: undefined,
   myPurchases: undefined,
   myPurchasesPageNumber: undefined,
@@ -5178,7 +5180,7 @@ function handleClaimAction(state, action) {
 
     if (stream) {
       if (pendingIds.includes(stream.claim_id)) {
-        byId[stream.claim_id] = mergeClaims(stream, byId[stream.claim_id]); // merge them
+        byId[stream.claim_id] = mergeClaims(stream, byId[stream.claim_id]);
       } else {
         byId[stream.claim_id] = stream;
       }
@@ -5277,7 +5279,7 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
       if (pendingIds.includes(claimId)) {
         byId[claimId] = mergeClaims(claim, byId[claimId]);
       } else {
-        byId[claimId] = claim; // just add
+        byId[claimId] = claim;
       }
       byUri[permanentUri] = claimId;
       myClaimIds.add(claimId);
@@ -5304,7 +5306,6 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   let myClaimIds = new Set(state.myClaims);
   const pendingIds = state.pendingIds || [];
   let myChannelClaims;
-  let myChannelUrls = [];
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
@@ -5312,10 +5313,8 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   if (!claims.length) {
     // $FlowFixMe
     myChannelClaims = null;
-    myChannelUrls = null;
   } else {
     myChannelClaims = new Set(state.myChannelClaims);
-    myChannelUrls = [];
     claims.forEach(claim => {
       const { claims_in_channel: claimsInChannel } = claim.meta;
       const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId } = claim;
@@ -5330,7 +5329,6 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
       if (!pendingIds.some(c => c === claimId)) {
         byId[claimId] = claim;
       }
-      myChannelUrls.push(permanentUrl);
       myClaimIds.add(claimId);
     });
   }
@@ -5341,8 +5339,7 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
     channelClaimCounts,
     fetchingMyChannels: false,
     myChannelClaims: myChannelClaims ? Array.from(myChannelClaims) : null,
-    myClaims: myClaimIds ? Array.from(myClaimIds) : null,
-    myChannelUrls
+    myClaims: myClaimIds ? Array.from(myClaimIds) : null
   });
 };
 

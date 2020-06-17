@@ -85,7 +85,7 @@ export const makeSelectClaimIsPending = (uri: string) =>
     selectClaimIdsByUri,
     selectPendingIds,
     (idsByUri, pendingIds) => {
-      const claimId = idsByUri(normalizeURI(uri));
+      const claimId = idsByUri[normalizeURI(uri)];
 
       if (claimId) {
         return pendingIds.some(i => i === claimId);
@@ -467,11 +467,6 @@ export const selectMyClaimUrisWithoutChannels = createSelector(
   }
 );
 
-export const selectMyChannelUrls = createSelector(
-  selectState,
-  state => state.myChannelUrls
-);
-
 export const selectAllMyClaimsByOutpoint = createSelector(
   selectMyClaimsRaw,
   claims =>
@@ -513,6 +508,11 @@ export const selectMyChannelClaims = createSelector(
 
     return claims;
   }
+);
+
+export const selectMyChannelUrls = createSelector(
+  selectMyChannelClaims,
+  claims => claims ? claims.map(claim => claim.canonical_url || claim.permanent_url) : undefined
 );
 
 export const selectResolvingUris = createSelector(

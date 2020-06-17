@@ -398,7 +398,9 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
           });
           dispatch({
             type: ACTIONS.UPDATE_PENDING_CLAIMS,
-            data: [channelClaim],
+            data: {
+              claims: [channelClaim],
+            },
           });
           dispatch(doCheckPendingClaims(cb));
           return channelClaim;
@@ -467,6 +469,7 @@ export function doUpdateChannel(params: any, cb: any) {
           },
         });
         dispatch(doCheckPendingClaims(cb));
+        return Boolean(result.outputs[0]);
       })
       .then()
       .catch(error => {
