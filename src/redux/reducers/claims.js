@@ -9,7 +9,7 @@
 // - Sean
 
 import * as ACTIONS from 'constants/action_types';
-import mergeClaim from 'util/merge-claim';
+import { buildURI, parseURI } from 'lbryURI';
 
 type State = {
   createChannelError: ?string,
@@ -17,7 +17,7 @@ type State = {
   claimsByUri: { [string]: string },
   byId: { [string]: Claim },
   resolvingUris: Array<string>,
-  pendingIds: Array<string>,
+  pendingById: { [string]: Claim },
   reflectingById: { [string]: ReflectingUpdate },
   myClaims: ?Array<string>,
   myChannelClaims: ?Array<string>,
@@ -75,7 +75,7 @@ const defaultState = {
   fetchingMyPurchasesError: undefined,
   fetchingMyChannels: false,
   abandoningById: {},
-  pendingIds: [],
+  pendingById: {},
   reflectingById: {},
   claimSearchError: false,
   claimSearchByQuery: {},
@@ -112,19 +112,18 @@ function handleClaimAction(state: State, action: any): State {
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
-  const pendingIds = state.pendingIds;
   let newResolvingUrls = new Set(state.resolvingUris);
 
   Object.entries(resolveInfo).forEach(([url: string, resolveResponse: ResolveResponse]) => {
     // $FlowFixMe
     const { claimsInChannel, stream, channel } = resolveResponse;
+    if (claimsInChannel) {
+      channelClaimCounts[url] = claimsInChannel;
+      channelClaimCounts[channel.canonical_url] = claimsInChannel;
+    }
 
     if (stream) {
-      if (pendingIds.includes(stream.claim_id)) {
-        byId[stream.claim_id] = mergeClaim(stream, byId[stream.claim_id]);
-      } else {
-        byId[stream.claim_id] = stream;
-      }
+      byId[stream.claim_id] = stream;
       byUri[url] = stream.claim_id;
 
       // If url isn't a canonical_url, make sure that is added too
@@ -136,18 +135,12 @@ function handleClaimAction(state: State, action: any): State {
       newResolvingUrls.delete(stream.permanent_url);
     }
 
-    if (channel && channel.claim_id) {
-      if (claimsInChannel) {
-        channelClaimCounts[url] = claimsInChannel;
-        channelClaimCounts[channel.canonical_url] = claimsInChannel;
+    if (channel) {
+      if (!stream) {
+        byUri[url] = channel.claim_id;
       }
-      byUri[url] = channel.claim_id;
 
-      if (pendingIds.includes(channel.claim_id)) {
-        byId[channel.claim_id] = mergeClaim(channel, byId[channel.claim_id]);
-      } else {
-        byId[channel.claim_id] = channel;
-      }
+      byId[channel.claim_id] = channel;
       // Also add the permanent_url here until lighthouse returns canonical_url for search results
       byUri[channel.permanent_url] = channel.claim_id;
       byUri[channel.canonical_url] = channel.claim_id;
@@ -205,37 +198,47 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
 
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
-  const pendingIds = state.pendingIds || [];
+  const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
   let myClaimIds = new Set(state.myClaims);
   let urlsForCurrentPage = [];
 
-  const pendingIdSet = new Set(pendingIds);
-
   claims.forEach((claim: Claim) => {
-    const { permanent_url: permanentUri, claim_id: claimId } = claim;
+    const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
+    const { claim_id: claimId } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
-      urlsForCurrentPage.push(permanentUri);
+      urlsForCurrentPage.push(uri);
       if (claim.confirmations < 1) {
-        pendingIdSet.add(claimId);
-      } else if (!resolve && pendingIdSet.has(claimId) && claim.confirmations > 0) {
-        pendingIdSet.delete(claimId);
-      }
-      if (pendingIds.includes(claimId)) {
-        byId[claimId] = mergeClaim(claim, byId[claimId]);
+        pendingById[claimId] = claim;
+        delete byId[claimId];
+        delete byUri[claimId];
       } else {
         byId[claimId] = claim;
+        byUri[uri] = claimId;
       }
-      byUri[permanentUri] = claimId;
       myClaimIds.add(claimId);
+      if (!resolve && pendingById[claimId] && claim.confirmations > 0) {
+        delete pendingById[claimId];
+      }
     }
   });
+
+  // Remove old pending publishes if resolve if false (resolve=true means confirmations on updates are not 0)
+  if (!resolve) {
+    Object.values(pendingById)
+      // $FlowFixMe
+      .filter(pendingClaim => byId[pendingClaim.claim_id])
+      .forEach(pendingClaim => {
+        // $FlowFixMe
+        delete pendingById[pendingClaim.claim_id];
+      });
+  }
 
   return Object.assign({}, state, {
     isFetchingClaimListMine: false,
     myClaims: Array.from(myClaimIds),
     byId,
-    pendingIds: Array.from(pendingIdSet),
     claimsByUri: byUri,
+    pendingById,
     myClaimsPageResults: urlsForCurrentPage,
     myClaimsPageNumber: page,
     myClaimsPageTotalResults: totalItems,
@@ -249,7 +252,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
   const { claims }: { claims: Array<ChannelClaim> } = action.data;
   const myClaims = state.myClaims || [];
   let myClaimIds = new Set(state.myClaims);
-  const pendingIds = state.pendingIds || [];
+  const pendingById = Object.assign(state.pendingById);
   let myChannelClaims;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
@@ -272,10 +275,18 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
 
       // $FlowFixMe
       myChannelClaims.add(claimId);
-      if (!pendingIds.some(c => c === claimId)) {
+      if (!byId[claimId]) {
         byId[claimId] = claim;
       }
+
       myClaimIds.add(claimId);
+      if (pendingById[claimId] && claim.confirmations > 0) {
+        delete pendingById[claimId];
+      }
+
+      if (pendingById[claimId] && claim.confirmations > 0) {
+        delete pendingById[claimId];
+      }
     });
   }
 
@@ -285,7 +296,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
     channelClaimCounts,
     fetchingMyChannels: false,
     myChannelClaims: myChannelClaims ? Array.from(myChannelClaims) : null,
-    myClaims: myClaimIds ? Array.from(myClaimIds) : null,
+    myClaims: Array.from(myClaimIds),
   });
 };
 
@@ -374,31 +385,19 @@ reducers[ACTIONS.ABANDON_CLAIM_STARTED] = (state: State, action: any): State => 
 };
 
 reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => {
-  const { claims: pendingClaims }: { claims: Array<Claim> } = action.data;
+  const { claims }: { claims: Array<Claim> } = action.data;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
-  const pendingIds = state.pendingIds;
-  const pendingIdSet = new Set(pendingIds);
+  const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
   let myClaimIds = new Set(state.myClaims);
-  const myChannelClaims = new Set(state.myChannelClaims);
 
   // $FlowFixMe
-  pendingClaims.forEach((claim: Claim) => {
-    let newClaim;
-    const { permanent_url: uri, claim_id: claimId, type, value_type: valueType } = claim;
-    pendingIdSet.add(claimId);
-    const oldClaim = byId[claimId];
-    if (oldClaim && oldClaim.canonical_url) {
-      newClaim = mergeClaim(oldClaim, claim);
-    } else {
-      newClaim = claim;
-    }
-    if (valueType === 'channel') {
-      myChannelClaims.add(claimId);
-    }
-
-    if (type && type.match(/claim|update/)) {
-      byId[claimId] = newClaim;
+  claims.forEach((claim: Claim) => {
+    const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
+    const { claim_id: claimId } = claim;
+    if (claim.type && claim.type.match(/claim|update/)) {
+      pendingById[claimId] = claim;
+      delete byId[claimId];
       byUri[uri] = claimId;
     }
     myClaimIds.add(claimId);
@@ -406,35 +405,32 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => 
   return Object.assign({}, state, {
     myClaims: Array.from(myClaimIds),
     byId,
-    myChannelClaims: Array.from(myChannelClaims),
     claimsByUri: byUri,
-    pendingIds: Array.from(pendingIdSet),
+    pendingById,
   });
 };
 
 reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: State, action: any): State => {
-  const { claims: confirmedClaims }: { claims: Array<Claim> } = action.data;
+  const { claims }: { claims: Array<Claim> } = action.data;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
-  const pendingIds = state.pendingIds;
-  const pendingIdSet = new Set(pendingIds);
+  const pendingById: { [string]: Claim } = Object.assign({}, state.pendingById);
+  let myClaimIds = new Set(state.myClaims);
 
-  confirmedClaims.forEach((claim: GenericClaim) => {
-    const { permanent_url: permanentUri, claim_id: claimId, type } = claim;
-    let newClaim = claim;
-    const oldClaim = byId[claimId];
-    if (oldClaim && oldClaim.canonical_url) {
-      newClaim = mergeClaim(oldClaim, claim);
+  claims.forEach((claim: GenericClaim) => {
+    const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
+    const { claim_id: claimId } = claim;
+    if (claim.type && claim.type.match(/claim|update/)) {
+      delete pendingById[claimId];
+      byId[claimId] = claim;
     }
-    if (type && type.match(/claim|update|channel/)) {
-      byId[claimId] = newClaim;
-      pendingIdSet.delete(claimId);
-    }
+    myClaimIds.add(claimId);
   });
   return Object.assign({}, state, {
-    pendingIds: Array.from(pendingIdSet),
+    myClaims: Array.from(myClaimIds),
     byId,
     claimsByUri: byUri,
+    pendingById,
   });
 };
 
@@ -470,7 +466,19 @@ reducers[ACTIONS.CREATE_CHANNEL_STARTED] = (state: State): State => ({
 });
 
 reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: State, action: any): State => {
+  const channelClaim: ChannelClaim = action.data.channelClaim;
+  const byId = Object.assign({}, state.byId);
+  const pendingById = Object.assign({}, state.pendingById);
+  const myChannelClaims = new Set(state.myChannelClaims);
+
+  byId[channelClaim.claim_id] = channelClaim;
+  pendingById[channelClaim.claim_id] = channelClaim;
+  myChannelClaims.add(channelClaim.claim_id);
+
   return Object.assign({}, state, {
+    byId,
+    pendingById,
+    myChannelClaims: Array.from(myChannelClaims),
     creatingChannel: false,
   });
 };
@@ -490,7 +498,13 @@ reducers[ACTIONS.UPDATE_CHANNEL_STARTED] = (state: State, action: any): State =>
 };
 
 reducers[ACTIONS.UPDATE_CHANNEL_COMPLETED] = (state: State, action: any): State => {
+  const channelClaim: ChannelClaim = action.data.channelClaim;
+  const byId = Object.assign({}, state.byId);
+
+  byId[channelClaim.claim_id] = channelClaim;
+
   return Object.assign({}, state, {
+    byId,
     updateChannelError: '',
     updatingChannel: false,
   });

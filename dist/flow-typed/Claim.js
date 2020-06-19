@@ -22,7 +22,7 @@ declare type GenericClaim = {
   timestamp?: number, // date of last transaction
   height: number, // block height the tx was confirmed
   is_channel_signature_valid?: boolean,
-  is_my_output: boolean,
+  is_my_output: true,
   name: string,
   normalized_name: string, // `name` normalized via unicode NFD spec,
   nout: number, // index number for an output of a tx
