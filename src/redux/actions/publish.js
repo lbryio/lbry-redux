@@ -10,7 +10,6 @@ import { doError } from 'redux/actions/notifications';
 import { isClaimNsfw } from 'util/claim';
 import {
   selectMyChannelClaims,
-  selectPendingById,
   selectMyClaimsWithoutChannels,
   selectReflectingById,
 } from 'redux/selectors/claims';
@@ -426,47 +425,4 @@ export const doCheckReflectingFiles = () => (dispatch: Dispatch, getState: GetSt
       checkFileList();
     }, 5000);
   }
-};
-export const doCheckPendingPublishes = (onConfirmed: Function) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  let publishCheckInterval;
-
-  const checkFileList = () => {
-    const state = getState();
-    const pendingById = selectPendingById(state);
-    Lbry.claim_list({ page: 1, page_size: 10 })
-      .then(result => {
-        const claims = result.items;
-        const claimsToConfirm = [];
-        claims.forEach(claim => {
-          if (claim.confirmations > 0 && pendingById[claim.claim_id]) {
-            delete pendingById[claim.claim_id];
-            claimsToConfirm.push(claim);
-            if (onConfirmed) {
-              onConfirmed(claim);
-            }
-          }
-        });
-        if (claimsToConfirm.length) {
-          dispatch({
-            type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
-            data: {
-              claims: claimsToConfirm,
-            },
-          });
-        }
-        return Object.keys(pendingById).length;
-      })
-      .then(len => {
-        if (!len) {
-          clearInterval(publishCheckInterval);
-        }
-      });
-  };
-
-  publishCheckInterval = setInterval(() => {
-    checkFileList();
-  }, 30000);
 };
