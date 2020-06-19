@@ -2180,7 +2180,8 @@ const selectRepostLoading = reselect.createSelector(selectState$2, state => stat
 
 const selectRepostError = reselect.createSelector(selectState$2, state => state.repostError);
 
-const selectClaimsByUri = reselect.createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
+const selectClaimsByUri = reselect.createSelector(selectState$2, selectClaimsById, (state, byId) => {
+  const byUri = state.claimsByUri || {};
   const claims = {};
 
   Object.keys(byUri).forEach(uri => {
@@ -2201,32 +2202,52 @@ const selectClaimsByUri = reselect.createSelector(selectClaimIdsByUri, selectCla
 
 const selectAllClaimsByChannel = reselect.createSelector(selectState$2, state => state.paginatedClaimsByChannel || {});
 
-const selectPendingIds = reselect.createSelector(selectState$2, state => state.pendingIds || []);
+const selectPendingById = reselect.createSelector(selectState$2, state => state.pendingById || {});
 
-const makeSelectClaimIsPending = uri => reselect.createSelector(selectClaimIdsByUri, selectPendingIds, (idsByUri, pendingIds) => {
-  const claimId = idsByUri[normalizeURI(uri)];
+const selectPendingClaims = reselect.createSelector(selectState$2, state => Object.values(state.pendingById || []));
+
+const makeSelectClaimIsPending = uri => reselect.createSelector(selectPendingById, pendingById => {
+  let claimId;
+
+  try {
+    const { isChannel, channelClaimId, streamClaimId } = parseURI(uri);
+    claimId = isChannel ? channelClaimId : streamClaimId;
+  } catch (e) {}
 
   if (claimId) {
-    return pendingIds.some(i => i === claimId);
+    return Boolean(pendingById[claimId]);
   }
-  return false;
 });
 
+const makeSelectPendingByUri = uri => reselect.createSelector(selectPendingById, pendingById => {
+  const { isChannel, channelClaimId, streamClaimId } = parseURI(uri);
+  const claimId = isChannel ? channelClaimId : streamClaimId;
+  return pendingById[claimId];
+});
 const selectReflectingById = reselect.createSelector(selectState$2, state => state.reflectingById);
 
-const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
-  let validUri;
+const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelector(selectClaimsByUri, selectPendingById, (byUri, pendingById) => {
+  // Check if a claim is pending first
+  // It won't be in claimsByUri because resolving it will return nothing
+
+  let valid;
   let channelClaimId;
   let streamClaimId;
   let isChannel;
   try {
     ({ isChannel, channelClaimId, streamClaimId } = parseURI(uri));
-    validUri = true;
+    valid = true;
   } catch (e) {}
 
-  if (validUri && byUri) {
-    const claimId = uri && byUri[normalizeURI(uri)];
-    const claim = byId[claimId];
+  if (valid && byUri) {
+    const claimId = isChannel ? channelClaimId : streamClaimId;
+    const pendingClaim = pendingById[claimId];
+
+    if (pendingClaim) {
+      return pendingClaim;
+    }
+
+    const claim = byUri[normalizeURI(uri)];
     if (claim === undefined || claim === null) {
       // Make sure to return the claim as is so apps can check if it's been resolved before (null) or still needs to be resolved (undefined)
       return claim;
@@ -2395,7 +2416,7 @@ const selectMyClaimsPageItemCount = reselect.createSelector(selectState$2, state
 
 const selectFetchingMyClaimsPageError = reselect.createSelector(selectState$2, state => state.fetchingClaimListMinePageError);
 
-const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaimsById, selectAbandoningIds, (myClaimIds, byId, abandoningIds) => {
+const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaimsById, selectAbandoningIds, selectPendingClaims, (myClaimIds, byId, abandoningIds, pendingClaims) => {
   const claims = [];
 
   myClaimIds.forEach(id => {
@@ -2404,7 +2425,7 @@ const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaim
     if (claim && abandoningIds.indexOf(id) === -1) claims.push(claim);
   });
 
-  return [...claims];
+  return [...claims, ...pendingClaims];
 });
 
 const selectMyClaimsWithoutChannels = reselect.createSelector(selectMyClaims, myClaims => myClaims.filter(claim => !claim.name.match(/^@/)).sort((a, b) => a.timestamp - b.timestamp));
@@ -2451,8 +2472,6 @@ const selectMyChannelClaims = reselect.createSelector(selectState$2, selectClaim
 
   return claims;
 });
-
-const selectMyChannelUrls = reselect.createSelector(selectMyChannelClaims, claims => claims ? claims.map(claim => claim.canonical_url || claim.permanent_url) : undefined);
 
 const selectResolvingUris = reselect.createSelector(selectState$2, state => state.resolvingUris || []);
 
@@ -2857,8 +2876,8 @@ function doSendDraftTransaction(address, amount) {
 
     if (balance - amount <= 0) {
       dispatch(doToast({
-        title: __('Insufficient credits'),
-        message: __('Insufficient credits')
+        title: 'Insufficient credits',
+        message: 'Insufficient credits'
       }));
       return;
     }
@@ -2873,8 +2892,8 @@ function doSendDraftTransaction(address, amount) {
           type: SEND_TRANSACTION_COMPLETED
         });
         dispatch(doToast({
-          message: __('You sent ${amount} LBC'),
-          linkText: __('History'),
+          message: `You sent ${amount} LBC`,
+          linkText: 'History',
           linkTarget: '/wallet'
         }));
       } else {
@@ -2883,7 +2902,7 @@ function doSendDraftTransaction(address, amount) {
           data: { error: response }
         });
         dispatch(doToast({
-          message: __('Transaction failed'),
+          message: 'Transaction failed',
           isError: true
         }));
       }
@@ -2895,7 +2914,7 @@ function doSendDraftTransaction(address, amount) {
         data: { error: error.message }
       });
       dispatch(doToast({
-        message: __('Transaction failed'),
+        message: 'Transaction failed',
         isError: true
       }));
     };
@@ -2941,7 +2960,7 @@ function doSendTip(params, isSupport, successCallback, errorCallback) {
       dispatch(doToast({
         message: shouldSupport ? __('You deposited %amount% LBC as a support!', { amount: params.amount }) : __('You sent %amount% LBC as a tip, Mahalo!', { amount: params.amount }),
         linkText: __('History'),
-        linkTarget: '/wallet'
+        linkTarget: __('/wallet')
       }));
 
       dispatch({
@@ -3487,7 +3506,7 @@ function doFetchClaimsByChannel(uri, page = 1) {
   };
 }
 
-function doCreateChannel(name, amount, optionalParams, cb) {
+function doCreateChannel(name, amount, optionalParams) {
   return dispatch => {
     dispatch({
       type: CREATE_CHANNEL_STARTED
@@ -3532,13 +3551,6 @@ function doCreateChannel(name, amount, optionalParams, cb) {
         type: CREATE_CHANNEL_COMPLETED,
         data: { channelClaim }
       });
-      dispatch({
-        type: UPDATE_PENDING_CLAIMS,
-        data: {
-          claims: [channelClaim]
-        }
-      });
-      dispatch(doCheckPendingClaims(cb));
       return channelClaim;
     }).catch(error => {
       dispatch({
@@ -3550,7 +3562,7 @@ function doCreateChannel(name, amount, optionalParams, cb) {
   };
 }
 
-function doUpdateChannel(params, cb) {
+function doUpdateChannel(params) {
   return (dispatch, getState) => {
     dispatch({
       type: UPDATE_CHANNEL_STARTED
@@ -3595,15 +3607,7 @@ function doUpdateChannel(params, cb) {
         type: UPDATE_CHANNEL_COMPLETED,
         data: { channelClaim }
       });
-      dispatch({
-        type: UPDATE_PENDING_CLAIMS,
-        data: {
-          claims: [channelClaim]
-        }
-      });
-      dispatch(doCheckPendingClaims(cb));
-      return Boolean(result.outputs[0]);
-    }).then().catch(error => {
+    }).catch(error => {
       dispatch({
         type: UPDATE_CHANNEL_FAILED,
         data: error
@@ -3798,46 +3802,6 @@ function doPurchaseList(page = 1, pageSize = PAGE_SIZE) {
     }).then(success, failure);
   };
 }
-
-const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
-  let claimCheckInterval;
-
-  const checkClaimList = () => {
-    const state = getState();
-    const pendingIdSet = new Set(selectPendingIds(state));
-    lbryProxy.claim_list({ page: 1, page_size: 10 }).then(result => {
-      const claims = result.items;
-      const claimsToConfirm = [];
-      claims.forEach(claim => {
-        const { claim_id: claimId } = claim;
-        if (claim.confirmations > 0 && pendingIdSet.has(claimId)) {
-          pendingIdSet.delete(claimId);
-          claimsToConfirm.push(claim);
-          if (onConfirmed) {
-            onConfirmed(claim);
-          }
-        }
-      });
-      if (claimsToConfirm.length) {
-        dispatch({
-          type: UPDATE_CONFIRMED_CLAIMS,
-          data: {
-            claims: claimsToConfirm
-          }
-        });
-      }
-      return pendingIdSet.size;
-    }).then(len => {
-      if (!len) {
-        clearInterval(claimCheckInterval);
-      }
-    });
-  };
-
-  claimCheckInterval = setInterval(() => {
-    checkClaimList();
-  }, 30000);
-};
 
 const selectState$3 = state => state.fileInfo || {};
 
@@ -4624,6 +4588,44 @@ const doCheckReflectingFiles = () => (dispatch, getState) => {
     }, 5000);
   }
 };
+const doCheckPendingPublishes = onConfirmed => (dispatch, getState) => {
+  let publishCheckInterval;
+
+  const checkFileList = () => {
+    const state = getState();
+    const pendingById = selectPendingById(state);
+    lbryProxy.claim_list({ page: 1, page_size: 10 }).then(result => {
+      const claims = result.items;
+      const claimsToConfirm = [];
+      claims.forEach(claim => {
+        if (claim.confirmations > 0 && pendingById[claim.claim_id]) {
+          delete pendingById[claim.claim_id];
+          claimsToConfirm.push(claim);
+          if (onConfirmed) {
+            onConfirmed(claim);
+          }
+        }
+      });
+      if (claimsToConfirm.length) {
+        dispatch({
+          type: UPDATE_CONFIRMED_CLAIMS,
+          data: {
+            claims: claimsToConfirm
+          }
+        });
+      }
+      return Object.keys(pendingById).length;
+    }).then(len => {
+      if (!len) {
+        clearInterval(publishCheckInterval);
+      }
+    });
+  };
+
+  publishCheckInterval = setInterval(() => {
+    checkFileList();
+  }, 30000);
+};
 
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
@@ -5110,16 +5112,6 @@ const doToggleBlockChannel = uri => ({
 
 var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-/*
-new claim = { ...maybeResolvedClaim, ...pendingClaim, meta: maybeResolvedClaim['meta'] }
- */
-
-function mergeClaims(maybeResolved, pending) {
-  return _extends$a({}, maybeResolved, pending, { meta: maybeResolved.meta });
-}
-
-var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 function _objectWithoutProperties$3(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 const reducers = {};
@@ -5140,7 +5132,7 @@ const defaultState = {
   fetchingMyPurchasesError: undefined,
   fetchingMyChannels: false,
   abandoningById: {},
-  pendingIds: [],
+  pendingById: {},
   reflectingById: {},
   claimSearchError: false,
   claimSearchByQuery: {},
@@ -5171,19 +5163,18 @@ function handleClaimAction(state, action) {
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
-  const pendingIds = state.pendingIds;
   let newResolvingUrls = new Set(state.resolvingUris);
 
   Object.entries(resolveInfo).forEach(([url, resolveResponse]) => {
     // $FlowFixMe
     const { claimsInChannel, stream, channel } = resolveResponse;
+    if (claimsInChannel) {
+      channelClaimCounts[url] = claimsInChannel;
+      channelClaimCounts[channel.canonical_url] = claimsInChannel;
+    }
 
     if (stream) {
-      if (pendingIds.includes(stream.claim_id)) {
-        byId[stream.claim_id] = mergeClaims(stream, byId[stream.claim_id]);
-      } else {
-        byId[stream.claim_id] = stream;
-      }
+      byId[stream.claim_id] = stream;
       byUri[url] = stream.claim_id;
 
       // If url isn't a canonical_url, make sure that is added too
@@ -5195,18 +5186,12 @@ function handleClaimAction(state, action) {
       newResolvingUrls.delete(stream.permanent_url);
     }
 
-    if (channel && channel.claim_id) {
-      if (claimsInChannel) {
-        channelClaimCounts[url] = claimsInChannel;
-        channelClaimCounts[channel.canonical_url] = claimsInChannel;
+    if (channel) {
+      if (!stream) {
+        byUri[url] = channel.claim_id;
       }
-      byUri[url] = channel.claim_id;
 
-      if (pendingIds.includes(channel.claim_id)) {
-        byId[channel.claim_id] = mergeClaims(channel, byId[channel.claim_id]);
-      } else {
-        byId[channel.claim_id] = channel;
-      }
+      byId[channel.claim_id] = channel;
       // Also add the permanent_url here until lighthouse returns canonical_url for search results
       byUri[channel.permanent_url] = channel.claim_id;
       byUri[channel.canonical_url] = channel.claim_id;
@@ -5246,7 +5231,7 @@ reducers[RESOLVE_URIS_STARTED] = (state, action) => {
 };
 
 reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
-  return _extends$b({}, handleClaimAction(state, action));
+  return _extends$a({}, handleClaimAction(state, action));
 };
 
 reducers[FETCH_CLAIM_LIST_MINE_STARTED] = state => Object.assign({}, state, {
@@ -5261,37 +5246,46 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
 
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
-  const pendingIds = state.pendingIds || [];
+  const pendingById = Object.assign({}, state.pendingById);
   let myClaimIds = new Set(state.myClaims);
   let urlsForCurrentPage = [];
 
-  const pendingIdSet = new Set(pendingIds);
-
   claims.forEach(claim => {
-    const { permanent_url: permanentUri, claim_id: claimId } = claim;
+    const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
+    const { claim_id: claimId } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
-      urlsForCurrentPage.push(permanentUri);
+      urlsForCurrentPage.push(uri);
       if (claim.confirmations < 1) {
-        pendingIdSet.add(claimId);
-      } else if (!resolve && pendingIdSet.has(claimId) && claim.confirmations > 0) {
-        pendingIdSet.delete(claimId);
-      }
-      if (pendingIds.includes(claimId)) {
-        byId[claimId] = mergeClaims(claim, byId[claimId]);
+        pendingById[claimId] = claim;
+        delete byId[claimId];
+        delete byUri[claimId];
       } else {
         byId[claimId] = claim;
+        byUri[uri] = claimId;
       }
-      byUri[permanentUri] = claimId;
       myClaimIds.add(claimId);
+      if (!resolve && pendingById[claimId] && claim.confirmations > 0) {
+        delete pendingById[claimId];
+      }
     }
   });
+
+  // Remove old pending publishes if resolve if false (resolve=true means confirmations on updates are not 0)
+  if (!resolve) {
+    Object.values(pendingById)
+    // $FlowFixMe
+    .filter(pendingClaim => byId[pendingClaim.claim_id]).forEach(pendingClaim => {
+      // $FlowFixMe
+      delete pendingById[pendingClaim.claim_id];
+    });
+  }
 
   return Object.assign({}, state, {
     isFetchingClaimListMine: false,
     myClaims: Array.from(myClaimIds),
     byId,
-    pendingIds: Array.from(pendingIdSet),
     claimsByUri: byUri,
+    pendingById,
     myClaimsPageResults: urlsForCurrentPage,
     myClaimsPageNumber: page,
     myClaimsPageTotalResults: totalItems
@@ -5304,7 +5298,7 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   const { claims } = action.data;
   const myClaims = state.myClaims || [];
   let myClaimIds = new Set(state.myClaims);
-  const pendingIds = state.pendingIds || [];
+  const pendingById = Object.assign(state.pendingById);
   let myChannelClaims;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
@@ -5326,10 +5320,18 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
 
       // $FlowFixMe
       myChannelClaims.add(claimId);
-      if (!pendingIds.some(c => c === claimId)) {
+      if (!byId[claimId]) {
         byId[claimId] = claim;
       }
+
       myClaimIds.add(claimId);
+      if (pendingById[claimId] && claim.confirmations > 0) {
+        delete pendingById[claimId];
+      }
+
+      if (pendingById[claimId] && claim.confirmations > 0) {
+        delete pendingById[claimId];
+      }
     });
   }
 
@@ -5339,7 +5341,7 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
     channelClaimCounts,
     fetchingMyChannels: false,
     myChannelClaims: myChannelClaims ? Array.from(myChannelClaims) : null,
-    myClaims: myClaimIds ? Array.from(myClaimIds) : null
+    myClaims: Array.from(myClaimIds)
   });
 };
 
@@ -5421,31 +5423,19 @@ reducers[ABANDON_CLAIM_STARTED] = (state, action) => {
 };
 
 reducers[UPDATE_PENDING_CLAIMS] = (state, action) => {
-  const { claims: pendingClaims } = action.data;
+  const { claims } = action.data;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
-  const pendingIds = state.pendingIds;
-  const pendingIdSet = new Set(pendingIds);
+  const pendingById = Object.assign({}, state.pendingById);
   let myClaimIds = new Set(state.myClaims);
-  const myChannelClaims = new Set(state.myChannelClaims);
 
   // $FlowFixMe
-  pendingClaims.forEach(claim => {
-    let newClaim;
-    const { permanent_url: uri, claim_id: claimId, type, value_type: valueType } = claim;
-    pendingIdSet.add(claimId);
-    const oldClaim = byId[claimId];
-    if (oldClaim && oldClaim.canonical_url) {
-      newClaim = mergeClaims(oldClaim, claim);
-    } else {
-      newClaim = claim;
-    }
-    if (valueType === 'channel') {
-      myChannelClaims.add(claimId);
-    }
-
-    if (type && type.match(/claim|update/)) {
-      byId[claimId] = newClaim;
+  claims.forEach(claim => {
+    const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
+    const { claim_id: claimId } = claim;
+    if (claim.type && claim.type.match(/claim|update/)) {
+      pendingById[claimId] = claim;
+      delete byId[claimId];
       byUri[uri] = claimId;
     }
     myClaimIds.add(claimId);
@@ -5453,35 +5443,32 @@ reducers[UPDATE_PENDING_CLAIMS] = (state, action) => {
   return Object.assign({}, state, {
     myClaims: Array.from(myClaimIds),
     byId,
-    myChannelClaims: Array.from(myChannelClaims),
     claimsByUri: byUri,
-    pendingIds: Array.from(pendingIdSet)
+    pendingById
   });
 };
 
 reducers[UPDATE_CONFIRMED_CLAIMS] = (state, action) => {
-  const { claims: confirmedClaims } = action.data;
+  const { claims } = action.data;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
-  const pendingIds = state.pendingIds;
-  const pendingIdSet = new Set(pendingIds);
+  const pendingById = Object.assign({}, state.pendingById);
+  let myClaimIds = new Set(state.myClaims);
 
-  confirmedClaims.forEach(claim => {
-    const { permanent_url: permanentUri, claim_id: claimId, type } = claim;
-    let newClaim = claim;
-    const oldClaim = byId[claimId];
-    if (oldClaim && oldClaim.canonical_url) {
-      newClaim = mergeClaims(oldClaim, claim);
+  claims.forEach(claim => {
+    const uri = buildURI({ streamName: claim.name, streamClaimId: claim.claim_id });
+    const { claim_id: claimId } = claim;
+    if (claim.type && claim.type.match(/claim|update/)) {
+      delete pendingById[claimId];
+      byId[claimId] = claim;
     }
-    if (type && type.match(/claim|update|channel/)) {
-      byId[claimId] = newClaim;
-      pendingIdSet.delete(claimId);
-    }
+    myClaimIds.add(claimId);
   });
   return Object.assign({}, state, {
-    pendingIds: Array.from(pendingIdSet),
+    myClaims: Array.from(myClaimIds),
     byId,
-    claimsByUri: byUri
+    claimsByUri: byUri,
+    pendingById
   });
 };
 
@@ -5510,13 +5497,25 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   });
 };
 
-reducers[CREATE_CHANNEL_STARTED] = state => _extends$b({}, state, {
+reducers[CREATE_CHANNEL_STARTED] = state => _extends$a({}, state, {
   creatingChannel: true,
   createChannelError: null
 });
 
 reducers[CREATE_CHANNEL_COMPLETED] = (state, action) => {
+  const channelClaim = action.data.channelClaim;
+  const byId = Object.assign({}, state.byId);
+  const pendingById = Object.assign({}, state.pendingById);
+  const myChannelClaims = new Set(state.myChannelClaims);
+
+  byId[channelClaim.claim_id] = channelClaim;
+  pendingById[channelClaim.claim_id] = channelClaim;
+  myChannelClaims.add(channelClaim.claim_id);
+
   return Object.assign({}, state, {
+    byId,
+    pendingById,
+    myChannelClaims: Array.from(myChannelClaims),
     creatingChannel: false
   });
 };
@@ -5536,7 +5535,13 @@ reducers[UPDATE_CHANNEL_STARTED] = (state, action) => {
 };
 
 reducers[UPDATE_CHANNEL_COMPLETED] = (state, action) => {
+  const channelClaim = action.data.channelClaim;
+  const byId = Object.assign({}, state.byId);
+
+  byId[channelClaim.claim_id] = channelClaim;
+
   return Object.assign({}, state, {
+    byId,
     updateChannelError: '',
     updatingChannel: false
   });
@@ -5580,7 +5585,7 @@ reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
 
   delete fetchingClaimSearchByQuery[query];
 
-  return Object.assign({}, state, _extends$b({}, handleClaimAction(state, action), {
+  return Object.assign({}, state, _extends$a({}, handleClaimAction(state, action), {
     claimSearchByQuery,
     claimSearchByQueryLastPageReached,
     fetchingClaimSearchByQuery
@@ -5602,22 +5607,22 @@ reducers[CLAIM_SEARCH_FAILED] = (state, action) => {
 };
 
 reducers[CLAIM_REPOST_STARTED] = state => {
-  return _extends$b({}, state, {
+  return _extends$a({}, state, {
     repostLoading: true,
     repostError: null
   });
 };
 reducers[CLAIM_REPOST_COMPLETED] = (state, action) => {
   const { originalClaimId, repostClaim } = action.data;
-  const byId = _extends$b({}, state.byId);
-  const claimsByUri = _extends$b({}, state.claimsByUri);
+  const byId = _extends$a({}, state.byId);
+  const claimsByUri = _extends$a({}, state.claimsByUri);
   const claimThatWasReposted = byId[originalClaimId];
 
-  const repostStub = _extends$b({}, repostClaim, { reposted_claim: claimThatWasReposted });
+  const repostStub = _extends$a({}, repostClaim, { reposted_claim: claimThatWasReposted });
   byId[repostStub.claim_id] = repostStub;
   claimsByUri[repostStub.permanent_url] = repostStub.claim_id;
 
-  return _extends$b({}, state, {
+  return _extends$a({}, state, {
     byId,
     claimsByUri,
     repostLoading: false,
@@ -5627,13 +5632,13 @@ reducers[CLAIM_REPOST_COMPLETED] = (state, action) => {
 reducers[CLAIM_REPOST_FAILED] = (state, action) => {
   const { error } = action.data;
 
-  return _extends$b({}, state, {
+  return _extends$a({}, state, {
     repostLoading: false,
     repostError: error
   });
 };
 reducers[CLEAR_REPOST_ERROR] = state => {
-  return _extends$b({}, state, {
+  return _extends$a({}, state, {
     repostError: null
   });
 };
@@ -5644,34 +5649,34 @@ reducers[ADD_FILES_REFLECTING] = (state, action) => {
 
   reflectingById[claimId] = { fileListItem: pendingClaim, progress: 0, stalled: false };
 
-  return Object.assign({}, state, _extends$b({}, state, {
+  return Object.assign({}, state, _extends$a({}, state, {
     reflectingById: reflectingById
   }));
 };
 reducers[UPDATE_FILES_REFLECTING] = (state, action) => {
   const newReflectingById = action.data;
 
-  return Object.assign({}, state, _extends$b({}, state, {
+  return Object.assign({}, state, _extends$a({}, state, {
     reflectingById: newReflectingById
   }));
 };
 reducers[TOGGLE_CHECKING_REFLECTING] = (state, action) => {
   const checkingReflecting = action.data;
 
-  return Object.assign({}, state, _extends$b({}, state, {
+  return Object.assign({}, state, _extends$a({}, state, {
     checkingReflecting
   }));
 };
 reducers[TOGGLE_CHECKING_PENDING] = (state, action) => {
   const checking = action.data;
 
-  return Object.assign({}, state, _extends$b({}, state, {
+  return Object.assign({}, state, _extends$a({}, state, {
     checkingPending: checking
   }));
 };
 
 reducers[PURCHASE_LIST_STARTED] = state => {
-  return _extends$b({}, state, {
+  return _extends$a({}, state, {
     fetchingMyPurchases: true,
     fetchingMyPurchasesError: null
   });
@@ -5716,7 +5721,7 @@ reducers[PURCHASE_LIST_COMPLETED] = (state, action) => {
 reducers[PURCHASE_LIST_FAILED] = (state, action) => {
   const { error } = action.data;
 
-  return _extends$b({}, state, {
+  return _extends$a({}, state, {
     fetchingMyPurchases: false,
     fetchingMyPurchasesError: error
   });
@@ -5737,7 +5742,7 @@ reducers[PURCHASE_URI_COMPLETED] = (state, action) => {
 
   myPurchases.push(uri);
 
-  return _extends$b({}, state, {
+  return _extends$a({}, state, {
     byId,
     myPurchases,
     purchaseUriSuccess: true
@@ -5745,13 +5750,13 @@ reducers[PURCHASE_URI_COMPLETED] = (state, action) => {
 };
 
 reducers[PURCHASE_URI_FAILED] = state => {
-  return _extends$b({}, state, {
+  return _extends$a({}, state, {
     purchaseUriSuccess: false
   });
 };
 
 reducers[CLEAR_PURCHASED_URI_SUCCESS] = state => {
-  return _extends$b({}, state, {
+  return _extends$a({}, state, {
     purchaseUriSuccess: false
   });
 };
@@ -5780,7 +5785,7 @@ const handleActions = (actionMap, defaultState) => (state = defaultState, action
   return state;
 };
 
-var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$1 = {
   commentById: {}, // commentId -> Comment
@@ -5791,11 +5796,11 @@ const defaultState$1 = {
 };
 
 const commentReducer = handleActions({
-  [COMMENT_CREATE_STARTED]: (state, action) => _extends$c({}, state, {
+  [COMMENT_CREATE_STARTED]: (state, action) => _extends$b({}, state, {
     isLoading: true
   }),
 
-  [COMMENT_CREATE_FAILED]: (state, action) => _extends$c({}, state, {
+  [COMMENT_CREATE_FAILED]: (state, action) => _extends$b({}, state, {
     isLoading: false
   }),
 
@@ -5813,14 +5818,14 @@ const commentReducer = handleActions({
     newCommentIds.unshift(comment.comment_id);
     byId[claimId] = newCommentIds;
 
-    return _extends$c({}, state, {
+    return _extends$b({}, state, {
       commentById,
       byId,
       isLoading: false
     });
   },
 
-  [COMMENT_LIST_STARTED]: state => _extends$c({}, state, { isLoading: true }),
+  [COMMENT_LIST_STARTED]: state => _extends$b({}, state, { isLoading: true }),
 
   [COMMENT_LIST_COMPLETED]: (state, action) => {
     const { comments, claimId, uri } = action.data;
@@ -5844,7 +5849,7 @@ const commentReducer = handleActions({
       byId[claimId] = commentIds;
       commentsByUri[uri] = claimId;
     }
-    return _extends$c({}, state, {
+    return _extends$b({}, state, {
       byId,
       commentById,
       commentsByUri,
@@ -5852,10 +5857,10 @@ const commentReducer = handleActions({
     });
   },
 
-  [COMMENT_LIST_FAILED]: (state, action) => _extends$c({}, state, {
+  [COMMENT_LIST_FAILED]: (state, action) => _extends$b({}, state, {
     isLoading: false
   }),
-  [COMMENT_ABANDON_STARTED]: (state, action) => _extends$c({}, state, {
+  [COMMENT_ABANDON_STARTED]: (state, action) => _extends$b({}, state, {
     isLoading: true
   }),
   [COMMENT_ABANDON_COMPLETED]: (state, action) => {
@@ -5873,18 +5878,18 @@ const commentReducer = handleActions({
     }
     delete commentById[comment_id];
 
-    return _extends$c({}, state, {
+    return _extends$b({}, state, {
       commentById,
       byId,
       isLoading: false
     });
   },
   // do nothing
-  [COMMENT_ABANDON_FAILED]: (state, action) => _extends$c({}, state, {
+  [COMMENT_ABANDON_FAILED]: (state, action) => _extends$b({}, state, {
     isLoading: false
   }),
   // do nothing
-  [COMMENT_UPDATE_STARTED]: (state, action) => _extends$c({}, state, {
+  [COMMENT_UPDATE_STARTED]: (state, action) => _extends$b({}, state, {
     isLoading: true
   }),
   // replace existing comment with comment returned here under its comment_id
@@ -5893,29 +5898,29 @@ const commentReducer = handleActions({
     const commentById = Object.assign({}, state.commentById);
     commentById[comment.comment_id] = comment;
 
-    return _extends$c({}, state, {
+    return _extends$b({}, state, {
       commentById,
       isLoading: false
     });
   },
   // nothing can be done here
-  [COMMENT_UPDATE_FAILED]: (state, action) => _extends$c({}, state, {
+  [COMMENT_UPDATE_FAILED]: (state, action) => _extends$b({}, state, {
     isLoading: false
   }),
   // nothing can really be done here
-  [COMMENT_HIDE_STARTED]: (state, action) => _extends$c({}, state, {
+  [COMMENT_HIDE_STARTED]: (state, action) => _extends$b({}, state, {
     isLoading: true
   }),
-  [COMMENT_HIDE_COMPLETED]: (state, action) => _extends$c({}, state, { // todo: add HiddenComments state & create selectors
+  [COMMENT_HIDE_COMPLETED]: (state, action) => _extends$b({}, state, { // todo: add HiddenComments state & create selectors
     isLoading: false
   }),
   // nothing can be done here
-  [COMMENT_HIDE_FAILED]: (state, action) => _extends$c({}, state, {
+  [COMMENT_HIDE_FAILED]: (state, action) => _extends$b({}, state, {
     isLoading: false
   })
 }, defaultState$1);
 
-var _extends$d = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$1 = {};
 const defaultState$2 = {
@@ -5924,9 +5929,9 @@ const defaultState$2 = {
 
 reducers$1[SET_CONTENT_POSITION] = (state, action) => {
   const { claimId, outpoint, position } = action.data;
-  return _extends$d({}, state, {
-    positions: _extends$d({}, state.positions, {
-      [claimId]: _extends$d({}, state.positions[claimId], {
+  return _extends$c({}, state, {
+    positions: _extends$c({}, state.positions, {
+      [claimId]: _extends$c({}, state.positions[claimId], {
         [outpoint]: position
       })
     })
@@ -6093,7 +6098,7 @@ function fileInfoReducer(state = defaultState$3, action) {
   return state;
 }
 
-var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$d = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$4 = {
   notifications: [],
@@ -6108,7 +6113,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.push(toast);
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       toasts: newToasts
     });
   },
@@ -6116,7 +6121,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.shift();
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       toasts: newToasts
     });
   },
@@ -6127,7 +6132,7 @@ const notificationsReducer = handleActions({
     const newNotifications = state.notifications.slice();
     newNotifications.push(notification);
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       notifications: newNotifications
     });
   },
@@ -6138,7 +6143,7 @@ const notificationsReducer = handleActions({
 
     notifications = notifications.map(pastNotification => pastNotification.id === notification.id ? notification : pastNotification);
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       notifications
     });
   },
@@ -6147,7 +6152,7 @@ const notificationsReducer = handleActions({
     let newNotifications = state.notifications.slice();
     newNotifications = newNotifications.filter(notification => notification.id !== id);
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       notifications: newNotifications
     });
   },
@@ -6158,7 +6163,7 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.push(error);
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       errors: newErrors
     });
   },
@@ -6166,13 +6171,13 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.shift();
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       errors: newErrors
     });
   }
 }, defaultState$4);
 
-var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$4(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -6213,20 +6218,20 @@ const defaultState$5 = {
 const publishReducer = handleActions({
   [UPDATE_PUBLISH_FORM]: (state, action) => {
     const { data } = action;
-    return _extends$f({}, state, data);
+    return _extends$e({}, state, data);
   },
-  [CLEAR_PUBLISH]: state => _extends$f({}, defaultState$5, {
+  [CLEAR_PUBLISH]: state => _extends$e({}, defaultState$5, {
     bid: state.bid,
     optimize: state.optimize
   }),
-  [PUBLISH_START]: state => _extends$f({}, state, {
+  [PUBLISH_START]: state => _extends$e({}, state, {
     publishing: true,
     publishSuccess: false
   }),
-  [PUBLISH_FAIL]: state => _extends$f({}, state, {
+  [PUBLISH_FAIL]: state => _extends$e({}, state, {
     publishing: false
   }),
-  [PUBLISH_SUCCESS]: state => _extends$f({}, state, {
+  [PUBLISH_SUCCESS]: state => _extends$e({}, state, {
     publishing: false,
     publishSuccess: true
   }),
@@ -6241,14 +6246,14 @@ const publishReducer = handleActions({
       streamName: name
     });
 
-    return _extends$f({}, defaultState$5, publishData, {
+    return _extends$e({}, defaultState$5, publishData, {
       editingURI: uri,
       uri: shortUri
     });
   }
 }, defaultState$5);
 
-var _extends$g = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$6 = {
   isActive: false, // does the user have any typed text in the search input
@@ -6270,23 +6275,23 @@ const defaultState$6 = {
 };
 
 const searchReducer = handleActions({
-  [SEARCH_START]: state => _extends$g({}, state, {
+  [SEARCH_START]: state => _extends$f({}, state, {
     searching: true
   }),
   [SEARCH_SUCCESS]: (state, action) => {
     const { query, uris } = action.data;
 
-    return _extends$g({}, state, {
+    return _extends$f({}, state, {
       searching: false,
       urisByQuery: Object.assign({}, state.urisByQuery, { [query]: uris })
     });
   },
 
-  [SEARCH_FAIL]: state => _extends$g({}, state, {
+  [SEARCH_FAIL]: state => _extends$f({}, state, {
     searching: false
   }),
 
-  [RESOLVED_SEARCH_START]: state => _extends$g({}, state, {
+  [RESOLVED_SEARCH_START]: state => _extends$f({}, state, {
     searching: true
   }),
   [RESOLVED_SEARCH_SUCCESS]: (state, action) => {
@@ -6304,24 +6309,24 @@ const searchReducer = handleActions({
     // the returned number of urls is less than the page size, so we're on the last page
     resolvedResultsByQueryLastPageReached[query] = results.length < pageSize;
 
-    return _extends$g({}, state, {
+    return _extends$f({}, state, {
       searching: false,
       resolvedResultsByQuery,
       resolvedResultsByQueryLastPageReached
     });
   },
 
-  [RESOLVED_SEARCH_FAIL]: state => _extends$g({}, state, {
+  [RESOLVED_SEARCH_FAIL]: state => _extends$f({}, state, {
     searching: false
   }),
 
-  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$g({}, state, {
+  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$f({}, state, {
     searchQuery: action.data.query,
     isActive: true
   }),
 
-  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$g({}, state, {
-    suggestions: _extends$g({}, state.suggestions, {
+  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$f({}, state, {
+    suggestions: _extends$f({}, state.suggestions, {
       [action.data.query]: action.data.suggestions
     })
   }),
@@ -6329,30 +6334,30 @@ const searchReducer = handleActions({
   // sets isActive to false so the uri will be populated correctly if the
   // user is on a file page. The search query will still be present on any
   // other page
-  [DISMISS_NOTIFICATION]: state => _extends$g({}, state, {
+  [DISMISS_NOTIFICATION]: state => _extends$f({}, state, {
     isActive: false
   }),
 
-  [SEARCH_FOCUS]: state => _extends$g({}, state, {
+  [SEARCH_FOCUS]: state => _extends$f({}, state, {
     focused: true
   }),
-  [SEARCH_BLUR]: state => _extends$g({}, state, {
+  [SEARCH_BLUR]: state => _extends$f({}, state, {
     focused: false
   }),
   [UPDATE_SEARCH_OPTIONS]: (state, action) => {
     const { options: oldOptions } = state;
     const newOptions = action.data;
-    const options = _extends$g({}, oldOptions, newOptions);
-    return _extends$g({}, state, {
+    const options = _extends$f({}, oldOptions, newOptions);
+    return _extends$f({}, state, {
       options
     });
   }
 }, defaultState$6);
 
-var _extends$h = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$g = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function getDefaultKnownTags() {
-  return DEFAULT_FOLLOWED_TAGS.concat(DEFAULT_KNOWN_TAGS).reduce((tagsMap, tag) => _extends$h({}, tagsMap, {
+  return DEFAULT_FOLLOWED_TAGS.concat(DEFAULT_KNOWN_TAGS).reduce((tagsMap, tag) => _extends$g({}, tagsMap, {
     [tag]: { name: tag }
   }), {});
 }
@@ -6375,7 +6380,7 @@ const tagsReducer = handleActions({
       newFollowedTags.push(name);
     }
 
-    return _extends$h({}, state, {
+    return _extends$g({}, state, {
       followedTags: newFollowedTags
     });
   },
@@ -6384,10 +6389,10 @@ const tagsReducer = handleActions({
     const { knownTags } = state;
     const { name } = action.data;
 
-    let newKnownTags = _extends$h({}, knownTags);
+    let newKnownTags = _extends$g({}, knownTags);
     newKnownTags[name] = { name };
 
-    return _extends$h({}, state, {
+    return _extends$g({}, state, {
       knownTags: newKnownTags
     });
   },
@@ -6396,11 +6401,11 @@ const tagsReducer = handleActions({
     const { knownTags, followedTags } = state;
     const { name } = action.data;
 
-    let newKnownTags = _extends$h({}, knownTags);
+    let newKnownTags = _extends$g({}, knownTags);
     delete newKnownTags[name];
     const newFollowedTags = followedTags.filter(tag => tag !== name);
 
-    return _extends$h({}, state, {
+    return _extends$g({}, state, {
       knownTags: newKnownTags,
       followedTags: newFollowedTags
     });
@@ -6408,15 +6413,15 @@ const tagsReducer = handleActions({
   [USER_STATE_POPULATE]: (state, action) => {
     const { tags } = action.data;
     if (Array.isArray(tags)) {
-      return _extends$h({}, state, {
+      return _extends$g({}, state, {
         followedTags: tags
       });
     }
-    return _extends$h({}, state);
+    return _extends$g({}, state);
   }
 }, defaultState$7);
 
-var _extends$i = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$h = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$8 = {
   blockedChannels: []
@@ -6440,13 +6445,13 @@ const blockedReducer = handleActions({
   },
   [USER_STATE_POPULATE]: (state, action) => {
     const { blocked } = action.data;
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       blockedChannels: blocked && blocked.length ? blocked : state.blockedChannels
     });
   }
 }, defaultState$8);
 
-var _extends$j = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$i = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const buildDraftTransaction = () => ({
   amount: undefined,
@@ -6498,40 +6503,40 @@ const defaultState$9 = {
 };
 
 const walletReducer = handleActions({
-  [FETCH_TRANSACTIONS_STARTED]: state => _extends$j({}, state, {
+  [FETCH_TRANSACTIONS_STARTED]: state => _extends$i({}, state, {
     fetchingTransactions: true
   }),
 
   [FETCH_TRANSACTIONS_COMPLETED]: (state, action) => {
-    const byId = _extends$j({}, state.transactions);
+    const byId = _extends$i({}, state.transactions);
 
     const { transactions } = action.data;
     transactions.forEach(transaction => {
       byId[transaction.txid] = transaction;
     });
 
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       transactions: byId,
       fetchingTransactions: false
     });
   },
 
   [FETCH_TXO_PAGE_STARTED]: state => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       fetchingTxos: true,
       fetchingTxosError: undefined
     });
   },
 
   [FETCH_TXO_PAGE_COMPLETED]: (state, action) => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       txoPage: action.data,
       fetchingTxos: false
     });
   },
 
   [FETCH_TXO_PAGE_FAILED]: (state, action) => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       txoPage: {},
       fetchingTxos: false,
       fetchingTxosError: action.data
@@ -6539,12 +6544,12 @@ const walletReducer = handleActions({
   },
 
   [UPDATE_TXO_FETCH_PARAMS]: (state, action) => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       txoFetchParams: action.data
     });
   },
 
-  [FETCH_SUPPORTS_STARTED]: state => _extends$j({}, state, {
+  [FETCH_SUPPORTS_STARTED]: state => _extends$i({}, state, {
     fetchingSupports: true
   }),
 
@@ -6557,7 +6562,7 @@ const walletReducer = handleActions({
       byOutpoint[`${txid}:${nout}`] = transaction;
     });
 
-    return _extends$j({}, state, { supports: byOutpoint, fetchingSupports: false });
+    return _extends$i({}, state, { supports: byOutpoint, fetchingSupports: false });
   },
 
   [ABANDON_SUPPORT_STARTED]: (state, action) => {
@@ -6566,7 +6571,7 @@ const walletReducer = handleActions({
 
     currentlyAbandoning[outpoint] = true;
 
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       abandoningSupportsByOutpoint: currentlyAbandoning
     });
   },
@@ -6579,20 +6584,20 @@ const walletReducer = handleActions({
     delete currentlyAbandoning[outpoint];
     delete byOutpoint[outpoint];
 
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       supports: byOutpoint,
       abandoningSupportsById: currentlyAbandoning
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_STARTED]: (state, action) => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       abandonClaimSupportError: undefined
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_PREVIEW]: (state, action) => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       abandonClaimSupportError: undefined
     });
   },
@@ -6603,36 +6608,36 @@ const walletReducer = handleActions({
 
     pendingtxs[claimId] = { txid, type, effective };
 
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       pendingSupportTransactions: pendingtxs,
       abandonClaimSupportError: undefined
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_FAILED]: (state, action) => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       abandonClaimSupportError: action.data
     });
   },
 
   [PENDING_SUPPORTS_UPDATED]: (state, action) => {
 
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       pendingSupportTransactions: action.data
     });
   },
 
-  [GET_NEW_ADDRESS_STARTED]: state => _extends$j({}, state, {
+  [GET_NEW_ADDRESS_STARTED]: state => _extends$i({}, state, {
     gettingNewAddress: true
   }),
 
   [GET_NEW_ADDRESS_COMPLETED]: (state, action) => {
     const { address } = action.data;
 
-    return _extends$j({}, state, { gettingNewAddress: false, receiveAddress: address });
+    return _extends$i({}, state, { gettingNewAddress: false, receiveAddress: address });
   },
 
-  [UPDATE_BALANCE]: (state, action) => _extends$j({}, state, {
+  [UPDATE_BALANCE]: (state, action) => _extends$i({}, state, {
     totalBalance: action.data.totalBalance,
     balance: action.data.balance,
     reservedBalance: action.data.reservedBalance,
@@ -6641,32 +6646,32 @@ const walletReducer = handleActions({
     tipsBalance: action.data.tipsBalance
   }),
 
-  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$j({}, state, {
+  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$i({}, state, {
     checkingAddressOwnership: true
   }),
 
-  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$j({}, state, {
+  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$i({}, state, {
     checkingAddressOwnership: false
   }),
 
   [SET_DRAFT_TRANSACTION_AMOUNT]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$j({}, oldDraft, { amount: parseFloat(action.data.amount) });
+    const newDraft = _extends$i({}, oldDraft, { amount: parseFloat(action.data.amount) });
 
-    return _extends$j({}, state, { draftTransaction: newDraft });
+    return _extends$i({}, state, { draftTransaction: newDraft });
   },
 
   [SET_DRAFT_TRANSACTION_ADDRESS]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$j({}, oldDraft, { address: action.data.address });
+    const newDraft = _extends$i({}, oldDraft, { address: action.data.address });
 
-    return _extends$j({}, state, { draftTransaction: newDraft });
+    return _extends$i({}, state, { draftTransaction: newDraft });
   },
 
   [SEND_TRANSACTION_STARTED]: state => {
-    const newDraftTransaction = _extends$j({}, state.draftTransaction, { sending: true });
+    const newDraftTransaction = _extends$i({}, state.draftTransaction, { sending: true });
 
-    return _extends$j({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$i({}, state, { draftTransaction: newDraftTransaction });
   },
 
   [SEND_TRANSACTION_COMPLETED]: state => Object.assign({}, state, {
@@ -6679,114 +6684,114 @@ const walletReducer = handleActions({
       error: action.data.error
     });
 
-    return _extends$j({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$i({}, state, { draftTransaction: newDraftTransaction });
   },
 
-  [SUPPORT_TRANSACTION_STARTED]: state => _extends$j({}, state, {
+  [SUPPORT_TRANSACTION_STARTED]: state => _extends$i({}, state, {
     sendingSupport: true
   }),
 
-  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$j({}, state, {
+  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$i({}, state, {
     sendingSupport: false
   }),
 
-  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$j({}, state, {
+  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$i({}, state, {
     error: action.data.error,
     sendingSupport: false
   }),
 
-  [CLEAR_SUPPORT_TRANSACTION]: state => _extends$j({}, state, {
+  [CLEAR_SUPPORT_TRANSACTION]: state => _extends$i({}, state, {
     sendingSupport: false
   }),
 
-  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$j({}, state, {
+  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$i({}, state, {
     walletIsEncrypted: action.result
   }),
 
-  [WALLET_ENCRYPT_START]: state => _extends$j({}, state, {
+  [WALLET_ENCRYPT_START]: state => _extends$i({}, state, {
     walletEncryptPending: true,
     walletEncryptSucceded: null,
     walletEncryptResult: null
   }),
 
-  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$j({}, state, {
+  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$i({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: true,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$j({}, state, {
+  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$i({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: false,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_START]: state => _extends$j({}, state, {
+  [WALLET_DECRYPT_START]: state => _extends$i({}, state, {
     walletDecryptPending: true,
     walletDecryptSucceded: null,
     walletDecryptResult: null
   }),
 
-  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$j({}, state, {
+  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$i({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: true,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$j({}, state, {
+  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$i({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: false,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_UNLOCK_START]: state => _extends$j({}, state, {
+  [WALLET_UNLOCK_START]: state => _extends$i({}, state, {
     walletUnlockPending: true,
     walletUnlockSucceded: null,
     walletUnlockResult: null
   }),
 
-  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$j({}, state, {
+  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$i({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: true,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$j({}, state, {
+  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$i({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: false,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_LOCK_START]: state => _extends$j({}, state, {
+  [WALLET_LOCK_START]: state => _extends$i({}, state, {
     walletLockPending: false,
     walletLockSucceded: null,
     walletLockResult: null
   }),
 
-  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$j({}, state, {
+  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$i({}, state, {
     walletLockPending: false,
     walletLockSucceded: true,
     walletLockResult: action.result
   }),
 
-  [WALLET_LOCK_FAILED]: (state, action) => _extends$j({}, state, {
+  [WALLET_LOCK_FAILED]: (state, action) => _extends$i({}, state, {
     walletLockPending: false,
     walletLockSucceded: false,
     walletLockResult: action.result
   }),
 
-  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$j({}, state, {
+  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$i({}, state, {
     transactionListFilter: action.data
   }),
 
-  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$j({}, state, {
+  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$i({}, state, {
     latestBlock: action.data
   }),
-  [WALLET_RESTART]: state => _extends$j({}, state, {
+  [WALLET_RESTART]: state => _extends$i({}, state, {
     walletReconnecting: true
   }),
 
-  [WALLET_RESTART_COMPLETED]: state => _extends$j({}, state, {
+  [WALLET_RESTART_COMPLETED]: state => _extends$i({}, state, {
     walletReconnecting: false
   })
 }, defaultState$9);
@@ -6804,14 +6809,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$k = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$j = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$6 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$6, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$k({
+    return _extends$j({
       id
     }, params);
   }
@@ -6959,7 +6964,7 @@ exports.doAddTag = doAddTag;
 exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
-exports.doCheckPendingClaims = doCheckPendingClaims;
+exports.doCheckPendingPublishes = doCheckPendingPublishes;
 exports.doCheckPublishNameAvailability = doCheckPublishNameAvailability;
 exports.doCheckReflectingFiles = doCheckReflectingFiles;
 exports.doClaimSearch = doClaimSearch;
@@ -7068,6 +7073,7 @@ exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
 exports.makeSelectOmittedCountForChannel = makeSelectOmittedCountForChannel;
 exports.makeSelectPendingAmountByUri = makeSelectPendingAmountByUri;
+exports.makeSelectPendingByUri = makeSelectPendingByUri;
 exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
 exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
@@ -7159,7 +7165,6 @@ exports.selectIsStillEditing = selectIsStillEditing;
 exports.selectIsWalletReconnecting = selectIsWalletReconnecting;
 exports.selectMyActiveClaims = selectMyActiveClaims;
 exports.selectMyChannelClaims = selectMyChannelClaims;
-exports.selectMyChannelUrls = selectMyChannelUrls;
 exports.selectMyClaimForUri = selectMyClaimForUri;
 exports.selectMyClaimUrisWithoutChannels = selectMyClaimUrisWithoutChannels;
 exports.selectMyClaims = selectMyClaims;
@@ -7172,6 +7177,8 @@ exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
 exports.selectMyPurchases = selectMyPurchases;
 exports.selectMyPurchasesCount = selectMyPurchasesCount;
 exports.selectMyStreamUrlsCount = selectMyStreamUrlsCount;
+exports.selectPendingById = selectPendingById;
+exports.selectPendingClaims = selectPendingClaims;
 exports.selectPendingSupportTransactions = selectPendingSupportTransactions;
 exports.selectPlayingUri = selectPlayingUri;
 exports.selectPublishFormValues = selectPublishFormValues;
