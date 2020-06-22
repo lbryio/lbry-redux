@@ -109,6 +109,7 @@ function handleClaimAction(state: State, action: any): State {
       claimsInChannel: ?number,
     },
   } = action.data;
+
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
@@ -137,6 +138,10 @@ function handleClaimAction(state: State, action: any): State {
     }
 
     if (channel && channel.claim_id) {
+      if (!stream) {
+        byUri[url] = channel.claim_id;
+      }
+
       if (claimsInChannel) {
         channelClaimCounts[url] = claimsInChannel;
         channelClaimCounts[channel.canonical_url] = claimsInChannel;
