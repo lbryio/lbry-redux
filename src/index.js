@@ -135,16 +135,6 @@ export {
 
 export { doToggleTagFollow, doAddTag, doDeleteTag } from 'redux/actions/tags';
 
-export {
-  doCommentList,
-  doCommentCreate,
-  doCommentAbandon,
-  doCommentHide,
-  doCommentUpdate,
-} from 'redux/actions/comments';
-
-export { doToggleBlockChannel } from 'redux/actions/blocked';
-
 export { doPopulateSharedUserState, doPreferenceGet, doPreferenceSet } from 'redux/actions/sync';
 
 // utils
@@ -155,14 +145,12 @@ export { isClaimNsfw, createNormalizedClaimSearchKey } from 'util/claim';
 
 // reducers
 export { claimsReducer } from 'redux/reducers/claims';
-export { commentReducer } from 'redux/reducers/comments';
 export { contentReducer } from 'redux/reducers/content';
 export { fileInfoReducer } from 'redux/reducers/file_info';
 export { notificationsReducer } from 'redux/reducers/notifications';
 export { publishReducer } from 'redux/reducers/publish';
 export { searchReducer } from 'redux/reducers/search';
 export { tagsReducer } from 'redux/reducers/tags';
-export { blockedReducer } from 'redux/reducers/blocked';
 export { walletReducer } from 'redux/reducers/wallet';
 
 // selectors
@@ -251,8 +239,6 @@ export {
   selectMyPurchasesCount,
   selectPurchaseUriSuccess,
 } from 'redux/selectors/claims';
-
-export { makeSelectCommentsForUri, selectIsFetchingComments } from 'redux/selectors/comments';
 
 export {
   makeSelectFileInfoForUri,
@@ -361,9 +347,3 @@ export {
   selectUnfollowedTags,
   makeSelectIsFollowingTag,
 } from 'redux/selectors/tags';
-
-export {
-  selectBlockedChannels,
-  selectChannelIsBlocked,
-  selectBlockedChannelsCount,
-} from 'redux/selectors/blocked';
