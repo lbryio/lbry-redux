@@ -15,6 +15,7 @@ import * as SHARED_PREFERENCES from 'constants/shared_preferences';
 import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
 import { DEFAULT_KNOWN_TAGS, DEFAULT_FOLLOWED_TAGS, MATURE_TAGS } from 'constants/tags';
 import Lbry, { apiCall } from 'lbry';
+import LbryFirst from 'lbry-first';
 import { selectState as selectSearchState } from 'redux/selectors/search';
 
 // constants
@@ -42,6 +43,7 @@ export {
 
 // common
 export { Lbry, apiCall };
+export { LbryFirst };
 export {
   regexInvalidURI,
   regexAddress,
