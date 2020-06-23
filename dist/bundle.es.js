@@ -2227,9 +2227,12 @@ const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelec
   if (validUri && byUri) {
     const claimId = uri && byUri[normalizeURI(uri)];
     const claim = byId[claimId];
-    if (claim === undefined || claim === null) {
-      // Make sure to return the claim as is so apps can check if it's been resolved before (null) or still needs to be resolved (undefined)
-      return claim;
+
+    // Make sure to return the claim as is so apps can check if it's been resolved before (null) or still needs to be resolved (undefined)
+    if (claimId === null) {
+      return null;
+    } else if (claimId === undefined) {
+      return undefined;
     }
 
     const repostedClaim = claim.reposted_claim;

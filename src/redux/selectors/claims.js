@@ -116,9 +116,12 @@ export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true)
       if (validUri && byUri) {
         const claimId = uri && byUri[normalizeURI(uri)];
         const claim = byId[claimId];
-        if (claim === undefined || claim === null) {
-          // Make sure to return the claim as is so apps can check if it's been resolved before (null) or still needs to be resolved (undefined)
-          return claim;
+
+        // Make sure to return the claim as is so apps can check if it's been resolved before (null) or still needs to be resolved (undefined)
+        if (claimId === null) {
+          return null;
+        } else if (claimId === undefined) {
+          return undefined;
         }
 
         const repostedClaim = claim.reposted_claim;
@@ -512,7 +515,7 @@ export const selectMyChannelClaims = createSelector(
 
 export const selectMyChannelUrls = createSelector(
   selectMyChannelClaims,
-  claims => claims ? claims.map(claim => claim.canonical_url || claim.permanent_url) : undefined
+  claims => (claims ? claims.map(claim => claim.canonical_url || claim.permanent_url) : undefined)
 );
 
 export const selectResolvingUris = createSelector(
