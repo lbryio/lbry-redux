@@ -187,7 +187,7 @@ export function doSendDraftTransaction(address, amount) {
         });
         dispatch(
           doToast({
-            message: __('You sent ${amount} LBC'),
+            message: __(`You sent ${amount} LBC`),
             linkText: __('History'),
             linkTarget: '/wallet',
           })
