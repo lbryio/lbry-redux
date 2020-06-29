@@ -6185,6 +6185,7 @@ function _objectWithoutProperties$4(obj, keys) { var target = {}; for (var i in 
 
 const defaultState$5 = {
   editingURI: undefined,
+  fileText: '',
   filePath: undefined,
   fileDur: 0,
   fileSize: 0,
