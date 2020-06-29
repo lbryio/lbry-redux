@@ -7,6 +7,7 @@ import { CHANNEL_ANONYMOUS } from 'constants/claim';
 
 type PublishState = {
   editingURI: ?string,
+  fileText: ?string,
   filePath: ?string,
   contentIsFree: boolean,
   fileDur: number,
@@ -36,6 +37,7 @@ type PublishState = {
 
 const defaultState: PublishState = {
   editingURI: undefined,
+  fileText: '',
   filePath: undefined,
   fileDur: 0,
   fileSize: 0,
