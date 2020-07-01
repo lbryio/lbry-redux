@@ -4,7 +4,7 @@ import uuid from 'uuid/v4';
 
 export function doToast(params: ToastParams) {
   if (!params) {
-    throw Error("'params' object is required to create a toast notification");
+    throw Error(__("'params' object is required to create a toast notification"));
   }
 
   return {
