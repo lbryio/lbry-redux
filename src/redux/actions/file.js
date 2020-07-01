@@ -37,7 +37,7 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: Get
             data: { outpoint },
           });
 
-          dispatch(doToast({ message: `File timeout for uri ${uri}`, isError: true }));
+          dispatch(doToast({ message: __(`File timeout for uri ${uri}`), isError: true }));
         } else {
           if (streamInfo.purchase_receipt || streamInfo.content_fee) {
             dispatch({

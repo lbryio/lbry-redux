@@ -158,7 +158,7 @@ export function doAbandonTxo(txo: Txo, cb: string => void) {
       if (cb) cb(ABANDON_STATES.ERROR);
       dispatch(
         doToast({
-          message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
+          message: isClaim ? __('Error abandoning your claim/support') : __('Error unlocking your tip'),
           isError: true,
         })
       );
@@ -210,7 +210,7 @@ export function doAbandonTxo(txo: Txo, cb: string => void) {
     }
 
     if (!method) {
-      console.error('No "method" chosen for claim or support abandon');
+      console.error(__('No `method` chosen for claim or support abandon'));
       return;
     }
 
@@ -231,7 +231,7 @@ export function doAbandonClaim(txid: string, nout: number, cb: string => void) {
     const supportToAbandon = mySupports[outpoint];
 
     if (!claimToAbandon && !supportToAbandon) {
-      console.error('No associated support or claim with txid: ', txid);
+      console.error(__('No associated support or claim with txid: '), txid);
       return;
     }
 
@@ -255,7 +255,7 @@ export function doAbandonClaim(txid: string, nout: number, cb: string => void) {
     const errorCallback = () => {
       dispatch(
         doToast({
-          message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
+          message: isClaim ? __('Error abandoning your claim/support') : __('Error unlocking your tip'),
           isError: true,
         })
       );
@@ -301,7 +301,7 @@ export function doAbandonClaim(txid: string, nout: number, cb: string => void) {
     }
 
     if (!method) {
-      console.error('No "method" chosen for claim or support abandon');
+      console.error(__('No "method" chosen for claim or support abandon'));
       return;
     }
 
