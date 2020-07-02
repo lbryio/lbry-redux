@@ -142,6 +142,7 @@ const CLAIM_REPOST_STARTED = 'CLAIM_REPOST_STARTED';
 const CLAIM_REPOST_COMPLETED = 'CLAIM_REPOST_COMPLETED';
 const CLAIM_REPOST_FAILED = 'CLAIM_REPOST_FAILED';
 const CLEAR_REPOST_ERROR = 'CLEAR_REPOST_ERROR';
+const CLEAR_CHANNEL_ERRORS = 'CLEAR_CHANNEL_ERRORS';
 const CHECK_PUBLISH_NAME_STARTED = 'CHECK_PUBLISH_NAME_STARTED';
 const CHECK_PUBLISH_NAME_COMPLETED = 'CHECK_PUBLISH_NAME_COMPLETED';
 const UPDATE_PENDING_CLAIMS = 'UPDATE_PENDING_CLAIMS';
@@ -426,6 +427,7 @@ var action_types = /*#__PURE__*/Object.freeze({
   CLAIM_REPOST_COMPLETED: CLAIM_REPOST_COMPLETED,
   CLAIM_REPOST_FAILED: CLAIM_REPOST_FAILED,
   CLEAR_REPOST_ERROR: CLEAR_REPOST_ERROR,
+  CLEAR_CHANNEL_ERRORS: CLEAR_CHANNEL_ERRORS,
   CHECK_PUBLISH_NAME_STARTED: CHECK_PUBLISH_NAME_STARTED,
   CHECK_PUBLISH_NAME_COMPLETED: CHECK_PUBLISH_NAME_COMPLETED,
   UPDATE_PENDING_CLAIMS: UPDATE_PENDING_CLAIMS,
@@ -3490,6 +3492,12 @@ function doFetchClaimsByChannel(uri, page = 1) {
   };
 }
 
+function doClearChannelErrors() {
+  return {
+    type: CLEAR_CHANNEL_ERRORS
+  };
+}
+
 function doCreateChannel(name, amount, optionalParams, cb) {
   return dispatch => {
     dispatch({
@@ -3548,7 +3556,6 @@ function doCreateChannel(name, amount, optionalParams, cb) {
         type: CREATE_CHANNEL_FAILED,
         data: error.message
       });
-      return error;
     });
   };
 }
@@ -5517,6 +5524,11 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   });
 };
 
+reducers[CLEAR_CHANNEL_ERRORS] = state => _extends$b({}, state, {
+  createChannelError: null,
+  updateChannelError: null
+});
+
 reducers[CREATE_CHANNEL_STARTED] = state => _extends$b({}, state, {
   creatingChannel: true,
   createChannelError: null
@@ -6971,6 +6983,7 @@ exports.doCheckPendingClaims = doCheckPendingClaims;
 exports.doCheckPublishNameAvailability = doCheckPublishNameAvailability;
 exports.doCheckReflectingFiles = doCheckReflectingFiles;
 exports.doClaimSearch = doClaimSearch;
+exports.doClearChannelErrors = doClearChannelErrors;
 exports.doClearPublish = doClearPublish;
 exports.doClearPurchasedUriSuccess = doClearPurchasedUriSuccess;
 exports.doClearRepostError = doClearRepostError;

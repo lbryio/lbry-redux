@@ -339,6 +339,12 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
   };
 }
 
+export function doClearChannelErrors() {
+  return {
+    type: ACTIONS.CLEAR_CHANNEL_ERRORS,
+  };
+}
+
 export function doCreateChannel(name: string, amount: number, optionalParams: any, cb: any) {
   return (dispatch: Dispatch) => {
     dispatch({
@@ -410,7 +416,6 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
             type: ACTIONS.CREATE_CHANNEL_FAILED,
             data: error.message,
           });
-          return error;
         })
     );
   };
