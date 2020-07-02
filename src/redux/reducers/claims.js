@@ -160,7 +160,7 @@ function handleClaimAction(state: State, action: any): State {
     }
 
     newResolvingUrls.delete(url);
-    if (!stream && !channel) {
+    if (!stream && !channel && !pendingIds.includes(byUri[url])) {
       byUri[url] = null;
     }
   });
