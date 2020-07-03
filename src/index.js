@@ -74,6 +74,7 @@ export {
   doImportChannel,
   doRepost,
   doClearRepostError,
+  doClearChannelErrors,
   doCheckPublishNameAvailability,
   doPurchaseList,
   doCheckPendingClaims,

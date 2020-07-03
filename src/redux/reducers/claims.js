@@ -42,7 +42,7 @@ type State = {
       [number]: Array<string>,
     },
   },
-  updateChannelError: string,
+  updateChannelError: ?string,
   updatingChannel: boolean,
   pendingChannelImport: string | boolean,
   repostLoading: boolean,
@@ -466,6 +466,12 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
     claimsByUri,
   });
 };
+
+reducers[ACTIONS.CLEAR_CHANNEL_ERRORS] = (state: State): State => ({
+  ...state,
+  createChannelError: null,
+  updateChannelError: null,
+});
 
 reducers[ACTIONS.CREATE_CHANNEL_STARTED] = (state: State): State => ({
   ...state,
