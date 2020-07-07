@@ -1261,14 +1261,17 @@ const LbryFirst = {
   upload: (params = {}) => {
     // Only upload when originally publishing for now
     if (!params.file_path) {
-      return {};
+      return new Promise();
     }
-    const uploadParams = {};
-    uploadParams.Title = params.title;
-    uploadParams.Description = params.description;
-    uploadParams.FilePath = params.file_path;
-    uploadParams.Category = '';
-    uploadParams.Keywords = '';
+
+    const uploadParams = {
+      Title: params.title,
+      Description: params.description,
+      FilePath: params.file_path,
+      Category: '',
+      Keywords: ''
+    };
+
     return lbryFirstCallWithResult('youtube.Upload', uploadParams);
   },
 
@@ -1350,7 +1353,6 @@ function apiCall$1(method, params, resolve, reject) {
 }
 
 function lbryFirstCallWithResult(name, params = {}) {
-  console.log(`LbryFirst: calling ${name}`);
   return new Promise((resolve, reject) => {
     apiCall$1(name, params, result => {
       resolve(result);
@@ -4681,6 +4683,10 @@ const doPublish = (success, fail) => (dispatch, getState) => {
     publishPayload.thumbnail_url = thumbnail;
   }
 
+  if (useLBRYUploader) {
+    publishPayload.tags.push('lbry-first');
+  }
+
   // Set release time to curret date. On edits, keep original release/transaction time as release_time
   if (myClaimForUriEditing && myClaimForUriEditing.value.release_time) {
     publishPayload.release_time = Number(myClaimForUri.value.release_time);
@@ -4710,7 +4716,7 @@ const doPublish = (success, fail) => (dispatch, getState) => {
   // Only pass file on new uploads, not metadata only edits.
   // The sdk will figure it out
   if (filePath) publishPayload.file_path = filePath;
-  // if (useLBRYUploader) return LbryFirst.upload(publishPayload);
+
   return lbryProxy.publish(publishPayload).then(response => {
     if (!useLBRYUploader) {
       return success(response);

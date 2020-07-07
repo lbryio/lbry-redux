@@ -23,7 +23,8 @@ const LbryFirst: LbryFirstTypes = {
   },
 
   unsetApiHeader: key => {
-    Object.keys(LbryFirst.apiRequestHeaders).includes(key) && delete LbryFirst.apiRequestHeaders['key'];
+    Object.keys(LbryFirst.apiRequestHeaders).includes(key) &&
+      delete LbryFirst.apiRequestHeaders['key'];
   },
   // Allow overriding Lbry methods
   overrides: {},
@@ -40,17 +41,26 @@ const LbryFirst: LbryFirstTypes = {
   version: () => lbryFirstCallWithResult('version', {}),
 
   // Upload to youtube
-  upload: (params = {}) => {
+  upload: (params: { title: string, description: string, file_path: ?string } = {}) => {
     // Only upload when originally publishing for now
     if (!params.file_path) {
-      return {};
+      return Promise.resolve();
     }
-    const uploadParams = {};
-    uploadParams.Title = params.title;
-    uploadParams.Description = params.description;
-    uploadParams.FilePath = params.file_path;
-    uploadParams.Category = '';
-    uploadParams.Keywords = '';
+
+    const uploadParams: {
+      Title: string,
+      Description: string,
+      FilePath: string,
+      Category: string,
+      Keywords: string,
+    } = {
+      Title: params.title,
+      Description: params.description,
+      FilePath: params.file_path,
+      Category: '',
+      Keywords: '',
+    };
+
     return lbryFirstCallWithResult('youtube.Upload', uploadParams);
   },
 
@@ -111,14 +121,14 @@ function checkAndParse(response) {
 
 export function apiCall(method: string, params: ?{}, resolve: Function, reject: Function) {
   const counter = new Date().getTime();
-  params = [params];
+  const paramsArray = [params];
   const options = {
     method: 'POST',
     headers: LbryFirst.apiRequestHeaders,
     body: JSON.stringify({
       jsonrpc: '2.0',
       method,
-      params,
+      params: paramsArray,
       id: counter,
     }),
   };
@@ -137,7 +147,6 @@ export function apiCall(method: string, params: ?{}, resolve: Function, reject: 
 }
 
 function lbryFirstCallWithResult(name: string, params: ?{} = {}) {
-  console.log(`LbryFirst: calling ${name}`);
   return new Promise((resolve, reject) => {
     apiCall(
       name,

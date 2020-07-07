@@ -323,6 +323,10 @@ export const doPublish = (success: Function, fail: Function) => (
     publishPayload.thumbnail_url = thumbnail;
   }
 
+  if (useLBRYUploader) {
+    publishPayload.tags.push('lbry-first');
+  }
+
   // Set release time to curret date. On edits, keep original release/transaction time as release_time
   if (myClaimForUriEditing && myClaimForUriEditing.value.release_time) {
     publishPayload.release_time = Number(myClaimForUri.value.release_time);
@@ -352,14 +356,13 @@ export const doPublish = (success: Function, fail: Function) => (
   // Only pass file on new uploads, not metadata only edits.
   // The sdk will figure it out
   if (filePath) publishPayload.file_path = filePath;
-  // if (useLBRYUploader) return LbryFirst.upload(publishPayload);
-  return Lbry.publish(publishPayload)
-    .then((response) => {
-      if (!useLBRYUploader) {
-        return success(response);
-      }
-      return LbryFirst.upload(publishPayload).then(success(response), success(response));
-    }, fail);
+
+  return Lbry.publish(publishPayload).then(response => {
+    if (!useLBRYUploader) {
+      return success(response);
+    }
+    return LbryFirst.upload(publishPayload).then(success(response), success(response));
+  }, fail);
 };
 
 // Calls file_list until any reflecting files are done

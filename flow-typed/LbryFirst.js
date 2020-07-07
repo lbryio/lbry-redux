@@ -71,9 +71,9 @@ declare type UploadResponse = {
 
 declare type HasYTAuthResponse = {
   HashAuth: boolean,
-}
+};
 
-declare type YTSignupResponse = {}
+declare type YTSignupResponse = {};
 
 //
 // Types used in the generic LbryFirst object that is exported
@@ -93,7 +93,7 @@ declare type LbryFirstTypes = {
   stop: () => Promise<string>,
   status: () => Promise<StatusResponse>,
   version: () => Promise<VersionResponse>,
-  upload: (params: {}) => Promise<UploadResponse>,
-  hasYTAuth: () =>Promise<HasYTAuthResponse>,
-  ytSignup: () =>Promise<YTSignupResponse>,
+  upload: any => Promise<?UploadResponse>,
+  hasYTAuth: () => Promise<HasYTAuthResponse>,
+  ytSignup: () => Promise<YTSignupResponse>,
 };
