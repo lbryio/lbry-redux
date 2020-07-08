@@ -4,6 +4,7 @@ import { SPEECH_STATUS, SPEECH_PUBLISH } from 'constants/speech_urls';
 import * as ACTIONS from 'constants/action_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Lbry from 'lbry';
+import LbryFirst from 'lbry-first';
 import { batchActions } from 'util/batch-actions';
 import { creditsToString } from 'util/format-credits';
 import { doError } from 'redux/actions/notifications';
@@ -245,6 +246,7 @@ export const doPublish = (success: Function, fail: Function) => (
     language,
     license,
     licenseUrl,
+    useLBRYUploader,
     licenseType,
     otherLicenseDescription,
     thumbnail,
@@ -321,6 +323,10 @@ export const doPublish = (success: Function, fail: Function) => (
     publishPayload.thumbnail_url = thumbnail;
   }
 
+  if (useLBRYUploader) {
+    publishPayload.tags.push('lbry-first');
+  }
+
   // Set release time to curret date. On edits, keep original release/transaction time as release_time
   if (myClaimForUriEditing && myClaimForUriEditing.value.release_time) {
     publishPayload.release_time = Number(myClaimForUri.value.release_time);
@@ -351,7 +357,12 @@ export const doPublish = (success: Function, fail: Function) => (
   // The sdk will figure it out
   if (filePath) publishPayload.file_path = filePath;
 
-  return Lbry.publish(publishPayload).then(success, fail);
+  return Lbry.publish(publishPayload).then(response => {
+    if (!useLBRYUploader) {
+      return success(response);
+    }
+    return LbryFirst.upload(publishPayload).then(success(response), success(response));
+  }, fail);
 };
 
 // Calls file_list until any reflecting files are done
