@@ -74,6 +74,11 @@ const LbryFirst: LbryFirstTypes = {
     return lbryFirstCallWithResult('youtube.Signup', emptyParams);
   },
 
+  remove: () => {
+    const emptyParams = {};
+    return lbryFirstCallWithResult('youtube.Remove', emptyParams);
+  },
+
   // Connect to lbry-first
   connect: () => {
     if (LbryFirst.connectPromise === null) {

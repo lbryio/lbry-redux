@@ -1261,7 +1261,7 @@ const LbryFirst = {
   upload: (params = {}) => {
     // Only upload when originally publishing for now
     if (!params.file_path) {
-      return new Promise();
+      return Promise.resolve();
     }
 
     const uploadParams = {
@@ -1283,6 +1283,11 @@ const LbryFirst = {
   ytSignup: () => {
     const emptyParams = {};
     return lbryFirstCallWithResult('youtube.Signup', emptyParams);
+  },
+
+  remove: () => {
+    const emptyParams = {};
+    return lbryFirstCallWithResult('youtube.Remove', emptyParams);
   },
 
   // Connect to lbry-first
@@ -1330,14 +1335,14 @@ function checkAndParse$1(response) {
 
 function apiCall$1(method, params, resolve, reject) {
   const counter = new Date().getTime();
-  params = [params];
+  const paramsArray = [params];
   const options = {
     method: 'POST',
     headers: LbryFirst.apiRequestHeaders,
     body: JSON.stringify({
       jsonrpc: '2.0',
       method,
-      params,
+      params: paramsArray,
       id: counter
     })
   };
