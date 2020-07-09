@@ -361,7 +361,15 @@ export const doPublish = (success: Function, fail: Function) => (
     if (!useLBRYUploader) {
       return success(response);
     }
-    return LbryFirst.upload(publishPayload).then(success(response), success(response));
+
+    return LbryFirst.upload(publishPayload)
+      .then(() => {
+        // Return original publish response so app treats it like a normal publish
+        return success(response);
+      })
+      .catch(error => {
+        return success(response, error);
+      });
   }, fail);
 };
 

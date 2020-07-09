@@ -4726,7 +4726,13 @@ const doPublish = (success, fail) => (dispatch, getState) => {
     if (!useLBRYUploader) {
       return success(response);
     }
-    return lbryFirstProxy.upload(publishPayload).then(success(response), success(response));
+
+    return lbryFirstProxy.upload(publishPayload).then(() => {
+      // Return original publish response so app treats it like a normal publish
+      return success(response);
+    }).catch(error => {
+      return success(response, error);
+    });
   }, fail);
 };
 
