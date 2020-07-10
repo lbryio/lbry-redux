@@ -1275,9 +1275,10 @@ const LbryFirst = {
     return lbryFirstCallWithResult('youtube.Upload', uploadParams);
   },
 
-  hasYTAuth: () => {
-    const emptyParams = {};
-    return lbryFirstCallWithResult('youtube.HasAuth', emptyParams);
+  hasYTAuth: token => {
+    const hasYTAuthParams = {};
+    hasYTAuthParams.AuthToken = token;
+    return lbryFirstCallWithResult('youtube.HasAuth', hasYTAuthParams);
   },
 
   ytSignup: () => {

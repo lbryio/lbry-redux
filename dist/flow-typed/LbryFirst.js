@@ -94,6 +94,6 @@ declare type LbryFirstTypes = {
   status: () => Promise<StatusResponse>,
   version: () => Promise<VersionResponse>,
   upload: any => Promise<?UploadResponse>,
-  hasYTAuth: () => Promise<HasYTAuthResponse>,
+  hasYTAuth: string => Promise<HasYTAuthResponse>,
   ytSignup: () => Promise<YTSignupResponse>,
 };

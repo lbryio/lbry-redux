@@ -64,9 +64,10 @@ const LbryFirst: LbryFirstTypes = {
     return lbryFirstCallWithResult('youtube.Upload', uploadParams);
   },
 
-  hasYTAuth: () => {
-    const emptyParams = {};
-    return lbryFirstCallWithResult('youtube.HasAuth', emptyParams);
+  hasYTAuth: (token: string) => {
+    const hasYTAuthParams = {};
+    hasYTAuthParams.AuthToken = token;
+    return lbryFirstCallWithResult('youtube.HasAuth', hasYTAuthParams);
   },
 
   ytSignup: () => {
