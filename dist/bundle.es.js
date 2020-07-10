@@ -4758,19 +4758,21 @@ const doCheckReflectingFiles = () => (dispatch, getState) => {
 
         Promise.all(promises).then(function (results) {
           results.forEach(function (res) {
-            const fileListItem = res.items[0];
-            const fileClaimId = fileListItem.claim_id;
-            const {
-              is_fully_reflected: done,
-              uploading_to_reflector: uploading,
-              reflector_progress: progress
-            } = fileListItem;
-            if (uploading) {
-              newReflectingById[fileClaimId] = {
-                fileListItem: fileListItem,
-                progress,
-                stalled: !done && !uploading
-              };
+            if (res.items[0]) {
+              const fileListItem = res.items[0];
+              const fileClaimId = fileListItem.claim_id;
+              const {
+                is_fully_reflected: done,
+                uploading_to_reflector: uploading,
+                reflector_progress: progress
+              } = fileListItem;
+              if (uploading) {
+                newReflectingById[fileClaimId] = {
+                  fileListItem: fileListItem,
+                  progress,
+                  stalled: !done && !uploading
+                };
+              }
             }
           });
         }).then(function () {
