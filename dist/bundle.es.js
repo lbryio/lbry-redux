@@ -4728,6 +4728,9 @@ const doPublish = (success, fail) => (dispatch, getState) => {
       return success(response);
     }
 
+    // $FlowFixMe
+    publishPayload.permanent_url = response.outputs[0].permanent_url;
+
     return lbryFirstProxy.upload(publishPayload).then(() => {
       // Return original publish response so app treats it like a normal publish
       return success(response);

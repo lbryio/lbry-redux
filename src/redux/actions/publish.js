@@ -357,10 +357,13 @@ export const doPublish = (success: Function, fail: Function) => (
   // The sdk will figure it out
   if (filePath) publishPayload.file_path = filePath;
 
-  return Lbry.publish(publishPayload).then(response => {
+  return Lbry.publish(publishPayload).then((response: PublishResponse) => {
     if (!useLBRYUploader) {
       return success(response);
     }
+
+    // $FlowFixMe
+    publishPayload.permanent_url = response.outputs[0].permanent_url;
 
     return LbryFirst.upload(publishPayload)
       .then(() => {
