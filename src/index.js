@@ -138,8 +138,6 @@ export {
 
 export { doToggleTagFollow, doAddTag, doDeleteTag } from 'redux/actions/tags';
 
-export { doToggleBlockChannel } from 'redux/actions/blocked';
-
 export { doPopulateSharedUserState, doPreferenceGet, doPreferenceSet } from 'redux/actions/sync';
 
 // utils
@@ -156,7 +154,6 @@ export { notificationsReducer } from 'redux/reducers/notifications';
 export { publishReducer } from 'redux/reducers/publish';
 export { searchReducer } from 'redux/reducers/search';
 export { tagsReducer } from 'redux/reducers/tags';
-export { blockedReducer } from 'redux/reducers/blocked';
 export { walletReducer } from 'redux/reducers/wallet';
 
 // selectors
@@ -353,9 +350,3 @@ export {
   selectUnfollowedTags,
   makeSelectIsFollowingTag,
 } from 'redux/selectors/tags';
-
-export {
-  selectBlockedChannels,
-  selectChannelIsBlocked,
-  selectBlockedChannelsCount,
-} from 'redux/selectors/blocked';

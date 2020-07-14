@@ -16,7 +16,7 @@ export const buildSharedStateMiddleware = (
   const currentState = getState();
 
   // We don't care if sync is disabled here, we always want to backup preferences to the wallet
-  if (!actions.includes(action.type)) {
+  if (!actions.includes(action.type) || typeof action === 'function') {
     return next(action);
   }
 
