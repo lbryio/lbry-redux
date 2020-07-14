@@ -62,7 +62,7 @@ const defaultState: PublishState = {
   bid: 0.1,
   bidError: undefined,
   licenseType: 'None',
-  otherLicenseDescription: __('All rights reserved'),
+  otherLicenseDescription: 'All rights reserved',
   licenseUrl: '',
   tags: [],
   publishing: false,
