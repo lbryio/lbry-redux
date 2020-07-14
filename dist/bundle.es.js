@@ -1604,6 +1604,18 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition', 'startTime']);
   const { claimId, claimName, contentName } = deprecatedParts;
 
+  {
+    if (claimId) {
+      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
+    }
+    if (claimName) {
+      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
+    }
+    if (contentName) {
+      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
+    }
+  }
+
   if (!claimName && !channelName && !streamName) {
     console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
   }
@@ -5103,198 +5115,6 @@ const doDeleteTag = name => ({
 
 //      
 
-function doCommentList(uri, page = 1, pageSize = 99999) {
-  return (dispatch, getState) => {
-    const state = getState();
-    const claim = selectClaimsByUri(state)[uri];
-    const claimId = claim ? claim.claim_id : null;
-
-    dispatch({
-      type: COMMENT_LIST_STARTED
-    });
-    lbryProxy.comment_list({
-      claim_id: claimId,
-      page,
-      page_size: pageSize
-    }).then(result => {
-      const { items: comments } = result;
-      dispatch({
-        type: COMMENT_LIST_COMPLETED,
-        data: {
-          comments,
-          claimId: claimId,
-          uri: uri
-        }
-      });
-    }).catch(error => {
-      console.log(error);
-      dispatch({
-        type: COMMENT_LIST_FAILED,
-        data: error
-      });
-    });
-  };
-}
-
-function doCommentCreate(comment = '', claim_id = '', channel, parent_id) {
-  return (dispatch, getState) => {
-    const state = getState();
-    dispatch({
-      type: COMMENT_CREATE_STARTED
-    });
-
-    const myChannels = selectMyChannelClaims(state);
-    const namedChannelClaim = myChannels && myChannels.find(myChannel => myChannel.name === channel);
-    const channel_id = namedChannelClaim.claim_id;
-
-    if (channel_id == null) {
-      dispatch({
-        type: COMMENT_CREATE_FAILED,
-        data: {}
-      });
-      dispatch(doToast({
-        message: 'Channel cannot be anonymous, please select a channel and try again.',
-        isError: true
-      }));
-      return;
-    }
-
-    return lbryProxy.comment_create({
-      comment: comment,
-      claim_id: claim_id,
-      channel_id: channel_id,
-      parent_id: parent_id
-    }).then(result => {
-      dispatch({
-        type: COMMENT_CREATE_COMPLETED,
-        data: {
-          comment: result,
-          claimId: claim_id
-        }
-      });
-    }).catch(error => {
-      dispatch({
-        type: COMMENT_CREATE_FAILED,
-        data: error
-      });
-      dispatch(doToast({
-        message: 'Unable to create comment, please try again later.',
-        isError: true
-      }));
-    });
-  };
-}
-
-function doCommentHide(comment_id) {
-  return dispatch => {
-    dispatch({
-      type: COMMENT_HIDE_STARTED
-    });
-    return lbryProxy.comment_hide({
-      comment_ids: [comment_id]
-    }).then(result => {
-      dispatch({
-        type: COMMENT_HIDE_COMPLETED,
-        data: result
-      });
-    }).catch(error => {
-      dispatch({
-        type: COMMENT_HIDE_FAILED,
-        data: error
-      });
-      dispatch(doToast({
-        message: 'Unable to hide this comment, please try again later.',
-        isError: true
-      }));
-    });
-  };
-}
-
-function doCommentAbandon(comment_id) {
-  return dispatch => {
-    dispatch({
-      type: COMMENT_ABANDON_STARTED
-    });
-    return lbryProxy.comment_abandon({
-      comment_id: comment_id
-    }).then(result => {
-      // Comment may not be deleted if the signing channel can't be signed.
-      // This will happen if the channel was recently created or abandoned.
-      if (result.abandoned) {
-        dispatch({
-          type: COMMENT_ABANDON_COMPLETED,
-          data: {
-            comment_id: comment_id
-          }
-        });
-      } else {
-        dispatch({
-          type: COMMENT_ABANDON_FAILED
-        });
-        dispatch(doToast({
-          message: 'Your channel is still being setup, try again in a few moments.',
-          isError: true
-        }));
-      }
-    }).catch(error => {
-      dispatch({
-        type: COMMENT_ABANDON_FAILED,
-        data: error
-      });
-      dispatch(doToast({
-        message: 'Unable to delete this comment, please try again later.',
-        isError: true
-      }));
-    });
-  };
-}
-
-function doCommentUpdate(comment_id, comment) {
-  // if they provided an empty string, they must have wanted to abandon
-  if (comment === '') {
-    return doCommentAbandon(comment_id);
-  } else {
-    return dispatch => {
-      dispatch({
-        type: COMMENT_UPDATE_STARTED
-      });
-      return lbryProxy.comment_update({
-        comment_id: comment_id,
-        comment: comment
-      }).then(result => {
-        if (result != null) {
-          dispatch({
-            type: COMMENT_UPDATE_COMPLETED,
-            data: {
-              comment: result
-            }
-          });
-        } else {
-          // the result will return null
-          dispatch({
-            type: COMMENT_UPDATE_FAILED
-          });
-          dispatch(doToast({
-            message: 'Your channel is still being setup, try again in a few moments.',
-            isError: true
-          }));
-        }
-      }).catch(error => {
-        dispatch({
-          type: COMMENT_UPDATE_FAILED,
-          data: error
-        });
-        dispatch(doToast({
-          message: 'Unable to edit this comment, please try again later.',
-          isError: true
-        }));
-      });
-    };
-  }
-}
-
-//      
-
 const doToggleBlockChannel = uri => ({
   type: TOGGLE_BLOCK_CHANNEL,
   data: {
@@ -5965,185 +5785,32 @@ function claimsReducer(state = defaultState, action) {
   return state;
 }
 
-// util for creating reducers
-// based off of redux-actions
-// https://redux-actions.js.org/docs/api/handleAction.html#handleactions
-
-// eslint-disable-next-line import/prefer-default-export
-const handleActions = (actionMap, defaultState) => (state = defaultState, action) => {
-  const handler = actionMap[action.type];
-
-  if (handler) {
-    const newState = handler(state, action);
-    return Object.assign({}, state, newState);
-  }
-
-  // just return the original state if no handler
-  // returning a copy here breaks redux-persist
-  return state;
-};
-
 var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const defaultState$1 = {
-  commentById: {}, // commentId -> Comment
-  byId: {}, // ClaimID -> list of comments
-  commentsByUri: {}, // URI -> claimId
-  isLoading: false,
-  myComments: undefined
-};
-
-const commentReducer = handleActions({
-  [COMMENT_CREATE_STARTED]: (state, action) => _extends$c({}, state, {
-    isLoading: true
-  }),
-
-  [COMMENT_CREATE_FAILED]: (state, action) => _extends$c({}, state, {
-    isLoading: false
-  }),
-
-  [COMMENT_CREATE_COMPLETED]: (state, action) => {
-    const { comment, claimId } = action.data;
-    const commentById = Object.assign({}, state.commentById);
-    const byId = Object.assign({}, state.byId);
-    const comments = byId[claimId];
-    const newCommentIds = comments.slice();
-
-    // add the comment by its ID
-    commentById[comment.comment_id] = comment;
-
-    // push the comment_id to the top of ID list
-    newCommentIds.unshift(comment.comment_id);
-    byId[claimId] = newCommentIds;
-
-    return _extends$c({}, state, {
-      commentById,
-      byId,
-      isLoading: false
-    });
-  },
-
-  [COMMENT_LIST_STARTED]: state => _extends$c({}, state, { isLoading: true }),
-
-  [COMMENT_LIST_COMPLETED]: (state, action) => {
-    const { comments, claimId, uri } = action.data;
-
-    const commentById = Object.assign({}, state.commentById);
-    const byId = Object.assign({}, state.byId);
-    const commentsByUri = Object.assign({}, state.commentsByUri);
-
-    if (comments) {
-      // we use an Array to preserve order of listing
-      // in reality this doesn't matter and we can just
-      // sort comments by their timestamp
-      const commentIds = Array(comments.length);
-
-      // map the comment_ids to the new comments
-      for (let i = 0; i < comments.length; i++) {
-        commentIds[i] = comments[i].comment_id;
-        commentById[commentIds[i]] = comments[i];
-      }
-
-      byId[claimId] = commentIds;
-      commentsByUri[uri] = claimId;
-    }
-    return _extends$c({}, state, {
-      byId,
-      commentById,
-      commentsByUri,
-      isLoading: false
-    });
-  },
-
-  [COMMENT_LIST_FAILED]: (state, action) => _extends$c({}, state, {
-    isLoading: false
-  }),
-  [COMMENT_ABANDON_STARTED]: (state, action) => _extends$c({}, state, {
-    isLoading: true
-  }),
-  [COMMENT_ABANDON_COMPLETED]: (state, action) => {
-    const { comment_id } = action.data;
-    const commentById = Object.assign({}, state.commentById);
-    const byId = Object.assign({}, state.byId);
-
-    // to remove the comment and its references
-    const claimId = commentById[comment_id].claim_id;
-    for (let i = 0; i < byId[claimId].length; i++) {
-      if (byId[claimId][i] === comment_id) {
-        byId[claimId].splice(i, 1);
-        break;
-      }
-    }
-    delete commentById[comment_id];
-
-    return _extends$c({}, state, {
-      commentById,
-      byId,
-      isLoading: false
-    });
-  },
-  // do nothing
-  [COMMENT_ABANDON_FAILED]: (state, action) => _extends$c({}, state, {
-    isLoading: false
-  }),
-  // do nothing
-  [COMMENT_UPDATE_STARTED]: (state, action) => _extends$c({}, state, {
-    isLoading: true
-  }),
-  // replace existing comment with comment returned here under its comment_id
-  [COMMENT_UPDATE_COMPLETED]: (state, action) => {
-    const { comment } = action.data;
-    const commentById = Object.assign({}, state.commentById);
-    commentById[comment.comment_id] = comment;
-
-    return _extends$c({}, state, {
-      commentById,
-      isLoading: false
-    });
-  },
-  // nothing can be done here
-  [COMMENT_UPDATE_FAILED]: (state, action) => _extends$c({}, state, {
-    isLoading: false
-  }),
-  // nothing can really be done here
-  [COMMENT_HIDE_STARTED]: (state, action) => _extends$c({}, state, {
-    isLoading: true
-  }),
-  [COMMENT_HIDE_COMPLETED]: (state, action) => _extends$c({}, state, { // todo: add HiddenComments state & create selectors
-    isLoading: false
-  }),
-  // nothing can be done here
-  [COMMENT_HIDE_FAILED]: (state, action) => _extends$c({}, state, {
-    isLoading: false
-  })
-}, defaultState$1);
-
-var _extends$d = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 const reducers$1 = {};
-const defaultState$2 = {
+const defaultState$1 = {
   positions: {}
 };
 
 reducers$1[SET_CONTENT_POSITION] = (state, action) => {
   const { claimId, outpoint, position } = action.data;
-  return _extends$d({}, state, {
-    positions: _extends$d({}, state.positions, {
-      [claimId]: _extends$d({}, state.positions[claimId], {
+  return _extends$c({}, state, {
+    positions: _extends$c({}, state.positions, {
+      [claimId]: _extends$c({}, state.positions[claimId], {
         [outpoint]: position
       })
     })
   });
 };
 
-function contentReducer(state = defaultState$2, action) {
+function contentReducer(state = defaultState$1, action) {
   const handler = reducers$1[action.type];
   if (handler) return handler(state, action);
   return state;
 }
 
 const reducers$2 = {};
-const defaultState$3 = {
+const defaultState$2 = {
   fileListPublishedSort: DATE_NEW,
   fileListDownloadedSort: DATE_NEW
 };
@@ -6290,15 +5957,33 @@ reducers$2[SET_FILE_LIST_SORT] = (state, action) => {
   });
 };
 
-function fileInfoReducer(state = defaultState$3, action) {
+function fileInfoReducer(state = defaultState$2, action) {
   const handler = reducers$2[action.type];
   if (handler) return handler(state, action);
   return state;
 }
 
-var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+// util for creating reducers
+// based off of redux-actions
+// https://redux-actions.js.org/docs/api/handleAction.html#handleactions
 
-const defaultState$4 = {
+// eslint-disable-next-line import/prefer-default-export
+const handleActions = (actionMap, defaultState) => (state = defaultState, action) => {
+  const handler = actionMap[action.type];
+
+  if (handler) {
+    const newState = handler(state, action);
+    return Object.assign({}, state, newState);
+  }
+
+  // just return the original state if no handler
+  // returning a copy here breaks redux-persist
+  return state;
+};
+
+var _extends$d = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+const defaultState$3 = {
   notifications: [],
   toasts: [],
   errors: []
@@ -6311,7 +5996,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.push(toast);
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       toasts: newToasts
     });
   },
@@ -6319,7 +6004,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.shift();
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       toasts: newToasts
     });
   },
@@ -6330,7 +6015,7 @@ const notificationsReducer = handleActions({
     const newNotifications = state.notifications.slice();
     newNotifications.push(notification);
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       notifications: newNotifications
     });
   },
@@ -6341,7 +6026,7 @@ const notificationsReducer = handleActions({
 
     notifications = notifications.map(pastNotification => pastNotification.id === notification.id ? notification : pastNotification);
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       notifications
     });
   },
@@ -6350,7 +6035,7 @@ const notificationsReducer = handleActions({
     let newNotifications = state.notifications.slice();
     newNotifications = newNotifications.filter(notification => notification.id !== id);
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       notifications: newNotifications
     });
   },
@@ -6361,7 +6046,7 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.push(error);
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       errors: newErrors
     });
   },
@@ -6369,17 +6054,17 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.shift();
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       errors: newErrors
     });
   }
-}, defaultState$4);
+}, defaultState$3);
 
-var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$4(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-const defaultState$5 = {
+const defaultState$4 = {
   editingURI: undefined,
   fileText: '',
   filePath: undefined,
@@ -6418,20 +6103,20 @@ const defaultState$5 = {
 const publishReducer = handleActions({
   [UPDATE_PUBLISH_FORM]: (state, action) => {
     const { data } = action;
-    return _extends$f({}, state, data);
+    return _extends$e({}, state, data);
   },
-  [CLEAR_PUBLISH]: state => _extends$f({}, defaultState$5, {
+  [CLEAR_PUBLISH]: state => _extends$e({}, defaultState$4, {
     bid: state.bid,
     optimize: state.optimize
   }),
-  [PUBLISH_START]: state => _extends$f({}, state, {
+  [PUBLISH_START]: state => _extends$e({}, state, {
     publishing: true,
     publishSuccess: false
   }),
-  [PUBLISH_FAIL]: state => _extends$f({}, state, {
+  [PUBLISH_FAIL]: state => _extends$e({}, state, {
     publishing: false
   }),
-  [PUBLISH_SUCCESS]: state => _extends$f({}, state, {
+  [PUBLISH_SUCCESS]: state => _extends$e({}, state, {
     publishing: false,
     publishSuccess: true
   }),
@@ -6446,16 +6131,16 @@ const publishReducer = handleActions({
       streamName: name
     });
 
-    return _extends$f({}, defaultState$5, publishData, {
+    return _extends$e({}, defaultState$4, publishData, {
       editingURI: uri,
       uri: shortUri
     });
   }
-}, defaultState$5);
+}, defaultState$4);
 
-var _extends$g = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const defaultState$6 = {
+const defaultState$5 = {
   isActive: false, // does the user have any typed text in the search input
   focused: false, // is the search input focused
   searchQuery: '', // needs to be an empty string for input focusing
@@ -6475,23 +6160,23 @@ const defaultState$6 = {
 };
 
 const searchReducer = handleActions({
-  [SEARCH_START]: state => _extends$g({}, state, {
+  [SEARCH_START]: state => _extends$f({}, state, {
     searching: true
   }),
   [SEARCH_SUCCESS]: (state, action) => {
     const { query, uris } = action.data;
 
-    return _extends$g({}, state, {
+    return _extends$f({}, state, {
       searching: false,
       urisByQuery: Object.assign({}, state.urisByQuery, { [query]: uris })
     });
   },
 
-  [SEARCH_FAIL]: state => _extends$g({}, state, {
+  [SEARCH_FAIL]: state => _extends$f({}, state, {
     searching: false
   }),
 
-  [RESOLVED_SEARCH_START]: state => _extends$g({}, state, {
+  [RESOLVED_SEARCH_START]: state => _extends$f({}, state, {
     searching: true
   }),
   [RESOLVED_SEARCH_SUCCESS]: (state, action) => {
@@ -6509,24 +6194,24 @@ const searchReducer = handleActions({
     // the returned number of urls is less than the page size, so we're on the last page
     resolvedResultsByQueryLastPageReached[query] = results.length < pageSize;
 
-    return _extends$g({}, state, {
+    return _extends$f({}, state, {
       searching: false,
       resolvedResultsByQuery,
       resolvedResultsByQueryLastPageReached
     });
   },
 
-  [RESOLVED_SEARCH_FAIL]: state => _extends$g({}, state, {
+  [RESOLVED_SEARCH_FAIL]: state => _extends$f({}, state, {
     searching: false
   }),
 
-  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$g({}, state, {
+  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$f({}, state, {
     searchQuery: action.data.query,
     isActive: true
   }),
 
-  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$g({}, state, {
-    suggestions: _extends$g({}, state.suggestions, {
+  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$f({}, state, {
+    suggestions: _extends$f({}, state.suggestions, {
       [action.data.query]: action.data.suggestions
     })
   }),
@@ -6534,35 +6219,35 @@ const searchReducer = handleActions({
   // sets isActive to false so the uri will be populated correctly if the
   // user is on a file page. The search query will still be present on any
   // other page
-  [DISMISS_NOTIFICATION]: state => _extends$g({}, state, {
+  [DISMISS_NOTIFICATION]: state => _extends$f({}, state, {
     isActive: false
   }),
 
-  [SEARCH_FOCUS]: state => _extends$g({}, state, {
+  [SEARCH_FOCUS]: state => _extends$f({}, state, {
     focused: true
   }),
-  [SEARCH_BLUR]: state => _extends$g({}, state, {
+  [SEARCH_BLUR]: state => _extends$f({}, state, {
     focused: false
   }),
   [UPDATE_SEARCH_OPTIONS]: (state, action) => {
     const { options: oldOptions } = state;
     const newOptions = action.data;
-    const options = _extends$g({}, oldOptions, newOptions);
-    return _extends$g({}, state, {
+    const options = _extends$f({}, oldOptions, newOptions);
+    return _extends$f({}, state, {
       options
     });
   }
-}, defaultState$6);
+}, defaultState$5);
 
-var _extends$h = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$g = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function getDefaultKnownTags() {
-  return DEFAULT_FOLLOWED_TAGS.concat(DEFAULT_KNOWN_TAGS).reduce((tagsMap, tag) => _extends$h({}, tagsMap, {
+  return DEFAULT_FOLLOWED_TAGS.concat(DEFAULT_KNOWN_TAGS).reduce((tagsMap, tag) => _extends$g({}, tagsMap, {
     [tag]: { name: tag }
   }), {});
 }
 
-const defaultState$7 = {
+const defaultState$6 = {
   followedTags: [],
   knownTags: getDefaultKnownTags()
 };
@@ -6580,7 +6265,7 @@ const tagsReducer = handleActions({
       newFollowedTags.push(name);
     }
 
-    return _extends$h({}, state, {
+    return _extends$g({}, state, {
       followedTags: newFollowedTags
     });
   },
@@ -6589,10 +6274,10 @@ const tagsReducer = handleActions({
     const { knownTags } = state;
     const { name } = action.data;
 
-    let newKnownTags = _extends$h({}, knownTags);
+    let newKnownTags = _extends$g({}, knownTags);
     newKnownTags[name] = { name };
 
-    return _extends$h({}, state, {
+    return _extends$g({}, state, {
       knownTags: newKnownTags
     });
   },
@@ -6601,11 +6286,11 @@ const tagsReducer = handleActions({
     const { knownTags, followedTags } = state;
     const { name } = action.data;
 
-    let newKnownTags = _extends$h({}, knownTags);
+    let newKnownTags = _extends$g({}, knownTags);
     delete newKnownTags[name];
     const newFollowedTags = followedTags.filter(tag => tag !== name);
 
-    return _extends$h({}, state, {
+    return _extends$g({}, state, {
       knownTags: newKnownTags,
       followedTags: newFollowedTags
     });
@@ -6613,17 +6298,17 @@ const tagsReducer = handleActions({
   [USER_STATE_POPULATE]: (state, action) => {
     const { tags } = action.data;
     if (Array.isArray(tags)) {
-      return _extends$h({}, state, {
+      return _extends$g({}, state, {
         followedTags: tags
       });
     }
-    return _extends$h({}, state);
+    return _extends$g({}, state);
   }
-}, defaultState$7);
+}, defaultState$6);
 
-var _extends$i = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$h = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const defaultState$8 = {
+const defaultState$7 = {
   blockedChannels: []
 };
 
@@ -6645,13 +6330,13 @@ const blockedReducer = handleActions({
   },
   [USER_STATE_POPULATE]: (state, action) => {
     const { blocked } = action.data;
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       blockedChannels: blocked && blocked.length ? blocked : state.blockedChannels
     });
   }
-}, defaultState$8);
+}, defaultState$7);
 
-var _extends$j = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$i = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const buildDraftTransaction = () => ({
   amount: undefined,
@@ -6662,7 +6347,7 @@ const buildDraftTransaction = () => ({
 // See details in https://github.com/lbryio/lbry/issues/1307
 
 
-const defaultState$9 = {
+const defaultState$8 = {
   balance: undefined,
   totalBalance: undefined,
   reservedBalance: undefined,
@@ -6703,40 +6388,40 @@ const defaultState$9 = {
 };
 
 const walletReducer = handleActions({
-  [FETCH_TRANSACTIONS_STARTED]: state => _extends$j({}, state, {
+  [FETCH_TRANSACTIONS_STARTED]: state => _extends$i({}, state, {
     fetchingTransactions: true
   }),
 
   [FETCH_TRANSACTIONS_COMPLETED]: (state, action) => {
-    const byId = _extends$j({}, state.transactions);
+    const byId = _extends$i({}, state.transactions);
 
     const { transactions } = action.data;
     transactions.forEach(transaction => {
       byId[transaction.txid] = transaction;
     });
 
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       transactions: byId,
       fetchingTransactions: false
     });
   },
 
   [FETCH_TXO_PAGE_STARTED]: state => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       fetchingTxos: true,
       fetchingTxosError: undefined
     });
   },
 
   [FETCH_TXO_PAGE_COMPLETED]: (state, action) => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       txoPage: action.data,
       fetchingTxos: false
     });
   },
 
   [FETCH_TXO_PAGE_FAILED]: (state, action) => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       txoPage: {},
       fetchingTxos: false,
       fetchingTxosError: action.data
@@ -6744,12 +6429,12 @@ const walletReducer = handleActions({
   },
 
   [UPDATE_TXO_FETCH_PARAMS]: (state, action) => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       txoFetchParams: action.data
     });
   },
 
-  [FETCH_SUPPORTS_STARTED]: state => _extends$j({}, state, {
+  [FETCH_SUPPORTS_STARTED]: state => _extends$i({}, state, {
     fetchingSupports: true
   }),
 
@@ -6762,7 +6447,7 @@ const walletReducer = handleActions({
       byOutpoint[`${txid}:${nout}`] = transaction;
     });
 
-    return _extends$j({}, state, { supports: byOutpoint, fetchingSupports: false });
+    return _extends$i({}, state, { supports: byOutpoint, fetchingSupports: false });
   },
 
   [ABANDON_SUPPORT_STARTED]: (state, action) => {
@@ -6771,7 +6456,7 @@ const walletReducer = handleActions({
 
     currentlyAbandoning[outpoint] = true;
 
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       abandoningSupportsByOutpoint: currentlyAbandoning
     });
   },
@@ -6784,20 +6469,20 @@ const walletReducer = handleActions({
     delete currentlyAbandoning[outpoint];
     delete byOutpoint[outpoint];
 
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       supports: byOutpoint,
       abandoningSupportsById: currentlyAbandoning
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_STARTED]: (state, action) => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       abandonClaimSupportError: undefined
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_PREVIEW]: (state, action) => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       abandonClaimSupportError: undefined
     });
   },
@@ -6808,36 +6493,36 @@ const walletReducer = handleActions({
 
     pendingtxs[claimId] = { txid, type, effective };
 
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       pendingSupportTransactions: pendingtxs,
       abandonClaimSupportError: undefined
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_FAILED]: (state, action) => {
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       abandonClaimSupportError: action.data
     });
   },
 
   [PENDING_SUPPORTS_UPDATED]: (state, action) => {
 
-    return _extends$j({}, state, {
+    return _extends$i({}, state, {
       pendingSupportTransactions: action.data
     });
   },
 
-  [GET_NEW_ADDRESS_STARTED]: state => _extends$j({}, state, {
+  [GET_NEW_ADDRESS_STARTED]: state => _extends$i({}, state, {
     gettingNewAddress: true
   }),
 
   [GET_NEW_ADDRESS_COMPLETED]: (state, action) => {
     const { address } = action.data;
 
-    return _extends$j({}, state, { gettingNewAddress: false, receiveAddress: address });
+    return _extends$i({}, state, { gettingNewAddress: false, receiveAddress: address });
   },
 
-  [UPDATE_BALANCE]: (state, action) => _extends$j({}, state, {
+  [UPDATE_BALANCE]: (state, action) => _extends$i({}, state, {
     totalBalance: action.data.totalBalance,
     balance: action.data.balance,
     reservedBalance: action.data.reservedBalance,
@@ -6846,32 +6531,32 @@ const walletReducer = handleActions({
     tipsBalance: action.data.tipsBalance
   }),
 
-  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$j({}, state, {
+  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$i({}, state, {
     checkingAddressOwnership: true
   }),
 
-  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$j({}, state, {
+  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$i({}, state, {
     checkingAddressOwnership: false
   }),
 
   [SET_DRAFT_TRANSACTION_AMOUNT]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$j({}, oldDraft, { amount: parseFloat(action.data.amount) });
+    const newDraft = _extends$i({}, oldDraft, { amount: parseFloat(action.data.amount) });
 
-    return _extends$j({}, state, { draftTransaction: newDraft });
+    return _extends$i({}, state, { draftTransaction: newDraft });
   },
 
   [SET_DRAFT_TRANSACTION_ADDRESS]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$j({}, oldDraft, { address: action.data.address });
+    const newDraft = _extends$i({}, oldDraft, { address: action.data.address });
 
-    return _extends$j({}, state, { draftTransaction: newDraft });
+    return _extends$i({}, state, { draftTransaction: newDraft });
   },
 
   [SEND_TRANSACTION_STARTED]: state => {
-    const newDraftTransaction = _extends$j({}, state.draftTransaction, { sending: true });
+    const newDraftTransaction = _extends$i({}, state.draftTransaction, { sending: true });
 
-    return _extends$j({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$i({}, state, { draftTransaction: newDraftTransaction });
   },
 
   [SEND_TRANSACTION_COMPLETED]: state => Object.assign({}, state, {
@@ -6884,117 +6569,117 @@ const walletReducer = handleActions({
       error: action.data.error
     });
 
-    return _extends$j({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$i({}, state, { draftTransaction: newDraftTransaction });
   },
 
-  [SUPPORT_TRANSACTION_STARTED]: state => _extends$j({}, state, {
+  [SUPPORT_TRANSACTION_STARTED]: state => _extends$i({}, state, {
     sendingSupport: true
   }),
 
-  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$j({}, state, {
+  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$i({}, state, {
     sendingSupport: false
   }),
 
-  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$j({}, state, {
+  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$i({}, state, {
     error: action.data.error,
     sendingSupport: false
   }),
 
-  [CLEAR_SUPPORT_TRANSACTION]: state => _extends$j({}, state, {
+  [CLEAR_SUPPORT_TRANSACTION]: state => _extends$i({}, state, {
     sendingSupport: false
   }),
 
-  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$j({}, state, {
+  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$i({}, state, {
     walletIsEncrypted: action.result
   }),
 
-  [WALLET_ENCRYPT_START]: state => _extends$j({}, state, {
+  [WALLET_ENCRYPT_START]: state => _extends$i({}, state, {
     walletEncryptPending: true,
     walletEncryptSucceded: null,
     walletEncryptResult: null
   }),
 
-  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$j({}, state, {
+  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$i({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: true,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$j({}, state, {
+  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$i({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: false,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_START]: state => _extends$j({}, state, {
+  [WALLET_DECRYPT_START]: state => _extends$i({}, state, {
     walletDecryptPending: true,
     walletDecryptSucceded: null,
     walletDecryptResult: null
   }),
 
-  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$j({}, state, {
+  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$i({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: true,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$j({}, state, {
+  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$i({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: false,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_UNLOCK_START]: state => _extends$j({}, state, {
+  [WALLET_UNLOCK_START]: state => _extends$i({}, state, {
     walletUnlockPending: true,
     walletUnlockSucceded: null,
     walletUnlockResult: null
   }),
 
-  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$j({}, state, {
+  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$i({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: true,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$j({}, state, {
+  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$i({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: false,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_LOCK_START]: state => _extends$j({}, state, {
+  [WALLET_LOCK_START]: state => _extends$i({}, state, {
     walletLockPending: false,
     walletLockSucceded: null,
     walletLockResult: null
   }),
 
-  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$j({}, state, {
+  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$i({}, state, {
     walletLockPending: false,
     walletLockSucceded: true,
     walletLockResult: action.result
   }),
 
-  [WALLET_LOCK_FAILED]: (state, action) => _extends$j({}, state, {
+  [WALLET_LOCK_FAILED]: (state, action) => _extends$i({}, state, {
     walletLockPending: false,
     walletLockSucceded: false,
     walletLockResult: action.result
   }),
 
-  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$j({}, state, {
+  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$i({}, state, {
     transactionListFilter: action.data
   }),
 
-  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$j({}, state, {
+  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$i({}, state, {
     latestBlock: action.data
   }),
-  [WALLET_RESTART]: state => _extends$j({}, state, {
+  [WALLET_RESTART]: state => _extends$i({}, state, {
     walletReconnecting: true
   }),
 
-  [WALLET_RESTART_COMPLETED]: state => _extends$j({}, state, {
+  [WALLET_RESTART_COMPLETED]: state => _extends$i({}, state, {
     walletReconnecting: false
   })
-}, defaultState$9);
+}, defaultState$8);
 
 //      
 
@@ -7009,14 +6694,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$k = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$j = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$6 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$6, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$k({
+    return _extends$j({
       id
     }, params);
   }
@@ -7037,64 +6722,11 @@ const selectError = reselect.createSelector(selectState$6, state => {
 
 //      
 
-const selectState$7 = state => state.comments || {};
+const selectState$7 = state => state.tags || {};
 
-const selectCommentsById = reselect.createSelector(selectState$7, state => state.commentById || {});
+const selectKnownTagsByName = reselect.createSelector(selectState$7, state => state.knownTags);
 
-const selectIsFetchingComments = reselect.createSelector(selectState$7, state => state.isLoading);
-
-const selectCommentsByClaimId = reselect.createSelector(selectState$7, selectCommentsById, (state, byId) => {
-  const byClaimId = state.byId || {};
-  const comments = {};
-
-  // replace every comment_id in the list with the actual comment object
-  Object.keys(byClaimId).forEach(claimId => {
-    const commentIds = byClaimId[claimId];
-
-    comments[claimId] = Array(commentIds === null ? 0 : commentIds.length);
-    for (let i = 0; i < commentIds.length; i++) {
-      comments[claimId][i] = byId[commentIds[i]];
-    }
-  });
-
-  return comments;
-});
-
-// previously this used a mapping from claimId -> Array<Comments>
-/* export const selectCommentsById = createSelector(
-  selectState,
-  state => state.byId || {}
-); */
-const selectCommentsByUri = reselect.createSelector(selectState$7, state => {
-  const byUri = state.commentsByUri || {};
-  const comments = {};
-  Object.keys(byUri).forEach(uri => {
-    const claimId = byUri[uri];
-    if (claimId === null) {
-      comments[uri] = null;
-    } else {
-      comments[uri] = claimId;
-    }
-  });
-
-  return comments;
-});
-
-const makeSelectCommentsForUri = uri => reselect.createSelector(selectCommentsByClaimId, selectCommentsByUri, (byClaimId, byUri) => {
-  const claimId = byUri[uri];
-  return byClaimId && byClaimId[claimId];
-});
-
-// todo: allow SDK to retrieve user comments through comment_list
-// todo: implement selectors for selecting comments owned by user
-
-//      
-
-const selectState$8 = state => state.tags || {};
-
-const selectKnownTagsByName = reselect.createSelector(selectState$8, state => state.knownTags);
-
-const selectFollowedTagsList = reselect.createSelector(selectState$8, state => state.followedTags.filter(tag => typeof tag === 'string'));
+const selectFollowedTagsList = reselect.createSelector(selectState$7, state => state.followedTags.filter(tag => typeof tag === 'string'));
 
 const selectFollowedTags = reselect.createSelector(selectFollowedTagsList, followedTags => followedTags.map(tag => ({ name: tag.toLowerCase() })).sort((a, b) => a.name.localeCompare(b.name)));
 
@@ -7117,9 +6749,9 @@ const makeSelectIsFollowingTag = tag => reselect.createSelector(selectFollowedTa
 
 //      
 
-const selectState$9 = state => state.blocked || {};
+const selectState$8 = state => state.blocked || {};
 
-const selectBlockedChannels = reselect.createSelector(selectState$9, state => state.blockedChannels);
+const selectBlockedChannels = reselect.createSelector(selectState$8, state => state.blockedChannels);
 
 const selectBlockedChannelsCount = reselect.createSelector(selectBlockedChannels, state => state.length);
 
@@ -7154,7 +6786,6 @@ exports.blockedReducer = blockedReducer;
 exports.buildSharedStateMiddleware = buildSharedStateMiddleware;
 exports.buildURI = buildURI;
 exports.claimsReducer = claimsReducer;
-exports.commentReducer = commentReducer;
 exports.contentReducer = contentReducer;
 exports.convertToShareLink = convertToShareLink;
 exports.createNormalizedClaimSearchKey = createNormalizedClaimSearchKey;
@@ -7174,11 +6805,6 @@ exports.doClearPublish = doClearPublish;
 exports.doClearPurchasedUriSuccess = doClearPurchasedUriSuccess;
 exports.doClearRepostError = doClearRepostError;
 exports.doClearSupport = doClearSupport;
-exports.doCommentAbandon = doCommentAbandon;
-exports.doCommentCreate = doCommentCreate;
-exports.doCommentHide = doCommentHide;
-exports.doCommentList = doCommentList;
-exports.doCommentUpdate = doCommentUpdate;
 exports.doCreateChannel = doCreateChannel;
 exports.doDeleteTag = doDeleteTag;
 exports.doDismissError = doDismissError;
@@ -7249,7 +6875,6 @@ exports.makeSelectClaimIsPending = makeSelectClaimIsPending;
 exports.makeSelectClaimWasPurchased = makeSelectClaimWasPurchased;
 exports.makeSelectClaimsInChannelForCurrentPageState = makeSelectClaimsInChannelForCurrentPageState;
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
-exports.makeSelectCommentsForUri = makeSelectCommentsForUri;
 exports.makeSelectContentPositionForUri = makeSelectContentPositionForUri;
 exports.makeSelectContentTypeForUri = makeSelectContentTypeForUri;
 exports.makeSelectCoverForUri = makeSelectCoverForUri;
@@ -7353,7 +6978,6 @@ exports.selectFollowedTagsList = selectFollowedTagsList;
 exports.selectGettingNewAddress = selectGettingNewAddress;
 exports.selectHasTransactions = selectHasTransactions;
 exports.selectIsFetchingClaimListMine = selectIsFetchingClaimListMine;
-exports.selectIsFetchingComments = selectIsFetchingComments;
 exports.selectIsFetchingFileList = selectIsFetchingFileList;
 exports.selectIsFetchingFileListDownloadedOrPublished = selectIsFetchingFileListDownloadedOrPublished;
 exports.selectIsFetchingMyPurchases = selectIsFetchingMyPurchases;
