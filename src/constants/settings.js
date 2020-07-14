@@ -18,6 +18,7 @@ export const THEME = 'theme';
 export const THEMES = 'themes';
 export const AUTOMATIC_DARK_MODE_ENABLED = 'automatic_dark_mode_enabled';
 export const AUTOPLAY = 'autoplay';
+export const AUTOPLAY_NEXT = 'autoplay_next';
 export const OS_NOTIFICATIONS_ENABLED = 'os_notifications_enabled';
 export const AUTO_DOWNLOAD = 'auto_download';
 export const AUTO_LAUNCH = 'auto_launch';
