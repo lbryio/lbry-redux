@@ -307,9 +307,6 @@ const TOGGLE_TAG_FOLLOW = 'TOGGLE_TAG_FOLLOW';
 const TAG_ADD = 'TAG_ADD';
 const TAG_DELETE = 'TAG_DELETE';
 
-// Blocked Channels
-const TOGGLE_BLOCK_CHANNEL = 'TOGGLE_BLOCK_CHANNEL';
-
 // Sync
 const USER_STATE_POPULATE = 'USER_STATE_POPULATE';
 
@@ -566,7 +563,6 @@ var action_types = /*#__PURE__*/Object.freeze({
   TOGGLE_TAG_FOLLOW: TOGGLE_TAG_FOLLOW,
   TAG_ADD: TAG_ADD,
   TAG_DELETE: TAG_DELETE,
-  TOGGLE_BLOCK_CHANNEL: TOGGLE_BLOCK_CHANNEL,
   USER_STATE_POPULATE: USER_STATE_POPULATE
 });
 
@@ -2020,7 +2016,7 @@ const buildSharedStateMiddleware = (actions, sharedStateFilters, sharedStateCb) 
   const currentState = getState();
 
   // We don't care if sync is disabled here, we always want to backup preferences to the wallet
-  if (!actions.includes(action.type)) {
+  if (!actions.includes(action.type) || typeof action === 'function') {
     return next(action);
   }
 
@@ -5113,15 +5109,6 @@ const doDeleteTag = name => ({
   }
 });
 
-//      
-
-const doToggleBlockChannel = uri => ({
-  type: TOGGLE_BLOCK_CHANNEL,
-  data: {
-    uri
-  }
-});
-
 var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 /*
@@ -6308,36 +6295,6 @@ const tagsReducer = handleActions({
 
 var _extends$h = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const defaultState$7 = {
-  blockedChannels: []
-};
-
-const blockedReducer = handleActions({
-  [TOGGLE_BLOCK_CHANNEL]: (state, action) => {
-    const { blockedChannels } = state;
-    const { uri } = action.data;
-    let newBlockedChannels = blockedChannels.slice();
-
-    if (newBlockedChannels.includes(uri)) {
-      newBlockedChannels = newBlockedChannels.filter(id => id !== uri);
-    } else {
-      newBlockedChannels.push(uri);
-    }
-
-    return {
-      blockedChannels: newBlockedChannels
-    };
-  },
-  [USER_STATE_POPULATE]: (state, action) => {
-    const { blocked } = action.data;
-    return _extends$h({}, state, {
-      blockedChannels: blocked && blocked.length ? blocked : state.blockedChannels
-    });
-  }
-}, defaultState$7);
-
-var _extends$i = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 const buildDraftTransaction = () => ({
   amount: undefined,
   address: undefined
@@ -6347,7 +6304,7 @@ const buildDraftTransaction = () => ({
 // See details in https://github.com/lbryio/lbry/issues/1307
 
 
-const defaultState$8 = {
+const defaultState$7 = {
   balance: undefined,
   totalBalance: undefined,
   reservedBalance: undefined,
@@ -6388,40 +6345,40 @@ const defaultState$8 = {
 };
 
 const walletReducer = handleActions({
-  [FETCH_TRANSACTIONS_STARTED]: state => _extends$i({}, state, {
+  [FETCH_TRANSACTIONS_STARTED]: state => _extends$h({}, state, {
     fetchingTransactions: true
   }),
 
   [FETCH_TRANSACTIONS_COMPLETED]: (state, action) => {
-    const byId = _extends$i({}, state.transactions);
+    const byId = _extends$h({}, state.transactions);
 
     const { transactions } = action.data;
     transactions.forEach(transaction => {
       byId[transaction.txid] = transaction;
     });
 
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       transactions: byId,
       fetchingTransactions: false
     });
   },
 
   [FETCH_TXO_PAGE_STARTED]: state => {
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       fetchingTxos: true,
       fetchingTxosError: undefined
     });
   },
 
   [FETCH_TXO_PAGE_COMPLETED]: (state, action) => {
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       txoPage: action.data,
       fetchingTxos: false
     });
   },
 
   [FETCH_TXO_PAGE_FAILED]: (state, action) => {
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       txoPage: {},
       fetchingTxos: false,
       fetchingTxosError: action.data
@@ -6429,12 +6386,12 @@ const walletReducer = handleActions({
   },
 
   [UPDATE_TXO_FETCH_PARAMS]: (state, action) => {
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       txoFetchParams: action.data
     });
   },
 
-  [FETCH_SUPPORTS_STARTED]: state => _extends$i({}, state, {
+  [FETCH_SUPPORTS_STARTED]: state => _extends$h({}, state, {
     fetchingSupports: true
   }),
 
@@ -6447,7 +6404,7 @@ const walletReducer = handleActions({
       byOutpoint[`${txid}:${nout}`] = transaction;
     });
 
-    return _extends$i({}, state, { supports: byOutpoint, fetchingSupports: false });
+    return _extends$h({}, state, { supports: byOutpoint, fetchingSupports: false });
   },
 
   [ABANDON_SUPPORT_STARTED]: (state, action) => {
@@ -6456,7 +6413,7 @@ const walletReducer = handleActions({
 
     currentlyAbandoning[outpoint] = true;
 
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       abandoningSupportsByOutpoint: currentlyAbandoning
     });
   },
@@ -6469,20 +6426,20 @@ const walletReducer = handleActions({
     delete currentlyAbandoning[outpoint];
     delete byOutpoint[outpoint];
 
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       supports: byOutpoint,
       abandoningSupportsById: currentlyAbandoning
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_STARTED]: (state, action) => {
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       abandonClaimSupportError: undefined
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_PREVIEW]: (state, action) => {
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       abandonClaimSupportError: undefined
     });
   },
@@ -6493,36 +6450,36 @@ const walletReducer = handleActions({
 
     pendingtxs[claimId] = { txid, type, effective };
 
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       pendingSupportTransactions: pendingtxs,
       abandonClaimSupportError: undefined
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_FAILED]: (state, action) => {
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       abandonClaimSupportError: action.data
     });
   },
 
   [PENDING_SUPPORTS_UPDATED]: (state, action) => {
 
-    return _extends$i({}, state, {
+    return _extends$h({}, state, {
       pendingSupportTransactions: action.data
     });
   },
 
-  [GET_NEW_ADDRESS_STARTED]: state => _extends$i({}, state, {
+  [GET_NEW_ADDRESS_STARTED]: state => _extends$h({}, state, {
     gettingNewAddress: true
   }),
 
   [GET_NEW_ADDRESS_COMPLETED]: (state, action) => {
     const { address } = action.data;
 
-    return _extends$i({}, state, { gettingNewAddress: false, receiveAddress: address });
+    return _extends$h({}, state, { gettingNewAddress: false, receiveAddress: address });
   },
 
-  [UPDATE_BALANCE]: (state, action) => _extends$i({}, state, {
+  [UPDATE_BALANCE]: (state, action) => _extends$h({}, state, {
     totalBalance: action.data.totalBalance,
     balance: action.data.balance,
     reservedBalance: action.data.reservedBalance,
@@ -6531,32 +6488,32 @@ const walletReducer = handleActions({
     tipsBalance: action.data.tipsBalance
   }),
 
-  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$i({}, state, {
+  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$h({}, state, {
     checkingAddressOwnership: true
   }),
 
-  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$i({}, state, {
+  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$h({}, state, {
     checkingAddressOwnership: false
   }),
 
   [SET_DRAFT_TRANSACTION_AMOUNT]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$i({}, oldDraft, { amount: parseFloat(action.data.amount) });
+    const newDraft = _extends$h({}, oldDraft, { amount: parseFloat(action.data.amount) });
 
-    return _extends$i({}, state, { draftTransaction: newDraft });
+    return _extends$h({}, state, { draftTransaction: newDraft });
   },
 
   [SET_DRAFT_TRANSACTION_ADDRESS]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$i({}, oldDraft, { address: action.data.address });
+    const newDraft = _extends$h({}, oldDraft, { address: action.data.address });
 
-    return _extends$i({}, state, { draftTransaction: newDraft });
+    return _extends$h({}, state, { draftTransaction: newDraft });
   },
 
   [SEND_TRANSACTION_STARTED]: state => {
-    const newDraftTransaction = _extends$i({}, state.draftTransaction, { sending: true });
+    const newDraftTransaction = _extends$h({}, state.draftTransaction, { sending: true });
 
-    return _extends$i({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$h({}, state, { draftTransaction: newDraftTransaction });
   },
 
   [SEND_TRANSACTION_COMPLETED]: state => Object.assign({}, state, {
@@ -6569,117 +6526,117 @@ const walletReducer = handleActions({
       error: action.data.error
     });
 
-    return _extends$i({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$h({}, state, { draftTransaction: newDraftTransaction });
   },
 
-  [SUPPORT_TRANSACTION_STARTED]: state => _extends$i({}, state, {
+  [SUPPORT_TRANSACTION_STARTED]: state => _extends$h({}, state, {
     sendingSupport: true
   }),
 
-  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$i({}, state, {
+  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$h({}, state, {
     sendingSupport: false
   }),
 
-  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$i({}, state, {
+  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$h({}, state, {
     error: action.data.error,
     sendingSupport: false
   }),
 
-  [CLEAR_SUPPORT_TRANSACTION]: state => _extends$i({}, state, {
+  [CLEAR_SUPPORT_TRANSACTION]: state => _extends$h({}, state, {
     sendingSupport: false
   }),
 
-  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$i({}, state, {
+  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$h({}, state, {
     walletIsEncrypted: action.result
   }),
 
-  [WALLET_ENCRYPT_START]: state => _extends$i({}, state, {
+  [WALLET_ENCRYPT_START]: state => _extends$h({}, state, {
     walletEncryptPending: true,
     walletEncryptSucceded: null,
     walletEncryptResult: null
   }),
 
-  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$i({}, state, {
+  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$h({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: true,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$i({}, state, {
+  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$h({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: false,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_START]: state => _extends$i({}, state, {
+  [WALLET_DECRYPT_START]: state => _extends$h({}, state, {
     walletDecryptPending: true,
     walletDecryptSucceded: null,
     walletDecryptResult: null
   }),
 
-  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$i({}, state, {
+  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$h({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: true,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$i({}, state, {
+  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$h({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: false,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_UNLOCK_START]: state => _extends$i({}, state, {
+  [WALLET_UNLOCK_START]: state => _extends$h({}, state, {
     walletUnlockPending: true,
     walletUnlockSucceded: null,
     walletUnlockResult: null
   }),
 
-  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$i({}, state, {
+  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$h({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: true,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$i({}, state, {
+  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$h({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: false,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_LOCK_START]: state => _extends$i({}, state, {
+  [WALLET_LOCK_START]: state => _extends$h({}, state, {
     walletLockPending: false,
     walletLockSucceded: null,
     walletLockResult: null
   }),
 
-  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$i({}, state, {
+  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$h({}, state, {
     walletLockPending: false,
     walletLockSucceded: true,
     walletLockResult: action.result
   }),
 
-  [WALLET_LOCK_FAILED]: (state, action) => _extends$i({}, state, {
+  [WALLET_LOCK_FAILED]: (state, action) => _extends$h({}, state, {
     walletLockPending: false,
     walletLockSucceded: false,
     walletLockResult: action.result
   }),
 
-  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$i({}, state, {
+  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$h({}, state, {
     transactionListFilter: action.data
   }),
 
-  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$i({}, state, {
+  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$h({}, state, {
     latestBlock: action.data
   }),
-  [WALLET_RESTART]: state => _extends$i({}, state, {
+  [WALLET_RESTART]: state => _extends$h({}, state, {
     walletReconnecting: true
   }),
 
-  [WALLET_RESTART_COMPLETED]: state => _extends$i({}, state, {
+  [WALLET_RESTART_COMPLETED]: state => _extends$h({}, state, {
     walletReconnecting: false
   })
-}, defaultState$8);
+}, defaultState$7);
 
 //      
 
@@ -6694,14 +6651,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$j = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$i = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$6 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$6, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$j({
+    return _extends$i({
       id
     }, params);
   }
@@ -6747,18 +6704,6 @@ const makeSelectIsFollowingTag = tag => reselect.createSelector(selectFollowedTa
   return followedTags.some(followedTag => followedTag.name === tag.toLowerCase());
 });
 
-//      
-
-const selectState$8 = state => state.blocked || {};
-
-const selectBlockedChannels = reselect.createSelector(selectState$8, state => state.blockedChannels);
-
-const selectBlockedChannelsCount = reselect.createSelector(selectBlockedChannels, state => state.length);
-
-const selectChannelIsBlocked = uri => reselect.createSelector(selectBlockedChannels, state => {
-  return state.includes(uri);
-});
-
 exports.ABANDON_STATES = abandon_states;
 exports.ACTIONS = action_types;
 exports.CLAIM_VALUES = claim;
@@ -6782,7 +6727,6 @@ exports.TXO_LIST = txo_list;
 exports.TX_LIST = transaction_list;
 exports.apiCall = apiCall;
 exports.batchActions = batchActions;
-exports.blockedReducer = blockedReducer;
 exports.buildSharedStateMiddleware = buildSharedStateMiddleware;
 exports.buildURI = buildURI;
 exports.claimsReducer = claimsReducer;
@@ -6843,7 +6787,6 @@ exports.doSetFileListSort = doSetFileListSort;
 exports.doSetTransactionListFilter = doSetTransactionListFilter;
 exports.doSupportAbandonForClaim = doSupportAbandonForClaim;
 exports.doToast = doToast;
-exports.doToggleBlockChannel = doToggleBlockChannel;
 exports.doToggleTagFollow = doToggleTagFollow;
 exports.doUpdateBalance = doUpdateBalance;
 exports.doUpdateBlockHeight = doUpdateBlockHeight;
@@ -6937,12 +6880,9 @@ exports.selectAllClaimsByChannel = selectAllClaimsByChannel;
 exports.selectAllFetchingChannelClaims = selectAllFetchingChannelClaims;
 exports.selectAllMyClaimsByOutpoint = selectAllMyClaimsByOutpoint;
 exports.selectBalance = selectBalance;
-exports.selectBlockedChannels = selectBlockedChannels;
-exports.selectBlockedChannelsCount = selectBlockedChannelsCount;
 exports.selectBlocks = selectBlocks;
 exports.selectChannelClaimCounts = selectChannelClaimCounts;
 exports.selectChannelImportPending = selectChannelImportPending;
-exports.selectChannelIsBlocked = selectChannelIsBlocked;
 exports.selectClaimIdsByUri = selectClaimIdsByUri;
 exports.selectClaimSearchByQuery = selectClaimSearchByQuery;
 exports.selectClaimSearchByQueryLastPageReached = selectClaimSearchByQueryLastPageReached;
