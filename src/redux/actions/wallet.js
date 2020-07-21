@@ -424,13 +424,27 @@ export function doWalletReconnect() {
     dispatch({
       type: ACTIONS.WALLET_RESTART,
     });
+    let failed = false;
     // this basically returns null when it's done. :(
     // might be good to  dispatch ACTIONS.WALLET_RESTARTED
-    Lbry.wallet_reconnect().then(() =>
+    const walletTimeout = setTimeout(() => {
+      failed = true;
       dispatch({
         type: ACTIONS.WALLET_RESTART_COMPLETED,
-      })
-    );
+      });
+      dispatch(
+        doToast({
+          message: __(
+            'Your servers were not available. Check your url and port, or switch back to defaults.'
+          ),
+          isError: true,
+        })
+      );
+    }, 15000);
+    Lbry.wallet_reconnect().then(() => {
+      clearTimeout(walletTimeout);
+      if (!failed) dispatch({ type: ACTIONS.WALLET_RESTART_COMPLETED });
+    });
   };
 }
 export function doWalletDecrypt() {

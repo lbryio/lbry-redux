@@ -2,7 +2,6 @@
 import isEqual from 'util/deep-equal';
 import { doPreferenceSet } from 'redux/actions/sync';
 
-const SHARED_PREFERENCE_KEY = 'shared';
 const SHARED_PREFERENCE_VERSION = '0.1';
 let oldShared = {};
 
@@ -10,7 +9,7 @@ export const buildSharedStateMiddleware = (
   actions: Array<string>,
   sharedStateFilters: {},
   sharedStateCb?: any => void
-) => ({ getState, dispatch }: { getState: () => {}, dispatch: any => void }) => (
+) => ({ getState, dispatch }: { getState: () => { user: any }, dispatch: any => void }) => (
   next: ({}) => void
 ) => (action: { type: string, data: any }) => {
   const currentState = getState();
@@ -22,7 +21,11 @@ export const buildSharedStateMiddleware = (
 
   const actionResult = next(action);
   // Call `getState` after calling `next` to ensure the state has updated in response to the action
-  const nextState = getState();
+  const nextState: { user: any } = getState();
+  const preferenceKey =
+    nextState.user && nextState.user.user && nextState.user.user.has_verified_email
+      ? 'shared'
+      : 'anon';
   const shared = {};
 
   Object.keys(sharedStateFilters).forEach(key => {
@@ -39,7 +42,7 @@ export const buildSharedStateMiddleware = (
   if (!isEqual(oldShared, shared)) {
     // only update if the preference changed from last call in the same session
     oldShared = shared;
-    doPreferenceSet(SHARED_PREFERENCE_KEY, shared, SHARED_PREFERENCE_VERSION);
+    doPreferenceSet(preferenceKey, shared, SHARED_PREFERENCE_VERSION);
   }
 
   if (sharedStateCb) {
