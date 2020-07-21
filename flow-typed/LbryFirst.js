@@ -1,12 +1,12 @@
 // @flow
-declare type StatusResponse = {
+declare type LbryFirstStatusResponse = {
   Version: string,
   Message: string,
   Running: boolean,
   Commit: string,
 };
 
-declare type VersionResponse = {
+declare type LbryFirstVersionResponse = {
   build: string,
   lbrynet_version: string,
   os_release: string,
