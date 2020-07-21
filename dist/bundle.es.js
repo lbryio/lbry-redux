@@ -965,7 +965,7 @@ var daemon_settings = /*#__PURE__*/Object.freeze({
 const SDK_SYNC_KEYS = [LBRYUM_SERVERS, SHARE_USAGE_DATA];
 
 // CLIENT
-const CLIENT_SYNC_KEYS = [SHOW_MATURE, HIDE_REPOSTS, SHOW_ANONYMOUS, INSTANT_PURCHASE_ENABLED, INSTANT_PURCHASE_MAX, THEME, THEMES, AUTOPLAY, HIDE_BALANCE, HIDE_SPLASH_ANIMATION, FLOATING_PLAYER, DARK_MODE_TIMES, AUTOMATIC_DARK_MODE_ENABLED];
+const CLIENT_SYNC_KEYS = [SHOW_MATURE, HIDE_REPOSTS, SHOW_ANONYMOUS, INSTANT_PURCHASE_ENABLED, INSTANT_PURCHASE_MAX, THEME, AUTOPLAY, HIDE_BALANCE, HIDE_SPLASH_ANIMATION, FLOATING_PLAYER, DARK_MODE_TIMES, AUTOMATIC_DARK_MODE_ENABLED];
 
 /*
 
@@ -2005,7 +2005,6 @@ function doPreferenceGet(key, success, fail) {
 
 //      
 
-const SHARED_PREFERENCE_KEY = 'shared';
 const SHARED_PREFERENCE_VERSION = '0.1';
 let oldShared = {};
 
@@ -2020,6 +2019,7 @@ const buildSharedStateMiddleware = (actions, sharedStateFilters, sharedStateCb) 
   const actionResult = next(action);
   // Call `getState` after calling `next` to ensure the state has updated in response to the action
   const nextState = getState();
+  const preferenceKey = nextState.user && nextState.user.user && nextState.user.user.has_verified_email ? 'shared' : 'anon';
   const shared = {};
 
   Object.keys(sharedStateFilters).forEach(key => {
@@ -2036,7 +2036,7 @@ const buildSharedStateMiddleware = (actions, sharedStateFilters, sharedStateCb) 
   if (!isEqual(oldShared, shared)) {
     // only update if the preference changed from last call in the same session
     oldShared = shared;
-    doPreferenceSet(SHARED_PREFERENCE_KEY, shared, SHARED_PREFERENCE_VERSION);
+    doPreferenceSet(preferenceKey, shared, SHARED_PREFERENCE_VERSION);
   }
 
   if (sharedStateCb) {
@@ -2879,6 +2879,7 @@ function creditsToString(amount) {
 
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+const FIFTEEN_SECONDS = 15000;
 let walletBalancePromise = null;
 function doUpdateBalance() {
   return (dispatch, getState) => {
@@ -3244,11 +3245,23 @@ function doWalletReconnect() {
     dispatch({
       type: WALLET_RESTART
     });
+    let failed = false;
     // this basically returns null when it's done. :(
     // might be good to  dispatch ACTIONS.WALLET_RESTARTED
-    lbryProxy.wallet_reconnect().then(() => dispatch({
-      type: WALLET_RESTART_COMPLETED
-    }));
+    const walletTimeout = setTimeout(() => {
+      failed = true;
+      dispatch({
+        type: WALLET_RESTART_COMPLETED
+      });
+      dispatch(doToast({
+        message: __('Your servers were not available. Check your url and port, or switch back to defaults.'),
+        isError: true
+      }));
+    }, FIFTEEN_SECONDS);
+    lbryProxy.wallet_reconnect().then(() => {
+      clearTimeout(walletTimeout);
+      if (!failed) dispatch({ type: WALLET_RESTART_COMPLETED });
+    });
   };
 }
 function doWalletDecrypt() {

@@ -10,6 +10,7 @@ import { creditsToString } from 'util/format-credits';
 import { selectMyClaimsRaw } from 'redux/selectors/claims';
 import { doFetchChannelListMine, doFetchClaimListMine } from 'redux/actions/claims';
 
+const FIFTEEN_SECONDS = 15000;
 let walletBalancePromise = null;
 export function doUpdateBalance() {
   return (dispatch, getState) => {
@@ -421,13 +422,27 @@ export function doWalletReconnect() {
     dispatch({
       type: ACTIONS.WALLET_RESTART,
     });
+    let failed = false;
     // this basically returns null when it's done. :(
     // might be good to  dispatch ACTIONS.WALLET_RESTARTED
-    Lbry.wallet_reconnect().then(() =>
+    const walletTimeout = setTimeout(() => {
+      failed = true;
       dispatch({
         type: ACTIONS.WALLET_RESTART_COMPLETED,
-      })
-    );
+      });
+      dispatch(
+        doToast({
+          message: __(
+            'Your servers were not available. Check your url and port, or switch back to defaults.'
+          ),
+          isError: true,
+        })
+      );
+    }, FIFTEEN_SECONDS);
+    Lbry.wallet_reconnect().then(() => {
+      clearTimeout(walletTimeout);
+      if (!failed) dispatch({ type: ACTIONS.WALLET_RESTART_COMPLETED });
+    });
   };
 }
 export function doWalletDecrypt() {
