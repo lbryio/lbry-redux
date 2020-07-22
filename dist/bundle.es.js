@@ -2921,7 +2921,7 @@ function doFetchTransactions(page = 1, pageSize = 99999) {
       type: FETCH_TRANSACTIONS_STARTED
     });
 
-    lbryProxy.utxo_release().then(() => lbryProxy.transaction_list({ page, page_size: pageSize })).then(result => {
+    lbryProxy.transaction_list({ page, page_size: pageSize }).then(result => {
       dispatch({
         type: FETCH_TRANSACTIONS_COMPLETED,
         data: {
@@ -2941,7 +2941,7 @@ function doFetchTxoPage() {
     const state = getState();
     const queryParams = selectTxoPageParams(state);
 
-    lbryProxy.utxo_release().then(() => lbryProxy.txo_list(queryParams)).then(res => {
+    lbryProxy.txo_list(queryParams).then(res => {
       dispatch({
         type: FETCH_TXO_PAGE_COMPLETED,
         data: res

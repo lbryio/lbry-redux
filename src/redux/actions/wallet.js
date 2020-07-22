@@ -63,16 +63,14 @@ export function doFetchTransactions(page = 1, pageSize = 99999) {
       type: ACTIONS.FETCH_TRANSACTIONS_STARTED,
     });
 
-    Lbry.utxo_release()
-      .then(() => Lbry.transaction_list({ page, page_size: pageSize }))
-      .then(result => {
-        dispatch({
-          type: ACTIONS.FETCH_TRANSACTIONS_COMPLETED,
-          data: {
-            transactions: result.items,
-          },
-        });
+    Lbry.transaction_list({ page, page_size: pageSize }).then(result => {
+      dispatch({
+        type: ACTIONS.FETCH_TRANSACTIONS_COMPLETED,
+        data: {
+          transactions: result.items,
+        },
       });
+    });
   };
 }
 
@@ -85,8 +83,7 @@ export function doFetchTxoPage() {
     const state = getState();
     const queryParams = selectTxoPageParams(state);
 
-    Lbry.utxo_release()
-      .then(() => Lbry.txo_list(queryParams))
+    Lbry.txo_list(queryParams)
       .then(res => {
         dispatch({
           type: ACTIONS.FETCH_TXO_PAGE_COMPLETED,
