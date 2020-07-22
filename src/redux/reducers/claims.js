@@ -115,6 +115,7 @@ function handleClaimAction(state: State, action: any): State {
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
   const pendingIds = state.pendingIds;
   let newResolvingUrls = new Set(state.resolvingUris);
+  let myClaimIds = new Set(state.myClaims);
 
   Object.entries(resolveInfo).forEach(([url: string, resolveResponse: ResolveResponse]) => {
     // $FlowFixMe
@@ -135,6 +136,10 @@ function handleClaimAction(state: State, action: any): State {
       byUri[stream.permanent_url] = stream.claim_id;
       newResolvingUrls.delete(stream.canonical_url);
       newResolvingUrls.delete(stream.permanent_url);
+
+      if (stream.is_my_output) {
+        myClaimIds.add(stream.claim_id);
+      }
     }
 
     if (channel && channel.claim_id) {
@@ -170,6 +175,7 @@ function handleClaimAction(state: State, action: any): State {
     claimsByUri: byUri,
     channelClaimCounts,
     resolvingUris: Array.from(newResolvingUrls),
+    myClaims: Array.from(myClaimIds),
   });
 }
 
