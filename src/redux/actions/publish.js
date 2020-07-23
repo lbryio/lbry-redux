@@ -224,11 +224,13 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
   dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
 };
 
-export const doPublish = (success: Function, fail: Function) => (
+export const doPublish = (success: Function, fail: Function, preview: Function) => (
   dispatch: Dispatch,
   getState: () => {}
 ) => {
-  dispatch({ type: ACTIONS.PUBLISH_START });
+  if (!preview) {
+    dispatch({ type: ACTIONS.PUBLISH_START });
+  }
 
   const state = getState();
   const myClaimForUri = selectMyClaimForUri(state);
@@ -296,6 +298,7 @@ export const doPublish = (success: Function, fail: Function) => (
     locations?: Array<any>,
     blocking: boolean,
     optimize_file?: boolean,
+    preview?: boolean,
   } = {
     name,
     title,
@@ -306,6 +309,7 @@ export const doPublish = (success: Function, fail: Function) => (
     tags: tags && tags.map(tag => tag.name),
     thumbnail_url: thumbnail,
     blocking: true,
+    preview: false,
   };
   // Temporary solution to keep the same publish flow with the new tags api
   // Eventually we will allow users to enter their own tags on publish
@@ -356,6 +360,15 @@ export const doPublish = (success: Function, fail: Function) => (
   // Only pass file on new uploads, not metadata only edits.
   // The sdk will figure it out
   if (filePath) publishPayload.file_path = filePath;
+
+  if (preview) {
+    publishPayload.preview = true;
+    publishPayload.optimize_file = false;
+
+    return Lbry.publish(publishPayload).then((previewResponse: PublishResponse) => {
+      return preview(previewResponse);
+    }, fail);
+  }
 
   return Lbry.publish(publishPayload).then((response: PublishResponse) => {
     if (!useLBRYUploader) {
