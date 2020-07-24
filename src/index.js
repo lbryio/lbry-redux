@@ -197,6 +197,8 @@ export {
   makeSelectSupportsForUri,
   makeSelectMyPurchasesForPage,
   makeSelectClaimWasPurchased,
+  makeSelectAbandoningClaimById,
+  makeSelectIsAbandoningClaimForUri,
   selectReflectingById,
   selectClaimsById,
   selectClaimsByUri,

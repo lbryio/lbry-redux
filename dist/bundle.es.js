@@ -2437,6 +2437,13 @@ const selectMyClaimsRaw = reselect.createSelector(selectState$2, selectClaimsByI
 
 const selectAbandoningIds = reselect.createSelector(selectState$2, state => Object.keys(state.abandoningById || {}));
 
+const makeSelectAbandoningClaimById = claimId => reselect.createSelector(selectAbandoningIds, ids => ids.includes(claimId));
+
+const makeSelectIsAbandoningClaimForUri = uri => reselect.createSelector(selectClaimIdsByUri, selectAbandoningIds, (claimIdsByUri, abandoningById) => {
+  const claimId = claimIdsByUri[normalizeURI(uri)];
+  return abandoningById.indexOf(claimId) >= 0;
+});
+
 const selectMyActiveClaims = reselect.createSelector(selectMyClaimsRaw, selectAbandoningIds, (claims, abandoningIds) => new Set(claims && claims.map(claim => claim.claim_id).filter(claimId => Object.keys(abandoningIds).indexOf(claimId) === -1)));
 
 const makeSelectClaimIsMine = rawUri => {
@@ -6824,6 +6831,7 @@ exports.isClaimNsfw = isClaimNsfw;
 exports.isNameValid = isNameValid;
 exports.isURIClaimable = isURIClaimable;
 exports.isURIValid = isURIValid;
+exports.makeSelectAbandoningClaimById = makeSelectAbandoningClaimById;
 exports.makeSelectAmountForUri = makeSelectAmountForUri;
 exports.makeSelectCanonicalUrlForUri = makeSelectCanonicalUrlForUri;
 exports.makeSelectChannelForClaimUri = makeSelectChannelForClaimUri;
@@ -6846,6 +6854,7 @@ exports.makeSelectFileNameForUri = makeSelectFileNameForUri;
 exports.makeSelectFilePartlyDownloaded = makeSelectFilePartlyDownloaded;
 exports.makeSelectFilteredTransactionsForPage = makeSelectFilteredTransactionsForPage;
 exports.makeSelectFirstRecommendedFileForUri = makeSelectFirstRecommendedFileForUri;
+exports.makeSelectIsAbandoningClaimForUri = makeSelectIsAbandoningClaimForUri;
 exports.makeSelectIsFollowingTag = makeSelectIsFollowingTag;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
 exports.makeSelectLatestTransactions = makeSelectLatestTransactions;
