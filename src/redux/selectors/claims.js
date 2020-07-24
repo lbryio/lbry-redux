@@ -165,6 +165,21 @@ export const selectAbandoningIds = createSelector(
   state => Object.keys(state.abandoningById || {})
 );
 
+export const makeSelectAbandoningClaimById = (claimId: string) => createSelector(
+  selectAbandoningIds,
+  ids => ids.includes(claimId)
+);
+
+export const makeSelectIsAbandoningClaimForUri = (uri: string) =>
+  createSelector(
+    selectClaimIdsByUri,
+    selectAbandoningIds,
+    (claimIdsByUri, abandoningById) => {
+      const claimId = claimIdsByUri[normalizeURI(uri)];
+      return abandoningById.indexOf(claimId) >= 0;
+    }
+  );
+
 export const selectMyActiveClaims = createSelector(
   selectMyClaimsRaw,
   selectAbandoningIds,
