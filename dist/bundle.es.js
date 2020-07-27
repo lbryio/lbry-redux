@@ -5,8 +5,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 require('proxy-polyfill');
-var reselect = require('reselect');
 var uuid = _interopDefault(require('uuid/v4'));
+var reselect = require('reselect');
 
 const MINIMUM_PUBLISH_BID = 0.00000001;
 
@@ -194,19 +194,6 @@ const PURCHASE_URI_STARTED = 'PURCHASE_URI_STARTED';
 const PURCHASE_URI_COMPLETED = 'PURCHASE_URI_COMPLETED';
 const PURCHASE_URI_FAILED = 'PURCHASE_URI_FAILED';
 const CLEAR_PURCHASED_URI_SUCCESS = 'CLEAR_PURCHASED_URI_SUCCESS';
-
-// Search
-const SEARCH_START = 'SEARCH_START';
-const SEARCH_SUCCESS = 'SEARCH_SUCCESS';
-const SEARCH_FAIL = 'SEARCH_FAIL';
-const RESOLVED_SEARCH_START = 'RESOLVED_SEARCH_START';
-const RESOLVED_SEARCH_SUCCESS = 'RESOLVED_SEARCH_SUCCESS';
-const RESOLVED_SEARCH_FAIL = 'RESOLVED_SEARCH_FAIL';
-const UPDATE_SEARCH_QUERY = 'UPDATE_SEARCH_QUERY';
-const UPDATE_SEARCH_OPTIONS = 'UPDATE_SEARCH_OPTIONS';
-const UPDATE_SEARCH_SUGGESTIONS = 'UPDATE_SEARCH_SUGGESTIONS';
-const SEARCH_FOCUS = 'SEARCH_FOCUS';
-const SEARCH_BLUR = 'SEARCH_BLUR';
 
 // Settings
 const DAEMON_SETTINGS_RECEIVED = 'DAEMON_SETTINGS_RECEIVED';
@@ -472,17 +459,6 @@ var action_types = /*#__PURE__*/Object.freeze({
   PURCHASE_URI_COMPLETED: PURCHASE_URI_COMPLETED,
   PURCHASE_URI_FAILED: PURCHASE_URI_FAILED,
   CLEAR_PURCHASED_URI_SUCCESS: CLEAR_PURCHASED_URI_SUCCESS,
-  SEARCH_START: SEARCH_START,
-  SEARCH_SUCCESS: SEARCH_SUCCESS,
-  SEARCH_FAIL: SEARCH_FAIL,
-  RESOLVED_SEARCH_START: RESOLVED_SEARCH_START,
-  RESOLVED_SEARCH_SUCCESS: RESOLVED_SEARCH_SUCCESS,
-  RESOLVED_SEARCH_FAIL: RESOLVED_SEARCH_FAIL,
-  UPDATE_SEARCH_QUERY: UPDATE_SEARCH_QUERY,
-  UPDATE_SEARCH_OPTIONS: UPDATE_SEARCH_OPTIONS,
-  UPDATE_SEARCH_SUGGESTIONS: UPDATE_SEARCH_SUGGESTIONS,
-  SEARCH_FOCUS: SEARCH_FOCUS,
-  SEARCH_BLUR: SEARCH_BLUR,
   DAEMON_SETTINGS_RECEIVED: DAEMON_SETTINGS_RECEIVED,
   DAEMON_STATUS_RECEIVED: DAEMON_STATUS_RECEIVED,
   SHARED_PREFERENCE_SET: SHARED_PREFERENCE_SET,
@@ -976,26 +952,6 @@ var shared_preferences = /*#__PURE__*/Object.freeze({
   CLIENT_SYNC_KEYS: CLIENT_SYNC_KEYS
 });
 
-const SEARCH_TYPES = {
-  FILE: 'file',
-  CHANNEL: 'channel',
-  SEARCH: 'search',
-  TAG: 'tag'
-};
-
-const SEARCH_OPTIONS = {
-  RESULT_COUNT: 'size',
-  CLAIM_TYPE: 'claimType',
-  INCLUDE_FILES: 'file',
-  INCLUDE_CHANNELS: 'channel',
-  INCLUDE_FILES_AND_CHANNELS: 'file,channel',
-  MEDIA_AUDIO: 'audio',
-  MEDIA_VIDEO: 'video',
-  MEDIA_TEXT: 'text',
-  MEDIA_IMAGE: 'image',
-  MEDIA_APPLICATION: 'application'
-};
-
 const DEFAULT_FOLLOWED_TAGS = ['art', 'automotive', 'blockchain', 'comedy', 'economics', 'education', 'gaming', 'music', 'news', 'science', 'sports', 'technology'];
 
 const MATURE_TAGS = ['porn', 'porno', 'nsfw', 'mature', 'xxx', 'sex', 'creampie', 'blowjob', 'handjob', 'vagina', 'boobs', 'big boobs', 'big dick', 'pussy', 'cumshot', 'anal', 'hard fucking', 'ass', 'fuck', 'hentai'];
@@ -1385,70 +1341,6 @@ const lbryFirstProxy = new Proxy(LbryFirst, {
   }
 });
 
-//      
-
-const DEFAULT_SEARCH_RESULT_FROM = 0;
-const DEFAULT_SEARCH_SIZE = 20;
-
-function parseQueryParams(queryString) {
-  if (queryString === '') return {};
-  const parts = queryString.split('?').pop().split('&').map(p => p.split('='));
-
-  const params = {};
-  parts.forEach(array => {
-    const [first, second] = array;
-    params[first] = second;
-  });
-  return params;
-}
-
-function toQueryString(params) {
-  if (!params) return '';
-
-  const parts = [];
-  Object.keys(params).forEach(key => {
-    if (Object.prototype.hasOwnProperty.call(params, key) && params[key]) {
-      parts.push(`${key}=${params[key]}`);
-    }
-  });
-
-  return parts.join('&');
-}
-
-const getSearchQueryString = (query, options = {}) => {
-  const encodedQuery = encodeURIComponent(query);
-  const queryParams = [`s=${encodedQuery}`, `size=${options.size || DEFAULT_SEARCH_SIZE}`, `from=${options.from || DEFAULT_SEARCH_RESULT_FROM}`];
-  const { isBackgroundSearch } = options;
-  const includeUserOptions = typeof isBackgroundSearch === 'undefined' ? false : !isBackgroundSearch;
-
-  if (includeUserOptions) {
-    const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE];
-    if (claimType) {
-      queryParams.push(`claimType=${claimType}`);
-
-      // If they are only searching for channels, strip out the media info
-      if (!claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS)) {
-        queryParams.push(`mediaType=${[SEARCH_OPTIONS.MEDIA_FILE, SEARCH_OPTIONS.MEDIA_AUDIO, SEARCH_OPTIONS.MEDIA_VIDEO, SEARCH_OPTIONS.MEDIA_TEXT, SEARCH_OPTIONS.MEDIA_IMAGE, SEARCH_OPTIONS.MEDIA_APPLICATION].reduce((acc, currentOption) => options[currentOption] ? `${acc}${currentOption},` : acc, '')}`);
-      }
-    }
-  }
-
-  const additionalOptions = {};
-  const { related_to } = options;
-  const { nsfw } = options;
-  if (related_to) additionalOptions['related_to'] = related_to;
-  if (typeof nsfw !== 'undefined') additionalOptions['nsfw'] = nsfw;
-
-  if (additionalOptions) {
-    Object.keys(additionalOptions).forEach(key => {
-      const option = additionalOptions[key];
-      queryParams.push(`${key}=${option}`);
-    });
-  }
-
-  return queryParams.join('&');
-};
-
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
@@ -1700,117 +1592,6 @@ function convertToShareLink(URL) {
   }, true, 'https://open.lbry.com/');
 }
 
-var _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-const selectState = state => state.search;
-
-const selectSearchValue = reselect.createSelector(selectState, state => state.searchQuery);
-
-const selectSearchOptions = reselect.createSelector(selectState, state => state.options);
-
-const selectSuggestions = reselect.createSelector(selectState, state => state.suggestions);
-
-const selectIsSearching = reselect.createSelector(selectState, state => state.searching);
-
-const selectSearchUrisByQuery = reselect.createSelector(selectState, state => state.urisByQuery);
-
-const makeSelectSearchUris = query =>
-// replace statement below is kind of ugly, and repeated in doSearch action
-reselect.createSelector(selectSearchUrisByQuery, byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query]);
-
-const selectResolvedSearchResultsByQuery = reselect.createSelector(selectState, state => state.resolvedResultsByQuery);
-
-const selectResolvedSearchResultsByQueryLastPageReached = reselect.createSelector(selectState, state => state.resolvedResultsByQueryLastPageReached);
-
-const makeSelectResolvedSearchResults = query =>
-// replace statement below is kind of ugly, and repeated in doSearch action
-reselect.createSelector(selectResolvedSearchResultsByQuery, byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query]);
-
-const makeSelectResolvedSearchResultsLastPageReached = query =>
-// replace statement below is kind of ugly, and repeated in doSearch action
-reselect.createSelector(selectResolvedSearchResultsByQueryLastPageReached, byQuery => byQuery[query ? query.replace(/^lbry:\/\//i, '').replace(/\//, ' ') : query]);
-
-const selectSearchBarFocused = reselect.createSelector(selectState, state => state.focused);
-
-const selectSearchSuggestions = reselect.createSelector(selectSearchValue, selectSuggestions, (query, suggestions) => {
-  if (!query) {
-    return [];
-  }
-  const queryIsPrefix = query === 'lbry:' || query === 'lbry:/' || query === 'lbry://' || query === 'lbry://@';
-
-  if (queryIsPrefix) {
-    // If it is a prefix, wait until something else comes to figure out what to do
-    return [];
-  } else if (query.startsWith('lbry://')) {
-    // If it starts with a prefix, don't show any autocomplete results
-    // They are probably typing/pasting in a lbry uri
-    return [{
-      value: query,
-      type: query[7] === '@' ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE
-    }];
-  }
-
-  let searchSuggestions = [];
-  try {
-    const uri = normalizeURI(query);
-    const { channelName, streamName, isChannel } = parseURI(uri);
-    searchSuggestions.push({
-      value: query,
-      type: SEARCH_TYPES.SEARCH
-    }, {
-      value: uri,
-      shorthand: isChannel ? channelName : streamName,
-      type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE
-    });
-  } catch (e) {
-    searchSuggestions.push({
-      value: query,
-      type: SEARCH_TYPES.SEARCH
-    });
-  }
-
-  searchSuggestions.push({
-    value: query,
-    type: SEARCH_TYPES.TAG
-  });
-
-  const apiSuggestions = suggestions[query] || [];
-  if (apiSuggestions.length) {
-    searchSuggestions = searchSuggestions.concat(apiSuggestions.filter(suggestion => suggestion !== query).map(suggestion => {
-      // determine if it's a channel
-      try {
-        const uri = normalizeURI(suggestion);
-        const { channelName, streamName, isChannel } = parseURI(uri);
-
-        return {
-          value: uri,
-          shorthand: isChannel ? channelName : streamName,
-          type: isChannel ? SEARCH_TYPES.CHANNEL : SEARCH_TYPES.FILE
-        };
-      } catch (e) {
-        // search result includes some character that isn't valid in claim names
-        return {
-          value: suggestion,
-          type: SEARCH_TYPES.SEARCH
-        };
-      }
-    }));
-  }
-
-  return searchSuggestions;
-});
-
-// Creates a query string based on the state in the search reducer
-// Can be overrided by passing in custom sizes/from values for other areas pagination
-
-
-const makeSelectQueryWithOptions = (customQuery, options) => reselect.createSelector(selectSearchValue, selectSearchOptions, (query, defaultOptions) => {
-  const searchOptions = _extends$1({}, defaultOptions, options);
-  const queryString = getSearchQueryString(customQuery || query, searchOptions);
-
-  return queryString;
-});
-
 /* eslint-disable */
 // underscore's deep equal function
 // https://github.com/jashkenas/underscore/blob/master/underscore.js#L1189
@@ -1920,7 +1701,7 @@ function has(obj, path) {
 }
 /* eslint-enable */
 
-var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function extractUserState(rawObj) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
@@ -1933,7 +1714,7 @@ function extractUserState(rawObj) {
       sharing_3P
     } = rawObj.value;
 
-    return _extends$2({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {});
+    return _extends$1({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {});
   }
 
   return {};
@@ -2084,19 +1865,19 @@ function doDismissError() {
   };
 }
 
-const selectState$1 = state => state.wallet || {};
+const selectState = state => state.wallet || {};
 
-const selectWalletState = selectState$1;
+const selectWalletState = selectState;
 
-const selectWalletIsEncrypted = reselect.createSelector(selectState$1, state => state.walletIsEncrypted);
+const selectWalletIsEncrypted = reselect.createSelector(selectState, state => state.walletIsEncrypted);
 
-const selectWalletEncryptPending = reselect.createSelector(selectState$1, state => state.walletEncryptPending);
+const selectWalletEncryptPending = reselect.createSelector(selectState, state => state.walletEncryptPending);
 
-const selectWalletEncryptSucceeded = reselect.createSelector(selectState$1, state => state.walletEncryptSucceded);
+const selectWalletEncryptSucceeded = reselect.createSelector(selectState, state => state.walletEncryptSucceded);
 
-const selectPendingSupportTransactions = reselect.createSelector(selectState$1, state => state.pendingSupportTransactions);
+const selectPendingSupportTransactions = reselect.createSelector(selectState, state => state.pendingSupportTransactions);
 
-const selectAbandonClaimSupportError = reselect.createSelector(selectState$1, state => state.abandonClaimSupportError);
+const selectAbandonClaimSupportError = reselect.createSelector(selectState, state => state.abandonClaimSupportError);
 
 const makeSelectPendingAmountByUri = uri => reselect.createSelector(selectClaimIdsByUri, selectPendingSupportTransactions, (claimIdsByUri, pendingSupports) => {
   const uriEntry = Object.entries(claimIdsByUri).find(([u, cid]) => u === uri);
@@ -2105,41 +1886,41 @@ const makeSelectPendingAmountByUri = uri => reselect.createSelector(selectClaimI
   return pendingSupport ? pendingSupport.effective : undefined;
 });
 
-const selectWalletEncryptResult = reselect.createSelector(selectState$1, state => state.walletEncryptResult);
+const selectWalletEncryptResult = reselect.createSelector(selectState, state => state.walletEncryptResult);
 
-const selectWalletDecryptPending = reselect.createSelector(selectState$1, state => state.walletDecryptPending);
+const selectWalletDecryptPending = reselect.createSelector(selectState, state => state.walletDecryptPending);
 
-const selectWalletDecryptSucceeded = reselect.createSelector(selectState$1, state => state.walletDecryptSucceded);
+const selectWalletDecryptSucceeded = reselect.createSelector(selectState, state => state.walletDecryptSucceded);
 
-const selectWalletDecryptResult = reselect.createSelector(selectState$1, state => state.walletDecryptResult);
+const selectWalletDecryptResult = reselect.createSelector(selectState, state => state.walletDecryptResult);
 
-const selectWalletUnlockPending = reselect.createSelector(selectState$1, state => state.walletUnlockPending);
+const selectWalletUnlockPending = reselect.createSelector(selectState, state => state.walletUnlockPending);
 
-const selectWalletUnlockSucceeded = reselect.createSelector(selectState$1, state => state.walletUnlockSucceded);
+const selectWalletUnlockSucceeded = reselect.createSelector(selectState, state => state.walletUnlockSucceded);
 
-const selectWalletUnlockResult = reselect.createSelector(selectState$1, state => state.walletUnlockResult);
+const selectWalletUnlockResult = reselect.createSelector(selectState, state => state.walletUnlockResult);
 
-const selectWalletLockPending = reselect.createSelector(selectState$1, state => state.walletLockPending);
+const selectWalletLockPending = reselect.createSelector(selectState, state => state.walletLockPending);
 
-const selectWalletLockSucceeded = reselect.createSelector(selectState$1, state => state.walletLockSucceded);
+const selectWalletLockSucceeded = reselect.createSelector(selectState, state => state.walletLockSucceded);
 
-const selectWalletLockResult = reselect.createSelector(selectState$1, state => state.walletLockResult);
+const selectWalletLockResult = reselect.createSelector(selectState, state => state.walletLockResult);
 
-const selectBalance = reselect.createSelector(selectState$1, state => state.balance);
+const selectBalance = reselect.createSelector(selectState, state => state.balance);
 
-const selectTotalBalance = reselect.createSelector(selectState$1, state => state.totalBalance);
+const selectTotalBalance = reselect.createSelector(selectState, state => state.totalBalance);
 
-const selectReservedBalance = reselect.createSelector(selectState$1, state => state.reservedBalance);
+const selectReservedBalance = reselect.createSelector(selectState, state => state.reservedBalance);
 
-const selectClaimsBalance = reselect.createSelector(selectState$1, state => state.claimsBalance);
+const selectClaimsBalance = reselect.createSelector(selectState, state => state.claimsBalance);
 
-const selectSupportsBalance = reselect.createSelector(selectState$1, state => state.supportsBalance);
+const selectSupportsBalance = reselect.createSelector(selectState, state => state.supportsBalance);
 
-const selectTipsBalance = reselect.createSelector(selectState$1, state => state.tipsBalance);
+const selectTipsBalance = reselect.createSelector(selectState, state => state.tipsBalance);
 
-const selectTransactionsById = reselect.createSelector(selectState$1, state => state.transactions || {});
+const selectTransactionsById = reselect.createSelector(selectState, state => state.transactions || {});
 
-const selectSupportsByOutpoint = reselect.createSelector(selectState$1, state => state.supports || {});
+const selectSupportsByOutpoint = reselect.createSelector(selectState, state => state.supports || {});
 
 const selectTotalSupports = reselect.createSelector(selectSupportsByOutpoint, byOutpoint => {
   let total = parseFloat('0.0');
@@ -2231,15 +2012,15 @@ const selectRecentTransactions = reselect.createSelector(selectTransactionItems,
 
 const selectHasTransactions = reselect.createSelector(selectTransactionItems, transactions => transactions && transactions.length > 0);
 
-const selectIsFetchingTransactions = reselect.createSelector(selectState$1, state => state.fetchingTransactions);
+const selectIsFetchingTransactions = reselect.createSelector(selectState, state => state.fetchingTransactions);
 
-const selectIsSendingSupport = reselect.createSelector(selectState$1, state => state.sendingSupport);
+const selectIsSendingSupport = reselect.createSelector(selectState, state => state.sendingSupport);
 
-const selectReceiveAddress = reselect.createSelector(selectState$1, state => state.receiveAddress);
+const selectReceiveAddress = reselect.createSelector(selectState, state => state.receiveAddress);
 
-const selectGettingNewAddress = reselect.createSelector(selectState$1, state => state.gettingNewAddress);
+const selectGettingNewAddress = reselect.createSelector(selectState, state => state.gettingNewAddress);
 
-const selectDraftTransaction = reselect.createSelector(selectState$1, state => state.draftTransaction || {});
+const selectDraftTransaction = reselect.createSelector(selectState, state => state.draftTransaction || {});
 
 const selectDraftTransactionAmount = reselect.createSelector(selectDraftTransaction, draft => draft.amount);
 
@@ -2247,11 +2028,11 @@ const selectDraftTransactionAddress = reselect.createSelector(selectDraftTransac
 
 const selectDraftTransactionError = reselect.createSelector(selectDraftTransaction, draft => draft.error);
 
-const selectBlocks = reselect.createSelector(selectState$1, state => state.blocks);
+const selectBlocks = reselect.createSelector(selectState, state => state.blocks);
 
-const selectCurrentHeight = reselect.createSelector(selectState$1, state => state.latestBlock);
+const selectCurrentHeight = reselect.createSelector(selectState, state => state.latestBlock);
 
-const selectTransactionListFilter = reselect.createSelector(selectState$1, state => state.transactionListFilter || '');
+const selectTransactionListFilter = reselect.createSelector(selectState, state => state.transactionListFilter || '');
 
 const selectFilteredTransactions = reselect.createSelector(selectTransactionItems, selectTransactionListFilter, (transactions, filter) => {
   return transactions.filter(transaction => {
@@ -2259,17 +2040,17 @@ const selectFilteredTransactions = reselect.createSelector(selectTransactionItem
   });
 });
 
-const selectTxoPageParams = reselect.createSelector(selectState$1, state => state.txoFetchParams);
+const selectTxoPageParams = reselect.createSelector(selectState, state => state.txoFetchParams);
 
-const selectTxoPage = reselect.createSelector(selectState$1, state => state.txoPage && state.txoPage.items || []);
+const selectTxoPage = reselect.createSelector(selectState, state => state.txoPage && state.txoPage.items || []);
 
-const selectTxoPageNumber = reselect.createSelector(selectState$1, state => state.txoPage && state.txoPage.page || 1);
+const selectTxoPageNumber = reselect.createSelector(selectState, state => state.txoPage && state.txoPage.page || 1);
 
-const selectTxoItemCount = reselect.createSelector(selectState$1, state => state.txoPage && state.txoPage.total_items || 1);
+const selectTxoItemCount = reselect.createSelector(selectState, state => state.txoPage && state.txoPage.total_items || 1);
 
-const selectFetchingTxosError = reselect.createSelector(selectState$1, state => state.fetchingTxosError);
+const selectFetchingTxosError = reselect.createSelector(selectState, state => state.fetchingTxosError);
 
-const selectIsFetchingTxos = reselect.createSelector(selectState$1, state => state.fetchingTxos);
+const selectIsFetchingTxos = reselect.createSelector(selectState, state => state.fetchingTxos);
 
 const makeSelectFilteredTransactionsForPage = (page = 1) => reselect.createSelector(selectFilteredTransactions, filteredTransactions => {
   const start = (Number(page) - 1) * Number(PAGE_SIZE$1);
@@ -2283,13 +2064,13 @@ const makeSelectLatestTransactions = reselect.createSelector(selectTransactionIt
 
 const selectFilteredTransactionCount = reselect.createSelector(selectFilteredTransactions, filteredTransactions => filteredTransactions.length);
 
-const selectIsWalletReconnecting = reselect.createSelector(selectState$1, state => state.walletReconnecting);
+const selectIsWalletReconnecting = reselect.createSelector(selectState, state => state.walletReconnecting);
 
-var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$1(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-const matureTagMap = MATURE_TAGS.reduce((acc, tag) => _extends$3({}, acc, { [tag]: true }), {});
+const matureTagMap = MATURE_TAGS.reduce((acc, tag) => _extends$2({}, acc, { [tag]: true }), {});
 
 const isClaimNsfw = claim => {
   if (!claim) {
@@ -2332,23 +2113,23 @@ function filterClaims(claims, query) {
   return claims;
 }
 
-var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const selectState$2 = state => state.claims || {};
+const selectState$1 = state => state.claims || {};
 
-const selectClaimsById = reselect.createSelector(selectState$2, state => state.byId || {});
+const selectClaimsById = reselect.createSelector(selectState$1, state => state.byId || {});
 
-const selectClaimIdsByUri = reselect.createSelector(selectState$2, state => state.claimsByUri || {});
+const selectClaimIdsByUri = reselect.createSelector(selectState$1, state => state.claimsByUri || {});
 
-const selectCurrentChannelPage = reselect.createSelector(selectState$2, state => state.currentChannelPage || 1);
+const selectCurrentChannelPage = reselect.createSelector(selectState$1, state => state.currentChannelPage || 1);
 
-const selectCreatingChannel = reselect.createSelector(selectState$2, state => state.creatingChannel);
+const selectCreatingChannel = reselect.createSelector(selectState$1, state => state.creatingChannel);
 
-const selectCreateChannelError = reselect.createSelector(selectState$2, state => state.createChannelError);
+const selectCreateChannelError = reselect.createSelector(selectState$1, state => state.createChannelError);
 
-const selectRepostLoading = reselect.createSelector(selectState$2, state => state.repostLoading);
+const selectRepostLoading = reselect.createSelector(selectState$1, state => state.repostLoading);
 
-const selectRepostError = reselect.createSelector(selectState$2, state => state.repostError);
+const selectRepostError = reselect.createSelector(selectState$1, state => state.repostError);
 
 const selectClaimsByUri = reselect.createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
   const claims = {};
@@ -2369,9 +2150,9 @@ const selectClaimsByUri = reselect.createSelector(selectClaimIdsByUri, selectCla
   return claims;
 });
 
-const selectAllClaimsByChannel = reselect.createSelector(selectState$2, state => state.paginatedClaimsByChannel || {});
+const selectAllClaimsByChannel = reselect.createSelector(selectState$1, state => state.paginatedClaimsByChannel || {});
 
-const selectPendingIds = reselect.createSelector(selectState$2, state => state.pendingIds || []);
+const selectPendingIds = reselect.createSelector(selectState$1, state => state.pendingIds || []);
 
 const makeSelectClaimIsPending = uri => reselect.createSelector(selectClaimIdsByUri, selectPendingIds, (idsByUri, pendingIds) => {
   const claimId = idsByUri[normalizeURI(uri)];
@@ -2382,7 +2163,7 @@ const makeSelectClaimIsPending = uri => reselect.createSelector(selectClaimIdsBy
   return false;
 });
 
-const selectReflectingById = reselect.createSelector(selectState$2, state => state.reflectingById);
+const selectReflectingById = reselect.createSelector(selectState$1, state => state.reflectingById);
 
 const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
   let validUri;
@@ -2409,7 +2190,7 @@ const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelec
     if (repostedClaim && returnRepost) {
       const channelUrl = claim.signing_channel && claim.signing_channel.canonical_url;
 
-      return _extends$4({}, repostedClaim, {
+      return _extends$3({}, repostedClaim, {
         repost_url: uri,
         repost_channel_url: channelUrl
       });
@@ -2419,7 +2200,7 @@ const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelec
   }
 });
 
-const selectMyClaimsRaw = reselect.createSelector(selectState$2, selectClaimsById, (state, byId) => {
+const selectMyClaimsRaw = reselect.createSelector(selectState$1, selectClaimsById, (state, byId) => {
   const ids = state.myClaims;
   if (!ids) {
     return ids;
@@ -2435,7 +2216,7 @@ const selectMyClaimsRaw = reselect.createSelector(selectState$2, selectClaimsByI
   return claims;
 });
 
-const selectAbandoningIds = reselect.createSelector(selectState$2, state => Object.keys(state.abandoningById || {}));
+const selectAbandoningIds = reselect.createSelector(selectState$1, state => Object.keys(state.abandoningById || {}));
 
 const makeSelectAbandoningClaimById = claimId => reselect.createSelector(selectAbandoningIds, ids => ids.includes(claimId));
 
@@ -2463,15 +2244,15 @@ const makeSelectClaimIsMine = rawUri => {
   });
 };
 
-const selectMyPurchases = reselect.createSelector(selectState$2, state => state.myPurchases);
+const selectMyPurchases = reselect.createSelector(selectState$1, state => state.myPurchases);
 
-const selectPurchaseUriSuccess = reselect.createSelector(selectState$2, state => state.purchaseUriSuccess);
+const selectPurchaseUriSuccess = reselect.createSelector(selectState$1, state => state.purchaseUriSuccess);
 
-const selectMyPurchasesCount = reselect.createSelector(selectState$2, state => state.myPurchasesPageTotalResults);
+const selectMyPurchasesCount = reselect.createSelector(selectState$1, state => state.myPurchasesPageTotalResults);
 
-const selectIsFetchingMyPurchases = reselect.createSelector(selectState$2, state => state.fetchingMyPurchases);
+const selectIsFetchingMyPurchases = reselect.createSelector(selectState$1, state => state.fetchingMyPurchases);
 
-const selectFetchingMyPurchasesError = reselect.createSelector(selectState$2, state => state.fetchingMyPurchasesError);
+const selectFetchingMyPurchasesError = reselect.createSelector(selectState$1, state => state.fetchingMyPurchasesError);
 
 const makeSelectMyPurchasesForPage = (query, page = 1) => reselect.createSelector(selectMyPurchases, selectClaimsByUri, (myPurchases, claimsByUri) => {
   if (!myPurchases) {
@@ -2494,7 +2275,7 @@ const makeSelectClaimWasPurchased = uri => reselect.createSelector(makeSelectCla
   return claim && claim.purchase_receipt !== undefined;
 });
 
-const selectAllFetchingChannelClaims = reselect.createSelector(selectState$2, state => state.fetchingChannelClaims || {});
+const selectAllFetchingChannelClaims = reselect.createSelector(selectState$1, state => state.fetchingChannelClaims || {});
 
 const makeSelectFetchingChannelClaims = uri => reselect.createSelector(selectAllFetchingChannelClaims, fetching => fetching && fetching[uri]);
 
@@ -2565,15 +2346,15 @@ const makeSelectCoverForUri = uri => reselect.createSelector(makeSelectClaimForU
   return cover && cover.url ? cover.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
 });
 
-const selectIsFetchingClaimListMine = reselect.createSelector(selectState$2, state => state.isFetchingClaimListMine);
+const selectIsFetchingClaimListMine = reselect.createSelector(selectState$1, state => state.isFetchingClaimListMine);
 
-const selectMyClaimsPage = reselect.createSelector(selectState$2, state => state.myClaimsPageResults || []);
+const selectMyClaimsPage = reselect.createSelector(selectState$1, state => state.myClaimsPageResults || []);
 
-const selectMyClaimsPageNumber = reselect.createSelector(selectState$2, state => state.claimListMinePage && state.claimListMinePage.items || [], state => state.txoPage && state.txoPage.page || 1);
+const selectMyClaimsPageNumber = reselect.createSelector(selectState$1, state => state.claimListMinePage && state.claimListMinePage.items || [], state => state.txoPage && state.txoPage.page || 1);
 
-const selectMyClaimsPageItemCount = reselect.createSelector(selectState$2, state => state.myClaimsPageTotalResults || 1);
+const selectMyClaimsPageItemCount = reselect.createSelector(selectState$1, state => state.myClaimsPageTotalResults || 1);
 
-const selectFetchingMyClaimsPageError = reselect.createSelector(selectState$2, state => state.fetchingClaimListMinePageError);
+const selectFetchingMyClaimsPageError = reselect.createSelector(selectState$1, state => state.fetchingClaimListMinePageError);
 
 const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaimsById, selectAbandoningIds, (myClaimIds, byId, abandoningIds) => {
   const claims = [];
@@ -2613,9 +2394,9 @@ const selectMyClaimsOutpoints = reselect.createSelector(selectMyClaims, myClaims
   return outpoints;
 });
 
-const selectFetchingMyChannels = reselect.createSelector(selectState$2, state => state.fetchingMyChannels);
+const selectFetchingMyChannels = reselect.createSelector(selectState$1, state => state.fetchingMyChannels);
 
-const selectMyChannelClaims = reselect.createSelector(selectState$2, selectClaimsById, (state, byId) => {
+const selectMyChannelClaims = reselect.createSelector(selectState$1, selectClaimsById, (state, byId) => {
   const ids = state.myChannelClaims;
   if (!ids) {
     return ids;
@@ -2634,15 +2415,15 @@ const selectMyChannelClaims = reselect.createSelector(selectState$2, selectClaim
 
 const selectMyChannelUrls = reselect.createSelector(selectMyChannelClaims, claims => claims ? claims.map(claim => claim.canonical_url || claim.permanent_url) : undefined);
 
-const selectResolvingUris = reselect.createSelector(selectState$2, state => state.resolvingUris || []);
+const selectResolvingUris = reselect.createSelector(selectState$1, state => state.resolvingUris || []);
 
-const selectChannelImportPending = reselect.createSelector(selectState$2, state => state.pendingChannelImport);
+const selectChannelImportPending = reselect.createSelector(selectState$1, state => state.pendingChannelImport);
 
 const makeSelectIsUriResolving = uri => reselect.createSelector(selectResolvingUris, resolvingUris => resolvingUris && resolvingUris.indexOf(uri) !== -1);
 
-const selectPlayingUri = reselect.createSelector(selectState$2, state => state.playingUri);
+const selectPlayingUri = reselect.createSelector(selectState$1, state => state.playingUri);
 
-const selectChannelClaimCounts = reselect.createSelector(selectState$2, state => state.channelClaimCounts || {});
+const selectChannelClaimCounts = reselect.createSelector(selectState$1, state => state.channelClaimCounts || {});
 
 const makeSelectTotalItemsForChannel = uri => reselect.createSelector(selectChannelClaimCounts, byUri => byUri && byUri[uri]);
 
@@ -2690,39 +2471,6 @@ claim => {
   return isClaimNsfw(claim);
 });
 
-const makeSelectRecommendedContentForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), selectSearchUrisByQuery, makeSelectClaimIsNsfw(uri), (claim, searchUrisByQuery, isMature) => {
-  const atVanityURI = !uri.includes('#');
-
-  let recommendedContent;
-  if (claim) {
-    // always grab full URL - this can change once search returns canonical
-    const currentUri = buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
-
-    const { title } = claim.value;
-
-    if (!title) {
-      return;
-    }
-
-    const options = { related_to: claim.claim_id, isBackgroundSearch: true };
-
-    if (!isMature) {
-      options['nsfw'] = false;
-    }
-    const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
-
-    let searchUris = searchUrisByQuery[searchQuery];
-    if (searchUris) {
-      searchUris = searchUris.filter(searchUri => searchUri !== currentUri);
-      recommendedContent = searchUris;
-    }
-  }
-
-  return recommendedContent;
-});
-
-const makeSelectFirstRecommendedFileForUri = uri => reselect.createSelector(makeSelectRecommendedContentForUri(uri), recommendedContent => recommendedContent ? recommendedContent[0] : null);
-
 // Returns the associated channel uri for a given claim uri
 // accepts a regular claim uri lbry://something
 // returns the channel uri that created this claim lbry://@channel
@@ -2744,13 +2492,13 @@ const makeSelectTagsForUri = uri => reselect.createSelector(makeSelectMetadataFo
   return metadata && metadata.tags || [];
 });
 
-const selectFetchingClaimSearchByQuery = reselect.createSelector(selectState$2, state => state.fetchingClaimSearchByQuery || {});
+const selectFetchingClaimSearchByQuery = reselect.createSelector(selectState$1, state => state.fetchingClaimSearchByQuery || {});
 
 const selectFetchingClaimSearch = reselect.createSelector(selectFetchingClaimSearchByQuery, fetchingClaimSearchByQuery => Boolean(Object.keys(fetchingClaimSearchByQuery).length));
 
-const selectClaimSearchByQuery = reselect.createSelector(selectState$2, state => state.claimSearchByQuery || {});
+const selectClaimSearchByQuery = reselect.createSelector(selectState$1, state => state.claimSearchByQuery || {});
 
-const selectClaimSearchByQueryLastPageReached = reselect.createSelector(selectState$2, state => state.claimSearchByQueryLastPageReached || {});
+const selectClaimSearchByQueryLastPageReached = reselect.createSelector(selectState$1, state => state.claimSearchByQueryLastPageReached || {});
 
 const makeSelectShortUrlForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => claim && claim.short_url);
 
@@ -2775,9 +2523,9 @@ const makeSelectSupportsForUri = uri => reselect.createSelector(selectSupportsBy
   return total;
 });
 
-const selectUpdatingChannel = reselect.createSelector(selectState$2, state => state.updatingChannel);
+const selectUpdatingChannel = reselect.createSelector(selectState$1, state => state.updatingChannel);
 
-const selectUpdateChannelError = reselect.createSelector(selectState$2, state => state.updateChannelError);
+const selectUpdateChannelError = reselect.createSelector(selectState$1, state => state.updateChannelError);
 
 const makeSelectReflectingClaimForUri = uri => reselect.createSelector(selectClaimIdsByUri, selectReflectingById, (claimIdsByUri, reflectingById) => {
   const claimId = claimIdsByUri[normalizeURI(uri)];
@@ -2792,38 +2540,6 @@ const makeSelectMyStreamUrlsForPage = (page = 1) => reselect.createSelector(sele
 });
 
 const selectMyStreamUrlsCount = reselect.createSelector(selectMyClaimUrisWithoutChannels, channels => channels.length);
-
-const makeSelectResolvedRecommendedContentForUri = (uri, size, claimId, claimName, claimTitle) => reselect.createSelector(makeSelectClaimForUri(uri), selectResolvedSearchResultsByQuery, makeSelectClaimIsNsfw(uri), (claim, resolvedResultsByQuery, isMature) => {
-  const atVanityURI = !uri.includes('#');
-
-  let currentUri;
-  let recommendedContent;
-  let title;
-  if (claim) {
-    // always grab full URL - this can change once search returns canonical
-    currentUri = buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
-    title = claim.value ? claim.value.title : null;
-  } else {
-    // for cases on mobile where the claim may not have been resolved ()
-    currentUri = buildURI({ streamClaimId: claimId, streamName: claimName });
-    title = claimTitle;
-  }
-
-  if (!title) {
-    return;
-  }
-
-  const options = { related_to: claim ? claim.claim_id : claimId, size, isBackgroundSearch: false };
-
-  const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
-  let results = resolvedResultsByQuery[searchQuery];
-  if (results) {
-    results = results.filter(result => buildURI({ streamClaimId: result.claimId, streamName: result.name }) !== currentUri);
-    recommendedContent = results;
-  }
-
-  return recommendedContent;
-});
 
 function numberWithCommas(x) {
   var parts = x.toString().split('.');
@@ -2884,7 +2600,7 @@ function creditsToString(amount) {
   return creditString;
 }
 
-var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const FIFTEEN_SECONDS = 15000;
 let walletBalancePromise = null;
@@ -3156,7 +2872,7 @@ function doSendTip(params, isSupport, successCallback, errorCallback) {
       type: SUPPORT_TRANSACTION_STARTED
     });
 
-    lbryProxy.support_create(_extends$5({}, params, {
+    lbryProxy.support_create(_extends$4({}, params, {
       tip: !shouldSupport,
       blocking: true,
       amount: creditsToString(params.amount)
@@ -3392,7 +3108,7 @@ function batchActions(...actions) {
   };
 }
 
-var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function doResolveUris(uris, returnCachedClaims = false) {
   return (dispatch, getState) => {
@@ -3427,7 +3143,7 @@ function doResolveUris(uris, returnCachedClaims = false) {
 
     const resolveInfo = {};
 
-    return lbryProxy.resolve(_extends$6({ urls: urisToResolve }, options)).then(result => {
+    return lbryProxy.resolve(_extends$5({ urls: urisToResolve }, options)).then(result => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
           stream: null,
@@ -3439,7 +3155,7 @@ function doResolveUris(uris, returnCachedClaims = false) {
         // https://github.com/facebook/flow/issues/2221
         if (uriResolveInfo) {
           if (uriResolveInfo.error) {
-            resolveInfo[uri] = _extends$6({}, fallbackResolveInfo);
+            resolveInfo[uri] = _extends$5({}, fallbackResolveInfo);
           } else {
             let result = {};
             if (uriResolveInfo.value_type === 'channel') {
@@ -3893,7 +3609,7 @@ function doClaimSearch(options = {
       });
     };
 
-    lbryProxy.claim_search(_extends$6({}, options, {
+    lbryProxy.claim_search(_extends$5({}, options, {
       include_purchase_receipt: true
     })).then(success, failure);
   };
@@ -4037,11 +3753,11 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
   }, 30000);
 };
 
-const selectState$3 = state => state.fileInfo || {};
+const selectState$2 = state => state.fileInfo || {};
 
-const selectFileInfosByOutpoint = reselect.createSelector(selectState$3, state => state.byOutpoint || {});
+const selectFileInfosByOutpoint = reselect.createSelector(selectState$2, state => state.byOutpoint || {});
 
-const selectIsFetchingFileList = reselect.createSelector(selectState$3, state => state.isFetchingFileList);
+const selectIsFetchingFileList = reselect.createSelector(selectState$2, state => state.isFetchingFileList);
 
 const selectIsFetchingFileListDownloadedOrPublished = reselect.createSelector(selectIsFetchingFileList, selectIsFetchingClaimListMine, (isFetchingFileList, isFetchingClaimListMine) => isFetchingFileList || isFetchingClaimListMine);
 
@@ -4051,14 +3767,14 @@ const makeSelectFileInfoForUri = uri => reselect.createSelector(selectClaimsByUr
   return outpoint ? byOutpoint[outpoint] : undefined;
 });
 
-const selectDownloadingByOutpoint = reselect.createSelector(selectState$3, state => state.downloadingByOutpoint || {});
+const selectDownloadingByOutpoint = reselect.createSelector(selectState$2, state => state.downloadingByOutpoint || {});
 
 const makeSelectDownloadingForUri = uri => reselect.createSelector(selectDownloadingByOutpoint, makeSelectFileInfoForUri(uri), (byOutpoint, fileInfo) => {
   if (!fileInfo) return false;
   return byOutpoint[fileInfo.outpoint];
 });
 
-const selectUrisLoading = reselect.createSelector(selectState$3, state => state.fetching || {});
+const selectUrisLoading = reselect.createSelector(selectState$2, state => state.fetching || {});
 
 const makeSelectLoadingForUri = uri => reselect.createSelector(selectUrisLoading, makeSelectClaimForUri(uri), (fetchingByOutpoint, claim) => {
   if (!claim) {
@@ -4112,9 +3828,9 @@ const selectTotalDownloadProgress = reselect.createSelector(selectDownloadingFil
   return -1;
 });
 
-const selectFileListPublishedSort = reselect.createSelector(selectState$3, state => state.fileListPublishedSort);
+const selectFileListPublishedSort = reselect.createSelector(selectState$2, state => state.fileListPublishedSort);
 
-const selectFileListDownloadedSort = reselect.createSelector(selectState$3, state => state.fileListDownloadedSort);
+const selectFileListDownloadedSort = reselect.createSelector(selectState$2, state => state.fileListDownloadedSort);
 
 const selectDownloadedUris = reselect.createSelector(selectFileInfosDownloaded,
 // We should use permament_url but it doesn't exist in file_list
@@ -4358,14 +4074,14 @@ function doSetFileListSort(page, value) {
   };
 }
 
-var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$2(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-const selectState$4 = state => state.publish || {};
+const selectState$3 = state => state.publish || {};
 
 // Is the current uri the same as the uri they clicked "edit" on
-const selectIsStillEditing = reselect.createSelector(selectState$4, publishState => {
+const selectIsStillEditing = reselect.createSelector(selectState$3, publishState => {
   const { editingURI, uri } = publishState;
 
   if (!editingURI || !uri) {
@@ -4390,7 +4106,7 @@ const selectIsStillEditing = reselect.createSelector(selectState$4, publishState
   return currentName === editName;
 });
 
-const selectPublishFormValues = reselect.createSelector(selectState$4, selectIsStillEditing, (state, isStillEditing) => {
+const selectPublishFormValues = reselect.createSelector(selectState$3, selectIsStillEditing, (state, isStillEditing) => {
   const { pendingPublish, language, languages } = state,
         formValues = _objectWithoutProperties$2(state, ['pendingPublish', 'language', 'languages']);
 
@@ -4401,9 +4117,9 @@ const selectPublishFormValues = reselect.createSelector(selectState$4, selectIsS
   } else {
     actualLanguage = language || 'en';
   }
-  return _extends$7({}, formValues, { language: actualLanguage });
+  return _extends$6({}, formValues, { language: actualLanguage });
 });
-const makeSelectPublishFormValue = item => reselect.createSelector(selectState$4, state => state[item]);
+const makeSelectPublishFormValue = item => reselect.createSelector(selectState$3, state => state[item]);
 
 const selectMyClaimForUri = reselect.createSelector(selectPublishFormValues, selectIsStillEditing, selectClaimsById, selectMyClaimsWithoutChannels, ({ editingURI, uri }, isStillEditing, claimsById, myClaims) => {
   const { channelName: contentName, streamName: claimName } = parseURI(uri);
@@ -4416,7 +4132,7 @@ const selectMyClaimForUri = reselect.createSelector(selectPublishFormValues, sel
   return isStillEditing ? claimsById[editClaimId] : myClaims.find(claim => !contentName ? claim.name === claimName : claim.name === contentName || claim.name === claimName);
 });
 
-const selectIsResolvingPublishUris = reselect.createSelector(selectState$4, selectResolvingUris, ({ uri, name }, resolvingUris) => {
+const selectIsResolvingPublishUris = reselect.createSelector(selectState$3, selectResolvingUris, ({ uri, name }, resolvingUris) => {
   if (uri) {
     const isResolvingUri = resolvingUris.includes(uri);
     const { isChannel } = parseURI(uri);
@@ -4433,7 +4149,7 @@ const selectIsResolvingPublishUris = reselect.createSelector(selectState$4, sele
   return false;
 });
 
-const selectTakeOverAmount = reselect.createSelector(selectState$4, selectMyClaimForUri, selectClaimsByUri, ({ name }, myClaimForUri, claimsByUri) => {
+const selectTakeOverAmount = reselect.createSelector(selectState$3, selectMyClaimForUri, selectClaimsByUri, ({ name }, myClaimForUri, claimsByUri) => {
   if (!name) {
     return null;
   }
@@ -4456,7 +4172,7 @@ const selectTakeOverAmount = reselect.createSelector(selectState$4, selectMyClai
   return null;
 });
 
-var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
@@ -4496,7 +4212,7 @@ const doClearPublish = () => dispatch => {
 
 const doUpdatePublishForm = publishFormValue => dispatch => dispatch({
   type: UPDATE_PUBLISH_FORM,
-  data: _extends$8({}, publishFormValue)
+  data: _extends$7({}, publishFormValue)
 });
 
 const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => dispatch => {
@@ -4844,254 +4560,6 @@ const doCheckReflectingFiles = () => (dispatch, getState) => {
   }
 };
 
-// Returns a function, that, as long as it continues to be invoked, will not
-// be triggered. The function will be called after it stops being called for
-// N milliseconds. If `immediate` is passed, trigger the function on the
-// leading edge, instead of the trailing.
-function debouce(func, wait, immediate) {
-  let timeout;
-
-  return function () {
-    const context = this;
-    const args = arguments;
-    const later = () => {
-      timeout = null;
-      if (!immediate) func.apply(context, args);
-    };
-
-    const callNow = immediate && !timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-    if (callNow) func.apply(context, args);
-  };
-}
-
-//      
-function handleFetchResponse(response) {
-  return response.status === 200 ? Promise.resolve(response.json()) : Promise.reject(new Error(response.statusText));
-}
-
-var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-const DEBOUNCED_SEARCH_SUGGESTION_MS = 300;
-
-// We can't use env's because they aren't passed into node_modules
-let CONNECTION_STRING = 'https://lighthouse.lbry.com/';
-
-const setSearchApi = endpoint => {
-  CONNECTION_STRING = endpoint.replace(/\/*$/, '/'); // exactly one slash at the end;
-};
-
-const getSearchSuggestions = value => (dispatch, getState) => {
-  const query = value.trim();
-
-  // strip out any basic stuff for more accurate search results
-  let searchValue = query.replace(/lbry:\/\//g, '').replace(/-/g, ' ');
-  if (searchValue.includes('#')) {
-    // This should probably be more robust, but I think it's fine for now
-    // Remove everything after # to get rid of the claim id
-    searchValue = searchValue.substring(0, searchValue.indexOf('#'));
-  }
-
-  const suggestions = selectSuggestions(getState());
-  if (suggestions[searchValue]) {
-    return;
-  }
-
-  fetch(`${CONNECTION_STRING}autocomplete?s=${searchValue}`).then(handleFetchResponse).then(apiSuggestions => {
-    dispatch({
-      type: UPDATE_SEARCH_SUGGESTIONS,
-      data: {
-        query: searchValue,
-        suggestions: apiSuggestions
-      }
-    });
-  }).catch(() => {
-    // If the fetch fails, do nothing
-    // Basic search suggestions are already populated at this point
-  });
-};
-
-const throttledSearchSuggestions = debouce((dispatch, query) => {
-  dispatch(getSearchSuggestions(query));
-}, DEBOUNCED_SEARCH_SUGGESTION_MS);
-
-const doUpdateSearchQuery = (query, shouldSkipSuggestions) => dispatch => {
-  dispatch({
-    type: UPDATE_SEARCH_QUERY,
-    data: { query }
-  });
-
-  // Don't fetch new suggestions if the user just added a space
-  if (!query.endsWith(' ') || !shouldSkipSuggestions) {
-    throttledSearchSuggestions(dispatch, query);
-  }
-};
-
-const doSearch = (rawQuery, searchOptions) => (dispatch, getState) => {
-  const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
-  const resolveResults = searchOptions && searchOptions.resolveResults;
-  const isBackgroundSearch = searchOptions && searchOptions.isBackgroundSearch || false;
-
-  if (!query) {
-    dispatch({
-      type: SEARCH_FAIL
-    });
-    return;
-  }
-
-  const state = getState();
-
-  let queryWithOptions = makeSelectQueryWithOptions(query, searchOptions)(state);
-
-  // If we have already searched for something, we don't need to do anything
-  const urisForQuery = makeSelectSearchUris(queryWithOptions)(state);
-  if (urisForQuery && !!urisForQuery.length) {
-    return;
-  }
-
-  dispatch({
-    type: SEARCH_START
-  });
-
-  // If the user is on the file page with a pre-populated uri and they select
-  // the search option without typing anything, searchQuery will be empty
-  // We need to populate it so the input is filled on the search page
-  // isBackgroundSearch means the search is happening in the background, don't update the search query
-  if (!state.search.searchQuery && !isBackgroundSearch) {
-    dispatch(doUpdateSearchQuery(query));
-  }
-
-  fetch(`${CONNECTION_STRING}search?${queryWithOptions}`).then(handleFetchResponse).then(data => {
-    const uris = [];
-    const actions = [];
-
-    data.forEach(result => {
-      if (result) {
-        const { name, claimId } = result;
-        const urlObj = {};
-
-        if (name.startsWith('@')) {
-          urlObj.channelName = name;
-          urlObj.channelClaimId = claimId;
-        } else {
-          urlObj.streamName = name;
-          urlObj.streamClaimId = claimId;
-        }
-
-        const url = buildURI(urlObj);
-        if (resolveResults) {
-          actions.push(doResolveUri(url));
-        }
-        uris.push(url);
-      }
-    });
-
-    actions.push({
-      type: SEARCH_SUCCESS,
-      data: {
-        query: queryWithOptions,
-        uris
-      }
-    });
-    dispatch(batchActions(...actions));
-  }).catch(e => {
-    dispatch({
-      type: SEARCH_FAIL
-    });
-  });
-};
-
-const doResolvedSearch = (rawQuery, size, // only pass in if you don't want to use the users setting (ex: related content)
-from, isBackgroundSearch = false, options = {}, nsfw) => (dispatch, getState) => {
-  const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
-
-  if (!query) {
-    dispatch({
-      type: RESOLVED_SEARCH_FAIL
-    });
-    return;
-  }
-
-  const optionsWithFrom = _extends$9({}, size ? { size } : {}, from ? { from } : {}, {
-    isBackgroundSearch
-  }, options);
-
-  const optionsWithoutFrom = _extends$9({}, size ? { size } : {}, {
-    isBackgroundSearch
-  }, options);
-
-  const state = getState();
-
-  let queryWithOptions = makeSelectQueryWithOptions(query, optionsWithFrom)(state);
-
-  // make from null so that we can maintain a reference to the same query for multiple pages and simply append the found results
-  let queryWithoutFrom = makeSelectQueryWithOptions(query, optionsWithoutFrom)(state);
-
-  // If we have already searched for something, we don't need to do anything
-  // TODO: Tweak this check for multiple page results
-  /* const resultsForQuery = makeSelectResolvedSearchResults(queryWithOptions)(state);
-  if (resultsForQuery && resultsForQuery.length && resultsForQuery.length > (from * size)) {
-    return;
-  } */
-
-  dispatch({
-    type: RESOLVED_SEARCH_START
-  });
-
-  if (!state.search.searchQuery && !isBackgroundSearch) {
-    dispatch(doUpdateSearchQuery(query));
-  }
-
-  const fetchUrl = nsfw ? `${CONNECTION_STRING}search?resolve=true&${queryWithOptions}` : `${CONNECTION_STRING}search?resolve=true&nsfw=false&${queryWithOptions}`;
-  fetch(fetchUrl).then(handleFetchResponse).then(data => {
-    const results = [];
-
-    data.forEach(result => {
-      if (result) {
-        results.push(result);
-      }
-    });
-
-    dispatch({
-      type: RESOLVED_SEARCH_SUCCESS,
-      data: {
-        query: queryWithoutFrom,
-        results,
-        pageSize: size,
-        append: parseInt(from, 10) > parseInt(size, 10) - 1
-      }
-    });
-  }).catch(e => {
-    dispatch({
-      type: RESOLVED_SEARCH_FAIL
-    });
-  });
-};
-
-const doFocusSearchInput = () => dispatch => dispatch({
-  type: SEARCH_FOCUS
-});
-
-const doBlurSearchInput = () => dispatch => dispatch({
-  type: SEARCH_BLUR
-});
-
-const doUpdateSearchOptions = (newOptions, additionalOptions) => (dispatch, getState) => {
-  const state = getState();
-  const searchValue = selectSearchValue(state);
-
-  dispatch({
-    type: UPDATE_SEARCH_OPTIONS,
-    data: newOptions
-  });
-
-  if (searchValue) {
-    // After updating, perform a search with the new options
-    dispatch(doSearch(searchValue, additionalOptions));
-  }
-};
-
 //      
 
 function savePosition(claimId, outpoint, position) {
@@ -5126,17 +4594,44 @@ const doDeleteTag = name => ({
   }
 });
 
-var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+//      
+
+function parseQueryParams(queryString) {
+  if (queryString === '') return {};
+  const parts = queryString.split('?').pop().split('&').map(p => p.split('='));
+
+  const params = {};
+  parts.forEach(array => {
+    const [first, second] = array;
+    params[first] = second;
+  });
+  return params;
+}
+
+function toQueryString(params) {
+  if (!params) return '';
+
+  const parts = [];
+  Object.keys(params).forEach(key => {
+    if (Object.prototype.hasOwnProperty.call(params, key) && params[key]) {
+      parts.push(`${key}=${params[key]}`);
+    }
+  });
+
+  return parts.join('&');
+}
+
+var _extends$8 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 /*
 new claim = { ...maybeResolvedClaim, ...pendingClaim, meta: maybeResolvedClaim['meta'] }
  */
 
 function mergeClaims(maybeResolved, pending) {
-  return _extends$a({}, maybeResolved, pending, { meta: maybeResolved.meta });
+  return _extends$8({}, maybeResolved, pending, { meta: maybeResolved.meta });
 }
 
-var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$9 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$3(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -5274,7 +4769,7 @@ reducers[RESOLVE_URIS_STARTED] = (state, action) => {
 };
 
 reducers[RESOLVE_URIS_COMPLETED] = (state, action) => {
-  return _extends$b({}, handleClaimAction(state, action));
+  return _extends$9({}, handleClaimAction(state, action));
 };
 
 reducers[FETCH_CLAIM_LIST_MINE_STARTED] = state => Object.assign({}, state, {
@@ -5538,12 +5033,12 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   });
 };
 
-reducers[CLEAR_CHANNEL_ERRORS] = state => _extends$b({}, state, {
+reducers[CLEAR_CHANNEL_ERRORS] = state => _extends$9({}, state, {
   createChannelError: null,
   updateChannelError: null
 });
 
-reducers[CREATE_CHANNEL_STARTED] = state => _extends$b({}, state, {
+reducers[CREATE_CHANNEL_STARTED] = state => _extends$9({}, state, {
   creatingChannel: true,
   createChannelError: null
 });
@@ -5613,7 +5108,7 @@ reducers[CLAIM_SEARCH_COMPLETED] = (state, action) => {
 
   delete fetchingClaimSearchByQuery[query];
 
-  return Object.assign({}, state, _extends$b({}, handleClaimAction(state, action), {
+  return Object.assign({}, state, _extends$9({}, handleClaimAction(state, action), {
     claimSearchByQuery,
     claimSearchByQueryLastPageReached,
     fetchingClaimSearchByQuery
@@ -5635,22 +5130,22 @@ reducers[CLAIM_SEARCH_FAILED] = (state, action) => {
 };
 
 reducers[CLAIM_REPOST_STARTED] = state => {
-  return _extends$b({}, state, {
+  return _extends$9({}, state, {
     repostLoading: true,
     repostError: null
   });
 };
 reducers[CLAIM_REPOST_COMPLETED] = (state, action) => {
   const { originalClaimId, repostClaim } = action.data;
-  const byId = _extends$b({}, state.byId);
-  const claimsByUri = _extends$b({}, state.claimsByUri);
+  const byId = _extends$9({}, state.byId);
+  const claimsByUri = _extends$9({}, state.claimsByUri);
   const claimThatWasReposted = byId[originalClaimId];
 
-  const repostStub = _extends$b({}, repostClaim, { reposted_claim: claimThatWasReposted });
+  const repostStub = _extends$9({}, repostClaim, { reposted_claim: claimThatWasReposted });
   byId[repostStub.claim_id] = repostStub;
   claimsByUri[repostStub.permanent_url] = repostStub.claim_id;
 
-  return _extends$b({}, state, {
+  return _extends$9({}, state, {
     byId,
     claimsByUri,
     repostLoading: false,
@@ -5660,13 +5155,13 @@ reducers[CLAIM_REPOST_COMPLETED] = (state, action) => {
 reducers[CLAIM_REPOST_FAILED] = (state, action) => {
   const { error } = action.data;
 
-  return _extends$b({}, state, {
+  return _extends$9({}, state, {
     repostLoading: false,
     repostError: error
   });
 };
 reducers[CLEAR_REPOST_ERROR] = state => {
-  return _extends$b({}, state, {
+  return _extends$9({}, state, {
     repostError: null
   });
 };
@@ -5677,34 +5172,34 @@ reducers[ADD_FILES_REFLECTING] = (state, action) => {
 
   reflectingById[claimId] = { fileListItem: pendingClaim, progress: 0, stalled: false };
 
-  return Object.assign({}, state, _extends$b({}, state, {
+  return Object.assign({}, state, _extends$9({}, state, {
     reflectingById: reflectingById
   }));
 };
 reducers[UPDATE_FILES_REFLECTING] = (state, action) => {
   const newReflectingById = action.data;
 
-  return Object.assign({}, state, _extends$b({}, state, {
+  return Object.assign({}, state, _extends$9({}, state, {
     reflectingById: newReflectingById
   }));
 };
 reducers[TOGGLE_CHECKING_REFLECTING] = (state, action) => {
   const checkingReflecting = action.data;
 
-  return Object.assign({}, state, _extends$b({}, state, {
+  return Object.assign({}, state, _extends$9({}, state, {
     checkingReflecting
   }));
 };
 reducers[TOGGLE_CHECKING_PENDING] = (state, action) => {
   const checking = action.data;
 
-  return Object.assign({}, state, _extends$b({}, state, {
+  return Object.assign({}, state, _extends$9({}, state, {
     checkingPending: checking
   }));
 };
 
 reducers[PURCHASE_LIST_STARTED] = state => {
-  return _extends$b({}, state, {
+  return _extends$9({}, state, {
     fetchingMyPurchases: true,
     fetchingMyPurchasesError: null
   });
@@ -5749,7 +5244,7 @@ reducers[PURCHASE_LIST_COMPLETED] = (state, action) => {
 reducers[PURCHASE_LIST_FAILED] = (state, action) => {
   const { error } = action.data;
 
-  return _extends$b({}, state, {
+  return _extends$9({}, state, {
     fetchingMyPurchases: false,
     fetchingMyPurchasesError: error
   });
@@ -5770,7 +5265,7 @@ reducers[PURCHASE_URI_COMPLETED] = (state, action) => {
 
   myPurchases.push(uri);
 
-  return _extends$b({}, state, {
+  return _extends$9({}, state, {
     byId,
     myPurchases,
     purchaseUriSuccess: true
@@ -5778,13 +5273,13 @@ reducers[PURCHASE_URI_COMPLETED] = (state, action) => {
 };
 
 reducers[PURCHASE_URI_FAILED] = state => {
-  return _extends$b({}, state, {
+  return _extends$9({}, state, {
     purchaseUriSuccess: false
   });
 };
 
 reducers[CLEAR_PURCHASED_URI_SUCCESS] = state => {
-  return _extends$b({}, state, {
+  return _extends$9({}, state, {
     purchaseUriSuccess: false
   });
 };
@@ -5795,7 +5290,7 @@ function claimsReducer(state = defaultState, action) {
   return state;
 }
 
-var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$a = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const reducers$1 = {};
 const defaultState$1 = {
@@ -5804,9 +5299,9 @@ const defaultState$1 = {
 
 reducers$1[SET_CONTENT_POSITION] = (state, action) => {
   const { claimId, outpoint, position } = action.data;
-  return _extends$c({}, state, {
-    positions: _extends$c({}, state.positions, {
-      [claimId]: _extends$c({}, state.positions[claimId], {
+  return _extends$a({}, state, {
+    positions: _extends$a({}, state.positions, {
+      [claimId]: _extends$a({}, state.positions[claimId], {
         [outpoint]: position
       })
     })
@@ -5991,7 +5486,7 @@ const handleActions = (actionMap, defaultState) => (state = defaultState, action
   return state;
 };
 
-var _extends$d = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$b = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const defaultState$3 = {
   notifications: [],
@@ -6006,7 +5501,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.push(toast);
 
-    return _extends$d({}, state, {
+    return _extends$b({}, state, {
       toasts: newToasts
     });
   },
@@ -6014,7 +5509,7 @@ const notificationsReducer = handleActions({
     const newToasts = state.toasts.slice();
     newToasts.shift();
 
-    return _extends$d({}, state, {
+    return _extends$b({}, state, {
       toasts: newToasts
     });
   },
@@ -6025,7 +5520,7 @@ const notificationsReducer = handleActions({
     const newNotifications = state.notifications.slice();
     newNotifications.push(notification);
 
-    return _extends$d({}, state, {
+    return _extends$b({}, state, {
       notifications: newNotifications
     });
   },
@@ -6036,7 +5531,7 @@ const notificationsReducer = handleActions({
 
     notifications = notifications.map(pastNotification => pastNotification.id === notification.id ? notification : pastNotification);
 
-    return _extends$d({}, state, {
+    return _extends$b({}, state, {
       notifications
     });
   },
@@ -6045,7 +5540,7 @@ const notificationsReducer = handleActions({
     let newNotifications = state.notifications.slice();
     newNotifications = newNotifications.filter(notification => notification.id !== id);
 
-    return _extends$d({}, state, {
+    return _extends$b({}, state, {
       notifications: newNotifications
     });
   },
@@ -6056,7 +5551,7 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.push(error);
 
-    return _extends$d({}, state, {
+    return _extends$b({}, state, {
       errors: newErrors
     });
   },
@@ -6064,13 +5559,13 @@ const notificationsReducer = handleActions({
     const newErrors = state.errors.slice();
     newErrors.shift();
 
-    return _extends$d({}, state, {
+    return _extends$b({}, state, {
       errors: newErrors
     });
   }
 }, defaultState$3);
 
-var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$c = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _objectWithoutProperties$4(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -6113,20 +5608,20 @@ const defaultState$4 = {
 const publishReducer = handleActions({
   [UPDATE_PUBLISH_FORM]: (state, action) => {
     const { data } = action;
-    return _extends$e({}, state, data);
+    return _extends$c({}, state, data);
   },
-  [CLEAR_PUBLISH]: state => _extends$e({}, defaultState$4, {
+  [CLEAR_PUBLISH]: state => _extends$c({}, defaultState$4, {
     bid: state.bid,
     optimize: state.optimize
   }),
-  [PUBLISH_START]: state => _extends$e({}, state, {
+  [PUBLISH_START]: state => _extends$c({}, state, {
     publishing: true,
     publishSuccess: false
   }),
-  [PUBLISH_FAIL]: state => _extends$e({}, state, {
+  [PUBLISH_FAIL]: state => _extends$c({}, state, {
     publishing: false
   }),
-  [PUBLISH_SUCCESS]: state => _extends$e({}, state, {
+  [PUBLISH_SUCCESS]: state => _extends$c({}, state, {
     publishing: false,
     publishSuccess: true
   }),
@@ -6141,123 +5636,22 @@ const publishReducer = handleActions({
       streamName: name
     });
 
-    return _extends$e({}, defaultState$4, publishData, {
+    return _extends$c({}, defaultState$4, publishData, {
       editingURI: uri,
       uri: shortUri
     });
   }
 }, defaultState$4);
 
-var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-const defaultState$5 = {
-  isActive: false, // does the user have any typed text in the search input
-  focused: false, // is the search input focused
-  searchQuery: '', // needs to be an empty string for input focusing
-  options: {
-    [SEARCH_OPTIONS.RESULT_COUNT]: 30,
-    [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_FILES_AND_CHANNELS,
-    [SEARCH_OPTIONS.MEDIA_AUDIO]: true,
-    [SEARCH_OPTIONS.MEDIA_VIDEO]: true,
-    [SEARCH_OPTIONS.MEDIA_TEXT]: true,
-    [SEARCH_OPTIONS.MEDIA_IMAGE]: true,
-    [SEARCH_OPTIONS.MEDIA_APPLICATION]: true
-  },
-  suggestions: {},
-  urisByQuery: {},
-  resolvedResultsByQuery: {},
-  resolvedResultsByQueryLastPageReached: {}
-};
-
-const searchReducer = handleActions({
-  [SEARCH_START]: state => _extends$f({}, state, {
-    searching: true
-  }),
-  [SEARCH_SUCCESS]: (state, action) => {
-    const { query, uris } = action.data;
-
-    return _extends$f({}, state, {
-      searching: false,
-      urisByQuery: Object.assign({}, state.urisByQuery, { [query]: uris })
-    });
-  },
-
-  [SEARCH_FAIL]: state => _extends$f({}, state, {
-    searching: false
-  }),
-
-  [RESOLVED_SEARCH_START]: state => _extends$f({}, state, {
-    searching: true
-  }),
-  [RESOLVED_SEARCH_SUCCESS]: (state, action) => {
-    const resolvedResultsByQuery = Object.assign({}, state.resolvedResultsByQuery);
-    const resolvedResultsByQueryLastPageReached = Object.assign({}, state.resolvedResultsByQueryLastPageReached);
-    const { append, query, results, pageSize } = action.data;
-
-    if (append) {
-      // todo: check for duplicates when concatenating?
-      resolvedResultsByQuery[query] = resolvedResultsByQuery[query] && resolvedResultsByQuery[query].length ? resolvedResultsByQuery[query].concat(results) : results;
-    } else {
-      resolvedResultsByQuery[query] = results;
-    }
-
-    // the returned number of urls is less than the page size, so we're on the last page
-    resolvedResultsByQueryLastPageReached[query] = results.length < pageSize;
-
-    return _extends$f({}, state, {
-      searching: false,
-      resolvedResultsByQuery,
-      resolvedResultsByQueryLastPageReached
-    });
-  },
-
-  [RESOLVED_SEARCH_FAIL]: state => _extends$f({}, state, {
-    searching: false
-  }),
-
-  [UPDATE_SEARCH_QUERY]: (state, action) => _extends$f({}, state, {
-    searchQuery: action.data.query,
-    isActive: true
-  }),
-
-  [UPDATE_SEARCH_SUGGESTIONS]: (state, action) => _extends$f({}, state, {
-    suggestions: _extends$f({}, state.suggestions, {
-      [action.data.query]: action.data.suggestions
-    })
-  }),
-
-  // sets isActive to false so the uri will be populated correctly if the
-  // user is on a file page. The search query will still be present on any
-  // other page
-  [DISMISS_NOTIFICATION]: state => _extends$f({}, state, {
-    isActive: false
-  }),
-
-  [SEARCH_FOCUS]: state => _extends$f({}, state, {
-    focused: true
-  }),
-  [SEARCH_BLUR]: state => _extends$f({}, state, {
-    focused: false
-  }),
-  [UPDATE_SEARCH_OPTIONS]: (state, action) => {
-    const { options: oldOptions } = state;
-    const newOptions = action.data;
-    const options = _extends$f({}, oldOptions, newOptions);
-    return _extends$f({}, state, {
-      options
-    });
-  }
-}, defaultState$5);
-
-var _extends$g = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$d = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function getDefaultKnownTags() {
-  return DEFAULT_FOLLOWED_TAGS.concat(DEFAULT_KNOWN_TAGS).reduce((tagsMap, tag) => _extends$g({}, tagsMap, {
+  return DEFAULT_FOLLOWED_TAGS.concat(DEFAULT_KNOWN_TAGS).reduce((tagsMap, tag) => _extends$d({}, tagsMap, {
     [tag]: { name: tag }
   }), {});
 }
 
-const defaultState$6 = {
+const defaultState$5 = {
   followedTags: [],
   knownTags: getDefaultKnownTags()
 };
@@ -6275,7 +5669,7 @@ const tagsReducer = handleActions({
       newFollowedTags.push(name);
     }
 
-    return _extends$g({}, state, {
+    return _extends$d({}, state, {
       followedTags: newFollowedTags
     });
   },
@@ -6284,10 +5678,10 @@ const tagsReducer = handleActions({
     const { knownTags } = state;
     const { name } = action.data;
 
-    let newKnownTags = _extends$g({}, knownTags);
+    let newKnownTags = _extends$d({}, knownTags);
     newKnownTags[name] = { name };
 
-    return _extends$g({}, state, {
+    return _extends$d({}, state, {
       knownTags: newKnownTags
     });
   },
@@ -6296,11 +5690,11 @@ const tagsReducer = handleActions({
     const { knownTags, followedTags } = state;
     const { name } = action.data;
 
-    let newKnownTags = _extends$g({}, knownTags);
+    let newKnownTags = _extends$d({}, knownTags);
     delete newKnownTags[name];
     const newFollowedTags = followedTags.filter(tag => tag !== name);
 
-    return _extends$g({}, state, {
+    return _extends$d({}, state, {
       knownTags: newKnownTags,
       followedTags: newFollowedTags
     });
@@ -6308,15 +5702,15 @@ const tagsReducer = handleActions({
   [USER_STATE_POPULATE]: (state, action) => {
     const { tags } = action.data;
     if (Array.isArray(tags)) {
-      return _extends$g({}, state, {
+      return _extends$d({}, state, {
         followedTags: tags
       });
     }
-    return _extends$g({}, state);
+    return _extends$d({}, state);
   }
-}, defaultState$6);
+}, defaultState$5);
 
-var _extends$h = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const buildDraftTransaction = () => ({
   amount: undefined,
@@ -6327,7 +5721,7 @@ const buildDraftTransaction = () => ({
 // See details in https://github.com/lbryio/lbry/issues/1307
 
 
-const defaultState$7 = {
+const defaultState$6 = {
   balance: undefined,
   totalBalance: undefined,
   reservedBalance: undefined,
@@ -6368,40 +5762,40 @@ const defaultState$7 = {
 };
 
 const walletReducer = handleActions({
-  [FETCH_TRANSACTIONS_STARTED]: state => _extends$h({}, state, {
+  [FETCH_TRANSACTIONS_STARTED]: state => _extends$e({}, state, {
     fetchingTransactions: true
   }),
 
   [FETCH_TRANSACTIONS_COMPLETED]: (state, action) => {
-    const byId = _extends$h({}, state.transactions);
+    const byId = _extends$e({}, state.transactions);
 
     const { transactions } = action.data;
     transactions.forEach(transaction => {
       byId[transaction.txid] = transaction;
     });
 
-    return _extends$h({}, state, {
+    return _extends$e({}, state, {
       transactions: byId,
       fetchingTransactions: false
     });
   },
 
   [FETCH_TXO_PAGE_STARTED]: state => {
-    return _extends$h({}, state, {
+    return _extends$e({}, state, {
       fetchingTxos: true,
       fetchingTxosError: undefined
     });
   },
 
   [FETCH_TXO_PAGE_COMPLETED]: (state, action) => {
-    return _extends$h({}, state, {
+    return _extends$e({}, state, {
       txoPage: action.data,
       fetchingTxos: false
     });
   },
 
   [FETCH_TXO_PAGE_FAILED]: (state, action) => {
-    return _extends$h({}, state, {
+    return _extends$e({}, state, {
       txoPage: {},
       fetchingTxos: false,
       fetchingTxosError: action.data
@@ -6409,12 +5803,12 @@ const walletReducer = handleActions({
   },
 
   [UPDATE_TXO_FETCH_PARAMS]: (state, action) => {
-    return _extends$h({}, state, {
+    return _extends$e({}, state, {
       txoFetchParams: action.data
     });
   },
 
-  [FETCH_SUPPORTS_STARTED]: state => _extends$h({}, state, {
+  [FETCH_SUPPORTS_STARTED]: state => _extends$e({}, state, {
     fetchingSupports: true
   }),
 
@@ -6427,7 +5821,7 @@ const walletReducer = handleActions({
       byOutpoint[`${txid}:${nout}`] = transaction;
     });
 
-    return _extends$h({}, state, { supports: byOutpoint, fetchingSupports: false });
+    return _extends$e({}, state, { supports: byOutpoint, fetchingSupports: false });
   },
 
   [ABANDON_SUPPORT_STARTED]: (state, action) => {
@@ -6436,7 +5830,7 @@ const walletReducer = handleActions({
 
     currentlyAbandoning[outpoint] = true;
 
-    return _extends$h({}, state, {
+    return _extends$e({}, state, {
       abandoningSupportsByOutpoint: currentlyAbandoning
     });
   },
@@ -6449,20 +5843,20 @@ const walletReducer = handleActions({
     delete currentlyAbandoning[outpoint];
     delete byOutpoint[outpoint];
 
-    return _extends$h({}, state, {
+    return _extends$e({}, state, {
       supports: byOutpoint,
       abandoningSupportsById: currentlyAbandoning
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_STARTED]: (state, action) => {
-    return _extends$h({}, state, {
+    return _extends$e({}, state, {
       abandonClaimSupportError: undefined
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_PREVIEW]: (state, action) => {
-    return _extends$h({}, state, {
+    return _extends$e({}, state, {
       abandonClaimSupportError: undefined
     });
   },
@@ -6473,36 +5867,36 @@ const walletReducer = handleActions({
 
     pendingtxs[claimId] = { txid, type, effective };
 
-    return _extends$h({}, state, {
+    return _extends$e({}, state, {
       pendingSupportTransactions: pendingtxs,
       abandonClaimSupportError: undefined
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_FAILED]: (state, action) => {
-    return _extends$h({}, state, {
+    return _extends$e({}, state, {
       abandonClaimSupportError: action.data
     });
   },
 
   [PENDING_SUPPORTS_UPDATED]: (state, action) => {
 
-    return _extends$h({}, state, {
+    return _extends$e({}, state, {
       pendingSupportTransactions: action.data
     });
   },
 
-  [GET_NEW_ADDRESS_STARTED]: state => _extends$h({}, state, {
+  [GET_NEW_ADDRESS_STARTED]: state => _extends$e({}, state, {
     gettingNewAddress: true
   }),
 
   [GET_NEW_ADDRESS_COMPLETED]: (state, action) => {
     const { address } = action.data;
 
-    return _extends$h({}, state, { gettingNewAddress: false, receiveAddress: address });
+    return _extends$e({}, state, { gettingNewAddress: false, receiveAddress: address });
   },
 
-  [UPDATE_BALANCE]: (state, action) => _extends$h({}, state, {
+  [UPDATE_BALANCE]: (state, action) => _extends$e({}, state, {
     totalBalance: action.data.totalBalance,
     balance: action.data.balance,
     reservedBalance: action.data.reservedBalance,
@@ -6511,32 +5905,32 @@ const walletReducer = handleActions({
     tipsBalance: action.data.tipsBalance
   }),
 
-  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$h({}, state, {
+  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$e({}, state, {
     checkingAddressOwnership: true
   }),
 
-  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$h({}, state, {
+  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$e({}, state, {
     checkingAddressOwnership: false
   }),
 
   [SET_DRAFT_TRANSACTION_AMOUNT]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$h({}, oldDraft, { amount: parseFloat(action.data.amount) });
+    const newDraft = _extends$e({}, oldDraft, { amount: parseFloat(action.data.amount) });
 
-    return _extends$h({}, state, { draftTransaction: newDraft });
+    return _extends$e({}, state, { draftTransaction: newDraft });
   },
 
   [SET_DRAFT_TRANSACTION_ADDRESS]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$h({}, oldDraft, { address: action.data.address });
+    const newDraft = _extends$e({}, oldDraft, { address: action.data.address });
 
-    return _extends$h({}, state, { draftTransaction: newDraft });
+    return _extends$e({}, state, { draftTransaction: newDraft });
   },
 
   [SEND_TRANSACTION_STARTED]: state => {
-    const newDraftTransaction = _extends$h({}, state.draftTransaction, { sending: true });
+    const newDraftTransaction = _extends$e({}, state.draftTransaction, { sending: true });
 
-    return _extends$h({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$e({}, state, { draftTransaction: newDraftTransaction });
   },
 
   [SEND_TRANSACTION_COMPLETED]: state => Object.assign({}, state, {
@@ -6549,123 +5943,123 @@ const walletReducer = handleActions({
       error: action.data.error
     });
 
-    return _extends$h({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$e({}, state, { draftTransaction: newDraftTransaction });
   },
 
-  [SUPPORT_TRANSACTION_STARTED]: state => _extends$h({}, state, {
+  [SUPPORT_TRANSACTION_STARTED]: state => _extends$e({}, state, {
     sendingSupport: true
   }),
 
-  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$h({}, state, {
+  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$e({}, state, {
     sendingSupport: false
   }),
 
-  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$h({}, state, {
+  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$e({}, state, {
     error: action.data.error,
     sendingSupport: false
   }),
 
-  [CLEAR_SUPPORT_TRANSACTION]: state => _extends$h({}, state, {
+  [CLEAR_SUPPORT_TRANSACTION]: state => _extends$e({}, state, {
     sendingSupport: false
   }),
 
-  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$h({}, state, {
+  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletIsEncrypted: action.result
   }),
 
-  [WALLET_ENCRYPT_START]: state => _extends$h({}, state, {
+  [WALLET_ENCRYPT_START]: state => _extends$e({}, state, {
     walletEncryptPending: true,
     walletEncryptSucceded: null,
     walletEncryptResult: null
   }),
 
-  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$h({}, state, {
+  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: true,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$h({}, state, {
+  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$e({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: false,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_START]: state => _extends$h({}, state, {
+  [WALLET_DECRYPT_START]: state => _extends$e({}, state, {
     walletDecryptPending: true,
     walletDecryptSucceded: null,
     walletDecryptResult: null
   }),
 
-  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$h({}, state, {
+  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: true,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$h({}, state, {
+  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$e({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: false,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_UNLOCK_START]: state => _extends$h({}, state, {
+  [WALLET_UNLOCK_START]: state => _extends$e({}, state, {
     walletUnlockPending: true,
     walletUnlockSucceded: null,
     walletUnlockResult: null
   }),
 
-  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$h({}, state, {
+  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: true,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$h({}, state, {
+  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$e({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: false,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_LOCK_START]: state => _extends$h({}, state, {
+  [WALLET_LOCK_START]: state => _extends$e({}, state, {
     walletLockPending: false,
     walletLockSucceded: null,
     walletLockResult: null
   }),
 
-  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$h({}, state, {
+  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$e({}, state, {
     walletLockPending: false,
     walletLockSucceded: true,
     walletLockResult: action.result
   }),
 
-  [WALLET_LOCK_FAILED]: (state, action) => _extends$h({}, state, {
+  [WALLET_LOCK_FAILED]: (state, action) => _extends$e({}, state, {
     walletLockPending: false,
     walletLockSucceded: false,
     walletLockResult: action.result
   }),
 
-  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$h({}, state, {
+  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$e({}, state, {
     transactionListFilter: action.data
   }),
 
-  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$h({}, state, {
+  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$e({}, state, {
     latestBlock: action.data
   }),
-  [WALLET_RESTART]: state => _extends$h({}, state, {
+  [WALLET_RESTART]: state => _extends$e({}, state, {
     walletReconnecting: true
   }),
 
-  [WALLET_RESTART_COMPLETED]: state => _extends$h({}, state, {
+  [WALLET_RESTART_COMPLETED]: state => _extends$e({}, state, {
     walletReconnecting: false
   })
-}, defaultState$7);
+}, defaultState$6);
 
 //      
 
-const selectState$5 = state => state.content || {};
+const selectState$4 = state => state.content || {};
 
-const makeSelectContentPositionForUri = uri => reselect.createSelector(selectState$5, makeSelectClaimForUri(uri), (state, claim) => {
+const makeSelectContentPositionForUri = uri => reselect.createSelector(selectState$4, makeSelectClaimForUri(uri), (state, claim) => {
   if (!claim) {
     return null;
   }
@@ -6674,14 +6068,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$i = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const selectState$6 = state => state.notifications || {};
+const selectState$5 = state => state.notifications || {};
 
-const selectToast = reselect.createSelector(selectState$6, state => {
+const selectToast = reselect.createSelector(selectState$5, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$i({
+    return _extends$f({
       id
     }, params);
   }
@@ -6689,7 +6083,7 @@ const selectToast = reselect.createSelector(selectState$6, state => {
   return null;
 });
 
-const selectError = reselect.createSelector(selectState$6, state => {
+const selectError = reselect.createSelector(selectState$5, state => {
   if (state.errors.length) {
     const { error } = state.errors[0];
     return {
@@ -6702,11 +6096,11 @@ const selectError = reselect.createSelector(selectState$6, state => {
 
 //      
 
-const selectState$7 = state => state.tags || {};
+const selectState$6 = state => state.tags || {};
 
-const selectKnownTagsByName = reselect.createSelector(selectState$7, state => state.knownTags);
+const selectKnownTagsByName = reselect.createSelector(selectState$6, state => state.knownTags);
 
-const selectFollowedTagsList = reselect.createSelector(selectState$7, state => state.followedTags.filter(tag => typeof tag === 'string'));
+const selectFollowedTagsList = reselect.createSelector(selectState$6, state => state.followedTags.filter(tag => typeof tag === 'string'));
 
 const selectFollowedTags = reselect.createSelector(selectFollowedTagsList, followedTags => followedTags.map(tag => ({ name: tag.toLowerCase() })).sort((a, b) => a.name.localeCompare(b.name)));
 
@@ -6738,8 +6132,6 @@ exports.Lbry = lbryProxy;
 exports.LbryFirst = lbryFirstProxy;
 exports.MATURE_TAGS = MATURE_TAGS;
 exports.PAGES = pages;
-exports.SEARCH_OPTIONS = SEARCH_OPTIONS;
-exports.SEARCH_TYPES = SEARCH_TYPES;
 exports.SETTINGS = settings;
 exports.SHARED_PREFERENCES = shared_preferences;
 exports.SORT_OPTIONS = sort_options;
@@ -6761,7 +6153,6 @@ exports.doAbandonClaim = doAbandonClaim;
 exports.doAbandonTxo = doAbandonTxo;
 exports.doAddTag = doAddTag;
 exports.doBalanceSubscribe = doBalanceSubscribe;
-exports.doBlurSearchInput = doBlurSearchInput;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
 exports.doCheckPendingClaims = doCheckPendingClaims;
 exports.doCheckPublishNameAvailability = doCheckPublishNameAvailability;
@@ -6786,7 +6177,6 @@ exports.doFetchTransactions = doFetchTransactions;
 exports.doFetchTxoPage = doFetchTxoPage;
 exports.doFileGet = doFileGet;
 exports.doFileList = doFileList;
-exports.doFocusSearchInput = doFocusSearchInput;
 exports.doGetNewAddress = doGetNewAddress;
 exports.doImportChannel = doImportChannel;
 exports.doPopulateSharedUserState = doPopulateSharedUserState;
@@ -6800,8 +6190,6 @@ exports.doRepost = doRepost;
 exports.doResetThumbnailStatus = doResetThumbnailStatus;
 exports.doResolveUri = doResolveUri;
 exports.doResolveUris = doResolveUris;
-exports.doResolvedSearch = doResolvedSearch;
-exports.doSearch = doSearch;
 exports.doSendDraftTransaction = doSendDraftTransaction;
 exports.doSendTip = doSendTip;
 exports.doSetDraftTransactionAddress = doSetDraftTransactionAddress;
@@ -6815,8 +6203,6 @@ exports.doUpdateBalance = doUpdateBalance;
 exports.doUpdateBlockHeight = doUpdateBlockHeight;
 exports.doUpdateChannel = doUpdateChannel;
 exports.doUpdatePublishForm = doUpdatePublishForm;
-exports.doUpdateSearchOptions = doUpdateSearchOptions;
-exports.doUpdateSearchQuery = doUpdateSearchQuery;
 exports.doUpdateTxoPageParams = doUpdateTxoPageParams;
 exports.doUploadThumbnail = doUploadThumbnail;
 exports.doWalletDecrypt = doWalletDecrypt;
@@ -6853,7 +6239,6 @@ exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
 exports.makeSelectFileNameForUri = makeSelectFileNameForUri;
 exports.makeSelectFilePartlyDownloaded = makeSelectFilePartlyDownloaded;
 exports.makeSelectFilteredTransactionsForPage = makeSelectFilteredTransactionsForPage;
-exports.makeSelectFirstRecommendedFileForUri = makeSelectFirstRecommendedFileForUri;
 exports.makeSelectIsAbandoningClaimForUri = makeSelectIsAbandoningClaimForUri;
 exports.makeSelectIsFollowingTag = makeSelectIsFollowingTag;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
@@ -6870,15 +6255,9 @@ exports.makeSelectOmittedCountForChannel = makeSelectOmittedCountForChannel;
 exports.makeSelectPendingAmountByUri = makeSelectPendingAmountByUri;
 exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
-exports.makeSelectQueryWithOptions = makeSelectQueryWithOptions;
-exports.makeSelectRecommendedContentForUri = makeSelectRecommendedContentForUri;
 exports.makeSelectReflectingClaimForUri = makeSelectReflectingClaimForUri;
-exports.makeSelectResolvedRecommendedContentForUri = makeSelectResolvedRecommendedContentForUri;
-exports.makeSelectResolvedSearchResults = makeSelectResolvedSearchResults;
-exports.makeSelectResolvedSearchResultsLastPageReached = makeSelectResolvedSearchResultsLastPageReached;
 exports.makeSelectSearchDownloadUrlsCount = makeSelectSearchDownloadUrlsCount;
 exports.makeSelectSearchDownloadUrlsForPage = makeSelectSearchDownloadUrlsForPage;
-exports.makeSelectSearchUris = makeSelectSearchUris;
 exports.makeSelectShortUrlForUri = makeSelectShortUrlForUri;
 exports.makeSelectStreamingUrlForUri = makeSelectStreamingUrlForUri;
 exports.makeSelectSupportsForUri = makeSelectSupportsForUri;
@@ -6898,7 +6277,6 @@ exports.publishReducer = publishReducer;
 exports.regexAddress = regexAddress;
 exports.regexInvalidURI = regexInvalidURI;
 exports.savePosition = savePosition;
-exports.searchReducer = searchReducer;
 exports.selectAbandonClaimSupportError = selectAbandonClaimSupportError;
 exports.selectAbandoningIds = selectAbandoningIds;
 exports.selectAllClaimsByChannel = selectAllClaimsByChannel;
@@ -6949,7 +6327,6 @@ exports.selectIsFetchingMyPurchases = selectIsFetchingMyPurchases;
 exports.selectIsFetchingTransactions = selectIsFetchingTransactions;
 exports.selectIsFetchingTxos = selectIsFetchingTxos;
 exports.selectIsResolvingPublishUris = selectIsResolvingPublishUris;
-exports.selectIsSearching = selectIsSearching;
 exports.selectIsSendingSupport = selectIsSendingSupport;
 exports.selectIsStillEditing = selectIsStillEditing;
 exports.selectIsWalletReconnecting = selectIsWalletReconnecting;
@@ -6978,15 +6355,7 @@ exports.selectReflectingById = selectReflectingById;
 exports.selectRepostError = selectRepostError;
 exports.selectRepostLoading = selectRepostLoading;
 exports.selectReservedBalance = selectReservedBalance;
-exports.selectResolvedSearchResultsByQuery = selectResolvedSearchResultsByQuery;
-exports.selectResolvedSearchResultsByQueryLastPageReached = selectResolvedSearchResultsByQueryLastPageReached;
 exports.selectResolvingUris = selectResolvingUris;
-exports.selectSearchBarFocused = selectSearchBarFocused;
-exports.selectSearchOptions = selectSearchOptions;
-exports.selectSearchState = selectState;
-exports.selectSearchSuggestions = selectSearchSuggestions;
-exports.selectSearchUrisByQuery = selectSearchUrisByQuery;
-exports.selectSearchValue = selectSearchValue;
 exports.selectSupportsBalance = selectSupportsBalance;
 exports.selectSupportsByOutpoint = selectSupportsByOutpoint;
 exports.selectTakeOverAmount = selectTakeOverAmount;
@@ -7017,7 +6386,6 @@ exports.selectWalletState = selectWalletState;
 exports.selectWalletUnlockPending = selectWalletUnlockPending;
 exports.selectWalletUnlockResult = selectWalletUnlockResult;
 exports.selectWalletUnlockSucceeded = selectWalletUnlockSucceeded;
-exports.setSearchApi = setSearchApi;
 exports.tagsReducer = tagsReducer;
 exports.toQueryString = toQueryString;
 exports.walletReducer = walletReducer;

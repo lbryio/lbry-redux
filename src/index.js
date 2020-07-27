@@ -12,11 +12,9 @@ import * as TXO_LIST from 'constants/txo_list';
 import * as SPEECH_URLS from 'constants/speech_urls';
 import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
-import { SEARCH_TYPES, SEARCH_OPTIONS } from 'constants/search';
 import { DEFAULT_KNOWN_TAGS, DEFAULT_FOLLOWED_TAGS, MATURE_TAGS } from 'constants/tags';
 import Lbry, { apiCall } from 'lbry';
 import LbryFirst from 'lbry-first';
-import { selectState as selectSearchState } from 'redux/selectors/search';
 
 // constants
 export {
@@ -24,8 +22,6 @@ export {
   CLAIM_VALUES,
   LICENSES,
   THUMBNAIL_STATUSES,
-  SEARCH_TYPES,
-  SEARCH_OPTIONS,
   SETTINGS,
   DAEMON_SETTINGS,
   TRANSACTIONS,
@@ -101,16 +97,6 @@ export {
   doCheckReflectingFiles,
 } from 'redux/actions/publish';
 
-export {
-  doSearch,
-  doResolvedSearch,
-  doUpdateSearchQuery,
-  doFocusSearchInput,
-  doBlurSearchInput,
-  setSearchApi,
-  doUpdateSearchOptions,
-} from 'redux/actions/search';
-
 export { savePosition } from 'redux/actions/content';
 
 export {
@@ -152,7 +138,6 @@ export { contentReducer } from 'redux/reducers/content';
 export { fileInfoReducer } from 'redux/reducers/file_info';
 export { notificationsReducer } from 'redux/reducers/notifications';
 export { publishReducer } from 'redux/reducers/publish';
-export { searchReducer } from 'redux/reducers/search';
 export { tagsReducer } from 'redux/reducers/tags';
 export { walletReducer } from 'redux/reducers/wallet';
 
@@ -184,9 +169,6 @@ export {
   makeSelectNsfwCountForChannel,
   makeSelectOmittedCountForChannel,
   makeSelectClaimIsNsfw,
-  makeSelectRecommendedContentForUri,
-  makeSelectResolvedRecommendedContentForUri,
-  makeSelectFirstRecommendedFileForUri,
   makeSelectChannelForClaimUri,
   makeSelectClaimIsPending,
   makeSelectReflectingClaimForUri,
@@ -279,22 +261,6 @@ export {
   selectIsResolvingPublishUris,
   selectTakeOverAmount,
 } from 'redux/selectors/publish';
-
-export { selectSearchState };
-export {
-  makeSelectSearchUris,
-  makeSelectResolvedSearchResults,
-  makeSelectResolvedSearchResultsLastPageReached,
-  selectSearchValue,
-  selectSearchOptions,
-  selectIsSearching,
-  selectResolvedSearchResultsByQuery,
-  selectResolvedSearchResultsByQueryLastPageReached,
-  selectSearchUrisByQuery,
-  selectSearchBarFocused,
-  selectSearchSuggestions,
-  makeSelectQueryWithOptions,
-} from 'redux/selectors/search';
 
 export {
   selectBalance,
