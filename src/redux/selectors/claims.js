@@ -1,13 +1,8 @@
 // @flow
 import { normalizeURI, buildURI, parseURI } from 'lbryURI';
-import {
-  selectResolvedSearchResultsByQuery,
-  selectSearchUrisByQuery,
-} from 'redux/selectors/search';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
 import { isClaimNsfw, filterClaims } from 'util/claim';
-import { getSearchQueryString } from 'util/query-params';
 import { PAGE_SIZE } from 'constants/claim';
 
 const selectState = state => state.claims || {};
@@ -632,53 +627,6 @@ export const makeSelectClaimIsNsfw = (uri: string): boolean =>
     }
   );
 
-export const makeSelectRecommendedContentForUri = (uri: string) =>
-  createSelector(
-    makeSelectClaimForUri(uri),
-    selectSearchUrisByQuery,
-    makeSelectClaimIsNsfw(uri),
-    (claim, searchUrisByQuery, isMature) => {
-      const atVanityURI = !uri.includes('#');
-
-      let recommendedContent;
-      if (claim) {
-        // always grab full URL - this can change once search returns canonical
-        const currentUri = buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
-
-        const { title } = claim.value;
-
-        if (!title) {
-          return;
-        }
-
-        const options: {
-          related_to?: string,
-          nsfw?: boolean,
-          isBackgroundSearch?: boolean,
-        } = { related_to: claim.claim_id, isBackgroundSearch: true };
-
-        if (!isMature) {
-          options['nsfw'] = false;
-        }
-        const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
-
-        let searchUris = searchUrisByQuery[searchQuery];
-        if (searchUris) {
-          searchUris = searchUris.filter(searchUri => searchUri !== currentUri);
-          recommendedContent = searchUris;
-        }
-      }
-
-      return recommendedContent;
-    }
-  );
-
-export const makeSelectFirstRecommendedFileForUri = (uri: string) =>
-  createSelector(
-    makeSelectRecommendedContentForUri(uri),
-    recommendedContent => (recommendedContent ? recommendedContent[0] : null)
-  );
-
 // Returns the associated channel uri for a given claim uri
 // accepts a regular claim uri lbry://something
 // returns the channel uri that created this claim lbry://@channel
@@ -803,54 +751,3 @@ export const selectMyStreamUrlsCount = createSelector(
   selectMyClaimUrisWithoutChannels,
   channels => channels.length
 );
-
-export const makeSelectResolvedRecommendedContentForUri = (
-  uri: string,
-  size: number,
-  claimId: string,
-  claimName: string,
-  claimTitle: string
-) =>
-  createSelector(
-    makeSelectClaimForUri(uri),
-    selectResolvedSearchResultsByQuery,
-    makeSelectClaimIsNsfw(uri),
-    (claim, resolvedResultsByQuery, isMature) => {
-      const atVanityURI = !uri.includes('#');
-
-      let currentUri;
-      let recommendedContent;
-      let title;
-      if (claim) {
-        // always grab full URL - this can change once search returns canonical
-        currentUri = buildURI({ streamClaimId: claim.claim_id, streamName: claim.name });
-        title = claim.value ? claim.value.title : null;
-      } else {
-        // for cases on mobile where the claim may not have been resolved ()
-        currentUri = buildURI({ streamClaimId: claimId, streamName: claimName });
-        title = claimTitle;
-      }
-
-      if (!title) {
-        return;
-      }
-
-      const options: {
-        related_to?: string,
-        nsfw?: boolean,
-        isBackgroundSearch?: boolean,
-      } = { related_to: claim ? claim.claim_id : claimId, size, isBackgroundSearch: false };
-
-      const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
-      let results = resolvedResultsByQuery[searchQuery];
-      if (results) {
-        results = results.filter(
-          result =>
-            buildURI({ streamClaimId: result.claimId, streamName: result.name }) !== currentUri
-        );
-        recommendedContent = results;
-      }
-
-      return recommendedContent;
-    }
-  );
