@@ -1407,9 +1407,6 @@ function parseURI(URL, requireProto = false) {
   }
 
   rest.forEach(urlPiece => {
-    if (urlPiece && urlPiece.includes(' ')) {
-      console.error('URL can not include a space');
-    }
   });
 
   const includesChannel = streamNameOrChannelName.startsWith('@');
@@ -3143,7 +3140,10 @@ function doResolveUris(uris, returnCachedClaims = false) {
 
     const resolveInfo = {};
 
-    return lbryProxy.resolve(_extends$5({ urls: urisToResolve }, options)).then(result => {
+    return lbryProxy.resolve(_extends$5({
+      urls: urisToResolve,
+      new_sdk_server: 'http://sdk.lbry.tech:5279/api'
+    }, options)).then(result => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
           stream: null,
@@ -3379,7 +3379,8 @@ function doFetchClaimsByChannel(uri, page = 1) {
       page: page || 1,
       order_by: ['release_time'],
       include_is_my_output: true,
-      include_purchase_receipt: true
+      include_purchase_receipt: true,
+      new_sdk_server: 'http://sdk.lbry.tech:5279/api'
     }).then(result => {
       const { items: claims, total_items: claimsInChannel, page: returnedPage } = result;
 
@@ -3610,6 +3611,7 @@ function doClaimSearch(options = {
     };
 
     lbryProxy.claim_search(_extends$5({}, options, {
+      new_sdk_server: 'http://sdk.lbry.tech:5279/api',
       include_purchase_receipt: true
     })).then(success, failure);
   };

@@ -74,7 +74,7 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
   }
 
   rest.forEach(urlPiece => {
-    if (urlPiece && urlPiece.includes(' ')) {
+    if (!isProduction && urlPiece && urlPiece.includes(' ')) {
       console.error('URL can not include a space');
     }
   });

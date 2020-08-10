@@ -57,7 +57,11 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
       },
     } = {};
 
-    return Lbry.resolve({ urls: urisToResolve, ...options }).then((result: ResolveResponse) => {
+    return Lbry.resolve({
+      urls: urisToResolve,
+      new_sdk_server: 'http://sdk.lbry.tech:5279/api',
+      ...options,
+    }).then((result: ResolveResponse) => {
       Object.entries(result).forEach(([uri, uriResolveInfo]) => {
         const fallbackResolveInfo = {
           stream: null,
@@ -323,6 +327,7 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
       order_by: ['release_time'],
       include_is_my_output: true,
       include_purchase_receipt: true,
+      new_sdk_server: 'http://sdk.lbry.tech:5279/api',
     }).then((result: ClaimSearchResponse) => {
       const { items: claims, total_items: claimsInChannel, page: returnedPage } = result;
 
@@ -589,6 +594,7 @@ export function doClaimSearch(
 
     Lbry.claim_search({
       ...options,
+      new_sdk_server: 'http://sdk.lbry.tech:5279/api',
       include_purchase_receipt: true,
     }).then(success, failure);
   };
