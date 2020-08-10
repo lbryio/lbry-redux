@@ -4227,8 +4227,6 @@ const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => disp
   };
 
   const uploadError = (error = '') => {
-    console.log('error', error);
-
     dispatch(batchActions({
       type: UPDATE_PUBLISH_FORM,
       data: {
