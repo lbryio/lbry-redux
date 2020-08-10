@@ -4216,6 +4216,7 @@ const doUpdatePublishForm = publishFormValue => dispatch => dispatch({
 });
 
 const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => dispatch => {
+  const downMessage = __('Thumbnail upload service may be down, try again later.');
   let thumbnail, fileExt, fileName, fileType;
 
   const makeid = () => {
@@ -4226,6 +4227,8 @@ const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => disp
   };
 
   const uploadError = (error = '') => {
+    console.log('error', error);
+
     dispatch(batchActions({
       type: UPDATE_PUBLISH_FORM,
       data: {
@@ -4247,9 +4250,16 @@ const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => disp
           uploadThumbnailStatus: COMPLETE,
           thumbnail: json.data.serveUrl
         }
-      }) : uploadError(json.message || __('Thumbnail upload service may be down, try again later.'));
+      }) : uploadError(json.message || downMessage);
     }).catch(err => {
-      uploadError(err.message);
+      let message = err.message;
+
+      // This sucks but ¯\_(ツ)_/¯
+      if (message === 'Failed to fetch') {
+        message = downMessage;
+      }
+
+      uploadError(message);
     });
   };
 

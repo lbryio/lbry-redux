@@ -70,6 +70,7 @@ export const doUploadThumbnail = (
   fs?: any,
   path?: any
 ) => (dispatch: Dispatch) => {
+  const downMessage = __('Thumbnail upload service may be down, try again later.');
   let thumbnail, fileExt, fileName, fileType;
 
   const makeid = () => {
@@ -111,12 +112,17 @@ export const doUploadThumbnail = (
               thumbnail: json.data.serveUrl,
             },
           })
-          : uploadError(
-            json.message || __('Thumbnail upload service may be down, try again later.')
-          );
+          : uploadError(json.message || downMessage);
       })
       .catch(err => {
-        uploadError(err.message);
+        let message = err.message;
+
+        // This sucks but ¯\_(ツ)_/¯
+        if (message === 'Failed to fetch') {
+          message = downMessage;
+        }
+
+        uploadError(message);
       });
   };
 
