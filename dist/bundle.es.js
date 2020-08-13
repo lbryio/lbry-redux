@@ -645,6 +645,7 @@ const AUTOPLAY_NEXT = 'autoplay_next';
 const OS_NOTIFICATIONS_ENABLED = 'os_notifications_enabled';
 const AUTO_DOWNLOAD = 'auto_download';
 const AUTO_LAUNCH = 'auto_launch';
+const TO_TRAY_WHEN_CLOSED = 'to_tray_when_closed';
 const SUPPORT_OPTION = 'support_option';
 const HIDE_BALANCE = 'hide_balance';
 const HIDE_SPLASH_ANIMATION = 'hide_splash_animation';
@@ -683,6 +684,7 @@ var settings = /*#__PURE__*/Object.freeze({
   OS_NOTIFICATIONS_ENABLED: OS_NOTIFICATIONS_ENABLED,
   AUTO_DOWNLOAD: AUTO_DOWNLOAD,
   AUTO_LAUNCH: AUTO_LAUNCH,
+  TO_TRAY_WHEN_CLOSED: TO_TRAY_WHEN_CLOSED,
   SUPPORT_OPTION: SUPPORT_OPTION,
   HIDE_BALANCE: HIDE_BALANCE,
   HIDE_SPLASH_ANIMATION: HIDE_SPLASH_ANIMATION,
