@@ -5619,6 +5619,7 @@ const publishReducer = handleActions({
     return _extends$c({}, state, data);
   },
   [CLEAR_PUBLISH]: state => _extends$c({}, defaultState$4, {
+    channel: state.channel,
     bid: state.bid,
     optimize: state.optimize
   }),
