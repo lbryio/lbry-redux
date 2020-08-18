@@ -651,6 +651,7 @@ const HIDE_SPLASH_ANIMATION = 'hide_splash_animation';
 const FLOATING_PLAYER = 'floating_player';
 const DARK_MODE_TIMES = 'dark_mode_times';
 const ENABLE_SYNC = 'enable_sync';
+const TILE_LAYOUT = 'tile_layout';
 
 // mobile settings
 const BACKGROUND_PLAY_ENABLED = 'backgroundPlayEnabled';
@@ -689,6 +690,7 @@ var settings = /*#__PURE__*/Object.freeze({
   FLOATING_PLAYER: FLOATING_PLAYER,
   DARK_MODE_TIMES: DARK_MODE_TIMES,
   ENABLE_SYNC: ENABLE_SYNC,
+  TILE_LAYOUT: TILE_LAYOUT,
   BACKGROUND_PLAY_ENABLED: BACKGROUND_PLAY_ENABLED,
   FOREGROUND_NOTIFICATION_ENABLED: FOREGROUND_NOTIFICATION_ENABLED,
   KEEP_DAEMON_RUNNING: KEEP_DAEMON_RUNNING,

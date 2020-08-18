@@ -28,6 +28,7 @@ export const HIDE_SPLASH_ANIMATION = 'hide_splash_animation';
 export const FLOATING_PLAYER = 'floating_player';
 export const DARK_MODE_TIMES = 'dark_mode_times';
 export const ENABLE_SYNC = 'enable_sync';
+export const TILE_LAYOUT = 'tile_layout';
 
 // mobile settings
 export const BACKGROUND_PLAY_ENABLED = 'backgroundPlayEnabled';
