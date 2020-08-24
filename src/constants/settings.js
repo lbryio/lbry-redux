@@ -9,6 +9,7 @@ export const EMAIL_COLLECTION_ACKNOWLEDGED = 'email_collection_acknowledged';
 export const INVITE_ACKNOWLEDGED = 'invite_acknowledged';
 export const FOLLOWING_ACKNOWLEDGED = 'following_acknowledged';
 export const TAGS_ACKNOWLEDGED = 'tags_acknowledged';
+export const REWARDS_ACKNOWLEDGED = 'rewards_acknowledged';
 export const LANGUAGE = 'language';
 export const SHOW_MATURE = 'show_mature';
 export const HIDE_REPOSTS = 'hide_reposts';

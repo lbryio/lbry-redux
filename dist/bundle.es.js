@@ -632,6 +632,7 @@ const EMAIL_COLLECTION_ACKNOWLEDGED = 'email_collection_acknowledged';
 const INVITE_ACKNOWLEDGED = 'invite_acknowledged';
 const FOLLOWING_ACKNOWLEDGED = 'following_acknowledged';
 const TAGS_ACKNOWLEDGED = 'tags_acknowledged';
+const REWARDS_ACKNOWLEDGED = 'rewards_acknowledged';
 const LANGUAGE = 'language';
 const SHOW_MATURE = 'show_mature';
 const HIDE_REPOSTS = 'hide_reposts';
@@ -673,6 +674,7 @@ var settings = /*#__PURE__*/Object.freeze({
   INVITE_ACKNOWLEDGED: INVITE_ACKNOWLEDGED,
   FOLLOWING_ACKNOWLEDGED: FOLLOWING_ACKNOWLEDGED,
   TAGS_ACKNOWLEDGED: TAGS_ACKNOWLEDGED,
+  REWARDS_ACKNOWLEDGED: REWARDS_ACKNOWLEDGED,
   LANGUAGE: LANGUAGE,
   SHOW_MATURE: SHOW_MATURE,
   HIDE_REPOSTS: HIDE_REPOSTS,
