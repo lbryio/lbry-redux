@@ -6,6 +6,7 @@ export const SHOW_NSFW = 'showNsfw';
 export const CREDIT_REQUIRED_ACKNOWLEDGED = 'credit_required_acknowledged';
 export const NEW_USER_ACKNOWLEDGED = 'welcome_acknowledged';
 export const EMAIL_COLLECTION_ACKNOWLEDGED = 'email_collection_acknowledged';
+export const FIRST_RUN_STARTED = 'first_run_started';
 export const INVITE_ACKNOWLEDGED = 'invite_acknowledged';
 export const FOLLOWING_ACKNOWLEDGED = 'following_acknowledged';
 export const TAGS_ACKNOWLEDGED = 'tags_acknowledged';
