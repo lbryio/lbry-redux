@@ -1778,7 +1778,7 @@ function doPreferenceGet(key, success, fail) {
     key
   };
 
-  lbryProxy.preference_get(options).then(result => {
+  return lbryProxy.preference_get(options).then(result => {
     if (result) {
       const preference = result[key];
       return success(preference);
