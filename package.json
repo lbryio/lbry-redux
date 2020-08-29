@@ -25,7 +25,8 @@
     "dev": "rollup --config --watch",
     "precommit": "flow check && lint-staged",
     "lint": "eslint 'src/**/*.js' --fix",
-    "format": "prettier 'src/**/*.{js,json}' --write"
+    "format": "prettier 'src/**/*.{js,json}' --write",
+    "test": "jest"
   },
   "dependencies": {
     "proxy-polyfill": "0.1.6",
@@ -33,6 +34,11 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-proposal-decorators": "^7.10.5",
+    "@babel/plugin-transform-flow-strip-types": "^7.10.4",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/preset-react": "^7.10.4",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.3",
     "babel-loader": "^7.1.4",
@@ -53,6 +59,7 @@
     "flow-bin": "^0.97.0",
     "flow-typed": "^2.5.1",
     "husky": "^0.14.3",
+    "jest": "^26.4.2",
     "lint-staged": "^7.0.4",
     "prettier": "^1.4.2",
     "rollup": "^1.8.0",
