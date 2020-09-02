@@ -2778,7 +2778,7 @@ function doSendDraftTransaction(address, amount) {
           type: SEND_TRANSACTION_COMPLETED
         });
         dispatch(doToast({
-          message: __(`You sent ${amount} LBC`),
+          message: __(`You sent ${amount} LBRY Credits`),
           linkText: __('History'),
           linkTarget: '/wallet'
         }));
@@ -2844,7 +2844,7 @@ function doSendTip(params, isSupport, successCallback, errorCallback) {
 
     const success = () => {
       dispatch(doToast({
-        message: shouldSupport ? __('You deposited %amount% LBC as a support!', { amount: params.amount }) : __('You sent %amount% LBC as a tip, Mahalo!', { amount: params.amount }),
+        message: shouldSupport ? __('You deposited %amount% LBRY Credits as a support!', { amount: params.amount }) : __('You sent %amount% LBRY Credits as a tip, Mahalo!', { amount: params.amount }),
         linkText: __('History'),
         linkTarget: '/wallet'
       }));
