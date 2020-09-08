@@ -34,6 +34,8 @@ export const FLOATING_PLAYER = 'floating_player';
 export const DARK_MODE_TIMES = 'dark_mode_times';
 export const ENABLE_SYNC = 'enable_sync';
 export const ENABLE_PUBLISH_PREVIEW = 'enable-publish-preview';
+export const TILE_LAYOUT = 'tile_layout';
+export const VIDEO_THEATER_MODE = 'video_theater_mode';
 
 // mobile settings
 export const BACKGROUND_PLAY_ENABLED = 'backgroundPlayEnabled';
