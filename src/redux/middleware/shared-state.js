@@ -9,9 +9,13 @@ export const buildSharedStateMiddleware = (
   actions: Array<string>,
   sharedStateFilters: {},
   sharedStateCb?: any => void
-) => ({ getState, dispatch }: { getState: () => { user: any }, dispatch: any => void }) => (
-  next: ({}) => void
-) => (action: { type: string, data: any }) => {
+) => ({
+  getState,
+  dispatch,
+}: {
+  getState: () => { user: any, settings: any },
+  dispatch: any => void,
+}) => (next: ({}) => void) => (action: { type: string, data: any }) => {
   const currentState = getState();
 
   // We don't care if sync is disabled here, we always want to backup preferences to the wallet
@@ -21,11 +25,14 @@ export const buildSharedStateMiddleware = (
 
   const actionResult = next(action);
   // Call `getState` after calling `next` to ensure the state has updated in response to the action
-  const nextState: { user: any } = getState();
-  const preferenceKey =
-    nextState.user && nextState.user.user && nextState.user.user.has_verified_email
-      ? 'shared'
-      : 'anon';
+  const nextState: { user: any, settings: any } = getState();
+  const syncEnabled =
+    nextState.settings &&
+    nextState.settings.clientSettings &&
+    nextState.settings.clientSettings.enable_sync;
+  const hasVerifiedEmail =
+    nextState.user && nextState.user.user && nextState.user.user.has_verified_email;
+  const preferenceKey = syncEnabled && hasVerifiedEmail ? 'shared' : 'local';
   const shared = {};
 
   Object.keys(sharedStateFilters).forEach(key => {
