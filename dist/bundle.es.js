@@ -1812,7 +1812,9 @@ const buildSharedStateMiddleware = (actions, sharedStateFilters, sharedStateCb) 
   const actionResult = next(action);
   // Call `getState` after calling `next` to ensure the state has updated in response to the action
   const nextState = getState();
-  const preferenceKey = nextState.user && nextState.user.user && nextState.user.user.has_verified_email ? 'shared' : 'anon';
+  const syncEnabled = nextState.settings && nextState.settings.syncEnabledInWallet;
+  const hasVerifiedEmail = nextState.user && nextState.user.user && nextState.user.user.has_verified_email;
+  const preferenceKey = syncEnabled && hasVerifiedEmail ? 'shared' : 'local';
   const shared = {};
 
   Object.keys(sharedStateFilters).forEach(key => {
@@ -2782,7 +2784,7 @@ function doSendDraftTransaction(address, amount) {
           type: SEND_TRANSACTION_COMPLETED
         });
         dispatch(doToast({
-          message: __(`You sent ${amount} LBRY Credits`),
+          message: __('You sent %amount% LBRY Credits', { amount: amount }),
           linkText: __('History'),
           linkTarget: '/wallet'
         }));
