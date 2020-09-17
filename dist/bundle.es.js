@@ -957,7 +957,7 @@ var daemon_settings = /*#__PURE__*/Object.freeze({
 const SDK_SYNC_KEYS = [LBRYUM_SERVERS, SHARE_USAGE_DATA];
 
 // CLIENT
-const CLIENT_SYNC_KEYS = [SHOW_MATURE, HIDE_REPOSTS, SHOW_ANONYMOUS, INSTANT_PURCHASE_ENABLED, INSTANT_PURCHASE_MAX, THEME, AUTOPLAY, HIDE_BALANCE, HIDE_SPLASH_ANIMATION, FLOATING_PLAYER, DARK_MODE_TIMES, AUTOMATIC_DARK_MODE_ENABLED, ENABLE_SYNC];
+const CLIENT_SYNC_KEYS = [SHOW_MATURE, HIDE_REPOSTS, SHOW_ANONYMOUS, INSTANT_PURCHASE_ENABLED, INSTANT_PURCHASE_MAX, THEME, AUTOPLAY, HIDE_BALANCE, HIDE_SPLASH_ANIMATION, FLOATING_PLAYER, DARK_MODE_TIMES, AUTOMATIC_DARK_MODE_ENABLED];
 
 var shared_preferences = /*#__PURE__*/Object.freeze({
   SDK_SYNC_KEYS: SDK_SYNC_KEYS,
@@ -1801,7 +1801,10 @@ function doPreferenceGet(key, success, fail) {
 const SHARED_PREFERENCE_VERSION = '0.1';
 let oldShared = {};
 
-const buildSharedStateMiddleware = (actions, sharedStateFilters, sharedStateCb) => ({ getState, dispatch }) => next => action => {
+const buildSharedStateMiddleware = (actions, sharedStateFilters, sharedStateCb) => ({
+  getState,
+  dispatch
+}) => next => action => {
   const currentState = getState();
 
   // We don't care if sync is disabled here, we always want to backup preferences to the wallet
