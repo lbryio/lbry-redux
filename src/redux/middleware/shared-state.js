@@ -26,7 +26,10 @@ export const buildSharedStateMiddleware = (
   const actionResult = next(action);
   // Call `getState` after calling `next` to ensure the state has updated in response to the action
   const nextState: { user: any, settings: any } = getState();
-  const syncEnabled = nextState.settings && nextState.settings.syncEnabledInWallet;
+  const syncEnabled =
+    nextState.settings &&
+    nextState.settings.clientSettings &&
+    nextState.settings.clientSettings.enable_sync;
   const hasVerifiedEmail =
     nextState.user && nextState.user.user && nextState.user.user.has_verified_email;
   const preferenceKey = syncEnabled && hasVerifiedEmail ? 'shared' : 'local';
