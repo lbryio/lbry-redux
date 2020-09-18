@@ -59,7 +59,7 @@ const defaultState: PublishState = {
   channelId: '',
   name: '',
   nameError: undefined,
-  bid: 0.1,
+  bid: 0.01,
   bidError: undefined,
   licenseType: 'None',
   otherLicenseDescription: 'All rights reserved',
