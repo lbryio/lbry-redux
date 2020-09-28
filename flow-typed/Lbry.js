@@ -135,6 +135,24 @@ declare type CommentListResponse = {
   total_pages: number,
 };
 
+declare type MyReactions = {
+  // Keys are the commentId
+  [string]: Array<string>
+}
+
+declare type OthersReactions = {
+  // Keys are the commentId
+  [string]: {
+    // Keys are the reaction_type, e.g. 'like'
+    [string]: number,
+  },
+}
+
+declare type CommentReactListResponse = {
+  my_reactions: Array<MyReactions>,
+  others_reactions: Array<OthersReactions>,
+}
+
 declare type CommentHideResponse = {
   // keyed by the CommentIds entered
   [string]: { hidden: boolean },
