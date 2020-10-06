@@ -520,6 +520,7 @@ const DEFAULT_ENGLISH_KNOWN_TAGS = [
   '2020protests',
   'covidcuts',
   'covid-19',
+  'LBRYFoundationBoardCandidacy'
 ];
 
 const DEFAULT_SPANISH_KNOWN_TAGS = [
