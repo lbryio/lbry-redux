@@ -122,8 +122,6 @@ export {
   doSupportAbandonForClaim,
 } from 'redux/actions/wallet';
 
-export { doToggleTagFollow, doAddTag, doDeleteTag } from 'redux/actions/tags';
-
 export { doPopulateSharedUserState, doPreferenceGet, doPreferenceSet } from 'redux/actions/sync';
 
 // utils
@@ -138,7 +136,6 @@ export { contentReducer } from 'redux/reducers/content';
 export { fileInfoReducer } from 'redux/reducers/file_info';
 export { notificationsReducer } from 'redux/reducers/notifications';
 export { publishReducer } from 'redux/reducers/publish';
-export { tagsReducer } from 'redux/reducers/tags';
 export { walletReducer } from 'redux/reducers/wallet';
 
 // selectors
@@ -313,10 +310,3 @@ export {
   selectAbandonClaimSupportError,
   makeSelectPendingAmountByUri,
 } from 'redux/selectors/wallet';
-
-export {
-  selectFollowedTags,
-  selectFollowedTagsList,
-  selectUnfollowedTags,
-  makeSelectIsFollowingTag,
-} from 'redux/selectors/tags';
