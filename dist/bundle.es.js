@@ -289,11 +289,6 @@ const FETCH_COST_INFO_STARTED = 'FETCH_COST_INFO_STARTED';
 const FETCH_COST_INFO_COMPLETED = 'FETCH_COST_INFO_COMPLETED';
 const FETCH_COST_INFO_FAILED = 'FETCH_COST_INFO_FAILED';
 
-// Tags
-const TOGGLE_TAG_FOLLOW = 'TOGGLE_TAG_FOLLOW';
-const TAG_ADD = 'TAG_ADD';
-const TAG_DELETE = 'TAG_DELETE';
-
 // Sync
 const USER_STATE_POPULATE = 'USER_STATE_POPULATE';
 
@@ -536,9 +531,6 @@ var action_types = /*#__PURE__*/Object.freeze({
   FETCH_COST_INFO_STARTED: FETCH_COST_INFO_STARTED,
   FETCH_COST_INFO_COMPLETED: FETCH_COST_INFO_COMPLETED,
   FETCH_COST_INFO_FAILED: FETCH_COST_INFO_FAILED,
-  TOGGLE_TAG_FOLLOW: TOGGLE_TAG_FOLLOW,
-  TAG_ADD: TAG_ADD,
-  TAG_DELETE: TAG_DELETE,
   USER_STATE_POPULATE: USER_STATE_POPULATE
 });
 
@@ -968,7 +960,7 @@ const DEFAULT_FOLLOWED_TAGS = ['art', 'automotive', 'blockchain', 'comedy', 'eco
 
 const MATURE_TAGS = ['porn', 'porno', 'nsfw', 'mature', 'xxx', 'sex', 'creampie', 'blowjob', 'handjob', 'vagina', 'boobs', 'big boobs', 'big dick', 'pussy', 'cumshot', 'anal', 'hard fucking', 'ass', 'fuck', 'hentai'];
 
-const DEFAULT_ENGLISH_KNOWN_TAGS = ['free speech', 'censorship', 'gaming', 'pop culture', 'entertainment', 'technology', 'music', 'funny', 'education', 'learning', 'news', 'gameplay', 'nature', 'beliefs', 'comedy', 'games', 'film & animation', 'game', 'weapons', 'blockchain', 'video game', 'sports', 'walkthrough', 'lbrytvpaidbeta', 'art', 'pc', 'minecraft', 'playthrough', 'economics', 'automotive', 'play', 'tutorial', 'twitch', 'how to', 'ps4', 'bitcoin', 'fortnite', 'commentary', 'lets play', 'fun', 'politics', 'travel', 'food', 'science', 'xbox', 'liberal', 'democrat', 'progressive', 'survival', 'non-profits', 'activism', 'cryptocurrency', 'playstation', 'nintendo', 'government', 'steam', 'podcast', 'gamer', 'horror', 'conservative', 'reaction', 'trailer', 'love', 'cnn', 'republican', 'political', 'hangoutsonair', 'hoa', 'msnbc', 'cbs', 'anime', 'donald trump', 'fiction', 'fox news', 'crypto', 'ethereum', 'call of duty', 'android', 'multiplayer', 'epic', 'rpg', 'adventure', 'secular talk', 'btc', 'atheist', 'atheism', 'video games', 'ps3', 'cod', 'online', 'agnostic', 'movie', 'fps', 'lets', 'mod', 'world', 'reviews', 'sharefactory', 'space', 'pokemon', 'stream', 'hilarious', 'lol', 'sony', 'god', 'dance', 'pvp', 'tech', 'strategy', 'zombies', 'fail', 'film', 'xbox360', 'animation', 'unboxing', 'money', 'wwe', 'mods', 'indie', 'pubg', 'ios', 'history', 'rap', 'mobile', 'trump', 'hack', 'flat earth', 'trap', 'humor', 'vlogging', 'fox', 'news radio', 'facebook', 'edm', 'fitness', 'vaping', 'hip hop', 'secular', 'jesus', 'song', 'vape', 'guitar', 'remix', 'mining', 'daily', 'diy', 'pets', 'videogame', 'death', 'funny moments', 'religion', 'media', 'viral', 'war', 'nbc', 'freedom', 'gold', 'family', 'meme', 'zombie', 'photography', 'chill', 'sniper', 'computer', 'iphone', 'dragon', 'bible', 'pro', 'overwatch', 'litecoin', 'gta', 'house', 'fire', 'bass', 'truth', 'crash', 'mario', 'league of legends', 'wii', 'mmorpg', 'health', 'marvel', 'racing', 'apple', 'instrumental', 'earth', 'destiny', 'satire', 'race', 'training', 'electronic', 'boss', 'roblox', 'family friendly', 'california', 'react', 'christian', 'mmo', 'twitter', 'help', 'star', 'cars', 'random', 'top 10', 'ninja', 'guns', 'linux', 'lessons', 'vegan', 'future', 'dota 2', 'studio', 'star wars', 'shooting', 'nasa', 'rock', 'league', 'subscribe', 'water', 'gta v', 'car', 'samsung', 'music video', 'skyrim', 'dog', 'comics', 'shooter game', 'bo3', 'halloween', 'liberty', 'eth', 'conspiracy', 'knife', 'fashion', 'stories', 'vapor', 'nvidia', 'cute', 'beat', 'nintendo switch', 'fantasy', 'christmas', 'world of warcraft', 'industry', 'cartoon', 'garden', 'animals', 'windows', 'happy', 'magic', 'memes', 'design', 'tactical', 'fallout 4', 'puzzle', 'parody', 'rv', 'beats', 'building', 'disney', 'drone', 'ps2', 'beach', 'metal', 'christianity', 'business', 'mix', 'bo2', 'cover', 'senate', '4k', 'united states', 'final', 'hero', 'playing', 'dlc', 'ubisoft', 'halo', 'pc gaming', 'raw', 'investing', 'online learning', 'software', 'ark', 'mojang', 'console', 'battle royale', 'canon', 'microsoft', 'camping', 'ufo', 'progressive talk', 'switch', 'fpv', 'arcade', 'school', 'driving', 'bodybuilding', 'drama', 'retro', 'science fiction', 'eggs', 'australia', 'modded', 'rainbow', 'gamers', 'resident evil', 'drawing', 'brasil', 'england', 'hillary clinton', 'singing', 'final fantasy', 'hiphop', 'video blog', 'mature', 'quad', 'noob', 'simulation', 'illuminati', 'poetry', 'dayz', 'manga', 'howto', 'insane', 'press', 'special', 'church', 'ico', 'weird', 'libertarian', 'crafting', 'level', 'comic', 'sandbox', 'daily vlog', 'outdoor', 'black ops', 'sound', 'christ', 'duty', 'juvenile fiction', 'pc game', 'how-to', 'ww2', 'creepy', 'artist', 'galaxy', 'destiny 2', 'new music', 'quest', 'lee', 'pacman', 'super smash bros', 'day', 'survival horror', 'patreon', 'bitcoin price', 'trending', 'open world', 'wii u', 'dope', 'reaper', 'sniping', 'dubstep', 'truck', 'planet', 'dc', 'amazon', 'spirituality', 'universe', 'video game culture', 'community', 'cat', 'aliens', 'tourism', 'altcoins', 'style', 'travel trailer', 'rda', 'gun', 'secret', 'far cry 5', 'auto', 'culture', 'dj', 'mw2', 'lord', 'full time rving', 'role-playing game', 'prank', 'grand theft auto', 'master', 'wrestling', 'sci-fi', 'workout', 'ghost', 'fake news', 'silly', 'season', 'bo4', 'trading', 'extreme', 'economy', 'combat', 'plays', 'muslim', 'pubg mobile', 'clips', 'bo1', 'paypal', 'sims', 'exploration', 'light', 'ripple', 'paranormal', 'football', 'capcom', 'rta', 'discord', 'batman', 'player', 'server', 'anarchy', 'military', 'playlist', 'cosplay', 'rv park', 'rant', 'edit', 'germany', 'reading', 'chris', 'flash', 'loot', 'bitcoin gratis', 'game reviews', 'movies', 'stupid', 'latest news', 'squad gameplay', 'guru', 'timelapse', 'black ops 3', 'holiday', 'soul', 'motivation', 'mw3', 'vacation', 'sega', '19th century', 'pop', 'sims 4', 'post', 'smok', 'island', 'scotland', 'paladins', 'warrior', 'creepypasta', 'role-playing', 'solar', 'vr', 'animal', 'peace', 'consciousness', 'dota', 'audio', 'mass effect', 'humour', 'first look', 'videogames', 'future bass', 'freestyle', 'hardcore', 'portugal', 'dantdm', 'teaser', 'lbry', 'coronavirus', '2020protests', 'covidcuts', 'covid-19'];
+const DEFAULT_ENGLISH_KNOWN_TAGS = ['free speech', 'censorship', 'gaming', 'pop culture', 'entertainment', 'technology', 'music', 'funny', 'education', 'learning', 'news', 'gameplay', 'nature', 'beliefs', 'comedy', 'games', 'film & animation', 'game', 'weapons', 'blockchain', 'video game', 'sports', 'walkthrough', 'lbrytvpaidbeta', 'art', 'pc', 'minecraft', 'playthrough', 'economics', 'automotive', 'play', 'tutorial', 'twitch', 'how to', 'ps4', 'bitcoin', 'fortnite', 'commentary', 'lets play', 'fun', 'politics', 'travel', 'food', 'science', 'xbox', 'liberal', 'democrat', 'progressive', 'survival', 'non-profits', 'activism', 'cryptocurrency', 'playstation', 'nintendo', 'government', 'steam', 'podcast', 'gamer', 'horror', 'conservative', 'reaction', 'trailer', 'love', 'cnn', 'republican', 'political', 'hangoutsonair', 'hoa', 'msnbc', 'cbs', 'anime', 'donald trump', 'fiction', 'fox news', 'crypto', 'ethereum', 'call of duty', 'android', 'multiplayer', 'epic', 'rpg', 'adventure', 'secular talk', 'btc', 'atheist', 'atheism', 'video games', 'ps3', 'cod', 'online', 'agnostic', 'movie', 'fps', 'lets', 'mod', 'world', 'reviews', 'sharefactory', 'space', 'pokemon', 'stream', 'hilarious', 'lol', 'sony', 'god', 'dance', 'pvp', 'tech', 'strategy', 'zombies', 'fail', 'film', 'xbox360', 'animation', 'unboxing', 'money', 'wwe', 'mods', 'indie', 'pubg', 'ios', 'history', 'rap', 'mobile', 'trump', 'hack', 'flat earth', 'trap', 'humor', 'vlogging', 'fox', 'news radio', 'facebook', 'edm', 'fitness', 'vaping', 'hip hop', 'secular', 'jesus', 'song', 'vape', 'guitar', 'remix', 'mining', 'daily', 'diy', 'pets', 'videogame', 'death', 'funny moments', 'religion', 'media', 'viral', 'war', 'nbc', 'freedom', 'gold', 'family', 'meme', 'zombie', 'photography', 'chill', 'sniper', 'computer', 'iphone', 'dragon', 'bible', 'pro', 'overwatch', 'litecoin', 'gta', 'house', 'fire', 'bass', 'truth', 'crash', 'mario', 'league of legends', 'wii', 'mmorpg', 'health', 'marvel', 'racing', 'apple', 'instrumental', 'earth', 'destiny', 'satire', 'race', 'training', 'electronic', 'boss', 'roblox', 'family friendly', 'california', 'react', 'christian', 'mmo', 'twitter', 'help', 'star', 'cars', 'random', 'top 10', 'ninja', 'guns', 'linux', 'lessons', 'vegan', 'future', 'dota 2', 'studio', 'star wars', 'shooting', 'nasa', 'rock', 'league', 'subscribe', 'water', 'gta v', 'car', 'samsung', 'music video', 'skyrim', 'dog', 'comics', 'shooter game', 'bo3', 'halloween', 'liberty', 'eth', 'conspiracy', 'knife', 'fashion', 'stories', 'vapor', 'nvidia', 'cute', 'beat', 'nintendo switch', 'fantasy', 'christmas', 'world of warcraft', 'industry', 'cartoon', 'garden', 'animals', 'windows', 'happy', 'magic', 'memes', 'design', 'tactical', 'fallout 4', 'puzzle', 'parody', 'rv', 'beats', 'building', 'disney', 'drone', 'ps2', 'beach', 'metal', 'christianity', 'business', 'mix', 'bo2', 'cover', 'senate', '4k', 'united states', 'final', 'hero', 'playing', 'dlc', 'ubisoft', 'halo', 'pc gaming', 'raw', 'investing', 'online learning', 'software', 'ark', 'mojang', 'console', 'battle royale', 'canon', 'microsoft', 'camping', 'ufo', 'progressive talk', 'switch', 'fpv', 'arcade', 'school', 'driving', 'bodybuilding', 'drama', 'retro', 'science fiction', 'eggs', 'australia', 'modded', 'rainbow', 'gamers', 'resident evil', 'drawing', 'brasil', 'england', 'hillary clinton', 'singing', 'final fantasy', 'hiphop', 'video blog', 'mature', 'quad', 'noob', 'simulation', 'illuminati', 'poetry', 'dayz', 'manga', 'howto', 'insane', 'press', 'special', 'church', 'ico', 'weird', 'libertarian', 'crafting', 'level', 'comic', 'sandbox', 'daily vlog', 'outdoor', 'black ops', 'sound', 'christ', 'duty', 'juvenile fiction', 'pc game', 'how-to', 'ww2', 'creepy', 'artist', 'galaxy', 'destiny 2', 'new music', 'quest', 'lee', 'pacman', 'super smash bros', 'day', 'survival horror', 'patreon', 'bitcoin price', 'trending', 'open world', 'wii u', 'dope', 'reaper', 'sniping', 'dubstep', 'truck', 'planet', 'dc', 'amazon', 'spirituality', 'universe', 'video game culture', 'community', 'cat', 'aliens', 'tourism', 'altcoins', 'style', 'travel trailer', 'rda', 'gun', 'secret', 'far cry 5', 'auto', 'culture', 'dj', 'mw2', 'lord', 'full time rving', 'role-playing game', 'prank', 'grand theft auto', 'master', 'wrestling', 'sci-fi', 'workout', 'ghost', 'fake news', 'silly', 'season', 'bo4', 'trading', 'extreme', 'economy', 'combat', 'plays', 'muslim', 'pubg mobile', 'clips', 'bo1', 'paypal', 'sims', 'exploration', 'light', 'ripple', 'paranormal', 'football', 'capcom', 'rta', 'discord', 'batman', 'player', 'server', 'anarchy', 'military', 'playlist', 'cosplay', 'rv park', 'rant', 'edit', 'germany', 'reading', 'chris', 'flash', 'loot', 'bitcoin gratis', 'game reviews', 'movies', 'stupid', 'latest news', 'squad gameplay', 'guru', 'timelapse', 'black ops 3', 'holiday', 'soul', 'motivation', 'mw3', 'vacation', 'sega', '19th century', 'pop', 'sims 4', 'post', 'smok', 'island', 'scotland', 'paladins', 'warrior', 'creepypasta', 'role-playing', 'solar', 'vr', 'animal', 'peace', 'consciousness', 'dota', 'audio', 'mass effect', 'humour', 'first look', 'videogames', 'future bass', 'freestyle', 'hardcore', 'portugal', 'dantdm', 'teaser', 'lbry', 'coronavirus', '2020protests', 'covidcuts', 'covid-19', 'LBRYFoundationBoardCandidacy'];
 
 const DEFAULT_SPANISH_KNOWN_TAGS = ['español', 'tecnología', 'criptomonedas', 'economía', 'bitcoin', 'educación', 'videojuegos', 'música', 'noticias', 'ciencia', 'deportes', 'latinoamérica', 'latam', 'conspiración', 'humor', 'política', 'tutoriales'];
 
@@ -4610,29 +4602,6 @@ function savePosition(claimId, outpoint, position) {
 
 //      
 
-const doToggleTagFollow = name => ({
-  type: TOGGLE_TAG_FOLLOW,
-  data: {
-    name
-  }
-});
-
-const doAddTag = name => ({
-  type: TAG_ADD,
-  data: {
-    name
-  }
-});
-
-const doDeleteTag = name => ({
-  type: TAG_DELETE,
-  data: {
-    name
-  }
-});
-
-//      
-
 function parseQueryParams(queryString) {
   if (queryString === '') return {};
   const parts = queryString.split('?').pop().split('&').map(p => p.split('='));
@@ -5683,73 +5652,6 @@ const publishReducer = handleActions({
 
 var _extends$d = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function getDefaultKnownTags() {
-  return DEFAULT_FOLLOWED_TAGS.concat(DEFAULT_KNOWN_TAGS).reduce((tagsMap, tag) => _extends$d({}, tagsMap, {
-    [tag]: { name: tag }
-  }), {});
-}
-
-const defaultState$5 = {
-  followedTags: [],
-  knownTags: getDefaultKnownTags()
-};
-
-const tagsReducer = handleActions({
-  [TOGGLE_TAG_FOLLOW]: (state, action) => {
-    const { followedTags } = state;
-    const { name } = action.data;
-
-    let newFollowedTags = followedTags.slice();
-
-    if (newFollowedTags.includes(name)) {
-      newFollowedTags = newFollowedTags.filter(tag => tag !== name);
-    } else {
-      newFollowedTags.push(name);
-    }
-
-    return _extends$d({}, state, {
-      followedTags: newFollowedTags
-    });
-  },
-
-  [TAG_ADD]: (state, action) => {
-    const { knownTags } = state;
-    const { name } = action.data;
-
-    let newKnownTags = _extends$d({}, knownTags);
-    newKnownTags[name] = { name };
-
-    return _extends$d({}, state, {
-      knownTags: newKnownTags
-    });
-  },
-
-  [TAG_DELETE]: (state, action) => {
-    const { knownTags, followedTags } = state;
-    const { name } = action.data;
-
-    let newKnownTags = _extends$d({}, knownTags);
-    delete newKnownTags[name];
-    const newFollowedTags = followedTags.filter(tag => tag !== name);
-
-    return _extends$d({}, state, {
-      knownTags: newKnownTags,
-      followedTags: newFollowedTags
-    });
-  },
-  [USER_STATE_POPULATE]: (state, action) => {
-    const { tags } = action.data;
-    if (Array.isArray(tags)) {
-      return _extends$d({}, state, {
-        followedTags: tags
-      });
-    }
-    return _extends$d({}, state);
-  }
-}, defaultState$5);
-
-var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 const buildDraftTransaction = () => ({
   amount: undefined,
   address: undefined
@@ -5759,7 +5661,7 @@ const buildDraftTransaction = () => ({
 // See details in https://github.com/lbryio/lbry/issues/1307
 
 
-const defaultState$6 = {
+const defaultState$5 = {
   balance: undefined,
   totalBalance: undefined,
   reservedBalance: undefined,
@@ -5800,40 +5702,40 @@ const defaultState$6 = {
 };
 
 const walletReducer = handleActions({
-  [FETCH_TRANSACTIONS_STARTED]: state => _extends$e({}, state, {
+  [FETCH_TRANSACTIONS_STARTED]: state => _extends$d({}, state, {
     fetchingTransactions: true
   }),
 
   [FETCH_TRANSACTIONS_COMPLETED]: (state, action) => {
-    const byId = _extends$e({}, state.transactions);
+    const byId = _extends$d({}, state.transactions);
 
     const { transactions } = action.data;
     transactions.forEach(transaction => {
       byId[transaction.txid] = transaction;
     });
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       transactions: byId,
       fetchingTransactions: false
     });
   },
 
   [FETCH_TXO_PAGE_STARTED]: state => {
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       fetchingTxos: true,
       fetchingTxosError: undefined
     });
   },
 
   [FETCH_TXO_PAGE_COMPLETED]: (state, action) => {
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       txoPage: action.data,
       fetchingTxos: false
     });
   },
 
   [FETCH_TXO_PAGE_FAILED]: (state, action) => {
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       txoPage: {},
       fetchingTxos: false,
       fetchingTxosError: action.data
@@ -5841,12 +5743,12 @@ const walletReducer = handleActions({
   },
 
   [UPDATE_TXO_FETCH_PARAMS]: (state, action) => {
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       txoFetchParams: action.data
     });
   },
 
-  [FETCH_SUPPORTS_STARTED]: state => _extends$e({}, state, {
+  [FETCH_SUPPORTS_STARTED]: state => _extends$d({}, state, {
     fetchingSupports: true
   }),
 
@@ -5859,7 +5761,7 @@ const walletReducer = handleActions({
       byOutpoint[`${txid}:${nout}`] = transaction;
     });
 
-    return _extends$e({}, state, { supports: byOutpoint, fetchingSupports: false });
+    return _extends$d({}, state, { supports: byOutpoint, fetchingSupports: false });
   },
 
   [ABANDON_SUPPORT_STARTED]: (state, action) => {
@@ -5868,7 +5770,7 @@ const walletReducer = handleActions({
 
     currentlyAbandoning[outpoint] = true;
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       abandoningSupportsByOutpoint: currentlyAbandoning
     });
   },
@@ -5881,20 +5783,20 @@ const walletReducer = handleActions({
     delete currentlyAbandoning[outpoint];
     delete byOutpoint[outpoint];
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       supports: byOutpoint,
       abandoningSupportsById: currentlyAbandoning
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_STARTED]: (state, action) => {
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       abandonClaimSupportError: undefined
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_PREVIEW]: (state, action) => {
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       abandonClaimSupportError: undefined
     });
   },
@@ -5905,36 +5807,36 @@ const walletReducer = handleActions({
 
     pendingtxs[claimId] = { txid, type, effective };
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       pendingSupportTransactions: pendingtxs,
       abandonClaimSupportError: undefined
     });
   },
 
   [ABANDON_CLAIM_SUPPORT_FAILED]: (state, action) => {
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       abandonClaimSupportError: action.data
     });
   },
 
   [PENDING_SUPPORTS_UPDATED]: (state, action) => {
 
-    return _extends$e({}, state, {
+    return _extends$d({}, state, {
       pendingSupportTransactions: action.data
     });
   },
 
-  [GET_NEW_ADDRESS_STARTED]: state => _extends$e({}, state, {
+  [GET_NEW_ADDRESS_STARTED]: state => _extends$d({}, state, {
     gettingNewAddress: true
   }),
 
   [GET_NEW_ADDRESS_COMPLETED]: (state, action) => {
     const { address } = action.data;
 
-    return _extends$e({}, state, { gettingNewAddress: false, receiveAddress: address });
+    return _extends$d({}, state, { gettingNewAddress: false, receiveAddress: address });
   },
 
-  [UPDATE_BALANCE]: (state, action) => _extends$e({}, state, {
+  [UPDATE_BALANCE]: (state, action) => _extends$d({}, state, {
     totalBalance: action.data.totalBalance,
     balance: action.data.balance,
     reservedBalance: action.data.reservedBalance,
@@ -5943,32 +5845,32 @@ const walletReducer = handleActions({
     tipsBalance: action.data.tipsBalance
   }),
 
-  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$e({}, state, {
+  [CHECK_ADDRESS_IS_MINE_STARTED]: state => _extends$d({}, state, {
     checkingAddressOwnership: true
   }),
 
-  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$e({}, state, {
+  [CHECK_ADDRESS_IS_MINE_COMPLETED]: state => _extends$d({}, state, {
     checkingAddressOwnership: false
   }),
 
   [SET_DRAFT_TRANSACTION_AMOUNT]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$e({}, oldDraft, { amount: parseFloat(action.data.amount) });
+    const newDraft = _extends$d({}, oldDraft, { amount: parseFloat(action.data.amount) });
 
-    return _extends$e({}, state, { draftTransaction: newDraft });
+    return _extends$d({}, state, { draftTransaction: newDraft });
   },
 
   [SET_DRAFT_TRANSACTION_ADDRESS]: (state, action) => {
     const oldDraft = state.draftTransaction;
-    const newDraft = _extends$e({}, oldDraft, { address: action.data.address });
+    const newDraft = _extends$d({}, oldDraft, { address: action.data.address });
 
-    return _extends$e({}, state, { draftTransaction: newDraft });
+    return _extends$d({}, state, { draftTransaction: newDraft });
   },
 
   [SEND_TRANSACTION_STARTED]: state => {
-    const newDraftTransaction = _extends$e({}, state.draftTransaction, { sending: true });
+    const newDraftTransaction = _extends$d({}, state.draftTransaction, { sending: true });
 
-    return _extends$e({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$d({}, state, { draftTransaction: newDraftTransaction });
   },
 
   [SEND_TRANSACTION_COMPLETED]: state => Object.assign({}, state, {
@@ -5981,117 +5883,117 @@ const walletReducer = handleActions({
       error: action.data.error
     });
 
-    return _extends$e({}, state, { draftTransaction: newDraftTransaction });
+    return _extends$d({}, state, { draftTransaction: newDraftTransaction });
   },
 
-  [SUPPORT_TRANSACTION_STARTED]: state => _extends$e({}, state, {
+  [SUPPORT_TRANSACTION_STARTED]: state => _extends$d({}, state, {
     sendingSupport: true
   }),
 
-  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$e({}, state, {
+  [SUPPORT_TRANSACTION_COMPLETED]: state => _extends$d({}, state, {
     sendingSupport: false
   }),
 
-  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$e({}, state, {
+  [SUPPORT_TRANSACTION_FAILED]: (state, action) => _extends$d({}, state, {
     error: action.data.error,
     sendingSupport: false
   }),
 
-  [CLEAR_SUPPORT_TRANSACTION]: state => _extends$e({}, state, {
+  [CLEAR_SUPPORT_TRANSACTION]: state => _extends$d({}, state, {
     sendingSupport: false
   }),
 
-  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$e({}, state, {
+  [WALLET_STATUS_COMPLETED]: (state, action) => _extends$d({}, state, {
     walletIsEncrypted: action.result
   }),
 
-  [WALLET_ENCRYPT_START]: state => _extends$e({}, state, {
+  [WALLET_ENCRYPT_START]: state => _extends$d({}, state, {
     walletEncryptPending: true,
     walletEncryptSucceded: null,
     walletEncryptResult: null
   }),
 
-  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$e({}, state, {
+  [WALLET_ENCRYPT_COMPLETED]: (state, action) => _extends$d({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: true,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$e({}, state, {
+  [WALLET_ENCRYPT_FAILED]: (state, action) => _extends$d({}, state, {
     walletEncryptPending: false,
     walletEncryptSucceded: false,
     walletEncryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_START]: state => _extends$e({}, state, {
+  [WALLET_DECRYPT_START]: state => _extends$d({}, state, {
     walletDecryptPending: true,
     walletDecryptSucceded: null,
     walletDecryptResult: null
   }),
 
-  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$e({}, state, {
+  [WALLET_DECRYPT_COMPLETED]: (state, action) => _extends$d({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: true,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$e({}, state, {
+  [WALLET_DECRYPT_FAILED]: (state, action) => _extends$d({}, state, {
     walletDecryptPending: false,
     walletDecryptSucceded: false,
     walletDecryptResult: action.result
   }),
 
-  [WALLET_UNLOCK_START]: state => _extends$e({}, state, {
+  [WALLET_UNLOCK_START]: state => _extends$d({}, state, {
     walletUnlockPending: true,
     walletUnlockSucceded: null,
     walletUnlockResult: null
   }),
 
-  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$e({}, state, {
+  [WALLET_UNLOCK_COMPLETED]: (state, action) => _extends$d({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: true,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$e({}, state, {
+  [WALLET_UNLOCK_FAILED]: (state, action) => _extends$d({}, state, {
     walletUnlockPending: false,
     walletUnlockSucceded: false,
     walletUnlockResult: action.result
   }),
 
-  [WALLET_LOCK_START]: state => _extends$e({}, state, {
+  [WALLET_LOCK_START]: state => _extends$d({}, state, {
     walletLockPending: false,
     walletLockSucceded: null,
     walletLockResult: null
   }),
 
-  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$e({}, state, {
+  [WALLET_LOCK_COMPLETED]: (state, action) => _extends$d({}, state, {
     walletLockPending: false,
     walletLockSucceded: true,
     walletLockResult: action.result
   }),
 
-  [WALLET_LOCK_FAILED]: (state, action) => _extends$e({}, state, {
+  [WALLET_LOCK_FAILED]: (state, action) => _extends$d({}, state, {
     walletLockPending: false,
     walletLockSucceded: false,
     walletLockResult: action.result
   }),
 
-  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$e({}, state, {
+  [SET_TRANSACTION_LIST_FILTER]: (state, action) => _extends$d({}, state, {
     transactionListFilter: action.data
   }),
 
-  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$e({}, state, {
+  [UPDATE_CURRENT_HEIGHT]: (state, action) => _extends$d({}, state, {
     latestBlock: action.data
   }),
-  [WALLET_RESTART]: state => _extends$e({}, state, {
+  [WALLET_RESTART]: state => _extends$d({}, state, {
     walletReconnecting: true
   }),
 
-  [WALLET_RESTART_COMPLETED]: state => _extends$e({}, state, {
+  [WALLET_RESTART_COMPLETED]: state => _extends$d({}, state, {
     walletReconnecting: false
   })
-}, defaultState$6);
+}, defaultState$5);
 
 //      
 
@@ -6106,14 +6008,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 const selectState$5 = state => state.notifications || {};
 
 const selectToast = reselect.createSelector(selectState$5, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$f({
+    return _extends$e({
       id
     }, params);
   }
@@ -6130,33 +6032,6 @@ const selectError = reselect.createSelector(selectState$5, state => {
   }
 
   return null;
-});
-
-//      
-
-const selectState$6 = state => state.tags || {};
-
-const selectKnownTagsByName = reselect.createSelector(selectState$6, state => state.knownTags);
-
-const selectFollowedTagsList = reselect.createSelector(selectState$6, state => state.followedTags.filter(tag => typeof tag === 'string'));
-
-const selectFollowedTags = reselect.createSelector(selectFollowedTagsList, followedTags => followedTags.map(tag => ({ name: tag.toLowerCase() })).sort((a, b) => a.name.localeCompare(b.name)));
-
-const selectUnfollowedTags = reselect.createSelector(selectKnownTagsByName, selectFollowedTagsList, (tagsByName, followedTags) => {
-  const followedTagsSet = new Set(followedTags);
-  let tagsToReturn = [];
-  Object.keys(tagsByName).forEach(key => {
-    if (!followedTagsSet.has(key)) {
-      const { name } = tagsByName[key];
-      tagsToReturn.push({ name: name.toLowerCase() });
-    }
-  });
-
-  return tagsToReturn;
-});
-
-const makeSelectIsFollowingTag = tag => reselect.createSelector(selectFollowedTags, followedTags => {
-  return followedTags.some(followedTag => followedTag.name === tag.toLowerCase());
 });
 
 exports.ABANDON_STATES = abandon_states;
@@ -6189,7 +6064,6 @@ exports.createNormalizedClaimSearchKey = createNormalizedClaimSearchKey;
 exports.creditsToString = creditsToString;
 exports.doAbandonClaim = doAbandonClaim;
 exports.doAbandonTxo = doAbandonTxo;
-exports.doAddTag = doAddTag;
 exports.doBalanceSubscribe = doBalanceSubscribe;
 exports.doCheckAddressIsMine = doCheckAddressIsMine;
 exports.doCheckPendingClaims = doCheckPendingClaims;
@@ -6202,7 +6076,6 @@ exports.doClearPurchasedUriSuccess = doClearPurchasedUriSuccess;
 exports.doClearRepostError = doClearRepostError;
 exports.doClearSupport = doClearSupport;
 exports.doCreateChannel = doCreateChannel;
-exports.doDeleteTag = doDeleteTag;
 exports.doDismissError = doDismissError;
 exports.doDismissToast = doDismissToast;
 exports.doError = doError;
@@ -6236,7 +6109,6 @@ exports.doSetFileListSort = doSetFileListSort;
 exports.doSetTransactionListFilter = doSetTransactionListFilter;
 exports.doSupportAbandonForClaim = doSupportAbandonForClaim;
 exports.doToast = doToast;
-exports.doToggleTagFollow = doToggleTagFollow;
 exports.doUpdateBalance = doUpdateBalance;
 exports.doUpdateBlockHeight = doUpdateBlockHeight;
 exports.doUpdateChannel = doUpdateChannel;
@@ -6278,7 +6150,6 @@ exports.makeSelectFileNameForUri = makeSelectFileNameForUri;
 exports.makeSelectFilePartlyDownloaded = makeSelectFilePartlyDownloaded;
 exports.makeSelectFilteredTransactionsForPage = makeSelectFilteredTransactionsForPage;
 exports.makeSelectIsAbandoningClaimForUri = makeSelectIsAbandoningClaimForUri;
-exports.makeSelectIsFollowingTag = makeSelectIsFollowingTag;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
 exports.makeSelectLatestTransactions = makeSelectLatestTransactions;
 exports.makeSelectLoadingForUri = makeSelectLoadingForUri;
@@ -6354,8 +6225,6 @@ exports.selectFileListDownloadedSort = selectFileListDownloadedSort;
 exports.selectFileListPublishedSort = selectFileListPublishedSort;
 exports.selectFilteredTransactionCount = selectFilteredTransactionCount;
 exports.selectFilteredTransactions = selectFilteredTransactions;
-exports.selectFollowedTags = selectFollowedTags;
-exports.selectFollowedTagsList = selectFollowedTagsList;
 exports.selectGettingNewAddress = selectGettingNewAddress;
 exports.selectHasTransactions = selectHasTransactions;
 exports.selectIsFetchingClaimListMine = selectIsFetchingClaimListMine;
@@ -6409,7 +6278,6 @@ exports.selectTxoItemCount = selectTxoItemCount;
 exports.selectTxoPage = selectTxoPage;
 exports.selectTxoPageNumber = selectTxoPageNumber;
 exports.selectTxoPageParams = selectTxoPageParams;
-exports.selectUnfollowedTags = selectUnfollowedTags;
 exports.selectUpdateChannelError = selectUpdateChannelError;
 exports.selectUpdatingChannel = selectUpdatingChannel;
 exports.selectUrisLoading = selectUrisLoading;
@@ -6424,6 +6292,5 @@ exports.selectWalletState = selectWalletState;
 exports.selectWalletUnlockPending = selectWalletUnlockPending;
 exports.selectWalletUnlockResult = selectWalletUnlockResult;
 exports.selectWalletUnlockSucceeded = selectWalletUnlockSucceeded;
-exports.tagsReducer = tagsReducer;
 exports.toQueryString = toQueryString;
 exports.walletReducer = walletReducer;
