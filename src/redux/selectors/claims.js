@@ -160,10 +160,11 @@ export const selectAbandoningIds = createSelector(
   state => Object.keys(state.abandoningById || {})
 );
 
-export const makeSelectAbandoningClaimById = (claimId: string) => createSelector(
-  selectAbandoningIds,
-  ids => ids.includes(claimId)
-);
+export const makeSelectAbandoningClaimById = (claimId: string) =>
+  createSelector(
+    selectAbandoningIds,
+    ids => ids.includes(claimId)
+  );
 
 export const makeSelectIsAbandoningClaimForUri = (uri: string) =>
   createSelector(
@@ -257,8 +258,8 @@ export const makeSelectMyPurchasesForPage = (query: ?string, page: number = 1) =
       const end = Number(page) * Number(PAGE_SIZE);
       return matchingFileInfos && matchingFileInfos.length
         ? matchingFileInfos
-          .slice(start, end)
-          .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
+            .slice(start, end)
+            .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
         : [];
     }
   );
@@ -364,8 +365,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-            ? claim.meta.creation_timestamp * 1000
-            : null);
+          ? claim.meta.creation_timestamp * 1000
+          : null);
       if (!timestamp) {
         return undefined;
       }
@@ -645,6 +646,29 @@ export const makeSelectChannelForClaimUri = (uri: string, includePrefix: boolean
       } else {
         return includePrefix ? permanentUrl : permanentUrl.slice('lbry://'.length);
       }
+    }
+  );
+
+export const makeSelectChannelPermUrlForClaimUri = (uri: string, includePrefix: boolean = false) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    (claim: ?Claim) => {
+      if (claim && claim.value_type === 'channel') {
+        return claim.permanent_url;
+      }
+      if (!claim || !claim.signing_channel || !claim.is_channel_signature_valid) {
+        return null;
+      }
+      return claim.signing_channel.permanent_url;
+    }
+  );
+
+export const makeSelectMyChannelPermUrlForName = (name: string) =>
+  createSelector(
+    selectMyChannelClaims,
+    claims => {
+      const matchingClaim = claims.find(claim => claim.name === name);
+      return matchingClaim ? matchingClaim.permanent_url : null;
     }
   );
 

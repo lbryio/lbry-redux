@@ -158,6 +158,11 @@ declare type CommentHideResponse = {
   [string]: { hidden: boolean },
 };
 
+declare type CommentPinResponse = {
+  // keyed by the CommentIds entered
+  items: Comment,
+};
+
 declare type CommentAbandonResponse = {
   // keyed by the CommentId given
   abandoned: boolean,

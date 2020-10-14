@@ -170,6 +170,8 @@ export {
   makeSelectOmittedCountForChannel,
   makeSelectClaimIsNsfw,
   makeSelectChannelForClaimUri,
+  makeSelectChannelPermUrlForClaimUri,
+  makeSelectMyChannelPermUrlForName,
   makeSelectClaimIsPending,
   makeSelectReflectingClaimForUri,
   makeSelectClaimsInChannelForCurrentPageState,
