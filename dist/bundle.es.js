@@ -635,6 +635,7 @@ const FOLLOWING_ACKNOWLEDGED = 'following_acknowledged';
 const TAGS_ACKNOWLEDGED = 'tags_acknowledged';
 const REWARDS_ACKNOWLEDGED = 'rewards_acknowledged';
 const LANGUAGE = 'language';
+const SEARCH_IN_LANGUAGE = 'search_in_language';
 const SHOW_MATURE = 'show_mature';
 const HIDE_REPOSTS = 'hide_reposts';
 const SHOW_ANONYMOUS = 'show_anonymous';
@@ -681,6 +682,7 @@ var settings = /*#__PURE__*/Object.freeze({
   TAGS_ACKNOWLEDGED: TAGS_ACKNOWLEDGED,
   REWARDS_ACKNOWLEDGED: REWARDS_ACKNOWLEDGED,
   LANGUAGE: LANGUAGE,
+  SEARCH_IN_LANGUAGE: SEARCH_IN_LANGUAGE,
   SHOW_MATURE: SHOW_MATURE,
   HIDE_REPOSTS: HIDE_REPOSTS,
   SHOW_ANONYMOUS: SHOW_ANONYMOUS,
