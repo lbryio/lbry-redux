@@ -3516,7 +3516,7 @@ function doUpdateChannel(params, cb) {
       email: params.email,
       tags: [],
       replace: true,
-      languages: [],
+      languages: params.languages || [],
       locations: [],
       blocking: true
     };
@@ -3529,10 +3529,6 @@ function doUpdateChannel(params, cb) {
 
     if (channelClaim && channelClaim.value && channelClaim.value.locations) {
       updateParams.locations = channelClaim.value.locations;
-    }
-
-    if (channelClaim && channelClaim.value && channelClaim.value.languages) {
-      updateParams.languages = channelClaim.value.languages;
     }
 
     return lbryProxy.channel_update(updateParams).then(result => {

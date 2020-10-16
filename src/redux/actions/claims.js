@@ -441,7 +441,7 @@ export function doUpdateChannel(params: any, cb: any) {
       email: params.email,
       tags: [],
       replace: true,
-      languages: [],
+      languages: params.languages || [],
       locations: [],
       blocking: true,
     };
@@ -454,10 +454,6 @@ export function doUpdateChannel(params: any, cb: any) {
 
     if (channelClaim && channelClaim.value && channelClaim.value.locations) {
       updateParams.locations = channelClaim.value.locations;
-    }
-
-    if (channelClaim && channelClaim.value && channelClaim.value.languages) {
-      updateParams.languages = channelClaim.value.languages;
     }
 
     return Lbry.channel_update(updateParams)
