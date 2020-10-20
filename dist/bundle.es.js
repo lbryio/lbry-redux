@@ -2,10 +2,8 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
 require('proxy-polyfill');
-var uuid = _interopDefault(require('uuid/v4'));
+var uuid = require('uuid');
 var reselect = require('reselect');
 
 const MINIMUM_PUBLISH_BID = 0.00000001;
@@ -1857,7 +1855,7 @@ function doToast(params) {
   return {
     type: CREATE_TOAST,
     data: {
-      id: uuid(),
+      id: uuid.v4(),
       params
     }
   };

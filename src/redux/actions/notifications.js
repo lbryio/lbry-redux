@@ -1,6 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
 export function doToast(params: ToastParams) {
   if (!params) {
