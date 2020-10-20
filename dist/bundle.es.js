@@ -1385,7 +1385,7 @@ const separateQuerystring = new RegExp(queryStringBreaker);
  *   - secondaryBidPosition (int, if present)
  */
 
-function parseURI(URL, requireProto = false) {
+function parseURI(url, requireProto = false) {
   // Break into components. Empty sub-matches are converted to null
 
   const componentsRegex = new RegExp(regexPartProtocol + // protocol
@@ -1395,12 +1395,12 @@ function parseURI(URL, requireProto = false) {
   regexPartStreamOrChannelName + regexPartModifierSeparator);
   // chop off the querystring first
   let QSStrippedURL, qs;
-  const qsRegexResult = separateQuerystring.exec(URL);
+  const qsRegexResult = separateQuerystring.exec(url);
   if (qsRegexResult) {
     [QSStrippedURL, qs] = qsRegexResult.slice(1).map(match => match || null);
   }
 
-  const cleanURL = QSStrippedURL || URL;
+  const cleanURL = QSStrippedURL || url;
   const regexMatch = componentsRegex.exec(cleanURL) || [];
   const [proto, ...rest] = regexMatch.slice(1).map(match => match || null);
   const path = rest.join('');
@@ -1420,7 +1420,7 @@ function parseURI(URL, requireProto = false) {
 
   rest.forEach(urlPiece => {
     if (urlPiece && urlPiece.includes(' ')) {
-      console.error('URL can not include a space');
+      throw new Error(__('URL can not include a space'));
     }
   });
 
@@ -4011,6 +4011,11 @@ function doPurchaseUri(uri, costInfo, saveFile = true, onSuccess) {
         type: PURCHASE_URI_FAILED,
         data: { uri, error: `Already fetching uri: ${uri}` }
       });
+
+      if (onSuccess) {
+        onSuccess(fileInfo);
+      }
+
       return;
     }
 

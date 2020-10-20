@@ -29,7 +29,7 @@ const separateQuerystring = new RegExp(queryStringBreaker);
  *   - secondaryBidPosition (int, if present)
  */
 
-export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj {
+export function parseURI(url: string, requireProto: boolean = false): LbryUrlObj {
   // Break into components. Empty sub-matches are converted to null
 
   const componentsRegex = new RegExp(
@@ -42,12 +42,12 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
   );
   // chop off the querystring first
   let QSStrippedURL, qs;
-  const qsRegexResult = separateQuerystring.exec(URL);
+  const qsRegexResult = separateQuerystring.exec(url);
   if (qsRegexResult) {
     [QSStrippedURL, qs] = qsRegexResult.slice(1).map(match => match || null);
   }
 
-  const cleanURL = QSStrippedURL || URL;
+  const cleanURL = QSStrippedURL || url;
   const regexMatch = componentsRegex.exec(cleanURL) || [];
   const [proto, ...rest] = regexMatch.slice(1).map(match => match || null);
   const path = rest.join('');
@@ -75,7 +75,7 @@ export function parseURI(URL: string, requireProto: boolean = false): LbryUrlObj
 
   rest.forEach(urlPiece => {
     if (urlPiece && urlPiece.includes(' ')) {
-      console.error('URL can not include a space');
+      throw new Error(__('URL can not include a space'));
     }
   });
 

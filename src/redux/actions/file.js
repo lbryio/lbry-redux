@@ -104,7 +104,10 @@ export function doPurchaseUri(
         data: { uri, error: `Already fetching uri: ${uri}` },
       });
 
-      Promise.resolve();
+      if (onSuccess) {
+        onSuccess(fileInfo);
+      }
+
       return;
     }
 
