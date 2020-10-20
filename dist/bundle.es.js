@@ -2518,7 +2518,7 @@ const makeSelectChannelPermUrlForClaimUri = (uri, includePrefix = false) => rese
 });
 
 const makeSelectMyChannelPermUrlForName = name => reselect.createSelector(selectMyChannelClaims, claims => {
-  const matchingClaim = claims.find(claim => claim.name === name);
+  const matchingClaim = claims && claims.find(claim => claim.name === name);
   return matchingClaim ? matchingClaim.permanent_url : null;
 });
 
