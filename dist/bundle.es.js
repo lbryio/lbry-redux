@@ -635,6 +635,7 @@ const REWARDS_ACKNOWLEDGED = 'rewards_acknowledged';
 const LANGUAGE = 'language';
 const SEARCH_IN_LANGUAGE = 'search_in_language';
 const SHOW_MATURE = 'show_mature';
+const HOMEPAGE = 'homepage';
 const HIDE_REPOSTS = 'hide_reposts';
 const SHOW_ANONYMOUS = 'show_anonymous';
 const SHOW_UNAVAILABLE = 'show_unavailable';
@@ -682,6 +683,7 @@ var settings = /*#__PURE__*/Object.freeze({
   LANGUAGE: LANGUAGE,
   SEARCH_IN_LANGUAGE: SEARCH_IN_LANGUAGE,
   SHOW_MATURE: SHOW_MATURE,
+  HOMEPAGE: HOMEPAGE,
   HIDE_REPOSTS: HIDE_REPOSTS,
   SHOW_ANONYMOUS: SHOW_ANONYMOUS,
   SHOW_UNAVAILABLE: SHOW_UNAVAILABLE,
