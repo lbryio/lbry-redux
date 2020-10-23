@@ -14,6 +14,7 @@ export const REWARDS_ACKNOWLEDGED = 'rewards_acknowledged';
 export const LANGUAGE = 'language';
 export const SEARCH_IN_LANGUAGE = 'search_in_language';
 export const SHOW_MATURE = 'show_mature';
+export const HOMEPAGE = 'homepage';
 export const HIDE_REPOSTS = 'hide_reposts';
 export const SHOW_ANONYMOUS = 'show_anonymous';
 export const SHOW_UNAVAILABLE = 'show_unavailable';
