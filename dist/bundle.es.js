@@ -2575,6 +2575,12 @@ const makeSelectMyStreamUrlsForPage = (page = 1) => reselect.createSelector(sele
 
 const selectMyStreamUrlsCount = reselect.createSelector(selectMyClaimUrisWithoutChannels, channels => channels.length);
 
+const makeSelectTagInClaimOrChannelForUri = (uri, tag) => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+  const claimTags = claim && claim.value && claim.value.tags || [];
+  const channelTags = claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.tags || [];
+  return claimTags.includes(tag) || channelTags.includes(tag);
+});
+
 function numberWithCommas(x) {
   var parts = x.toString().split('.');
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -6319,6 +6325,7 @@ exports.makeSelectSearchDownloadUrlsForPage = makeSelectSearchDownloadUrlsForPag
 exports.makeSelectShortUrlForUri = makeSelectShortUrlForUri;
 exports.makeSelectStreamingUrlForUri = makeSelectStreamingUrlForUri;
 exports.makeSelectSupportsForUri = makeSelectSupportsForUri;
+exports.makeSelectTagInClaimOrChannelForUri = makeSelectTagInClaimOrChannelForUri;
 exports.makeSelectTagsForUri = makeSelectTagsForUri;
 exports.makeSelectThumbnailForUri = makeSelectThumbnailForUri;
 exports.makeSelectTitleForUri = makeSelectTitleForUri;
