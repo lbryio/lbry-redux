@@ -161,6 +161,7 @@ export {
   makeSelectDateForUri,
   makeSelectAmountForUri,
   makeSelectTagsForUri,
+  makeSelectTagInClaimOrChannelForUri,
   makeSelectContentTypeForUri,
   makeSelectIsUriResolving,
   makeSelectTotalItemsForChannel,

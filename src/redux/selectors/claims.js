@@ -258,8 +258,8 @@ export const makeSelectMyPurchasesForPage = (query: ?string, page: number = 1) =
       const end = Number(page) * Number(PAGE_SIZE);
       return matchingFileInfos && matchingFileInfos.length
         ? matchingFileInfos
-          .slice(start, end)
-          .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
+            .slice(start, end)
+            .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
         : [];
     }
   );
@@ -365,8 +365,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-            ? claim.meta.creation_timestamp * 1000
-            : null);
+          ? claim.meta.creation_timestamp * 1000
+          : null);
       if (!timestamp) {
         return undefined;
       }
@@ -680,6 +680,14 @@ export const makeSelectTagsForUri = (uri: string) =>
     }
   );
 
+export const makeSelectChannelTagsForUri = (uri: string) =>
+  createSelector(
+    makeSelectMetadataForUri(uri),
+    (metadata: ?GenericMetadata) => {
+      return (metadata && metadata.tags) || [];
+    }
+  );
+
 export const selectFetchingClaimSearchByQuery = createSelector(
   selectState,
   state => state.fetchingClaimSearchByQuery || {}
@@ -775,3 +783,18 @@ export const selectMyStreamUrlsCount = createSelector(
   selectMyClaimUrisWithoutChannels,
   channels => channels.length
 );
+
+export const makeSelectTagInClaimOrChannelForUri = (uri: string, tag: string) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    claim => {
+      const claimTags = (claim && claim.value && claim.value.tags) || [];
+      const channelTags =
+        (claim &&
+          claim.signing_channel &&
+          claim.signing_channel.value &&
+          claim.signing_channel.value.tags) ||
+        [];
+      return claimTags.includes(tag) || channelTags.includes(tag);
+    }
+  );
