@@ -1721,6 +1721,7 @@ function extractUserState(rawObj) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
     const {
       subscriptions,
+      following,
       tags,
       blocked,
       settings,
@@ -1728,7 +1729,7 @@ function extractUserState(rawObj) {
       sharing_3P
     } = rawObj.value;
 
-    return _extends$1({}, subscriptions ? { subscriptions } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {});
+    return _extends$1({}, subscriptions ? { subscriptions } : {}, following ? { following } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {});
   }
 
   return {};
@@ -1738,6 +1739,7 @@ function doPopulateSharedUserState(sharedSettings) {
   return dispatch => {
     const {
       subscriptions,
+      following,
       tags,
       blocked,
       settings,
@@ -1748,6 +1750,7 @@ function doPopulateSharedUserState(sharedSettings) {
       type: USER_STATE_POPULATE,
       data: {
         subscriptions,
+        following,
         tags,
         blocked,
         settings,
