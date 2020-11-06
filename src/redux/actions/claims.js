@@ -362,6 +362,7 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
       website_url?: string,
       email?: string,
       tags?: Array<string>,
+      languages?: Array<string>,
     } = {
       name,
       bid: creditsToString(amount),
@@ -389,6 +390,9 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
       }
       if (optionalParams.tags) {
         createParams.tags = optionalParams.tags.map(tag => tag.name);
+      }
+      if (optionalParams.languages) {
+        createParams.languages = optionalParams.languages;
       }
     }
 
