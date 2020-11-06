@@ -3468,6 +3468,9 @@ function doCreateChannel(name, amount, optionalParams, cb) {
       if (optionalParams.tags) {
         createParams.tags = optionalParams.tags.map(tag => tag.name);
       }
+      if (optionalParams.languages) {
+        createParams.languages = optionalParams.languages;
+      }
     }
 
     return lbryProxy.channel_create(createParams)
