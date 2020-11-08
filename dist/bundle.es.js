@@ -2678,7 +2678,7 @@ function doUpdateBalance() {
 function doBalanceSubscribe() {
   return dispatch => {
     dispatch(doUpdateBalance());
-    setInterval(() => dispatch(doUpdateBalance()), 5000);
+    setInterval(() => dispatch(doUpdateBalance()), 10000);
   };
 }
 
