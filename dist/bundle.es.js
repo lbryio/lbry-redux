@@ -5155,13 +5155,20 @@ reducers[CLAIM_SEARCH_FAILED] = (state, action) => {
   const { query } = action.data;
   const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
+  const claimSearchByQueryLastPageReached = Object.assign({}, state.claimSearchByQueryLastPageReached);
 
   delete fetchingClaimSearchByQuery[query];
-  claimSearchByQuery[query] = null;
+
+  if (claimSearchByQuery[query] && claimSearchByQuery[query].length !== 0) {
+    claimSearchByQueryLastPageReached[query] = true;
+  } else {
+    claimSearchByQuery[query] = null;
+  }
 
   return Object.assign({}, state, {
     fetchingClaimSearchByQuery,
-    claimSearchByQuery
+    claimSearchByQuery,
+    claimSearchByQueryLastPageReached
   });
 };
 
