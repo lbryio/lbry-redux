@@ -90,9 +90,10 @@ export function doPreferenceSet(
       .then(() => {
         success(preference);
       })
-      .catch(() => {
+      .catch(err => {
         dispatch({
           type: ACTIONS.SYNC_FATAL_ERROR,
+          error: err,
         });
 
         if (fail) {
@@ -120,6 +121,7 @@ export function doPreferenceGet(key: string, success: Function, fail?: Function)
       .catch(err => {
         dispatch({
           type: ACTIONS.SYNC_FATAL_ERROR,
+          error: err,
         });
 
         if (fail) {

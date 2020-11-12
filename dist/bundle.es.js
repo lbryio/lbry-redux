@@ -1770,9 +1770,10 @@ function doPreferenceSet(key, value, version, success, fail) {
 
     lbryProxy.preference_set(options).then(() => {
       success(preference);
-    }).catch(() => {
+    }).catch(err => {
       dispatch({
-        type: SYNC_FATAL_ERROR
+        type: SYNC_FATAL_ERROR,
+        error: err
       });
 
       if (fail) {
@@ -1797,7 +1798,8 @@ function doPreferenceGet(key, success, fail) {
       return success(null);
     }).catch(err => {
       dispatch({
-        type: SYNC_FATAL_ERROR
+        type: SYNC_FATAL_ERROR,
+        error: err
       });
 
       if (fail) {
