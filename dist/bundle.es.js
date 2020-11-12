@@ -1769,7 +1769,9 @@ function doPreferenceSet(key, value, version, success, fail) {
     };
 
     lbryProxy.preference_set(options).then(() => {
-      success(preference);
+      if (success) {
+        success(preference);
+      }
     }).catch(err => {
       dispatch({
         type: SYNC_FATAL_ERROR,
