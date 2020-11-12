@@ -88,7 +88,9 @@ export function doPreferenceSet(
 
     Lbry.preference_set(options)
       .then(() => {
-        success(preference);
+        if (success) {
+          success(preference);
+        }
       })
       .catch(err => {
         dispatch({
