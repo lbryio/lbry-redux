@@ -74,45 +74,57 @@ export function doPreferenceSet(
   success: Function,
   fail: Function
 ) {
-  const preference = {
-    type: typeof value,
-    version,
-    value,
-  };
+  return (dispatch: Dispatch) => {
+    const preference = {
+      type: typeof value,
+      version,
+      value,
+    };
 
-  const options = {
-    key,
-    value: JSON.stringify(preference),
-  };
+    const options = {
+      key,
+      value: JSON.stringify(preference),
+    };
 
-  Lbry.preference_set(options)
-    .then(() => {
-      success(preference);
-    })
-    .catch(() => {
-      if (fail) {
-        fail();
-      }
-    });
+    Lbry.preference_set(options)
+      .then(() => {
+        success(preference);
+      })
+      .catch(() => {
+        dispatch({
+          type: ACTIONS.SYNC_FATAL_ERROR,
+        });
+
+        if (fail) {
+          fail();
+        }
+      });
+  };
 }
 
 export function doPreferenceGet(key: string, success: Function, fail?: Function) {
-  const options = {
-    key,
+  return (dispatch: Dispatch) => {
+    const options = {
+      key,
+    };
+
+    return Lbry.preference_get(options)
+      .then(result => {
+        if (result) {
+          const preference = result[key];
+          return success(preference);
+        }
+
+        return success(null);
+      })
+      .catch(err => {
+        dispatch({
+          type: ACTIONS.SYNC_FATAL_ERROR,
+        });
+
+        if (fail) {
+          fail(err);
+        }
+      });
   };
-
-  return Lbry.preference_get(options)
-    .then(result => {
-      if (result) {
-        const preference = result[key];
-        return success(preference);
-      }
-
-      return success(null);
-    })
-    .catch(err => {
-      if (fail) {
-        fail(err);
-      }
-    });
 }

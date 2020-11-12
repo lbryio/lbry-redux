@@ -289,6 +289,7 @@ const FETCH_COST_INFO_FAILED = 'FETCH_COST_INFO_FAILED';
 
 // Sync
 const USER_STATE_POPULATE = 'USER_STATE_POPULATE';
+const SYNC_FATAL_ERROR = 'SYNC_FATAL_ERROR';
 
 var action_types = /*#__PURE__*/Object.freeze({
   WINDOW_FOCUSED: WINDOW_FOCUSED,
@@ -529,7 +530,8 @@ var action_types = /*#__PURE__*/Object.freeze({
   FETCH_COST_INFO_STARTED: FETCH_COST_INFO_STARTED,
   FETCH_COST_INFO_COMPLETED: FETCH_COST_INFO_COMPLETED,
   FETCH_COST_INFO_FAILED: FETCH_COST_INFO_FAILED,
-  USER_STATE_POPULATE: USER_STATE_POPULATE
+  USER_STATE_POPULATE: USER_STATE_POPULATE,
+  SYNC_FATAL_ERROR: SYNC_FATAL_ERROR
 });
 
 const CC_LICENSES = [{
@@ -1754,43 +1756,55 @@ function doPopulateSharedUserState(sharedSettings) {
 }
 
 function doPreferenceSet(key, value, version, success, fail) {
-  const preference = {
-    type: typeof value,
-    version,
-    value
-  };
+  return dispatch => {
+    const preference = {
+      type: typeof value,
+      version,
+      value
+    };
 
-  const options = {
-    key,
-    value: JSON.stringify(preference)
-  };
+    const options = {
+      key,
+      value: JSON.stringify(preference)
+    };
 
-  lbryProxy.preference_set(options).then(() => {
-    success(preference);
-  }).catch(() => {
-    if (fail) {
-      fail();
-    }
-  });
+    lbryProxy.preference_set(options).then(() => {
+      success(preference);
+    }).catch(() => {
+      dispatch({
+        type: SYNC_FATAL_ERROR
+      });
+
+      if (fail) {
+        fail();
+      }
+    });
+  };
 }
 
 function doPreferenceGet(key, success, fail) {
-  const options = {
-    key
+  return dispatch => {
+    const options = {
+      key
+    };
+
+    return lbryProxy.preference_get(options).then(result => {
+      if (result) {
+        const preference = result[key];
+        return success(preference);
+      }
+
+      return success(null);
+    }).catch(err => {
+      dispatch({
+        type: SYNC_FATAL_ERROR
+      });
+
+      if (fail) {
+        fail(err);
+      }
+    });
   };
-
-  return lbryProxy.preference_get(options).then(result => {
-    if (result) {
-      const preference = result[key];
-      return success(preference);
-    }
-
-    return success(null);
-  }).catch(err => {
-    if (fail) {
-      fail(err);
-    }
-  });
 }
 
 //      
@@ -1831,7 +1845,7 @@ const buildSharedStateMiddleware = (actions, sharedStateFilters, sharedStateCb) 
   if (!isEqual(oldShared, shared)) {
     // only update if the preference changed from last call in the same session
     oldShared = shared;
-    doPreferenceSet(preferenceKey, shared, SHARED_PREFERENCE_VERSION);
+    dispatch(doPreferenceSet(preferenceKey, shared, SHARED_PREFERENCE_VERSION));
   }
 
   if (sharedStateCb) {
