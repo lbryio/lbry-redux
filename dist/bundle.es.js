@@ -4163,16 +4163,18 @@ const selectIsStillEditing = reselect.createSelector(selectState$3, publishState
   return currentName === editName;
 });
 
-const selectPublishFormValues = reselect.createSelector(selectState$3, selectIsStillEditing, (state, isStillEditing) => {
-  const { pendingPublish, language, languages } = state,
-        formValues = _objectWithoutProperties$2(state, ['pendingPublish', 'language', 'languages']);
+const selectPublishFormValues = reselect.createSelector(selectState$3, state => state.settings, selectIsStillEditing, (publishState, settingsState, isStillEditing) => {
+  const { pendingPublish, language } = publishState,
+        formValues = _objectWithoutProperties$2(publishState, ['pendingPublish', 'language']);
+  const { clientSettings } = settingsState;
+  const { language: languageSet } = clientSettings;
 
   let actualLanguage;
   // Sets default if editing a claim with a set language
-  if (!language && isStillEditing && languages && languages[0]) {
-    actualLanguage = languages[0];
+  if (!language && isStillEditing && languageSet) {
+    actualLanguage = languageSet;
   } else {
-    actualLanguage = language || 'en';
+    actualLanguage = language || languageSet || 'en';
   }
   return _extends$6({}, formValues, { language: actualLanguage });
 });
@@ -5674,7 +5676,8 @@ const publishReducer = handleActions({
   [CLEAR_PUBLISH]: state => _extends$c({}, defaultState$4, {
     channel: state.channel,
     bid: state.bid,
-    optimize: state.optimize
+    optimize: state.optimize,
+    language: state.language
   }),
   [PUBLISH_START]: state => _extends$c({}, state, {
     publishing: true,
