@@ -86,6 +86,7 @@ export const publishReducer = handleActions(
       channel: state.channel,
       bid: state.bid,
       optimize: state.optimize,
+      language: state.language,
     }),
     [ACTIONS.PUBLISH_START]: (state: PublishState): PublishState => ({
       ...state,

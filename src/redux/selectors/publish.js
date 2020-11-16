@@ -40,16 +40,19 @@ export const selectIsStillEditing = createSelector(
 
 export const selectPublishFormValues = createSelector(
   selectState,
+  state => state.settings,
   selectIsStillEditing,
-  (state, isStillEditing) => {
-    const { pendingPublish, language, languages, ...formValues } = state;
+  (publishState, settingsState, isStillEditing) => {
+    const { pendingPublish, language, ...formValues } = publishState;
+    const { clientSettings } = settingsState;
+    const { language: languageSet } = clientSettings;
 
     let actualLanguage;
     // Sets default if editing a claim with a set language
-    if (!language && isStillEditing && languages && languages[0]) {
-      actualLanguage = languages[0];
+    if (!language && isStillEditing && languageSet) {
+      actualLanguage = languageSet;
     } else {
-      actualLanguage = language || 'en';
+      actualLanguage = language || languageSet || 'en';
     }
     return { ...formValues, language: actualLanguage };
   }
