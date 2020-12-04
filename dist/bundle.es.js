@@ -2457,6 +2457,15 @@ const selectPlayingUri = reselect.createSelector(selectState$1, state => state.p
 
 const selectChannelClaimCounts = reselect.createSelector(selectState$1, state => state.channelClaimCounts || {});
 
+const makeSelectPendingClaimUrlForName = name => reselect.createSelector(selectPendingIds, selectClaimsById, (pending, claims) => {
+  const pendingClaims = pending.map(id => claims[id]);
+  const matchingClaim = pendingClaims.find(claim => {
+    const { streamName } = parseURI(claim.permanent_url);
+    return name === streamName;
+  });
+  return matchingClaim && matchingClaim.permanent_url;
+});
+
 const makeSelectTotalItemsForChannel = uri => reselect.createSelector(selectChannelClaimCounts, byUri => byUri && byUri[uri]);
 
 const makeSelectTotalPagesForChannel = (uri, pageSize = 10) => reselect.createSelector(selectChannelClaimCounts, byUri => byUri && byUri[uri] && Math.ceil(byUri[uri] / pageSize));
@@ -3682,6 +3691,12 @@ function doRepost(options) {
           data: {
             originalClaimId: options.claim_id,
             repostClaim
+          }
+        });
+        dispatch({
+          type: UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [repostClaim]
           }
         });
 
@@ -6222,6 +6237,7 @@ exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
 exports.makeSelectOmittedCountForChannel = makeSelectOmittedCountForChannel;
 exports.makeSelectPendingAmountByUri = makeSelectPendingAmountByUri;
+exports.makeSelectPendingClaimUrlForName = makeSelectPendingClaimUrlForName;
 exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
 exports.makeSelectReflectingClaimForUri = makeSelectReflectingClaimForUri;
@@ -6313,6 +6329,7 @@ exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
 exports.selectMyPurchases = selectMyPurchases;
 exports.selectMyPurchasesCount = selectMyPurchasesCount;
 exports.selectMyStreamUrlsCount = selectMyStreamUrlsCount;
+exports.selectPendingIds = selectPendingIds;
 exports.selectPendingSupportTransactions = selectPendingSupportTransactions;
 exports.selectPlayingUri = selectPlayingUri;
 exports.selectPublishFormValues = selectPublishFormValues;

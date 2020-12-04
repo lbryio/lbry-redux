@@ -555,6 +555,20 @@ export const selectChannelClaimCounts = createSelector(
   state => state.channelClaimCounts || {}
 );
 
+export const makeSelectPendingClaimUrlForName = (name: string) =>
+  createSelector(
+    selectPendingIds,
+    selectClaimsById,
+    (pending, claims) => {
+      const pendingClaims = pending.map(id => claims[id]);
+      const matchingClaim = pendingClaims.find(claim => {
+        const { streamName } = parseURI(claim.permanent_url);
+        return name === streamName;
+      });
+      return matchingClaim && matchingClaim.permanent_url;
+    }
+  );
+
 export const makeSelectTotalItemsForChannel = (uri: string) =>
   createSelector(
     selectChannelClaimCounts,
