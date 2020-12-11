@@ -157,6 +157,7 @@ export {
   makeSelectTitleForUri,
   makeSelectDateForUri,
   makeSelectAmountForUri,
+  makeSelectEffectiveAmountForUri,
   makeSelectTagsForUri,
   makeSelectTagInClaimOrChannelForUri,
   makeSelectContentTypeForUri,

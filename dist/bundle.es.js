@@ -2363,6 +2363,10 @@ const makeSelectAmountForUri = uri => reselect.createSelector(makeSelectClaimFor
   return claim && claim.amount;
 });
 
+const makeSelectEffectiveAmountForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+  return claim && claim.meta && claim.meta.effective_amount;
+});
+
 const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const source = claim && claim.value && claim.value.source;
   return source ? source.media_type : undefined;
@@ -6218,6 +6222,7 @@ exports.makeSelectCoverForUri = makeSelectCoverForUri;
 exports.makeSelectDateForUri = makeSelectDateForUri;
 exports.makeSelectDownloadPathForUri = makeSelectDownloadPathForUri;
 exports.makeSelectDownloadingForUri = makeSelectDownloadingForUri;
+exports.makeSelectEffectiveAmountForUri = makeSelectEffectiveAmountForUri;
 exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
 exports.makeSelectFileNameForUri = makeSelectFileNameForUri;
