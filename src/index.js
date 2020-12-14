@@ -162,7 +162,7 @@ export {
   makeSelectTagInClaimOrChannelForUri,
   makeSelectContentTypeForUri,
   makeSelectIsUriResolving,
-  makeSelectPendingClaimUrlForName,
+  makeSelectPendingClaimForUri,
   makeSelectTotalItemsForChannel,
   makeSelectTotalPagesForChannel,
   makeSelectNsfwCountFromUris,

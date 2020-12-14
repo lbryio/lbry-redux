@@ -2461,13 +2461,25 @@ const selectPlayingUri = reselect.createSelector(selectState$1, state => state.p
 
 const selectChannelClaimCounts = reselect.createSelector(selectState$1, state => state.channelClaimCounts || {});
 
-const makeSelectPendingClaimUrlForName = name => reselect.createSelector(selectPendingIds, selectClaimsById, (pending, claims) => {
+const makeSelectPendingClaimForUri = uri => reselect.createSelector(selectPendingIds, selectClaimsById, (pending, claims) => {
+  let uriIsChannel;
+  let uriStreamName;
+  let uriChannelName;
+  try {
+    ({ isChannel: uriIsChannel, streamName: uriStreamName, channelName: uriChannelName } = parseURI(uri));
+  } catch (e) {
+    return null;
+  }
   const pendingClaims = pending.map(id => claims[id]);
   const matchingClaim = pendingClaims.find(claim => {
-    const { streamName } = parseURI(claim.permanent_url);
-    return name === streamName;
+    const { streamName, channelName, isChannel } = parseURI(claim.permanent_url);
+    if (isChannel) {
+      return channelName === uriChannelName;
+    } else {
+      return streamName === uriStreamName;
+    }
   });
-  return matchingClaim && matchingClaim.permanent_url;
+  return matchingClaim || null;
 });
 
 const makeSelectTotalItemsForChannel = uri => reselect.createSelector(selectChannelClaimCounts, byUri => byUri && byUri[uri]);
@@ -6242,7 +6254,7 @@ exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
 exports.makeSelectOmittedCountForChannel = makeSelectOmittedCountForChannel;
 exports.makeSelectPendingAmountByUri = makeSelectPendingAmountByUri;
-exports.makeSelectPendingClaimUrlForName = makeSelectPendingClaimUrlForName;
+exports.makeSelectPendingClaimForUri = makeSelectPendingClaimForUri;
 exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
 exports.makeSelectReflectingClaimForUri = makeSelectReflectingClaimForUri;
