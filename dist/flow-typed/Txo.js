@@ -10,6 +10,9 @@ declare type Txo = {
   is_my_output: boolean,
   is_my_input: boolean,
   is_spent: boolean,
+  signing_channel?: {
+    channel_id: string,
+  },
 };
 
 declare type TxoListParams = {
@@ -21,4 +24,4 @@ declare type TxoListParams = {
   is_not_my_input?: boolean,
   is_not_my_output?: boolean,
   is_spent?: boolean,
-}
+};
