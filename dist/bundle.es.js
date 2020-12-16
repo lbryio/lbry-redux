@@ -2363,6 +2363,10 @@ const makeSelectAmountForUri = uri => reselect.createSelector(makeSelectClaimFor
   return claim && claim.amount;
 });
 
+const makeSelectEffectiveAmountForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+  return claim && claim.meta && typeof claim.meta.effective_amount === 'string' && Number(claim.meta.effective_amount);
+});
+
 const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const source = claim && claim.value && claim.value.source;
   return source ? source.media_type : undefined;
@@ -2456,6 +2460,31 @@ const makeSelectIsUriResolving = uri => reselect.createSelector(selectResolvingU
 const selectPlayingUri = reselect.createSelector(selectState$1, state => state.playingUri);
 
 const selectChannelClaimCounts = reselect.createSelector(selectState$1, state => state.channelClaimCounts || {});
+
+const makeSelectPendingClaimForUri = uri => reselect.createSelector(selectPendingIds, selectClaimsById, (pending, claims) => {
+  let uriIsChannel;
+  let uriStreamName;
+  let uriChannelName;
+  try {
+    ({
+      isChannel: uriIsChannel,
+      streamName: uriStreamName,
+      channelName: uriChannelName
+    } = parseURI(uri));
+  } catch (e) {
+    return null;
+  }
+  const pendingClaims = pending.map(id => claims[id]);
+  const matchingClaim = pendingClaims.find(claim => {
+    const { streamName, channelName, isChannel } = parseURI(claim.permanent_url);
+    if (isChannel) {
+      return channelName === uriChannelName;
+    } else {
+      return streamName === uriStreamName;
+    }
+  });
+  return matchingClaim || null;
+});
 
 const makeSelectTotalItemsForChannel = uri => reselect.createSelector(selectChannelClaimCounts, byUri => byUri && byUri[uri]);
 
@@ -3682,6 +3711,12 @@ function doRepost(options) {
           data: {
             originalClaimId: options.claim_id,
             repostClaim
+          }
+        });
+        dispatch({
+          type: UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [repostClaim]
           }
         });
 
@@ -6203,6 +6238,7 @@ exports.makeSelectCoverForUri = makeSelectCoverForUri;
 exports.makeSelectDateForUri = makeSelectDateForUri;
 exports.makeSelectDownloadPathForUri = makeSelectDownloadPathForUri;
 exports.makeSelectDownloadingForUri = makeSelectDownloadingForUri;
+exports.makeSelectEffectiveAmountForUri = makeSelectEffectiveAmountForUri;
 exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
 exports.makeSelectFileNameForUri = makeSelectFileNameForUri;
@@ -6222,6 +6258,7 @@ exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
 exports.makeSelectOmittedCountForChannel = makeSelectOmittedCountForChannel;
 exports.makeSelectPendingAmountByUri = makeSelectPendingAmountByUri;
+exports.makeSelectPendingClaimForUri = makeSelectPendingClaimForUri;
 exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
 exports.makeSelectReflectingClaimForUri = makeSelectReflectingClaimForUri;
@@ -6313,6 +6350,7 @@ exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
 exports.selectMyPurchases = selectMyPurchases;
 exports.selectMyPurchasesCount = selectMyPurchasesCount;
 exports.selectMyStreamUrlsCount = selectMyStreamUrlsCount;
+exports.selectPendingIds = selectPendingIds;
 exports.selectPendingSupportTransactions = selectPendingSupportTransactions;
 exports.selectPlayingUri = selectPlayingUri;
 exports.selectPublishFormValues = selectPublishFormValues;

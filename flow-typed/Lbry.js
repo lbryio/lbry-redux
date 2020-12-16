@@ -232,7 +232,7 @@ declare type StreamRepostOptions = {
   name: string,
   bid: string,
   claim_id: string,
-  channel_id: string,
+  channel_id?: string,
 };
 
 declare type StreamRepostResponse = GenericTxResponse;

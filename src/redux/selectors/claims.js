@@ -383,6 +383,19 @@ export const makeSelectAmountForUri = (uri: string) =>
     }
   );
 
+export const makeSelectEffectiveAmountForUri = (uri: string) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    claim => {
+      return (
+        claim &&
+        claim.meta &&
+        typeof claim.meta.effective_amount === 'string' &&
+        Number(claim.meta.effective_amount)
+      );
+    }
+  );
+
 export const makeSelectContentTypeForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
@@ -554,6 +567,38 @@ export const selectChannelClaimCounts = createSelector(
   selectState,
   state => state.channelClaimCounts || {}
 );
+
+export const makeSelectPendingClaimForUri = (uri: string) =>
+  createSelector(
+    selectPendingIds,
+    selectClaimsById,
+    (pending, claims) => {
+      let validUri;
+      let uriIsChannel;
+      let uriStreamName;
+      let uriChannelName;
+      try {
+        ({
+          isChannel: uriIsChannel,
+          streamName: uriStreamName,
+          channelName: uriChannelName,
+        } = parseURI(uri));
+        validUri = true;
+      } catch (e) {
+        return null;
+      }
+      const pendingClaims = pending.map(id => claims[id]);
+      const matchingClaim = pendingClaims.find(claim => {
+        const { streamName, channelName, isChannel } = parseURI(claim.permanent_url);
+        if (isChannel) {
+          return channelName === uriChannelName;
+        } else {
+          return streamName === uriStreamName;
+        }
+      });
+      return matchingClaim || null;
+    }
+  );
 
 export const makeSelectTotalItemsForChannel = (uri: string) =>
   createSelector(

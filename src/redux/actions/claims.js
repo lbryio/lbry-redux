@@ -611,6 +611,12 @@ export function doRepost(options: StreamRepostOptions) {
             repostClaim,
           },
         });
+        dispatch({
+          type: ACTIONS.UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [repostClaim],
+          },
+        });
 
         dispatch(doFetchClaimListMine(1, 10));
         resolve(repostClaim);
