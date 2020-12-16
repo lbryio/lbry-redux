@@ -2364,7 +2364,7 @@ const makeSelectAmountForUri = uri => reselect.createSelector(makeSelectClaimFor
 });
 
 const makeSelectEffectiveAmountForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
-  return claim && claim.meta && claim.meta.effective_amount;
+  return claim && claim.meta && typeof claim.meta.effective_amount === 'string' && Number(claim.meta.effective_amount);
 });
 
 const makeSelectContentTypeForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
@@ -2466,7 +2466,11 @@ const makeSelectPendingClaimForUri = uri => reselect.createSelector(selectPendin
   let uriStreamName;
   let uriChannelName;
   try {
-    ({ isChannel: uriIsChannel, streamName: uriStreamName, channelName: uriChannelName } = parseURI(uri));
+    ({
+      isChannel: uriIsChannel,
+      streamName: uriStreamName,
+      channelName: uriChannelName
+    } = parseURI(uri));
   } catch (e) {
     return null;
   }

@@ -387,7 +387,12 @@ export const makeSelectEffectiveAmountForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
     claim => {
-      return claim && claim.meta && claim.meta.effective_amount;
+      return (
+        claim &&
+        claim.meta &&
+        typeof claim.meta.effective_amount === 'string' &&
+        Number(claim.meta.effective_amount)
+      );
     }
   );
 
