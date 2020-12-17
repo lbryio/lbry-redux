@@ -2224,7 +2224,8 @@ const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelec
 
       return _extends$3({}, repostedClaim, {
         repost_url: uri,
-        repost_channel_url: channelUrl
+        repost_channel_url: channelUrl,
+        repost_bid_amount: claim && claim.meta && claim.meta.effective_amount
       });
     } else {
       return claim;
@@ -2363,7 +2364,7 @@ const makeSelectAmountForUri = uri => reselect.createSelector(makeSelectClaimFor
   return claim && claim.amount;
 });
 
-const makeSelectEffectiveAmountForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+const makeSelectEffectiveAmountForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri, false), claim => {
   return claim && claim.meta && typeof claim.meta.effective_amount === 'string' && Number(claim.meta.effective_amount);
 });
 
@@ -3192,7 +3193,9 @@ function batchActions(...actions) {
 
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function doResolveUris(uris, returnCachedClaims = false) {
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
+function doResolveUris(uris, returnCachedClaims = false, resolveReposts = true) {
   return (dispatch, getState) => {
     const normalizedUris = uris.map(normalizeURI);
     const state = getState();
@@ -3225,44 +3228,72 @@ function doResolveUris(uris, returnCachedClaims = false) {
 
     const resolveInfo = {};
 
-    return lbryProxy.resolve(_extends$5({ urls: urisToResolve }, options)).then(result => {
-      Object.entries(result).forEach(([uri, uriResolveInfo]) => {
+    return lbryProxy.resolve(_extends$5({ urls: urisToResolve }, options)).then((() => {
+      var _ref = _asyncToGenerator(function* (result) {
+        let repostedResults = {};
+        const repostsToResolve = [];
         const fallbackResolveInfo = {
           stream: null,
           claimsInChannel: null,
           channel: null
         };
 
-        // Flow has terrible Object.entries support
-        // https://github.com/facebook/flow/issues/2221
-        if (uriResolveInfo) {
-          if (uriResolveInfo.error) {
-            resolveInfo[uri] = _extends$5({}, fallbackResolveInfo);
-          } else {
-            let result = {};
-            if (uriResolveInfo.value_type === 'channel') {
-              result.channel = uriResolveInfo;
-              // $FlowFixMe
-              result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
-            } else {
-              result.stream = uriResolveInfo;
-              if (uriResolveInfo.signing_channel) {
-                result.channel = uriResolveInfo.signing_channel;
-                result.claimsInChannel = uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel || 0;
+        function processResult(result, resolveInfo = {}, checkReposts = false) {
+          Object.entries(result).forEach(([uri, uriResolveInfo]) => {
+            // Flow has terrible Object.entries support
+            // https://github.com/facebook/flow/issues/2221
+            if (uriResolveInfo) {
+              if (uriResolveInfo.error) {
+                resolveInfo[uri] = _extends$5({}, fallbackResolveInfo);
+              } else {
+                if (checkReposts) {
+                  if (uriResolveInfo.reposted_claim) {
+                    const repostUrl = uriResolveInfo.reposted_claim.permanent_url;
+                    if (!resolvingUris.includes(repostUrl)) {
+                      repostsToResolve.push(repostUrl);
+                    }
+                  }
+                }
+                let result = {};
+                if (uriResolveInfo.value_type === 'channel') {
+                  result.channel = uriResolveInfo;
+                  // $FlowFixMe
+                  result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+                } else {
+                  result.stream = uriResolveInfo;
+                  if (uriResolveInfo.signing_channel) {
+                    result.channel = uriResolveInfo.signing_channel;
+                    result.claimsInChannel = uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel || 0;
+                  }
+                }
+                // $FlowFixMe
+                resolveInfo[uri] = result;
               }
             }
-            // $FlowFixMe
-            resolveInfo[uri] = result;
-          }
+          });
         }
+        processResult(result, resolveInfo, resolveReposts);
+
+        if (repostsToResolve.length) {
+          dispatch({
+            type: RESOLVE_URIS_STARTED,
+            data: { uris: repostsToResolve, debug: 'reposts' }
+          });
+          repostedResults = yield lbryProxy.resolve(_extends$5({ urls: repostsToResolve }, options));
+        }
+        processResult(repostedResults, resolveInfo);
+
+        dispatch({
+          type: RESOLVE_URIS_COMPLETED,
+          data: { resolveInfo }
+        });
+        return result;
       });
 
-      dispatch({
-        type: RESOLVE_URIS_COMPLETED,
-        data: { resolveInfo }
-      });
-      return result;
-    });
+      return function (_x) {
+        return _ref.apply(this, arguments);
+      };
+    })());
   };
 }
 
@@ -4268,7 +4299,7 @@ const selectTakeOverAmount = reselect.createSelector(selectState$3, selectMyClai
 
 var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+function _asyncToGenerator$1(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 const doResetThumbnailStatus = () => dispatch => {
   dispatch({
@@ -4602,7 +4633,7 @@ const doCheckReflectingFiles = () => (dispatch, getState) => {
   let reflectorCheckInterval;
 
   const checkFileList = (() => {
-    var _ref = _asyncToGenerator(function* () {
+    var _ref = _asyncToGenerator$1(function* () {
       const state = getState();
       const reflectingById = selectReflectingById(state);
       const ids = Object.keys(reflectingById);

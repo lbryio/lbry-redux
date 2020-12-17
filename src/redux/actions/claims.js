@@ -18,7 +18,13 @@ import { batchActions } from 'util/batch-actions';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { PAGE_SIZE } from 'constants/claim';
 
-export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean = false) {
+type ResolveEntries = Array<[string, GenericClaim]>;
+
+export function doResolveUris(
+  uris: Array<string>,
+  returnCachedClaims: boolean = false,
+  resolveReposts: boolean = true
+) {
   return (dispatch: Dispatch, getState: GetState) => {
     const normalizedUris = uris.map(normalizeURI);
     const state = getState();
@@ -57,47 +63,71 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
       },
     } = {};
 
-    return Lbry.resolve({ urls: urisToResolve, ...options }).then((result: ResolveResponse) => {
-      Object.entries(result).forEach(([uri, uriResolveInfo]) => {
+    return Lbry.resolve({ urls: urisToResolve, ...options }).then(
+      async (result: ResolveResponse) => {
+        let repostedResults = {};
+        const repostsToResolve = [];
         const fallbackResolveInfo = {
           stream: null,
           claimsInChannel: null,
           channel: null,
         };
 
-        // Flow has terrible Object.entries support
-        // https://github.com/facebook/flow/issues/2221
-        if (uriResolveInfo) {
-          if (uriResolveInfo.error) {
-            resolveInfo[uri] = { ...fallbackResolveInfo };
-          } else {
-            let result = {};
-            if (uriResolveInfo.value_type === 'channel') {
-              result.channel = uriResolveInfo;
-              // $FlowFixMe
-              result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
-            } else {
-              result.stream = uriResolveInfo;
-              if (uriResolveInfo.signing_channel) {
-                result.channel = uriResolveInfo.signing_channel;
-                result.claimsInChannel =
-                  (uriResolveInfo.signing_channel.meta &&
-                    uriResolveInfo.signing_channel.meta.claims_in_channel) ||
-                  0;
+        function processResult(result, resolveInfo = {}, checkReposts = false) {
+          Object.entries(result).forEach(([uri, uriResolveInfo]) => {
+            // Flow has terrible Object.entries support
+            // https://github.com/facebook/flow/issues/2221
+            if (uriResolveInfo) {
+              if (uriResolveInfo.error) {
+                resolveInfo[uri] = { ...fallbackResolveInfo };
+              } else {
+                if (checkReposts) {
+                  if (uriResolveInfo.reposted_claim) {
+                    const repostUrl = uriResolveInfo.reposted_claim.permanent_url;
+                    if (!resolvingUris.includes(repostUrl)) {
+                      repostsToResolve.push(repostUrl);
+                    }
+                  }
+                }
+                let result = {};
+                if (uriResolveInfo.value_type === 'channel') {
+                  result.channel = uriResolveInfo;
+                  // $FlowFixMe
+                  result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+                } else {
+                  result.stream = uriResolveInfo;
+                  if (uriResolveInfo.signing_channel) {
+                    result.channel = uriResolveInfo.signing_channel;
+                    result.claimsInChannel =
+                      (uriResolveInfo.signing_channel.meta &&
+                        uriResolveInfo.signing_channel.meta.claims_in_channel) ||
+                      0;
+                  }
+                }
+                // $FlowFixMe
+                resolveInfo[uri] = result;
               }
             }
-            // $FlowFixMe
-            resolveInfo[uri] = result;
-          }
+          });
         }
-      });
+        processResult(result, resolveInfo, resolveReposts);
 
-      dispatch({
-        type: ACTIONS.RESOLVE_URIS_COMPLETED,
-        data: { resolveInfo },
-      });
-      return result;
-    });
+        if (repostsToResolve.length) {
+          dispatch({
+            type: ACTIONS.RESOLVE_URIS_STARTED,
+            data: { uris: repostsToResolve, debug: 'reposts' },
+          });
+          repostedResults = await Lbry.resolve({ urls: repostsToResolve, ...options });
+        }
+        processResult(repostedResults, resolveInfo);
+
+        dispatch({
+          type: ACTIONS.RESOLVE_URIS_COMPLETED,
+          data: { resolveInfo },
+        });
+        return result;
+      }
+    );
   };
 }
 

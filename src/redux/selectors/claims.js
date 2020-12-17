@@ -127,6 +127,7 @@ export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true)
             ...repostedClaim,
             repost_url: uri,
             repost_channel_url: channelUrl,
+            repost_bid_amount: claim && claim.meta && claim.meta.effective_amount,
           };
         } else {
           return claim;
@@ -385,7 +386,7 @@ export const makeSelectAmountForUri = (uri: string) =>
 
 export const makeSelectEffectiveAmountForUri = (uri: string) =>
   createSelector(
-    makeSelectClaimForUri(uri),
+    makeSelectClaimForUri(uri, false),
     claim => {
       return (
         claim &&
