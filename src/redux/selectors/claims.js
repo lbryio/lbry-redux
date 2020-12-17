@@ -386,7 +386,7 @@ export const makeSelectAmountForUri = (uri: string) =>
 
 export const makeSelectEffectiveAmountForUri = (uri: string) =>
   createSelector(
-    makeSelectClaimForUri(uri),
+    makeSelectClaimForUri(uri, false),
     claim => {
       return (
         claim &&
