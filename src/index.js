@@ -120,6 +120,8 @@ export {
   doUpdateBlockHeight,
   doClearSupport,
   doSupportAbandonForClaim,
+  doFetchUtxoCounts,
+  doUtxoConsolidate,
 } from 'redux/actions/wallet';
 
 export { doPopulateSharedUserState, doPreferenceGet, doPreferenceSet } from 'redux/actions/sync';
@@ -313,4 +315,8 @@ export {
   selectPendingSupportTransactions,
   selectAbandonClaimSupportError,
   makeSelectPendingAmountByUri,
+  selectIsFetchingUtxoCounts,
+  selectIsConsolidatingUtxos,
+  selectUtxoCounts,
+  selectPendingOtherTransactions,
 } from 'redux/selectors/wallet';

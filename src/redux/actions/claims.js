@@ -64,7 +64,7 @@ export function doResolveUris(
     } = {};
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
-      async (result: ResolveResponse) => {
+      async(result: ResolveResponse) => {
         let repostedResults = {};
         const repostsToResolve = [];
         const fallbackResolveInfo = {
@@ -83,6 +83,7 @@ export function doResolveUris(
               } else {
                 if (checkReposts) {
                   if (uriResolveInfo.reposted_claim) {
+                    // $FlowFixMe
                     const repostUrl = uriResolveInfo.reposted_claim.permanent_url;
                     if (!resolvingUris.includes(repostUrl)) {
                       repostsToResolve.push(repostUrl);

@@ -100,6 +100,13 @@ const SET_TRANSACTION_LIST_FILTER = 'SET_TRANSACTION_LIST_FILTER';
 const UPDATE_CURRENT_HEIGHT = 'UPDATE_CURRENT_HEIGHT';
 const SET_DRAFT_TRANSACTION_AMOUNT = 'SET_DRAFT_TRANSACTION_AMOUNT';
 const SET_DRAFT_TRANSACTION_ADDRESS = 'SET_DRAFT_TRANSACTION_ADDRESS';
+const FETCH_UTXO_COUNT_STARTED = 'FETCH_UTXO_COUNT_STARTED';
+const FETCH_UTXO_COUNT_COMPLETED = 'FETCH_UTXO_COUNT_COMPLETED';
+const FETCH_UTXO_COUNT_FAILED = 'FETCH_UTXO_COUNT_FAILED';
+const DO_UTXO_CONSOLIDATE_STARTED = 'DO_UTXO_CONSOLIDATE_STARTED';
+const DO_UTXO_CONSOLIDATE_COMPLETED = 'DO_UTXO_CONSOLIDATE_COMPLETED';
+const DO_UTXO_CONSOLIDATE_FAILED = 'DO_UTXO_CONSOLIDATE_FAILED';
+const PENDING_CONSOLIDATED_TXOS_UPDATED = 'PENDING_CONSOLIDATED_TXOS_UPDATED';
 
 // Claims
 const RESOLVE_URIS_STARTED = 'RESOLVE_URIS_STARTED';
@@ -367,6 +374,13 @@ var action_types = /*#__PURE__*/Object.freeze({
   UPDATE_CURRENT_HEIGHT: UPDATE_CURRENT_HEIGHT,
   SET_DRAFT_TRANSACTION_AMOUNT: SET_DRAFT_TRANSACTION_AMOUNT,
   SET_DRAFT_TRANSACTION_ADDRESS: SET_DRAFT_TRANSACTION_ADDRESS,
+  FETCH_UTXO_COUNT_STARTED: FETCH_UTXO_COUNT_STARTED,
+  FETCH_UTXO_COUNT_COMPLETED: FETCH_UTXO_COUNT_COMPLETED,
+  FETCH_UTXO_COUNT_FAILED: FETCH_UTXO_COUNT_FAILED,
+  DO_UTXO_CONSOLIDATE_STARTED: DO_UTXO_CONSOLIDATE_STARTED,
+  DO_UTXO_CONSOLIDATE_COMPLETED: DO_UTXO_CONSOLIDATE_COMPLETED,
+  DO_UTXO_CONSOLIDATE_FAILED: DO_UTXO_CONSOLIDATE_FAILED,
+  PENDING_CONSOLIDATED_TXOS_UPDATED: PENDING_CONSOLIDATED_TXOS_UPDATED,
   RESOLVE_URIS_STARTED: RESOLVE_URIS_STARTED,
   RESOLVE_URIS_COMPLETED: RESOLVE_URIS_COMPLETED,
   FETCH_CHANNEL_CLAIMS_STARTED: FETCH_CHANNEL_CLAIMS_STARTED,
@@ -1909,6 +1923,8 @@ const selectWalletEncryptSucceeded = reselect.createSelector(selectState, state 
 
 const selectPendingSupportTransactions = reselect.createSelector(selectState, state => state.pendingSupportTransactions);
 
+const selectPendingOtherTransactions = reselect.createSelector(selectState, state => state.pendingConsolidateTxos);
+
 const selectAbandonClaimSupportError = reselect.createSelector(selectState, state => state.abandonClaimSupportError);
 
 const makeSelectPendingAmountByUri = uri => reselect.createSelector(selectClaimIdsByUri, selectPendingSupportTransactions, (claimIdsByUri, pendingSupports) => {
@@ -2097,6 +2113,12 @@ const makeSelectLatestTransactions = reselect.createSelector(selectTransactionIt
 const selectFilteredTransactionCount = reselect.createSelector(selectFilteredTransactions, filteredTransactions => filteredTransactions.length);
 
 const selectIsWalletReconnecting = reselect.createSelector(selectState, state => state.walletReconnecting);
+
+const selectIsFetchingUtxoCounts = reselect.createSelector(selectState, state => state.fetchingUtxoCounts);
+
+const selectIsConsolidatingUtxos = reselect.createSelector(selectState, state => state.consolidatingUtxos);
+
+const selectUtxoCounts = reselect.createSelector(selectState, state => state.utxoCounts);
 
 var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -2685,6 +2707,8 @@ function creditsToString(amount) {
 
 var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
 const FIFTEEN_SECONDS = 15000;
 let walletBalancePromise = null;
 function doUpdateBalance() {
@@ -2797,6 +2821,60 @@ function doFetchSupports(page = 1, pageSize = 99999) {
       });
     });
   };
+}
+
+function doFetchUtxoCounts() {
+  return (() => {
+    var _ref = _asyncToGenerator(function* (dispatch) {
+      dispatch({
+        type: FETCH_UTXO_COUNT_STARTED
+      });
+
+      let resultSets = yield Promise.all([lbryProxy.txo_list({ type: 'other', is_not_spent: true }), lbryProxy.txo_list({ type: 'support', is_not_spent: true })]);
+      const counts = {};
+      const paymentCount = resultSets[0]['total_items'];
+      const supportCount = resultSets[1]['total_items'];
+      counts['other'] = typeof paymentCount === 'number' ? paymentCount : 0;
+      counts['support'] = typeof supportCount === 'number' ? supportCount : 0;
+
+      dispatch({
+        type: FETCH_UTXO_COUNT_COMPLETED,
+        data: counts,
+        debug: { resultSets }
+      });
+    });
+
+    return function (_x) {
+      return _ref.apply(this, arguments);
+    };
+  })();
+}
+
+function doUtxoConsolidate() {
+  return (() => {
+    var _ref2 = _asyncToGenerator(function* (dispatch) {
+      dispatch({
+        type: DO_UTXO_CONSOLIDATE_STARTED
+      });
+
+      const results = yield lbryProxy.txo_spend({ type: 'other' });
+      const result = results[0];
+
+      dispatch({
+        type: PENDING_CONSOLIDATED_TXOS_UPDATED,
+        data: { txids: [result.txid] }
+      });
+
+      dispatch({
+        type: DO_UTXO_CONSOLIDATE_COMPLETED
+      });
+      dispatch(doCheckPendingTxs());
+    });
+
+    return function (_x2) {
+      return _ref2.apply(this, arguments);
+    };
+  })();
 }
 
 function doGetNewAddress() {
@@ -3131,33 +3209,48 @@ function doUpdateBlockHeight() {
 const doCheckPendingTxs = () => (dispatch, getState) => {
   const state = getState();
   const pendingTxsById = selectPendingSupportTransactions(state); // {}
-  if (!Object.keys(pendingTxsById).length) {
+  const pendingOtherTxes = selectPendingOtherTransactions(state);
+  //
+  if (!Object.keys(pendingTxsById).length && !pendingOtherTxes.length) {
     return;
   }
   let txCheckInterval;
   const checkTxList = () => {
     const state = getState();
-    const pendingTxs = selectPendingSupportTransactions(state); // {}
+    const pendingSupportTxs = selectPendingSupportTransactions(state); // {}
+    const pendingConsolidateTxes = selectPendingOtherTransactions(state);
+
     const promises = [];
     const newPendingTxes = {};
+    const noLongerPendingConsolidate = [];
     const types = new Set([]);
-    let changed = false;
-    Object.entries(pendingTxs).forEach(([claim, data]) => {
+    // { claimId: {txid: 123, amount 12.3}, }
+    const entries = Object.entries(pendingSupportTxs);
+    entries.forEach(([claim, data]) => {
       promises.push(lbryProxy.transaction_show({ txid: data.txid }));
       types.add(data.type);
     });
+    if (pendingConsolidateTxes.length) {
+      pendingConsolidateTxes.forEach(txid => promises.push(lbryProxy.transaction_show({ txid })));
+    }
 
     Promise.all(promises).then(txShows => {
+      let changed = false;
       txShows.forEach(result => {
-        if (result.height <= 0) {
-          const entries = Object.entries(pendingTxs);
-          const match = entries.find(entry => entry[1].txid === result.txid);
-          newPendingTxes[match[0]] = match[1];
+        if (pendingConsolidateTxes.includes(result.txid)) {
+          if (result.height > 0) {
+            noLongerPendingConsolidate.push(result.txid);
+          }
         } else {
-          changed = true;
+          if (result.height <= 0) {
+            const match = entries.find(entry => entry[1].txid === result.txid);
+            newPendingTxes[match[0]] = match[1];
+          } else {
+            changed = true;
+          }
         }
       });
-    }).then(() => {
+
       if (changed) {
         dispatch({
           type: PENDING_SUPPORTS_UPDATED,
@@ -3170,12 +3263,17 @@ const doCheckPendingTxs = () => (dispatch, getState) => {
           dispatch(doFetchClaimListMine());
         }
       }
-      if (Object.keys(newPendingTxes).length === 0) clearInterval(txCheckInterval);
-    });
+      if (noLongerPendingConsolidate.length) {
+        dispatch({
+          type: PENDING_CONSOLIDATED_TXOS_UPDATED,
+          data: { txids: noLongerPendingConsolidate, remove: true }
+        });
+      }
 
-    if (!Object.keys(pendingTxsById).length) {
-      clearInterval(txCheckInterval);
-    }
+      if (!Object.keys(pendingTxsById).length && !pendingOtherTxes.length) {
+        clearInterval(txCheckInterval);
+      }
+    });
   };
 
   txCheckInterval = setInterval(() => {
@@ -3193,7 +3291,7 @@ function batchActions(...actions) {
 
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+function _asyncToGenerator$1(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 function doResolveUris(uris, returnCachedClaims = false, resolveReposts = true) {
   return (dispatch, getState) => {
@@ -3229,7 +3327,7 @@ function doResolveUris(uris, returnCachedClaims = false, resolveReposts = true) 
     const resolveInfo = {};
 
     return lbryProxy.resolve(_extends$5({ urls: urisToResolve }, options)).then((() => {
-      var _ref = _asyncToGenerator(function* (result) {
+      var _ref = _asyncToGenerator$1(function* (result) {
         let repostedResults = {};
         const repostsToResolve = [];
         const fallbackResolveInfo = {
@@ -3248,6 +3346,7 @@ function doResolveUris(uris, returnCachedClaims = false, resolveReposts = true) 
               } else {
                 if (checkReposts) {
                   if (uriResolveInfo.reposted_claim) {
+                    // $FlowFixMe
                     const repostUrl = uriResolveInfo.reposted_claim.permanent_url;
                     if (!resolvingUris.includes(repostUrl)) {
                       repostsToResolve.push(repostUrl);
@@ -4299,7 +4398,7 @@ const selectTakeOverAmount = reselect.createSelector(selectState$3, selectMyClai
 
 var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _asyncToGenerator$1(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+function _asyncToGenerator$2(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 const doResetThumbnailStatus = () => dispatch => {
   dispatch({
@@ -4633,7 +4732,7 @@ const doCheckReflectingFiles = () => (dispatch, getState) => {
   let reflectorCheckInterval;
 
   const checkFileList = (() => {
-    var _ref = _asyncToGenerator$1(function* () {
+    var _ref = _asyncToGenerator$2(function* () {
       const state = getState();
       const reflectingById = selectReflectingById(state);
       const ids = Object.keys(reflectingById);
@@ -5818,10 +5917,16 @@ const defaultState$5 = {
   transactionListFilter: 'all',
   walletReconnecting: false,
   txoFetchParams: {},
+  utxoCounts: {},
+  fetchingUtxoCounts: false,
+  fetchingUtxoError: undefined,
+  consolidatingUtxos: false,
   txoPage: {},
   fetchingTxos: false,
   fetchingTxosError: undefined,
   pendingSupportTransactions: {},
+  pendingConsolidateTxos: [],
+
   abandonClaimSupportError: undefined
 };
 
@@ -5864,6 +5969,58 @@ const walletReducer = handleActions({
       fetchingTxos: false,
       fetchingTxosError: action.data
     });
+  },
+  [FETCH_UTXO_COUNT_STARTED]: state => {
+    return _extends$d({}, state, {
+      fetchingUtxoCounts: true,
+      fetchingUtxoError: undefined
+    });
+  },
+
+  [FETCH_UTXO_COUNT_COMPLETED]: (state, action) => {
+    // thing
+    return _extends$d({}, state, {
+      utxoCounts: action.data,
+      fetchingUtxoCounts: false
+    });
+  },
+  [FETCH_UTXO_COUNT_FAILED]: (state, action) => {
+    return _extends$d({}, state, {
+      utxoCounts: {},
+      fetchingUtxoCounts: false,
+      fetchingUtxoError: action.data
+    });
+  },
+  [DO_UTXO_CONSOLIDATE_STARTED]: state => {
+    return _extends$d({}, state, {
+      consolidatingUtxos: true
+    });
+  },
+
+  [DO_UTXO_CONSOLIDATE_COMPLETED]: (state, action) => {
+    return _extends$d({}, state, {
+      consolidatingUtxos: false
+    });
+  },
+
+  [DO_UTXO_CONSOLIDATE_FAILED]: (state, action) => {
+    return _extends$d({}, state, {
+      consolidatingUtxos: false
+    });
+  },
+
+  [PENDING_CONSOLIDATED_TXOS_UPDATED]: (state, action) => {
+    const pendingTxos = state.pendingConsolidateTxos;
+
+    const { txids, remove } = action.data;
+
+    if (remove) {
+      const newTxos = pendingTxos.filter(txo => !txids.includes(txo));
+      return _extends$d({}, state, { pendingConsolidateTxos: newTxos });
+    } else {
+      const newPendingSet = new Set([...pendingTxos, ...txids]);
+      return _extends$d({}, state, { pendingConsolidateTxos: Array.from(newPendingSet) });
+    }
   },
 
   [UPDATE_TXO_FETCH_PARAMS]: (state, action) => {
@@ -5926,7 +6083,12 @@ const walletReducer = handleActions({
   },
 
   [ABANDON_CLAIM_SUPPORT_COMPLETED]: (state, action) => {
-    const { claimId, type, txid, effective } = action.data;
+    const {
+      claimId,
+      type,
+      txid,
+      effective
+    } = action.data;
     const pendingtxs = Object.assign({}, state.pendingSupportTransactions);
 
     pendingtxs[claimId] = { txid, type, effective };
@@ -5944,7 +6106,6 @@ const walletReducer = handleActions({
   },
 
   [PENDING_SUPPORTS_UPDATED]: (state, action) => {
-
     return _extends$d({}, state, {
       pendingSupportTransactions: action.data
     });
@@ -6210,6 +6371,7 @@ exports.doFetchFileInfo = doFetchFileInfo;
 exports.doFetchFileInfos = doFetchFileInfos;
 exports.doFetchTransactions = doFetchTransactions;
 exports.doFetchTxoPage = doFetchTxoPage;
+exports.doFetchUtxoCounts = doFetchUtxoCounts;
 exports.doFileGet = doFileGet;
 exports.doFileList = doFileList;
 exports.doGetNewAddress = doGetNewAddress;
@@ -6239,6 +6401,7 @@ exports.doUpdateChannel = doUpdateChannel;
 exports.doUpdatePublishForm = doUpdatePublishForm;
 exports.doUpdateTxoPageParams = doUpdateTxoPageParams;
 exports.doUploadThumbnail = doUploadThumbnail;
+exports.doUtxoConsolidate = doUtxoConsolidate;
 exports.doWalletDecrypt = doWalletDecrypt;
 exports.doWalletEncrypt = doWalletEncrypt;
 exports.doWalletReconnect = doWalletReconnect;
@@ -6356,12 +6519,14 @@ exports.selectFilteredTransactionCount = selectFilteredTransactionCount;
 exports.selectFilteredTransactions = selectFilteredTransactions;
 exports.selectGettingNewAddress = selectGettingNewAddress;
 exports.selectHasTransactions = selectHasTransactions;
+exports.selectIsConsolidatingUtxos = selectIsConsolidatingUtxos;
 exports.selectIsFetchingClaimListMine = selectIsFetchingClaimListMine;
 exports.selectIsFetchingFileList = selectIsFetchingFileList;
 exports.selectIsFetchingFileListDownloadedOrPublished = selectIsFetchingFileListDownloadedOrPublished;
 exports.selectIsFetchingMyPurchases = selectIsFetchingMyPurchases;
 exports.selectIsFetchingTransactions = selectIsFetchingTransactions;
 exports.selectIsFetchingTxos = selectIsFetchingTxos;
+exports.selectIsFetchingUtxoCounts = selectIsFetchingUtxoCounts;
 exports.selectIsResolvingPublishUris = selectIsResolvingPublishUris;
 exports.selectIsSendingSupport = selectIsSendingSupport;
 exports.selectIsStillEditing = selectIsStillEditing;
@@ -6382,6 +6547,7 @@ exports.selectMyPurchases = selectMyPurchases;
 exports.selectMyPurchasesCount = selectMyPurchasesCount;
 exports.selectMyStreamUrlsCount = selectMyStreamUrlsCount;
 exports.selectPendingIds = selectPendingIds;
+exports.selectPendingOtherTransactions = selectPendingOtherTransactions;
 exports.selectPendingSupportTransactions = selectPendingSupportTransactions;
 exports.selectPlayingUri = selectPlayingUri;
 exports.selectPublishFormValues = selectPublishFormValues;
@@ -6411,6 +6577,7 @@ exports.selectTxoPageParams = selectTxoPageParams;
 exports.selectUpdateChannelError = selectUpdateChannelError;
 exports.selectUpdatingChannel = selectUpdatingChannel;
 exports.selectUrisLoading = selectUrisLoading;
+exports.selectUtxoCounts = selectUtxoCounts;
 exports.selectWalletDecryptPending = selectWalletDecryptPending;
 exports.selectWalletDecryptResult = selectWalletDecryptResult;
 exports.selectWalletDecryptSucceeded = selectWalletDecryptSucceeded;

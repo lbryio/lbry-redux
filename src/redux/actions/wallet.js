@@ -5,6 +5,7 @@ import {
   selectBalance,
   selectPendingSupportTransactions,
   selectTxoPageParams,
+  selectPendingOtherTransactions,
 } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { selectMyClaimsRaw } from 'redux/selectors/claims';
@@ -125,6 +126,51 @@ export function doFetchSupports(page = 1, pageSize = 99999) {
         },
       });
     });
+  };
+}
+
+export function doFetchUtxoCounts() {
+  return async dispatch => {
+    dispatch({
+      type: ACTIONS.FETCH_UTXO_COUNT_STARTED,
+    });
+
+    let resultSets = await Promise.all([
+      Lbry.txo_list({ type: 'other', is_not_spent: true }),
+      Lbry.txo_list({ type: 'support', is_not_spent: true }),
+    ]);
+    const counts = {};
+    const paymentCount = resultSets[0]['total_items'];
+    const supportCount = resultSets[1]['total_items'];
+    counts['other'] = typeof paymentCount === 'number' ? paymentCount : 0;
+    counts['support'] = typeof supportCount === 'number' ? supportCount : 0;
+
+    dispatch({
+      type: ACTIONS.FETCH_UTXO_COUNT_COMPLETED,
+      data: counts,
+      debug: { resultSets },
+    });
+  };
+}
+
+export function doUtxoConsolidate() {
+  return async dispatch => {
+    dispatch({
+      type: ACTIONS.DO_UTXO_CONSOLIDATE_STARTED,
+    });
+
+    const results = await Lbry.txo_spend({ type: 'other' });
+    const result = results[0];
+
+    dispatch({
+      type: ACTIONS.PENDING_CONSOLIDATED_TXOS_UPDATED,
+      data: { txids: [result.txid] },
+    });
+
+    dispatch({
+      type: ACTIONS.DO_UTXO_CONSOLIDATE_COMPLETED,
+    });
+    dispatch(doCheckPendingTxs());
   };
 }
 
@@ -507,53 +553,71 @@ export function doUpdateBlockHeight() {
 export const doCheckPendingTxs = () => (dispatch, getState) => {
   const state = getState();
   const pendingTxsById = selectPendingSupportTransactions(state); // {}
-  if (!Object.keys(pendingTxsById).length) {
+  const pendingOtherTxes = selectPendingOtherTransactions(state);
+  //
+  if (!Object.keys(pendingTxsById).length && !pendingOtherTxes.length) {
     return;
   }
   let txCheckInterval;
   const checkTxList = () => {
     const state = getState();
-    const pendingTxs = selectPendingSupportTransactions(state); // {}
+    const pendingSupportTxs = selectPendingSupportTransactions(state); // {}
+    const pendingConsolidateTxes = selectPendingOtherTransactions(state);
+
     const promises = [];
     const newPendingTxes = {};
+    const noLongerPendingConsolidate = [];
     const types = new Set([]);
-    let changed = false;
-    Object.entries(pendingTxs).forEach(([claim, data]) => {
+    // { claimId: {txid: 123, amount 12.3}, }
+    const entries = Object.entries(pendingSupportTxs);
+    entries.forEach(([claim, data]) => {
       promises.push(Lbry.transaction_show({ txid: data.txid }));
       types.add(data.type);
     });
+    if (pendingConsolidateTxes.length) {
+      pendingConsolidateTxes.forEach(txid => promises.push(Lbry.transaction_show({ txid })));
+    }
 
-    Promise.all(promises)
-      .then(txShows => {
-        txShows.forEach(result => {
+    Promise.all(promises).then(txShows => {
+      let changed = false;
+      txShows.forEach(result => {
+        if (pendingConsolidateTxes.includes(result.txid)) {
+          if (result.height > 0) {
+            noLongerPendingConsolidate.push(result.txid);
+          }
+        } else {
           if (result.height <= 0) {
-            const entries = Object.entries(pendingTxs);
             const match = entries.find(entry => entry[1].txid === result.txid);
             newPendingTxes[match[0]] = match[1];
           } else {
             changed = true;
           }
-        });
-      })
-      .then(() => {
-        if (changed) {
-          dispatch({
-            type: ACTIONS.PENDING_SUPPORTS_UPDATED,
-            data: newPendingTxes,
-          });
-          if (types.has('channel')) {
-            dispatch(doFetchChannelListMine());
-          }
-          if (types.has('stream')) {
-            dispatch(doFetchClaimListMine());
-          }
         }
-        if (Object.keys(newPendingTxes).length === 0) clearInterval(txCheckInterval);
       });
 
-    if (!Object.keys(pendingTxsById).length) {
-      clearInterval(txCheckInterval);
-    }
+      if (changed) {
+        dispatch({
+          type: ACTIONS.PENDING_SUPPORTS_UPDATED,
+          data: newPendingTxes,
+        });
+        if (types.has('channel')) {
+          dispatch(doFetchChannelListMine());
+        }
+        if (types.has('stream')) {
+          dispatch(doFetchClaimListMine());
+        }
+      }
+      if (noLongerPendingConsolidate.length) {
+        dispatch({
+          type: ACTIONS.PENDING_CONSOLIDATED_TXOS_UPDATED,
+          data: { txids: noLongerPendingConsolidate, remove: true },
+        });
+      }
+
+      if (!Object.keys(pendingTxsById).length && !pendingOtherTxes.length) {
+        clearInterval(txCheckInterval);
+      }
+    });
   };
 
   txCheckInterval = setInterval(() => {
