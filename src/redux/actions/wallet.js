@@ -428,6 +428,7 @@ export function doWalletLock() {
   };
 }
 
+// Collect all tips for a claim
 export function doSupportAbandonForClaim(claimId, claimType, keep, preview) {
   return dispatch => {
     if (preview) {
@@ -448,7 +449,7 @@ export function doSupportAbandonForClaim(claimId, claimType, keep, preview) {
         if (!preview) {
           dispatch({
             type: ACTIONS.ABANDON_CLAIM_SUPPORT_COMPLETED,
-            data: { claimId, txid: res.txid, effective: res.outputs[0].amount, type: claimType }, // add to pendingSupportTransactions,
+            data: { claimId, txid: res.txid, effective: res.outputs[0].amount, type: claimType },
           });
           dispatch(doCheckPendingTxs());
         }
@@ -554,7 +555,7 @@ export const doCheckPendingTxs = () => (dispatch, getState) => {
   const state = getState();
   const pendingTxsById = selectPendingSupportTransactions(state); // {}
   const pendingOtherTxes = selectPendingOtherTransactions(state);
-  //
+
   if (!Object.keys(pendingTxsById).length && !pendingOtherTxes.length) {
     return;
   }

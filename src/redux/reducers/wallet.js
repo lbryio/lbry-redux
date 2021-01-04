@@ -155,7 +155,6 @@ export const walletReducer = handleActions(
     },
 
     [ACTIONS.FETCH_UTXO_COUNT_COMPLETED]: (state: WalletState, action) => {
-      // thing
       return {
         ...state,
         utxoCounts: action.data,

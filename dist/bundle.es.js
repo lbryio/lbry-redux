@@ -3091,6 +3091,7 @@ function doWalletUnlock(password) {
   };
 }
 
+// Collect all tips for a claim
 function doSupportAbandonForClaim(claimId, claimType, keep, preview) {
   return dispatch => {
     if (preview) {
@@ -3110,7 +3111,7 @@ function doSupportAbandonForClaim(claimId, claimType, keep, preview) {
       if (!preview) {
         dispatch({
           type: ABANDON_CLAIM_SUPPORT_COMPLETED,
-          data: { claimId, txid: res.txid, effective: res.outputs[0].amount, type: claimType } // add to pendingSupportTransactions,
+          data: { claimId, txid: res.txid, effective: res.outputs[0].amount, type: claimType }
         });
         dispatch(doCheckPendingTxs());
       }
@@ -3210,7 +3211,7 @@ const doCheckPendingTxs = () => (dispatch, getState) => {
   const state = getState();
   const pendingTxsById = selectPendingSupportTransactions(state); // {}
   const pendingOtherTxes = selectPendingOtherTransactions(state);
-  //
+
   if (!Object.keys(pendingTxsById).length && !pendingOtherTxes.length) {
     return;
   }
@@ -5978,7 +5979,6 @@ const walletReducer = handleActions({
   },
 
   [FETCH_UTXO_COUNT_COMPLETED]: (state, action) => {
-    // thing
     return _extends$d({}, state, {
       utxoCounts: action.data,
       fetchingUtxoCounts: false
