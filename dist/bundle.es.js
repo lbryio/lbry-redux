@@ -6066,7 +6066,7 @@ const walletReducer = handleActions({
 
     return _extends$d({}, state, {
       supports: byOutpoint,
-      abandoningSupportsById: currentlyAbandoning
+      abandoningSupportsByOutpoint: currentlyAbandoning
     });
   },
 

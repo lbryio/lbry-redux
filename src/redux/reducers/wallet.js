@@ -252,7 +252,7 @@ export const walletReducer = handleActions(
       return {
         ...state,
         supports: byOutpoint,
-        abandoningSupportsById: currentlyAbandoning,
+        abandoningSupportsByOutpoint: currentlyAbandoning,
       };
     },
 
