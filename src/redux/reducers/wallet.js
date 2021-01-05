@@ -45,10 +45,12 @@ type WalletState = {
   walletLockResult: ?boolean,
   walletReconnecting: boolean,
   txoFetchParams: {},
+  utxoCounts: {},
   txoPage: any,
   fetchingTxos: boolean,
   fetchingTxosError?: string,
   pendingSupportTransactions: {}, // { claimId: {txid: 123, amount 12.3}, }
+  pendingConsolidateTxos: Array<string>,
   abandonClaimSupportError?: string,
 };
 
@@ -85,10 +87,16 @@ const defaultState = {
   transactionListFilter: 'all',
   walletReconnecting: false,
   txoFetchParams: {},
+  utxoCounts: {},
+  fetchingUtxoCounts: false,
+  fetchingUtxoError: undefined,
+  consolidatingUtxos: false,
   txoPage: {},
   fetchingTxos: false,
   fetchingTxosError: undefined,
   pendingSupportTransactions: {},
+  pendingConsolidateTxos: [],
+
   abandonClaimSupportError: undefined,
 };
 
@@ -138,6 +146,63 @@ export const walletReducer = handleActions(
         fetchingTxosError: action.data,
       };
     },
+    [ACTIONS.FETCH_UTXO_COUNT_STARTED]: (state: WalletState) => {
+      return {
+        ...state,
+        fetchingUtxoCounts: true,
+        fetchingUtxoError: undefined,
+      };
+    },
+
+    [ACTIONS.FETCH_UTXO_COUNT_COMPLETED]: (state: WalletState, action) => {
+      return {
+        ...state,
+        utxoCounts: action.data,
+        fetchingUtxoCounts: false,
+      };
+    },
+    [ACTIONS.FETCH_UTXO_COUNT_FAILED]: (state: WalletState, action) => {
+      return {
+        ...state,
+        utxoCounts: {},
+        fetchingUtxoCounts: false,
+        fetchingUtxoError: action.data,
+      };
+    },
+    [ACTIONS.DO_UTXO_CONSOLIDATE_STARTED]: (state: WalletState) => {
+      return {
+        ...state,
+        consolidatingUtxos: true,
+      };
+    },
+
+    [ACTIONS.DO_UTXO_CONSOLIDATE_COMPLETED]: (state: WalletState, action) => {
+      return {
+        ...state,
+        consolidatingUtxos: false,
+      };
+    },
+
+    [ACTIONS.DO_UTXO_CONSOLIDATE_FAILED]: (state: WalletState, action) => {
+      return {
+        ...state,
+        consolidatingUtxos: false,
+      };
+    },
+
+    [ACTIONS.PENDING_CONSOLIDATED_TXOS_UPDATED]: (state: WalletState, action) => {
+      const pendingTxos = state.pendingConsolidateTxos;
+
+      const { txids, remove } = action.data;
+
+      if (remove) {
+        const newTxos = pendingTxos.filter(txo => !txids.includes(txo));
+        return { ...state, pendingConsolidateTxos: newTxos };
+      } else {
+        const newPendingSet = new Set([...pendingTxos, ...txids]);
+        return { ...state, pendingConsolidateTxos: Array.from(newPendingSet) };
+      }
+    },
 
     [ACTIONS.UPDATE_TXO_FETCH_PARAMS]: (state: WalletState, action) => {
       return {
@@ -186,7 +251,7 @@ export const walletReducer = handleActions(
       return {
         ...state,
         supports: byOutpoint,
-        abandoningSupportsById: currentlyAbandoning,
+        abandoningSupportsByOutpoint: currentlyAbandoning,
       };
     },
 
@@ -205,10 +270,15 @@ export const walletReducer = handleActions(
     },
 
     [ACTIONS.ABANDON_CLAIM_SUPPORT_COMPLETED]: (state: WalletState, action: any): WalletState => {
-      const { claimId, type, txid, effective }: { claimId: string, type: string, txid: string, effective: string } = action.data;
+      const {
+        claimId,
+        type,
+        txid,
+        effective,
+      }: { claimId: string, type: string, txid: string, effective: string } = action.data;
       const pendingtxs = Object.assign({}, state.pendingSupportTransactions);
 
-      pendingtxs[claimId] = {txid, type, effective};
+      pendingtxs[claimId] = { txid, type, effective };
 
       return {
         ...state,
@@ -225,7 +295,6 @@ export const walletReducer = handleActions(
     },
 
     [ACTIONS.PENDING_SUPPORTS_UPDATED]: (state: WalletState, action: any): WalletState => {
-
       return {
         ...state,
         pendingSupportTransactions: action.data,

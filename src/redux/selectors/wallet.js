@@ -26,21 +26,27 @@ export const selectPendingSupportTransactions = createSelector(
   state => state.pendingSupportTransactions
 );
 
+export const selectPendingOtherTransactions = createSelector(
+  selectState,
+  state => state.pendingConsolidateTxos
+);
+
 export const selectAbandonClaimSupportError = createSelector(
   selectState,
   state => state.abandonClaimSupportError
 );
 
-export const makeSelectPendingAmountByUri = (uri) => createSelector(
-  selectClaimIdsByUri,
-  selectPendingSupportTransactions,
-  (claimIdsByUri, pendingSupports) => {
-    const uriEntry = Object.entries(claimIdsByUri).find(([u, cid]) => u === uri);
-    const claimId = uriEntry && uriEntry[1];
-    const pendingSupport = claimId && pendingSupports[claimId];
-    return pendingSupport ? pendingSupport.effective : undefined;
-  }
-);
+export const makeSelectPendingAmountByUri = uri =>
+  createSelector(
+    selectClaimIdsByUri,
+    selectPendingSupportTransactions,
+    (claimIdsByUri, pendingSupports) => {
+      const uriEntry = Object.entries(claimIdsByUri).find(([u, cid]) => u === uri);
+      const claimId = uriEntry && uriEntry[1];
+      const pendingSupport = claimId && pendingSupports[claimId];
+      return pendingSupport ? pendingSupport.effective : undefined;
+    }
+  );
 
 export const selectWalletEncryptResult = createSelector(
   selectState,
@@ -328,27 +334,27 @@ export const selectTxoPageParams = createSelector(
 
 export const selectTxoPage = createSelector(
   selectState,
-  state => (state.txoPage && state.txoPage.items) || [],
+  state => (state.txoPage && state.txoPage.items) || []
 );
 
 export const selectTxoPageNumber = createSelector(
   selectState,
-  state => (state.txoPage && state.txoPage.page) || 1,
+  state => (state.txoPage && state.txoPage.page) || 1
 );
 
 export const selectTxoItemCount = createSelector(
   selectState,
-  state => (state.txoPage && state.txoPage.total_items) || 1,
+  state => (state.txoPage && state.txoPage.total_items) || 1
 );
 
 export const selectFetchingTxosError = createSelector(
   selectState,
-  state => state.fetchingTxosError,
+  state => state.fetchingTxosError
 );
 
 export const selectIsFetchingTxos = createSelector(
   selectState,
-  state => state.fetchingTxos,
+  state => state.fetchingTxos
 );
 
 export const makeSelectFilteredTransactionsForPage = (page = 1) =>
@@ -378,4 +384,19 @@ export const selectFilteredTransactionCount = createSelector(
 export const selectIsWalletReconnecting = createSelector(
   selectState,
   state => state.walletReconnecting
+);
+
+export const selectIsFetchingUtxoCounts = createSelector(
+  selectState,
+  state => state.fetchingUtxoCounts
+);
+
+export const selectIsConsolidatingUtxos = createSelector(
+  selectState,
+  state => state.consolidatingUtxos
+);
+
+export const selectUtxoCounts = createSelector(
+  selectState,
+  state => state.utxoCounts
 );
