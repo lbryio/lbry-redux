@@ -1370,11 +1370,11 @@ const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
-const regexInvalidURI = /[ =&#:$@%?;/\\"<>%\{\}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
+const regexInvalidURI = /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
 const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
-const regexPartModifierSeparator = '([:$#]?)([^/]*)';
+const regexPartModifierSeparator = '([:#]?)([^/]*)';
 const queryStringBreaker = '^([\\S]+)([?][\\S]*)';
 const separateQuerystring = new RegExp(queryStringBreaker);
 
@@ -1389,10 +1389,6 @@ const separateQuerystring = new RegExp(queryStringBreaker);
  *   - streamClaimId (string, if present)
  *   - channelName (string, if present)
  *   - channelClaimId (string, if present)
- *   - primaryClaimSequence (int, if present)
- *   - secondaryClaimSequence (int, if present)
- *   - primaryBidPosition (int, if present)
- *   - secondaryBidPosition (int, if present)
  */
 
 function parseURI(url, requireProto = false) {
@@ -1451,8 +1447,8 @@ function parseURI(url, requireProto = false) {
   }
 
   // Validate and process modifier
-  const [primaryClaimId, primaryClaimSequence, primaryBidPosition] = parseURIModifier(primaryModSeparator, primaryModValue);
-  const [secondaryClaimId, secondaryClaimSequence, secondaryBidPosition] = parseURIModifier(secondaryModSeparator, secondaryModValue);
+  const [primaryClaimId] = parseURIModifier(primaryModSeparator, primaryModValue);
+  const [secondaryClaimId] = parseURIModifier(secondaryModSeparator, secondaryModValue);
   const streamName = includesChannel ? possibleStreamName : streamNameOrChannelName;
   const streamClaimId = includesChannel ? secondaryClaimId : primaryClaimId;
   const channelClaimId = includesChannel && primaryClaimId;
@@ -1460,7 +1456,7 @@ function parseURI(url, requireProto = false) {
   return _extends({
     isChannel,
     path
-  }, streamName ? { streamName } : {}, streamClaimId ? { streamClaimId } : {}, channelName ? { channelName } : {}, channelClaimId ? { channelClaimId } : {}, primaryClaimSequence ? { primaryClaimSequence: parseInt(primaryClaimSequence, 10) } : {}, secondaryClaimSequence ? { secondaryClaimSequence: parseInt(secondaryClaimSequence, 10) } : {}, primaryBidPosition ? { primaryBidPosition: parseInt(primaryBidPosition, 10) } : {}, secondaryBidPosition ? { secondaryBidPosition: parseInt(secondaryBidPosition, 10) } : {}, startTime ? { startTime: parseInt(startTime, 10) } : {}, {
+  }, streamName ? { streamName } : {}, streamClaimId ? { streamClaimId } : {}, channelName ? { channelName } : {}, channelClaimId ? { channelClaimId } : {}, startTime ? { startTime: parseInt(startTime, 10) } : {}, {
 
     // The values below should not be used for new uses of parseURI
     // They will not work properly with canonical_urls
@@ -1471,20 +1467,14 @@ function parseURI(url, requireProto = false) {
 
 function parseURIModifier(modSeperator, modValue) {
   let claimId;
-  let claimSequence;
-  let bidPosition;
 
   if (modSeperator) {
     if (!modValue) {
       throw new Error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
     }
 
-    if (modSeperator === '#') {
+    if (modSeperator === '#' || modSeperator === ':') {
       claimId = modValue;
-    } else if (modSeperator === ':') {
-      claimSequence = modValue;
-    } else if (modSeperator === '$') {
-      bidPosition = modValue;
     }
   }
 
@@ -1492,15 +1482,7 @@ function parseURIModifier(modSeperator, modValue) {
     throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
   }
 
-  if (claimSequence && !claimSequence.match(/^-?[1-9][0-9]*$/)) {
-    throw new Error(__('Claim sequence must be a number.'));
-  }
-
-  if (bidPosition && !bidPosition.match(/^-?[1-9][0-9]*$/)) {
-    throw new Error(__('Bid position must be a number.'));
-  }
-
-  return [claimId, claimSequence, bidPosition];
+  return [claimId];
 }
 
 /**
@@ -1514,13 +1496,9 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
     streamClaimId,
     channelName,
     channelClaimId,
-    primaryClaimSequence,
-    primaryBidPosition,
-    secondaryClaimSequence,
-    secondaryBidPosition,
     startTime
   } = UrlObj,
-        deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition', 'startTime']);
+        deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'startTime']);
   const { claimId, claimName, contentName } = deprecatedParts;
 
   if (!claimName && !channelName && !streamName) {
@@ -1536,32 +1514,18 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
   return (includeProto ? protoDefault : '') +
   // primaryClaimName will always exist here because we throw above if there is no "name" value passed in
   // $FlowFixMe
-  primaryClaimName + (primaryClaimId ? `#${primaryClaimId}` : '') + (primaryClaimSequence ? `:${primaryClaimSequence}` : '') + (primaryBidPosition ? `${primaryBidPosition}` : '') + (secondaryClaimName ? `/${secondaryClaimName}` : '') + (secondaryClaimId ? `#${secondaryClaimId}` : '') + (secondaryClaimSequence ? `:${secondaryClaimSequence}` : '') + (secondaryBidPosition ? `${secondaryBidPosition}` : '') + (startTime ? `?t=${startTime}` : '');
+  primaryClaimName + (primaryClaimId ? `:${primaryClaimId}` : '') + (secondaryClaimName ? `/${secondaryClaimName}` : '') + (secondaryClaimId ? `:${secondaryClaimId}` : '') + (startTime ? `?t=${startTime}` : '');
 }
 
 /* Takes a parseable LBRY URL and converts it to standard, canonical format */
 function normalizeURI(URL) {
-  const {
-    streamName,
-    streamClaimId,
-    channelName,
-    channelClaimId,
-    primaryClaimSequence,
-    primaryBidPosition,
-    secondaryClaimSequence,
-    secondaryBidPosition,
-    startTime
-  } = parseURI(URL);
+  const { streamName, streamClaimId, channelName, channelClaimId, startTime } = parseURI(URL);
 
   return buildURI({
     streamName,
     streamClaimId,
     channelName,
     channelClaimId,
-    primaryClaimSequence,
-    primaryBidPosition,
-    secondaryClaimSequence,
-    secondaryBidPosition,
     startTime
   });
 }
@@ -1592,25 +1556,12 @@ function isURIClaimable(URL) {
 }
 
 function convertToShareLink(URL) {
-  const {
-    streamName,
-    streamClaimId,
-    channelName,
-    channelClaimId,
-    primaryBidPosition,
-    primaryClaimSequence,
-    secondaryBidPosition,
-    secondaryClaimSequence
-  } = parseURI(URL);
+  const { streamName, streamClaimId, channelName, channelClaimId } = parseURI(URL);
   return buildURI({
     streamName,
     streamClaimId,
     channelName,
-    channelClaimId,
-    primaryBidPosition,
-    primaryClaimSequence,
-    secondaryBidPosition,
-    secondaryClaimSequence
+    channelClaimId
   }, true, 'https://open.lbry.com/');
 }
 
@@ -3282,14 +3233,6 @@ const doCheckPendingTxs = () => (dispatch, getState) => {
   }, 30000);
 };
 
-// https://github.com/reactjs/redux/issues/911
-function batchActions(...actions) {
-  return {
-    type: 'BATCH_ACTIONS',
-    actions
-  };
-}
-
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _asyncToGenerator$1(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
@@ -4052,7 +3995,7 @@ const selectFileListDownloadedSort = reselect.createSelector(selectState$2, stat
 
 const selectDownloadedUris = reselect.createSelector(selectFileInfosDownloaded,
 // We should use permament_url but it doesn't exist in file_list
-info => info.slice().map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`));
+info => info.slice().map(claim => `lbry://${claim.claim_name}:${claim.claim_id}`));
 
 const makeSelectMediaTypeForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), makeSelectContentTypeForUri(uri), (fileInfo, contentType) => {
   if (!fileInfo && !contentType) {
@@ -4294,6 +4237,14 @@ function doSetFileListSort(page, value) {
   return {
     type: SET_FILE_LIST_SORT,
     data: { page, value }
+  };
+}
+
+// https://github.com/reactjs/redux/issues/911
+function batchActions(...actions) {
+  return {
+    type: 'BATCH_ACTIONS',
+    actions
   };
 }
 

@@ -4,11 +4,11 @@ const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
-export const regexInvalidURI = /[ =&#:$@%?;/\\"<>%\{\}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
+export const regexInvalidURI = /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
 export const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
-const regexPartModifierSeparator = '([:$#]?)([^/]*)';
+const regexPartModifierSeparator = '([:#]?)([^/]*)';
 const queryStringBreaker = '^([\\S]+)([?][\\S]*)';
 const separateQuerystring = new RegExp(queryStringBreaker);
 
@@ -23,10 +23,6 @@ const separateQuerystring = new RegExp(queryStringBreaker);
  *   - streamClaimId (string, if present)
  *   - channelName (string, if present)
  *   - channelClaimId (string, if present)
- *   - primaryClaimSequence (int, if present)
- *   - secondaryClaimSequence (int, if present)
- *   - primaryBidPosition (int, if present)
- *   - secondaryBidPosition (int, if present)
  */
 
 export function parseURI(url: string, requireProto: boolean = false): LbryUrlObj {
@@ -98,14 +94,8 @@ export function parseURI(url: string, requireProto: boolean = false): LbryUrlObj
   }
 
   // Validate and process modifier
-  const [primaryClaimId, primaryClaimSequence, primaryBidPosition] = parseURIModifier(
-    primaryModSeparator,
-    primaryModValue
-  );
-  const [secondaryClaimId, secondaryClaimSequence, secondaryBidPosition] = parseURIModifier(
-    secondaryModSeparator,
-    secondaryModValue
-  );
+  const [primaryClaimId] = parseURIModifier(primaryModSeparator, primaryModValue);
+  const [secondaryClaimId] = parseURIModifier(secondaryModSeparator, secondaryModValue);
   const streamName = includesChannel ? possibleStreamName : streamNameOrChannelName;
   const streamClaimId = includesChannel ? secondaryClaimId : primaryClaimId;
   const channelClaimId = includesChannel && primaryClaimId;
@@ -117,12 +107,6 @@ export function parseURI(url: string, requireProto: boolean = false): LbryUrlObj
     ...(streamClaimId ? { streamClaimId } : {}),
     ...(channelName ? { channelName } : {}),
     ...(channelClaimId ? { channelClaimId } : {}),
-    ...(primaryClaimSequence ? { primaryClaimSequence: parseInt(primaryClaimSequence, 10) } : {}),
-    ...(secondaryClaimSequence
-      ? { secondaryClaimSequence: parseInt(secondaryClaimSequence, 10) }
-      : {}),
-    ...(primaryBidPosition ? { primaryBidPosition: parseInt(primaryBidPosition, 10) } : {}),
-    ...(secondaryBidPosition ? { secondaryBidPosition: parseInt(secondaryBidPosition, 10) } : {}),
     ...(startTime ? { startTime: parseInt(startTime, 10) } : {}),
 
     // The values below should not be used for new uses of parseURI
@@ -136,20 +120,14 @@ export function parseURI(url: string, requireProto: boolean = false): LbryUrlObj
 
 function parseURIModifier(modSeperator: ?string, modValue: ?string) {
   let claimId;
-  let claimSequence;
-  let bidPosition;
 
   if (modSeperator) {
     if (!modValue) {
       throw new Error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
     }
 
-    if (modSeperator === '#') {
+    if (modSeperator === '#' || modSeperator === ':') {
       claimId = modValue;
-    } else if (modSeperator === ':') {
-      claimSequence = modValue;
-    } else if (modSeperator === '$') {
-      bidPosition = modValue;
     }
   }
 
@@ -157,15 +135,7 @@ function parseURIModifier(modSeperator: ?string, modValue: ?string) {
     throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
   }
 
-  if (claimSequence && !claimSequence.match(/^-?[1-9][0-9]*$/)) {
-    throw new Error(__('Claim sequence must be a number.'));
-  }
-
-  if (bidPosition && !bidPosition.match(/^-?[1-9][0-9]*$/)) {
-    throw new Error(__('Bid position must be a number.'));
-  }
-
-  return [claimId, claimSequence, bidPosition];
+  return [claimId];
 }
 
 /**
@@ -183,10 +153,6 @@ export function buildURI(
     streamClaimId,
     channelName,
     channelClaimId,
-    primaryClaimSequence,
-    primaryBidPosition,
-    secondaryClaimSequence,
-    secondaryBidPosition,
     startTime,
     ...deprecatedParts
   } = UrlObj;
@@ -231,40 +197,22 @@ export function buildURI(
     // primaryClaimName will always exist here because we throw above if there is no "name" value passed in
     // $FlowFixMe
     primaryClaimName +
-    (primaryClaimId ? `#${primaryClaimId}` : '') +
-    (primaryClaimSequence ? `:${primaryClaimSequence}` : '') +
-    (primaryBidPosition ? `${primaryBidPosition}` : '') +
+    (primaryClaimId ? `:${primaryClaimId}` : '') +
     (secondaryClaimName ? `/${secondaryClaimName}` : '') +
-    (secondaryClaimId ? `#${secondaryClaimId}` : '') +
-    (secondaryClaimSequence ? `:${secondaryClaimSequence}` : '') +
-    (secondaryBidPosition ? `${secondaryBidPosition}` : '') +
+    (secondaryClaimId ? `:${secondaryClaimId}` : '') +
     (startTime ? `?t=${startTime}` : '')
   );
 }
 
 /* Takes a parseable LBRY URL and converts it to standard, canonical format */
 export function normalizeURI(URL: string) {
-  const {
-    streamName,
-    streamClaimId,
-    channelName,
-    channelClaimId,
-    primaryClaimSequence,
-    primaryBidPosition,
-    secondaryClaimSequence,
-    secondaryBidPosition,
-    startTime,
-  } = parseURI(URL);
+  const { streamName, streamClaimId, channelName, channelClaimId, startTime } = parseURI(URL);
 
   return buildURI({
     streamName,
     streamClaimId,
     channelName,
     channelClaimId,
-    primaryClaimSequence,
-    primaryBidPosition,
-    secondaryClaimSequence,
-    secondaryBidPosition,
     startTime,
   });
 }
@@ -295,26 +243,13 @@ export function isURIClaimable(URL: string) {
 }
 
 export function convertToShareLink(URL: string) {
-  const {
-    streamName,
-    streamClaimId,
-    channelName,
-    channelClaimId,
-    primaryBidPosition,
-    primaryClaimSequence,
-    secondaryBidPosition,
-    secondaryClaimSequence,
-  } = parseURI(URL);
+  const { streamName, streamClaimId, channelName, channelClaimId } = parseURI(URL);
   return buildURI(
     {
       streamName,
       streamClaimId,
       channelName,
       channelClaimId,
-      primaryBidPosition,
-      primaryClaimSequence,
-      secondaryBidPosition,
-      secondaryClaimSequence,
     },
     true,
     'https://open.lbry.com/'

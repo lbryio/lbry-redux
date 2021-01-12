@@ -148,7 +148,7 @@ export const selectFileListDownloadedSort = createSelector(
 export const selectDownloadedUris = createSelector(
   selectFileInfosDownloaded,
   // We should use permament_url but it doesn't exist in file_list
-  info => info.slice().map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`)
+  info => info.slice().map(claim => `lbry://${claim.claim_name}:${claim.claim_id}`)
 );
 
 export const makeSelectMediaTypeForUri = uri =>
@@ -234,12 +234,12 @@ export const makeSelectSearchDownloadUrlsForPage = (query, page = 1) =>
 
       return matchingFileInfos && matchingFileInfos.length
         ? matchingFileInfos.slice(start, end).map(fileInfo =>
-            buildURI({
-              streamName: fileInfo.claim_name,
-              channelName: fileInfo.channel_name,
-              channelClaimId: fileInfo.channel_claim_id,
-            })
-          )
+          buildURI({
+            streamName: fileInfo.claim_name,
+            channelName: fileInfo.channel_name,
+            channelClaimId: fileInfo.channel_claim_id,
+          })
+        )
         : [];
     }
   );

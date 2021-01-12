@@ -8,10 +8,6 @@ declare type LbryUrlObj = {
   streamClaimId?: string,
   channelName?: string,
   channelClaimId?: string,
-  primaryClaimSequence?: number,
-  secondaryClaimSequence?: number,
-  primaryBidPosition?: number,
-  secondaryBidPosition?: number,
   startTime?: number,
 
   // Below are considered deprecated and should not be used due to unreliableness with claim.canonical_url
