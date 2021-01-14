@@ -38,6 +38,7 @@ export const ENABLE_SYNC = 'enable_sync';
 export const ENABLE_PUBLISH_PREVIEW = 'enable-publish-preview';
 export const TILE_LAYOUT = 'tile_layout';
 export const VIDEO_THEATER_MODE = 'video_theater_mode';
+export const VIDEO_PLAYBACK_RATE = 'video_playback_rate';
 
 // mobile settings
 export const BACKGROUND_PLAY_ENABLED = 'backgroundPlayEnabled';
