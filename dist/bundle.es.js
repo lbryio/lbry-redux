@@ -4347,6 +4347,7 @@ const selectPublishFormValues = reselect.createSelector(selectState$3, state => 
   } else {
     actualLanguage = language || languageSet || 'en';
   }
+
   return _extends$6({}, formValues, { language: actualLanguage });
 });
 const makeSelectPublishFormValue = item => reselect.createSelector(selectState$3, state => state[item]);
@@ -4624,8 +4625,10 @@ const doPublish = (success, fail, preview) => (dispatch, getState) => {
     uri,
     tags,
     locations,
-    optimize
+    optimize,
+    isLivestreamPublish
   } = publishData;
+
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
   const myClaimForUriEditing = myClaimForUri && myClaimForUri.name === name ? myClaimForUri : null;
 
@@ -4704,6 +4707,33 @@ const doPublish = (success, fail, preview) => (dispatch, getState) => {
   // Only pass file on new uploads, not metadata only edits.
   // The sdk will figure it out
   if (filePath) publishPayload.file_path = filePath;
+
+  if (isLivestreamPublish) {
+    var d = new Date();
+
+    // Set it to one month in future so it's hidden in apps
+    d.setFullYear(d.getFullYear() - 10);
+    d.setHours(0, 0, 0);
+    d.setMilliseconds(0);
+
+    const releaseTimeInSeconds = d / 1000;
+
+    publishPayload.release_time = releaseTimeInSeconds;
+
+    if (publishPayload.tags) {
+      if (!publishPayload.tags.includes('odysee-livestream')) {
+        publishPayload.tags.push('odysee-livestream');
+      }
+    } else {
+      publishPayload.tags = ['odysee-livestream'];
+    }
+  } else if (publishPayload.tags && publishPayload.tags.includes('odysee-livestream')) {
+    let newReleaseTime = new Date();
+    newReleaseTime.setMilliseconds(0);
+    publishPayload.release_time = newReleaseTime / 1000;
+
+    publishPayload.tags = publishPayload.tags.filter(tag => tag !== 'odysee-livestream');
+  }
 
   if (preview) {
     publishPayload.preview = true;

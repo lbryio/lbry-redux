@@ -266,7 +266,9 @@ export const doPublish = (success: Function, fail: Function, preview: Function) 
     tags,
     locations,
     optimize,
+    isLivestreamPublish,
   } = publishData;
+
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
   const myClaimForUriEditing = myClaimForUri && myClaimForUri.name === name ? myClaimForUri : null;
 
@@ -292,7 +294,6 @@ export const doPublish = (success: Function, fail: Function, preview: Function) 
     description?: string,
     channel_id?: string,
     file_path?: string,
-
     license_url?: string,
     license?: string,
     thumbnail_url?: string,
@@ -366,6 +367,33 @@ export const doPublish = (success: Function, fail: Function, preview: Function) 
   // Only pass file on new uploads, not metadata only edits.
   // The sdk will figure it out
   if (filePath) publishPayload.file_path = filePath;
+
+  if (isLivestreamPublish) {
+    var d = new Date();
+
+    // Set it to one month in future so it's hidden in apps
+    d.setFullYear(d.getFullYear() - 10);
+    d.setHours(0, 0, 0);
+    d.setMilliseconds(0);
+
+    const releaseTimeInSeconds = d / 1000;
+
+    publishPayload.release_time = releaseTimeInSeconds;
+
+    if (publishPayload.tags) {
+      if (!publishPayload.tags.includes('odysee-livestream')) {
+        publishPayload.tags.push('odysee-livestream');
+      }
+    } else {
+      publishPayload.tags = ['odysee-livestream'];
+    }
+  } else if (publishPayload.tags && publishPayload.tags.includes('odysee-livestream')) {
+    let newReleaseTime = new Date();
+    newReleaseTime.setMilliseconds(0);
+    publishPayload.release_time = newReleaseTime / 1000;
+
+    publishPayload.tags = publishPayload.tags.filter(tag => tag !== 'odysee-livestream');
+  }
 
   if (preview) {
     publishPayload.preview = true;

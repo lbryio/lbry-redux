@@ -54,6 +54,7 @@ export const selectPublishFormValues = createSelector(
     } else {
       actualLanguage = language || languageSet || 'en';
     }
+
     return { ...formValues, language: actualLanguage };
   }
 );
