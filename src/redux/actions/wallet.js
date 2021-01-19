@@ -136,14 +136,15 @@ export function doFetchUtxoCounts() {
     });
 
     let resultSets = await Promise.all([
-      Lbry.txo_list({ type: 'other', is_not_spent: true }),
-      Lbry.txo_list({ type: 'support', is_not_spent: true }),
+      Lbry.txo_list({ type: 'other', is_not_spent: true, page: 1, page_size: 1 }),
+      // removing until we figure out sdk load / need it
+      // Lbry.txo_list({ type: 'support', is_not_spent: true }),
     ]);
     const counts = {};
     const paymentCount = resultSets[0]['total_items'];
-    const supportCount = resultSets[1]['total_items'];
+    // const supportCount = resultSets[1]['total_items'];
     counts['other'] = typeof paymentCount === 'number' ? paymentCount : 0;
-    counts['support'] = typeof supportCount === 'number' ? supportCount : 0;
+    counts['support'] = 0;
 
     dispatch({
       type: ACTIONS.FETCH_UTXO_COUNT_COMPLETED,
