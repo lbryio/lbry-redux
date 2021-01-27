@@ -137,14 +137,13 @@ export function doFetchUtxoCounts() {
 
     let resultSets = await Promise.all([
       Lbry.txo_list({ type: 'other', is_not_spent: true, page: 1, page_size: 1 }),
-      // removing until we figure out sdk load / need it
-      // Lbry.txo_list({ type: 'support', is_not_spent: true }),
+      Lbry.txo_list({ type: 'support', is_not_spent: true, page: 1, page_size: 1 }),
     ]);
     const counts = {};
     const paymentCount = resultSets[0]['total_items'];
-    // const supportCount = resultSets[1]['total_items'];
+    const supportCount = resultSets[1]['total_items'];
     counts['other'] = typeof paymentCount === 'number' ? paymentCount : 0;
-    counts['support'] = 0;
+    counts['support'] = typeof supportCount === 'number' ? supportCount : 0;
 
     dispatch({
       type: ACTIONS.FETCH_UTXO_COUNT_COMPLETED,
@@ -170,6 +169,27 @@ export function doUtxoConsolidate() {
 
     dispatch({
       type: ACTIONS.DO_UTXO_CONSOLIDATE_COMPLETED,
+    });
+    dispatch(doCheckPendingTxs());
+  };
+}
+
+export function doTipClaimMass() {
+  return async dispatch => {
+    dispatch({
+      type: ACTIONS.TIP_CLAIM_MASS_STARTED,
+    });
+
+    const results = await Lbry.txo_spend({ type: 'support', is_not_my_input: true });
+    const result = results[0];
+
+    dispatch({
+      type: ACTIONS.PENDING_CONSOLIDATED_TXOS_UPDATED,
+      data: { txids: [result.txid] },
+    });
+
+    dispatch({
+      type: ACTIONS.TIP_CLAIM_MASS_COMPLETED,
     });
     dispatch(doCheckPendingTxs());
   };
