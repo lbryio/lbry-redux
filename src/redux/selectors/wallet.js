@@ -396,6 +396,11 @@ export const selectIsConsolidatingUtxos = createSelector(
   state => state.consolidatingUtxos
 );
 
+export const selectIsMassClaimingTips = createSelector(
+  selectState,
+  state => state.massClaimingTips
+);
+
 export const selectUtxoCounts = createSelector(
   selectState,
   state => state.utxoCounts

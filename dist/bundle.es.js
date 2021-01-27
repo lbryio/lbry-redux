@@ -103,6 +103,9 @@ const SET_DRAFT_TRANSACTION_ADDRESS = 'SET_DRAFT_TRANSACTION_ADDRESS';
 const FETCH_UTXO_COUNT_STARTED = 'FETCH_UTXO_COUNT_STARTED';
 const FETCH_UTXO_COUNT_COMPLETED = 'FETCH_UTXO_COUNT_COMPLETED';
 const FETCH_UTXO_COUNT_FAILED = 'FETCH_UTXO_COUNT_FAILED';
+const TIP_CLAIM_MASS_STARTED = 'TIP_CLAIM_MASS_STARTED';
+const TIP_CLAIM_MASS_COMPLETED = 'TIP_CLAIM_MASS_COMPLETED';
+const TIP_CLAIM_MASS_FAILED = 'TIP_CLAIM_MASS_FAILED';
 const DO_UTXO_CONSOLIDATE_STARTED = 'DO_UTXO_CONSOLIDATE_STARTED';
 const DO_UTXO_CONSOLIDATE_COMPLETED = 'DO_UTXO_CONSOLIDATE_COMPLETED';
 const DO_UTXO_CONSOLIDATE_FAILED = 'DO_UTXO_CONSOLIDATE_FAILED';
@@ -377,6 +380,9 @@ var action_types = /*#__PURE__*/Object.freeze({
   FETCH_UTXO_COUNT_STARTED: FETCH_UTXO_COUNT_STARTED,
   FETCH_UTXO_COUNT_COMPLETED: FETCH_UTXO_COUNT_COMPLETED,
   FETCH_UTXO_COUNT_FAILED: FETCH_UTXO_COUNT_FAILED,
+  TIP_CLAIM_MASS_STARTED: TIP_CLAIM_MASS_STARTED,
+  TIP_CLAIM_MASS_COMPLETED: TIP_CLAIM_MASS_COMPLETED,
+  TIP_CLAIM_MASS_FAILED: TIP_CLAIM_MASS_FAILED,
   DO_UTXO_CONSOLIDATE_STARTED: DO_UTXO_CONSOLIDATE_STARTED,
   DO_UTXO_CONSOLIDATE_COMPLETED: DO_UTXO_CONSOLIDATE_COMPLETED,
   DO_UTXO_CONSOLIDATE_FAILED: DO_UTXO_CONSOLIDATE_FAILED,
@@ -2120,6 +2126,8 @@ const selectIsFetchingUtxoCounts = reselect.createSelector(selectState, state =>
 
 const selectIsConsolidatingUtxos = reselect.createSelector(selectState, state => state.consolidatingUtxos);
 
+const selectIsMassClaimingTips = reselect.createSelector(selectState, state => state.massClaimingTips);
+
 const selectUtxoCounts = reselect.createSelector(selectState, state => state.utxoCounts);
 
 var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -2832,15 +2840,12 @@ function doFetchUtxoCounts() {
         type: FETCH_UTXO_COUNT_STARTED
       });
 
-      let resultSets = yield Promise.all([lbryProxy.txo_list({ type: 'other', is_not_spent: true, page: 1, page_size: 1 })]
-      // removing until we figure out sdk load / need it
-      // Lbry.txo_list({ type: 'support', is_not_spent: true }),
-      );
+      let resultSets = yield Promise.all([lbryProxy.txo_list({ type: 'other', is_not_spent: true, page: 1, page_size: 1 }), lbryProxy.txo_list({ type: 'support', is_not_spent: true, page: 1, page_size: 1 })]);
       const counts = {};
       const paymentCount = resultSets[0]['total_items'];
-      // const supportCount = resultSets[1]['total_items'];
+      const supportCount = resultSets[1]['total_items'];
       counts['other'] = typeof paymentCount === 'number' ? paymentCount : 0;
-      counts['support'] = 0;
+      counts['support'] = typeof supportCount === 'number' ? supportCount : 0;
 
       dispatch({
         type: FETCH_UTXO_COUNT_COMPLETED,
@@ -2878,6 +2883,33 @@ function doUtxoConsolidate() {
 
     return function (_x2) {
       return _ref2.apply(this, arguments);
+    };
+  })();
+}
+
+function doTipClaimMass() {
+  return (() => {
+    var _ref3 = _asyncToGenerator(function* (dispatch) {
+      dispatch({
+        type: TIP_CLAIM_MASS_STARTED
+      });
+
+      const results = yield lbryProxy.txo_spend({ type: 'support', is_not_my_input: true });
+      const result = results[0];
+
+      dispatch({
+        type: PENDING_CONSOLIDATED_TXOS_UPDATED,
+        data: { txids: [result.txid] }
+      });
+
+      dispatch({
+        type: TIP_CLAIM_MASS_COMPLETED
+      });
+      dispatch(doCheckPendingTxs());
+    });
+
+    return function (_x3) {
+      return _ref3.apply(this, arguments);
     };
   })();
 }
@@ -5957,6 +5989,7 @@ const defaultState$5 = {
   fetchingUtxoCounts: false,
   fetchingUtxoError: undefined,
   consolidatingUtxos: false,
+  massClaimingTips: false,
   txoPage: {},
   fetchingTxos: false,
   fetchingTxosError: undefined,
@@ -6041,6 +6074,24 @@ const walletReducer = handleActions({
   [DO_UTXO_CONSOLIDATE_FAILED]: (state, action) => {
     return _extends$d({}, state, {
       consolidatingUtxos: false
+    });
+  },
+
+  [TIP_CLAIM_MASS_STARTED]: state => {
+    return _extends$d({}, state, {
+      massClaimingTips: true
+    });
+  },
+
+  [TIP_CLAIM_MASS_COMPLETED]: (state, action) => {
+    return _extends$d({}, state, {
+      massClaimingTips: false
+    });
+  },
+
+  [TIP_CLAIM_MASS_FAILED]: (state, action) => {
+    return _extends$d({}, state, {
+      massClaimingTips: false
     });
   },
 
@@ -6429,6 +6480,7 @@ exports.doSetDraftTransactionAmount = doSetDraftTransactionAmount;
 exports.doSetFileListSort = doSetFileListSort;
 exports.doSetTransactionListFilter = doSetTransactionListFilter;
 exports.doSupportAbandonForClaim = doSupportAbandonForClaim;
+exports.doTipClaimMass = doTipClaimMass;
 exports.doToast = doToast;
 exports.doUpdateBalance = doUpdateBalance;
 exports.doUpdateBlockHeight = doUpdateBlockHeight;
@@ -6562,6 +6614,7 @@ exports.selectIsFetchingMyPurchases = selectIsFetchingMyPurchases;
 exports.selectIsFetchingTransactions = selectIsFetchingTransactions;
 exports.selectIsFetchingTxos = selectIsFetchingTxos;
 exports.selectIsFetchingUtxoCounts = selectIsFetchingUtxoCounts;
+exports.selectIsMassClaimingTips = selectIsMassClaimingTips;
 exports.selectIsResolvingPublishUris = selectIsResolvingPublishUris;
 exports.selectIsSendingSupport = selectIsSendingSupport;
 exports.selectIsStillEditing = selectIsStillEditing;

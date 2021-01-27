@@ -122,6 +122,7 @@ export {
   doSupportAbandonForClaim,
   doFetchUtxoCounts,
   doUtxoConsolidate,
+  doTipClaimMass,
 } from 'redux/actions/wallet';
 
 export { doPopulateSharedUserState, doPreferenceGet, doPreferenceSet } from 'redux/actions/sync';
@@ -317,6 +318,7 @@ export {
   makeSelectPendingAmountByUri,
   selectIsFetchingUtxoCounts,
   selectIsConsolidatingUtxos,
+  selectIsMassClaimingTips,
   selectUtxoCounts,
   selectPendingOtherTransactions,
 } from 'redux/selectors/wallet';

@@ -91,6 +91,7 @@ const defaultState = {
   fetchingUtxoCounts: false,
   fetchingUtxoError: undefined,
   consolidatingUtxos: false,
+  massClaimingTips: false,
   txoPage: {},
   fetchingTxos: false,
   fetchingTxosError: undefined,
@@ -187,6 +188,27 @@ export const walletReducer = handleActions(
       return {
         ...state,
         consolidatingUtxos: false,
+      };
+    },
+
+    [ACTIONS.TIP_CLAIM_MASS_STARTED]: (state: WalletState) => {
+      return {
+        ...state,
+        massClaimingTips: true,
+      };
+    },
+
+    [ACTIONS.TIP_CLAIM_MASS_COMPLETED]: (state: WalletState, action) => {
+      return {
+        ...state,
+        massClaimingTips: false,
+      };
+    },
+
+    [ACTIONS.TIP_CLAIM_MASS_FAILED]: (state: WalletState, action) => {
+      return {
+        ...state,
+        massClaimingTips: false,
       };
     },
 
