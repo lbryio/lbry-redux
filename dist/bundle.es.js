@@ -1931,7 +1931,7 @@ const selectWalletEncryptSucceeded = reselect.createSelector(selectState, state 
 
 const selectPendingSupportTransactions = reselect.createSelector(selectState, state => state.pendingSupportTransactions);
 
-const selectPendingOtherTransactions = reselect.createSelector(selectState, state => state.pendingConsolidateTxos);
+const selectPendingOtherTransactions = reselect.createSelector(selectState, state => state.pendingTxos);
 
 const selectAbandonClaimSupportError = reselect.createSelector(selectState, state => state.abandonClaimSupportError);
 
@@ -2127,6 +2127,10 @@ const selectIsFetchingUtxoCounts = reselect.createSelector(selectState, state =>
 const selectIsConsolidatingUtxos = reselect.createSelector(selectState, state => state.consolidatingUtxos);
 
 const selectIsMassClaimingTips = reselect.createSelector(selectState, state => state.massClaimingTips);
+
+const selectPendingConsolidateTxid = reselect.createSelector(selectState, state => state.pendingConsolidateTxid);
+
+const selectPendingMassClaimTxid = reselect.createSelector(selectState, state => state.pendingMassClaimTxid);
 
 const selectUtxoCounts = reselect.createSelector(selectState, state => state.utxoCounts);
 
@@ -2876,7 +2880,8 @@ function doUtxoConsolidate() {
       });
 
       dispatch({
-        type: DO_UTXO_CONSOLIDATE_COMPLETED
+        type: DO_UTXO_CONSOLIDATE_COMPLETED,
+        data: { txid: result.txid }
       });
       dispatch(doCheckPendingTxs());
     });
@@ -2903,7 +2908,8 @@ function doTipClaimMass() {
       });
 
       dispatch({
-        type: TIP_CLAIM_MASS_COMPLETED
+        type: TIP_CLAIM_MASS_COMPLETED,
+        data: { txid: result.txid }
       });
       dispatch(doCheckPendingTxs());
     });
@@ -3257,6 +3263,8 @@ const doCheckPendingTxs = () => (dispatch, getState) => {
     const state = getState();
     const pendingSupportTxs = selectPendingSupportTransactions(state); // {}
     const pendingConsolidateTxes = selectPendingOtherTransactions(state);
+    const pendingConsTxid = selectPendingConsolidateTxid(state);
+    const pendingMassCLaimTxid = selectPendingMassClaimTxid(state);
 
     const promises = [];
     const newPendingTxes = {};
@@ -3302,6 +3310,18 @@ const doCheckPendingTxs = () => (dispatch, getState) => {
         }
       }
       if (noLongerPendingConsolidate.length) {
+        if (noLongerPendingConsolidate.includes(pendingConsTxid)) {
+          dispatch(doToast({
+            title: __('Wallet Job'),
+            message: __('Your wallet is finished consolidating')
+          }));
+        }
+        if (noLongerPendingConsolidate.includes(pendingMassCLaimTxid)) {
+          dispatch(doToast({
+            title: __('Wallet Job'),
+            message: __('Your tips have been collected')
+          }));
+        }
         dispatch({
           type: PENDING_CONSOLIDATED_TXOS_UPDATED,
           data: { txids: noLongerPendingConsolidate, remove: true }
@@ -5989,12 +6009,14 @@ const defaultState$5 = {
   fetchingUtxoCounts: false,
   fetchingUtxoError: undefined,
   consolidatingUtxos: false,
+  pendingConsolidateTxid: null,
   massClaimingTips: false,
+  pendingMassClaimTxid: null,
   txoPage: {},
   fetchingTxos: false,
   fetchingTxosError: undefined,
   pendingSupportTransactions: {},
-  pendingConsolidateTxos: [],
+  pendingTxos: [],
 
   abandonClaimSupportError: undefined
 };
@@ -6066,8 +6088,10 @@ const walletReducer = handleActions({
   },
 
   [DO_UTXO_CONSOLIDATE_COMPLETED]: (state, action) => {
+    const { txid } = action.data;
     return _extends$d({}, state, {
-      consolidatingUtxos: false
+      consolidatingUtxos: false,
+      pendingConsolidateTxid: txid
     });
   },
 
@@ -6084,8 +6108,10 @@ const walletReducer = handleActions({
   },
 
   [TIP_CLAIM_MASS_COMPLETED]: (state, action) => {
+    const { txid } = action.data;
     return _extends$d({}, state, {
-      massClaimingTips: false
+      massClaimingTips: false,
+      pendingMassClaimTxid: txid
     });
   },
 
@@ -6096,16 +6122,22 @@ const walletReducer = handleActions({
   },
 
   [PENDING_CONSOLIDATED_TXOS_UPDATED]: (state, action) => {
-    const pendingTxos = state.pendingConsolidateTxos;
+    const { pendingTxos, pendingMassClaimTxid, pendingConsolidateTxid } = state;
 
     const { txids, remove } = action.data;
 
     if (remove) {
       const newTxos = pendingTxos.filter(txo => !txids.includes(txo));
-      return _extends$d({}, state, { pendingConsolidateTxos: newTxos });
+      const newPendingMassClaimTxid = txids.includes(pendingMassClaimTxid) ? undefined : pendingMassClaimTxid;
+      const newPendingConsolidateTxid = txids.includes(pendingConsolidateTxid) ? undefined : pendingConsolidateTxid;
+      return _extends$d({}, state, {
+        pendingTxos: newTxos,
+        pendingMassClaimTxid: newPendingMassClaimTxid,
+        pendingConsolidateTxid: newPendingConsolidateTxid
+      });
     } else {
       const newPendingSet = new Set([...pendingTxos, ...txids]);
-      return _extends$d({}, state, { pendingConsolidateTxos: Array.from(newPendingSet) });
+      return _extends$d({}, state, { pendingTxos: Array.from(newPendingSet) });
     }
   },
 
@@ -6634,7 +6666,9 @@ exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
 exports.selectMyPurchases = selectMyPurchases;
 exports.selectMyPurchasesCount = selectMyPurchasesCount;
 exports.selectMyStreamUrlsCount = selectMyStreamUrlsCount;
+exports.selectPendingConsolidateTxid = selectPendingConsolidateTxid;
 exports.selectPendingIds = selectPendingIds;
+exports.selectPendingMassClaimTxid = selectPendingMassClaimTxid;
 exports.selectPendingOtherTransactions = selectPendingOtherTransactions;
 exports.selectPendingSupportTransactions = selectPendingSupportTransactions;
 exports.selectPlayingUri = selectPlayingUri;

@@ -6,6 +6,8 @@ import {
   selectPendingSupportTransactions,
   selectTxoPageParams,
   selectPendingOtherTransactions,
+  selectPendingConsolidateTxid,
+  selectPendingMassClaimTxid,
 } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { selectMyClaimsRaw } from 'redux/selectors/claims';
@@ -169,6 +171,7 @@ export function doUtxoConsolidate() {
 
     dispatch({
       type: ACTIONS.DO_UTXO_CONSOLIDATE_COMPLETED,
+      data: { txid: result.txid },
     });
     dispatch(doCheckPendingTxs());
   };
@@ -190,6 +193,7 @@ export function doTipClaimMass() {
 
     dispatch({
       type: ACTIONS.TIP_CLAIM_MASS_COMPLETED,
+      data: { txid: result.txid },
     });
     dispatch(doCheckPendingTxs());
   };
@@ -585,6 +589,8 @@ export const doCheckPendingTxs = () => (dispatch, getState) => {
     const state = getState();
     const pendingSupportTxs = selectPendingSupportTransactions(state); // {}
     const pendingConsolidateTxes = selectPendingOtherTransactions(state);
+    const pendingConsTxid = selectPendingConsolidateTxid(state);
+    const pendingMassCLaimTxid = selectPendingMassClaimTxid(state);
 
     const promises = [];
     const newPendingTxes = {};
@@ -630,6 +636,22 @@ export const doCheckPendingTxs = () => (dispatch, getState) => {
         }
       }
       if (noLongerPendingConsolidate.length) {
+        if (noLongerPendingConsolidate.includes(pendingConsTxid)) {
+          dispatch(
+            doToast({
+              title: __('Wallet Job'),
+              message: __('Your wallet is finished consolidating'),
+            })
+          );
+        }
+        if (noLongerPendingConsolidate.includes(pendingMassCLaimTxid)) {
+          dispatch(
+            doToast({
+              title: __('Wallet Job'),
+              message: __('Your tips have been collected'),
+            })
+          );
+        }
         dispatch({
           type: ACTIONS.PENDING_CONSOLIDATED_TXOS_UPDATED,
           data: { txids: noLongerPendingConsolidate, remove: true },

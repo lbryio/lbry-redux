@@ -49,8 +49,12 @@ type WalletState = {
   txoPage: any,
   fetchingTxos: boolean,
   fetchingTxosError?: string,
+  consolidatingUtxos: boolean,
+  pendingConsolidateTxid?: string,
+  massClaimingTips: boolean,
+  pendingMassClaimTxid?: string,
   pendingSupportTransactions: {}, // { claimId: {txid: 123, amount 12.3}, }
-  pendingConsolidateTxos: Array<string>,
+  pendingTxos: Array<string>,
   abandonClaimSupportError?: string,
 };
 
@@ -91,12 +95,14 @@ const defaultState = {
   fetchingUtxoCounts: false,
   fetchingUtxoError: undefined,
   consolidatingUtxos: false,
+  pendingConsolidateTxid: null,
   massClaimingTips: false,
+  pendingMassClaimTxid: null,
   txoPage: {},
   fetchingTxos: false,
   fetchingTxosError: undefined,
   pendingSupportTransactions: {},
-  pendingConsolidateTxos: [],
+  pendingTxos: [],
 
   abandonClaimSupportError: undefined,
 };
@@ -178,9 +184,11 @@ export const walletReducer = handleActions(
     },
 
     [ACTIONS.DO_UTXO_CONSOLIDATE_COMPLETED]: (state: WalletState, action) => {
+      const { txid } = action.data;
       return {
         ...state,
         consolidatingUtxos: false,
+        pendingConsolidateTxid: txid,
       };
     },
 
@@ -199,9 +207,11 @@ export const walletReducer = handleActions(
     },
 
     [ACTIONS.TIP_CLAIM_MASS_COMPLETED]: (state: WalletState, action) => {
+      const { txid } = action.data;
       return {
         ...state,
         massClaimingTips: false,
+        pendingMassClaimTxid: txid,
       };
     },
 
@@ -213,16 +223,27 @@ export const walletReducer = handleActions(
     },
 
     [ACTIONS.PENDING_CONSOLIDATED_TXOS_UPDATED]: (state: WalletState, action) => {
-      const pendingTxos = state.pendingConsolidateTxos;
+      const { pendingTxos, pendingMassClaimTxid, pendingConsolidateTxid } = state;
 
       const { txids, remove } = action.data;
 
       if (remove) {
         const newTxos = pendingTxos.filter(txo => !txids.includes(txo));
-        return { ...state, pendingConsolidateTxos: newTxos };
+        const newPendingMassClaimTxid = txids.includes(pendingMassClaimTxid)
+          ? undefined
+          : pendingMassClaimTxid;
+        const newPendingConsolidateTxid = txids.includes(pendingConsolidateTxid)
+          ? undefined
+          : pendingConsolidateTxid;
+        return {
+          ...state,
+          pendingTxos: newTxos,
+          pendingMassClaimTxid: newPendingMassClaimTxid,
+          pendingConsolidateTxid: newPendingConsolidateTxid,
+        };
       } else {
         const newPendingSet = new Set([...pendingTxos, ...txids]);
-        return { ...state, pendingConsolidateTxos: Array.from(newPendingSet) };
+        return { ...state, pendingTxos: Array.from(newPendingSet) };
       }
     },
 
