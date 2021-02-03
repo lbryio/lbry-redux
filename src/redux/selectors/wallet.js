@@ -28,7 +28,7 @@ export const selectPendingSupportTransactions = createSelector(
 
 export const selectPendingOtherTransactions = createSelector(
   selectState,
-  state => state.pendingConsolidateTxos
+  state => state.pendingTxos
 );
 
 export const selectAbandonClaimSupportError = createSelector(
@@ -399,6 +399,16 @@ export const selectIsConsolidatingUtxos = createSelector(
 export const selectIsMassClaimingTips = createSelector(
   selectState,
   state => state.massClaimingTips
+);
+
+export const selectPendingConsolidateTxid = createSelector(
+  selectState,
+  state => state.pendingConsolidateTxid
+);
+
+export const selectPendingMassClaimTxid = createSelector(
+  selectState,
+  state => state.pendingMassClaimTxid
 );
 
 export const selectUtxoCounts = createSelector(

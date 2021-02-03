@@ -321,4 +321,6 @@ export {
   selectIsMassClaimingTips,
   selectUtxoCounts,
   selectPendingOtherTransactions,
+  selectPendingConsolidateTxid,
+  selectPendingMassClaimTxid,
 } from 'redux/selectors/wallet';
