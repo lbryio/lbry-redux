@@ -639,7 +639,6 @@ export const doCheckPendingTxs = () => (dispatch, getState) => {
         if (noLongerPendingConsolidate.includes(pendingConsTxid)) {
           dispatch(
             doToast({
-              title: __('Wallet Job'),
               message: __('Your wallet is finished consolidating'),
             })
           );
@@ -647,7 +646,6 @@ export const doCheckPendingTxs = () => (dispatch, getState) => {
         if (noLongerPendingConsolidate.includes(pendingMassCLaimTxid)) {
           dispatch(
             doToast({
-              title: __('Wallet Job'),
               message: __('Your tips have been collected'),
             })
           );
