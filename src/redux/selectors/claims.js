@@ -95,6 +95,12 @@ export const makeSelectClaimIsPending = (uri: string) =>
     }
   );
 
+export const makeSelectClaimIdForUri = (uri: string) =>
+  createSelector(
+    selectClaimIdsByUri,
+    claimIds => claimIds[uri]
+  );
+
 export const selectReflectingById = createSelector(
   selectState,
   state => state.reflectingById
@@ -531,6 +537,11 @@ export const selectFetchingMyChannels = createSelector(
   state => state.fetchingMyChannels
 );
 
+export const selectFetchingMyCollections = createSelector(
+  selectState,
+  state => state.fetchingMyCollections
+);
+
 export const selectMyChannelClaims = createSelector(
   selectState,
   selectClaimsById,
@@ -555,6 +566,11 @@ export const selectMyChannelClaims = createSelector(
 export const selectMyChannelUrls = createSelector(
   selectMyChannelClaims,
   claims => (claims ? claims.map(claim => claim.canonical_url || claim.permanent_url) : undefined)
+);
+
+export const selectMyCollectionIds = createSelector(
+  selectState,
+  state => state.myCollectionClaims
 );
 
 export const selectResolvingUris = createSelector(
@@ -917,3 +933,23 @@ export const makeSelectStakedLevelForChannelUri = (uri: string) =>
       return level;
     }
   );
+
+export const selectUpdatingCollection = createSelector(
+  selectState,
+  state => state.updatingCollection
+);
+
+export const selectUpdateCollectionError = createSelector(
+  selectState,
+  state => state.updateCollectionError
+);
+
+export const selectCreatingCollection = createSelector(
+  selectState,
+  state => state.creatingCollection
+);
+
+export const selectCreateCollectionError = createSelector(
+  selectState,
+  state => state.createCollectionError
+);

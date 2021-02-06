@@ -11,13 +11,20 @@ import {
   selectMyChannelClaims,
   selectPendingIds,
   selectClaimsById,
+  makeSelectClaimForClaimId,
 } from 'redux/selectors/claims';
+
 import { doFetchTxoPage } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { batchActions } from 'util/batch-actions';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { PAGE_SIZE } from 'constants/claim';
+import {
+  makeSelectEditedCollectionForId,
+  selectPendingCollections,
+} from 'redux/selectors/collections';
+import { doFetchItemsInCollection, doFetchItemsInCollections } from 'redux/actions/collections';
 
 type ResolveEntries = Array<[string, GenericClaim]>;
 
@@ -61,12 +68,16 @@ export function doResolveUris(
         stream: ?StreamClaim,
         channel: ?ChannelClaim,
         claimsInChannel: ?number,
+        collection: ?CollectionClaim,
       },
     } = {};
+
+    const collectionIds: Array<string> = [];
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
       async(result: ResolveResponse) => {
         let repostedResults = {};
+        const collectionClaimIdsToResolve = [];
         const repostsToResolve = [];
         const fallbackResolveInfo = {
           stream: null,
@@ -80,6 +91,7 @@ export function doResolveUris(
             // https://github.com/facebook/flow/issues/2221
             if (uriResolveInfo) {
               if (uriResolveInfo.error) {
+                // $FlowFixMe
                 resolveInfo[uri] = { ...fallbackResolveInfo };
               } else {
                 if (checkReposts) {
@@ -96,6 +108,10 @@ export function doResolveUris(
                   result.channel = uriResolveInfo;
                   // $FlowFixMe
                   result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+                } else if (uriResolveInfo.value_type === 'collection') {
+                  result.collection = uriResolveInfo;
+                  // $FlowFixMe
+                  collectionIds.push(uriResolveInfo.claim_id);
                 } else {
                   result.stream = uriResolveInfo;
                   if (uriResolveInfo.signing_channel) {
@@ -127,6 +143,13 @@ export function doResolveUris(
           type: ACTIONS.RESOLVE_URIS_COMPLETED,
           data: { resolveInfo },
         });
+
+        if (collectionIds.length) {
+          dispatch(doFetchItemsInCollections({ collectionIds: collectionIds, pageSize: 5 }));
+        }
+        // now collection claims are added, get their stuff
+        // if collections: doResolveCollections(claimIds)
+
         return result;
       }
     );
@@ -573,11 +596,43 @@ export function doFetchChannelListMine(
   };
 }
 
+export function doFetchCollectionListMine(page: number = 1, pageSize: number = 99999) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.FETCH_COLLECTION_LIST_STARTED,
+    });
+
+    const callback = (response: CollectionListResponse) => {
+      const { items } = response;
+      dispatch({
+        type: ACTIONS.FETCH_COLLECTION_LIST_COMPLETED,
+        data: { claims: items },
+      });
+      dispatch(
+        doFetchItemsInCollections({
+          collectionIds: items.map(claim => claim.claim_id),
+          page_size: 5,
+        })
+      );
+      // update or fetch collections?
+    };
+
+    const failure = error => {
+      dispatch({
+        type: ACTIONS.FETCH_COLLECTION_LIST_FAILED,
+        data: error,
+      });
+    };
+
+    Lbry.collection_list({ page, page_size: pageSize, resolve_claims: 1 }).then(callback, failure);
+  };
+}
+
 export function doClaimSearch(
   options: {
     page_size: number,
     page: number,
-    no_totals: boolean,
+    no_totals?: boolean,
     any_tags?: Array<string>,
     claim_ids?: Array<string>,
     channel_ids?: Array<string>,
@@ -618,7 +673,8 @@ export function doClaimSearch(
           pageSize: options.page_size,
         },
       });
-      return true;
+      // was return true
+      return resolveInfo;
     };
 
     const failure = err => {
@@ -675,6 +731,128 @@ export function doRepost(options: StreamRepostOptions) {
       }
 
       Lbry.stream_repost(options).then(success, failure);
+    });
+  };
+}
+
+export function doCollectionPublish(
+  options: {
+    name: string,
+    bid: string,
+    blocking: true,
+    title?: string,
+    channel_id?: string,
+    thumbnail_url?: string,
+    description?: string,
+    tags?: Array<string>,
+    languages?: Array<string>,
+    claims: Array<string>,
+  },
+  localId: string
+) {
+  return (dispatch: Dispatch) => {
+    // $FlowFixMe
+    return new Promise(resolve => {
+      dispatch({
+        type: ACTIONS.COLLECTION_PUBLISH_STARTED,
+      });
+
+      function success(response) {
+        const collectionClaim = response.outputs[0];
+        dispatch(
+          batchActions(
+            {
+              type: ACTIONS.COLLECTION_PUBLISH_COMPLETED,
+            },
+            // shift unpublished collection to pending collection with new publish id
+            // recent publish won't resolve this second. handle it in checkPending
+            {
+              type: ACTIONS.COLLECTION_PENDING,
+              data: { localId: localId, claimId: collectionClaim.claim_id },
+            },
+            {
+              type: ACTIONS.UPDATE_PENDING_CLAIMS,
+              data: {
+                claims: [collectionClaim],
+              },
+            }
+          )
+        );
+        dispatch(doCheckPendingClaims());
+        dispatch(doFetchCollectionListMine(1, 10));
+        resolve(collectionClaim);
+      }
+
+      function failure(error) {
+        dispatch({
+          type: ACTIONS.COLLECTION_PUBLISH_FAILED,
+          data: {
+            error: error.message,
+          },
+        });
+      }
+
+      Lbry.collection_create(options).then(success, failure);
+    });
+  };
+}
+
+export function doCollectionPublishUpdate(options: {
+  bid?: string,
+  blocking?: true,
+  title?: string,
+  thumbnail_url?: string,
+  description?: string,
+  claim_id: string,
+  tags?: Array<string>,
+  languages?: Array<string>,
+}) {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    // select claim forclaim_id
+    // get publish params from claim
+    // $FlowFixMe
+
+    const collectionClaim = makeSelectClaimForClaimId(options.claim_id)(state);
+    // TODO: add old claim entries to params
+    const editItems = makeSelectEditedCollectionForId(options.claim_id)(state);
+    const oldParams: CollectionUpdateParams = {
+      bid: collectionClaim.amount,
+    };
+    // $FlowFixMe
+    return new Promise(resolve => {
+      dispatch({
+        type: ACTIONS.COLLECTION_PUBLISH_UPDATE_STARTED,
+      });
+
+      function success(response) {
+        const collectionClaim = response.outputs[0];
+        dispatch({
+          type: ACTIONS.COLLECTION_PUBLISH_UPDATE_COMPLETED,
+          data: {
+            collectionClaim,
+          },
+        });
+        dispatch({
+          type: ACTIONS.UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [collectionClaim],
+          },
+        });
+        dispatch(doFetchCollectionListMine(1, 10));
+        resolve(collectionClaim);
+      }
+
+      function failure(error) {
+        dispatch({
+          type: ACTIONS.COLLECTION_PUBLISH_UPDATE_FAILED,
+          data: {
+            error: error.message,
+          },
+        });
+      }
+
+      Lbry.collection_update(options).then(success, failure);
     });
   };
 }
@@ -750,6 +928,7 @@ export const doCheckPendingClaims = (onConfirmed: Function) => (
   const checkClaimList = () => {
     const state = getState();
     const pendingIdSet = new Set(selectPendingIds(state));
+    const pendingCollections = selectPendingCollections(state);
     Lbry.claim_list({ page: 1, page_size: 10 })
       .then(result => {
         const claims = result.items;
@@ -758,6 +937,9 @@ export const doCheckPendingClaims = (onConfirmed: Function) => (
           const { claim_id: claimId } = claim;
           if (claim.confirmations > 0 && pendingIdSet.has(claimId)) {
             pendingIdSet.delete(claimId);
+            if (Object.keys(pendingCollections).includes(claim.claim_id)) {
+              dispatch(doFetchItemsInCollection({ collectionId: claim.claim_id }));
+            }
             claimsToConfirm.push(claim);
             if (onConfirmed) {
               onConfirmed(claim);

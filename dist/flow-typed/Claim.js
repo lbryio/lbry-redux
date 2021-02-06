@@ -1,9 +1,13 @@
 // @flow
 
-declare type Claim = StreamClaim | ChannelClaim;
+declare type Claim = StreamClaim | ChannelClaim | CollectionClaim;
 
 declare type ChannelClaim = GenericClaim & {
   value: ChannelMetadata,
+};
+
+declare type CollectionClaim = GenericClaim & {
+  value: CollectionMetadata,
 };
 
 declare type StreamClaim = GenericClaim & {
@@ -30,7 +34,7 @@ declare type GenericClaim = {
   short_url: string, // permanent_url with short id, no channel
   txid: string, // unique tx id
   type: 'claim' | 'update' | 'support',
-  value_type: 'stream' | 'channel',
+  value_type: 'stream' | 'channel' | 'collection',
   signing_channel?: ChannelClaim,
   reposted_claim?: GenericClaim,
   repost_channel_url?: string,
@@ -73,6 +77,10 @@ declare type ChannelMetadata = GenericMetadata & {
   website_url?: string,
   featured?: Array<string>,
 };
+
+declare type CollectionMetadata = GenericMetadata & {
+  claims: Array<string>,
+}
 
 declare type StreamMetadata = GenericMetadata & {
   license?: string, // License "title" ex: Creative Commons, Custom copyright
@@ -136,3 +144,71 @@ declare type PurchaseReceipt = {
   txid: string,
   type: 'purchase',
 };
+
+declare type ClaimActionResolveInfo = {
+  [string]: {
+    stream: ?StreamClaim,
+    channel: ?ChannelClaim,
+    claimsInChannel: ?number,
+    collection: ?CollectionClaim,
+  },
+}
+
+declare type ChannelUpdateParams = {
+  claim_id: string,
+  bid?: string,
+  title?: string,
+  cover_url?: string,
+  thumbnail_url?: string,
+  description?: string,
+  website_url?: string,
+  email?: string,
+  tags?: Array<string>,
+  replace?: boolean,
+  languages?: Array<string>,
+  locations?: Array<string>,
+  blocking?: boolean,
+}
+
+declare type ChannelPublishParams = {
+  name: string,
+  bid: string,
+  blocking?: true,
+  title?: string,
+  cover_url?: string,
+  thumbnail_url?: string,
+  description?: string,
+  website_url?: string,
+  email?: string,
+  tags?: Array<string>,
+  languages?: Array<string>,
+}
+
+declare type CollectionUpdateParams = {
+  claim_id: string,
+  claim_ids?: Array<string>,
+  bid?: string,
+  title?: string,
+  cover_url?: string,
+  thumbnail_url?: string,
+  description?: string,
+  website_url?: string,
+  email?: string,
+  tags?: Array<string>,
+  replace?: boolean,
+  languages?: Array<string>,
+  locations?: Array<string>,
+  blocking?: boolean,
+}
+
+declare type CollectionPublishParams = {
+  name: string,
+  bid: string,
+  claim_ids: Array<string>,
+  blocking?: true,
+  title?: string,
+  thumbnail_url?: string,
+  description?: string,
+  tags?: Array<string>,
+  languages?: Array<string>,
+}
