@@ -90,6 +90,7 @@ const Lbry: LbryTypes = {
   support_create: params => daemonCallWithResult('support_create', params),
   support_list: params => daemonCallWithResult('support_list', params),
   stream_repost: params => daemonCallWithResult('stream_repost', params),
+  collection_resolve: params => daemonCallWithResult('collection_resolve', params),
 
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),

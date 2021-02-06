@@ -57,6 +57,7 @@ export { buildSharedStateMiddleware } from 'redux/middleware/shared-state';
 
 // actions
 export { doToast, doDismissToast, doError, doDismissError } from 'redux/actions/notifications';
+export { doAddPlaylist, doResolveCollection, doUpdatePlaylist } from 'redux/actions/collections';
 
 export {
   doFetchClaimsByChannel,
@@ -140,11 +141,13 @@ export { fileInfoReducer } from 'redux/reducers/file_info';
 export { notificationsReducer } from 'redux/reducers/notifications';
 export { publishReducer } from 'redux/reducers/publish';
 export { walletReducer } from 'redux/reducers/wallet';
+export { collectionsReducer } from 'redux/reducers/collections';
 
 // selectors
 export { makeSelectContentPositionForUri } from 'redux/selectors/content';
 
 export { selectToast, selectError } from 'redux/selectors/notifications';
+export { selectMyPlaylists, selectResolvedPlaylists, makeSelectPlaylistForId, makeSelectUrlsForPlaylistId, makeSelectNameForPlaylistId } from 'redux/selectors/collections';
 
 export {
   makeSelectClaimForUri,
@@ -232,6 +235,7 @@ export {
   selectFetchingMyPurchasesError,
   selectMyPurchasesCount,
   selectPurchaseUriSuccess,
+  makeSelectClaimForClaimId,
 } from 'redux/selectors/claims';
 
 export {

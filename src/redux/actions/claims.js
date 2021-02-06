@@ -33,6 +33,7 @@ export function doResolveUris(
     const resolvingUris = selectResolvingUris(state);
     const claimsByUri = selectClaimsByUri(state);
     const urisToResolve = normalizedUris.filter(uri => {
+
       if (resolvingUris.includes(uri)) {
         return false;
       }
@@ -96,6 +97,8 @@ export function doResolveUris(
                   result.channel = uriResolveInfo;
                   // $FlowFixMe
                   result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+                } else if (uriResolveInfo.value_type === 'collection') {
+                  result.collection = uriResolveInfo;
                 } else {
                   result.stream = uriResolveInfo;
                   if (uriResolveInfo.signing_channel) {
@@ -665,6 +668,88 @@ export function doRepost(options: StreamRepostOptions) {
       }
 
       Lbry.stream_repost(options).then(success, failure);
+    });
+  };
+}
+
+export function doCollectionCreate(options: CollectionRepostOptions) {
+  return (dispatch: Dispatch) => {
+    // $FlowFixMe
+    return new Promise(resolve => {
+      dispatch({
+        type: ACTIONS.COLLECTION_CREATE_STARTED,
+      });
+
+      function success(response) {
+        const collectionClaim = response.outputs[0];
+        dispatch({
+          type: ACTIONS.COLLECTION_CREATE_COMPLETED,
+          data: {
+            collectionClaim,
+          },
+        });
+        dispatch({
+          type: ACTIONS.UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [collectionClaim],
+          },
+        });
+        // this only asks for streams and reposts right now
+        dispatch(doFetchClaimListMine(1, 10));
+        resolve(collectionClaim);
+      }
+
+      function failure(error) {
+        dispatch({
+          type: ACTIONS.COLLECTION_CREATE_FAILED,
+          data: {
+            error: error.message,
+          },
+        });
+      }
+
+      Lbry.collection_create(options).then(success, failure);
+    });
+  };
+}
+
+export function doCollectionUpdate(options: CollectionRepostOptions) {
+  return (dispatch: Dispatch) => {
+    // $FlowFixMe
+    return new Promise(resolve => {
+      dispatch({
+        type: ACTIONS.COLLECTION_CREATE_STARTED,
+      });
+
+      function success(response) {
+        const collectionClaim = response.outputs[0];
+        dispatch({
+          type: ACTIONS.COLLECTION_CREATE_COMPLETED,
+          data: {
+            collectionClaim,
+          },
+        });
+        dispatch({
+          type: ACTIONS.UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [collectionClaim],
+          },
+        });
+        // this only asks for streams and reposts right now
+        dispatch(doFetchClaimListMine(1, 10));
+        resolve(collectionClaim);
+      }
+
+      function failure(error) {
+        dispatch({
+          type: ACTIONS.COLLECTION_CREATE_FAILED,
+          data: {
+            error: error.message,
+          },
+        });
+      }
+
+      Lbry.collection_create(options).then(success, failure);
     });
   };
 }
