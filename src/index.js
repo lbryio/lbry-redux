@@ -12,6 +12,7 @@ import * as TXO_LIST from 'constants/txo_list';
 import * as SPEECH_URLS from 'constants/speech_urls';
 import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { DEFAULT_KNOWN_TAGS, DEFAULT_FOLLOWED_TAGS, MATURE_TAGS } from 'constants/tags';
 import Lbry, { apiCall } from 'lbry';
 import LbryFirst from 'lbry-first';
@@ -35,6 +36,7 @@ export {
   MATURE_TAGS,
   SPEECH_URLS,
   SHARED_PREFERENCES,
+  COLLECTIONS_CONSTS,
 };
 
 // common
@@ -57,6 +59,13 @@ export { buildSharedStateMiddleware } from 'redux/middleware/shared-state';
 
 // actions
 export { doToast, doDismissToast, doError, doDismissError } from 'redux/actions/notifications';
+export {
+  doLocalCollectionCreate,
+  doFetchItemsInCollection,
+  doFetchItemsInCollections,
+  doCollectionEdit,
+  doLocalCollectionDelete,
+} from 'redux/actions/collections';
 
 export {
   doFetchClaimsByChannel,
@@ -66,6 +75,7 @@ export {
   doResolveUris,
   doResolveUri,
   doFetchChannelListMine,
+  doFetchCollectionListMine,
   doCreateChannel,
   doUpdateChannel,
   doClaimSearch,
@@ -76,6 +86,8 @@ export {
   doCheckPublishNameAvailability,
   doPurchaseList,
   doCheckPendingClaims,
+  doCollectionPublish,
+  doCollectionPublishUpdate,
 } from 'redux/actions/claims';
 
 export { doClearPurchasedUriSuccess, doPurchaseUri, doFileGet } from 'redux/actions/file';
@@ -140,11 +152,34 @@ export { fileInfoReducer } from 'redux/reducers/file_info';
 export { notificationsReducer } from 'redux/reducers/notifications';
 export { publishReducer } from 'redux/reducers/publish';
 export { walletReducer } from 'redux/reducers/wallet';
+export { collectionsReducer } from 'redux/reducers/collections';
 
 // selectors
 export { makeSelectContentPositionForUri } from 'redux/selectors/content';
 
 export { selectToast, selectError } from 'redux/selectors/notifications';
+export {
+  selectSavedCollectionIds,
+  selectBuiltinCollections,
+  selectResolvedCollections,
+  selectMyUnpublishedCollections,
+  selectMyEditedCollections,
+  selectMyPublishedCollections,
+  selectMyPublishedMixedCollections,
+  selectMyPublishedPlaylistCollections,
+  makeSelectEditedCollectionForId,
+  makeSelectPendingCollectionForId,
+  makeSelectPublishedCollectionForId,
+  makeSelectCollectionIsMine,
+  makeSelectMyPublishedCollectionForId,
+  makeSelectUnpublishedCollectionForId,
+  makeSelectCollectionForId,
+  makeSelectUrlsForCollectionId,
+  makeSelectClaimIdsForCollectionId,
+  makeSelectNameForCollectionId,
+  makeSelectIsResolvingCollectionForId,
+  makeSelectNextUrlForCollection,
+} from 'redux/selectors/collections';
 
 export {
   makeSelectClaimForUri,
@@ -209,6 +244,8 @@ export {
   selectAllMyClaimsByOutpoint,
   selectMyClaimsOutpoints,
   selectFetchingMyChannels,
+  selectFetchingMyCollections,
+  selectMyCollectionIds,
   selectMyChannelClaims,
   selectResolvingUris,
   selectPlayingUri,
@@ -237,6 +274,11 @@ export {
   selectFetchingMyPurchasesError,
   selectMyPurchasesCount,
   selectPurchaseUriSuccess,
+  makeSelectClaimIdForUri,
+  selectUpdatingCollection,
+  selectUpdateCollectionError,
+  selectCreatingCollection,
+  selectCreateCollectionError,
 } from 'redux/selectors/claims';
 
 export {

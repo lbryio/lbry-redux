@@ -170,6 +170,37 @@ declare type ChannelSignResponse = {
   signing_ts: string,
 };
 
+declare type CollectionCreateResponse = {
+  outputs: Array<Claim>,
+  page: number,
+  page_size: number,
+  total_items: number,
+  total_pages: number,
+}
+
+declare type CollectionListResponse = {
+  items: Array<Claim>,
+  page: number,
+  page_size: number,
+  total_items: number,
+  total_pages: number,
+};
+
+declare type CollectionResolveResponse = {
+  items: Array<Claim>,
+  total_items: number,
+};
+
+declare type CollectionResolveOptions = {
+  claim_id: string,
+};
+
+declare type CollectionListOptions = {
+  page: number,
+  page_size: number,
+  resolve?: boolean,
+};
+
 declare type FileListResponse = {
   items: Array<FileListItem>,
   page: number,
@@ -288,6 +319,10 @@ declare type LbryTypes = {
   support_abandon: (params: {}) => Promise<SupportAbandonResponse>,
   stream_repost: (params: StreamRepostOptions) => Promise<StreamRepostResponse>,
   purchase_list: (params: PurchaseListOptions) => Promise<PurchaseListResponse>,
+  collection_resolve: (params: CollectionResolveOptions) => Promise<CollectionResolveResponse>,
+  collection_list: (params: CollectionListOptions) => Promise<CollectionListResponse>,
+  collection_create: (params: {}) => Promise<CollectionCreateResponse>,
+  collection_update: (params: {}) => Promise<CollectionCreateResponse>,
 
   // File fetching and manipulation
   file_list: (params: {}) => Promise<FileListResponse>,

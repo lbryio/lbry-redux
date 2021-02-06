@@ -13,6 +13,9 @@ type SharedData = {
     settings?: any,
     app_welcome_version?: number,
     sharing_3P?: boolean,
+    unpublishedCollectionTest: CollectionGroup,
+    builtinCollectionTest: CollectionGroup,
+    savedCollectionTest: Array<string>,
   },
 };
 
@@ -27,6 +30,9 @@ function extractUserState(rawObj: SharedData) {
       settings,
       app_welcome_version,
       sharing_3P,
+      unpublishedCollectionTest,
+      builtinCollectionTest,
+      savedCollectionTest,
     } = rawObj.value;
 
     return {
@@ -38,6 +44,9 @@ function extractUserState(rawObj: SharedData) {
       ...(settings ? { settings } : {}),
       ...(app_welcome_version ? { app_welcome_version } : {}),
       ...(sharing_3P ? { sharing_3P } : {}),
+      ...(unpublishedCollectionTest ? { unpublishedCollectionTest } : {}),
+      ...(builtinCollectionTest ? { builtinCollectionTest } : {}),
+      ...(savedCollectionTest ? { savedCollectionTest } : {}),
     };
   }
 
@@ -55,6 +64,9 @@ export function doPopulateSharedUserState(sharedSettings: any) {
       settings,
       app_welcome_version,
       sharing_3P,
+      unpublishedCollectionTest,
+      builtinCollectionTest,
+      savedCollectionTest,
     } = extractUserState(sharedSettings);
     dispatch({
       type: ACTIONS.USER_STATE_POPULATE,
@@ -67,6 +79,9 @@ export function doPopulateSharedUserState(sharedSettings: any) {
         settings,
         welcomeVersion: app_welcome_version,
         allowAnalytics: sharing_3P,
+        unpublishedCollectionTest,
+        builtinCollectionTest,
+        savedCollectionTest,
       },
     });
   };

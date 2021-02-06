@@ -13,6 +13,7 @@ import mergeClaim from 'util/merge-claim';
 
 type State = {
   createChannelError: ?string,
+  createCollectionError: ?string,
   channelClaimCounts: { [string]: number },
   claimsByUri: { [string]: string },
   byId: { [string]: Claim },
@@ -21,9 +22,11 @@ type State = {
   reflectingById: { [string]: ReflectingUpdate },
   myClaims: ?Array<string>,
   myChannelClaims: ?Array<string>,
+  myCollectionClaims: ?Array<string>,
   abandoningById: { [string]: boolean },
   fetchingChannelClaims: { [string]: number },
   fetchingMyChannels: boolean,
+  fetchingMyCollections: boolean,
   fetchingClaimSearchByQuery: { [string]: boolean },
   purchaseUriSuccess: boolean,
   myPurchases: ?Array<string>,
@@ -34,6 +37,7 @@ type State = {
   claimSearchByQuery: { [string]: Array<string> },
   claimSearchByQueryLastPageReached: { [string]: Array<boolean> },
   creatingChannel: boolean,
+  creatingCollection: boolean,
   paginatedClaimsByChannel: {
     [string]: {
       all: Array<string>,
@@ -43,7 +47,9 @@ type State = {
     },
   },
   updateChannelError: ?string,
+  updateCollectionError: ?string,
   updatingChannel: boolean,
+  updatingCollection: boolean,
   pendingChannelImport: string | boolean,
   repostLoading: boolean,
   repostError: ?string,
@@ -66,6 +72,7 @@ const defaultState = {
   fetchingChannelClaims: {},
   resolvingUris: [],
   myChannelClaims: undefined,
+  myCollectionClaims: [],
   myClaims: undefined,
   myPurchases: undefined,
   myPurchasesPageNumber: undefined,
@@ -74,6 +81,7 @@ const defaultState = {
   fetchingMyPurchases: false,
   fetchingMyPurchasesError: undefined,
   fetchingMyChannels: false,
+  fetchingMyCollections: false,
   abandoningById: {},
   pendingIds: [],
   reflectingById: {},
@@ -82,9 +90,13 @@ const defaultState = {
   claimSearchByQueryLastPageReached: {},
   fetchingClaimSearchByQuery: {},
   updateChannelError: '',
+  updateCollectionError: '',
   updatingChannel: false,
   creatingChannel: false,
   createChannelError: undefined,
+  updatingCollection: false,
+  creatingCollection: false,
+  createCollectionError: undefined,
   pendingChannelImport: false,
   repostLoading: false,
   repostError: undefined,
@@ -100,15 +112,7 @@ const defaultState = {
 };
 
 function handleClaimAction(state: State, action: any): State {
-  const {
-    resolveInfo,
-  }: {
-    [string]: {
-      stream: ?StreamClaim,
-      channel: ?ChannelClaim,
-      claimsInChannel: ?number,
-    },
-  } = action.data;
+  const { resolveInfo }: ClaimActionResolveInfo = action.data;
 
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
@@ -119,7 +123,7 @@ function handleClaimAction(state: State, action: any): State {
 
   Object.entries(resolveInfo).forEach(([url: string, resolveResponse: ResolveResponse]) => {
     // $FlowFixMe
-    const { claimsInChannel, stream, channel: channelFromResolve } = resolveResponse;
+    const { claimsInChannel, stream, channel: channelFromResolve, collection } = resolveResponse;
     const channel = channelFromResolve || (stream && stream.signing_channel);
 
     if (stream) {
@@ -165,8 +169,29 @@ function handleClaimAction(state: State, action: any): State {
       newResolvingUrls.delete(channel.permanent_url);
     }
 
+    if (collection) {
+      if (pendingIds.includes(collection.claim_id)) {
+        byId[collection.claim_id] = mergeClaim(collection, byId[collection.claim_id]);
+      } else {
+        byId[collection.claim_id] = collection;
+      }
+      byUri[url] = collection.claim_id;
+
+      // If url isn't a canonical_url, make sure that is added too
+      byUri[collection.canonical_url] = collection.claim_id;
+
+      // Also add the permanent_url here until lighthouse returns canonical_url for search results
+      byUri[collection.permanent_url] = collection.claim_id;
+      newResolvingUrls.delete(collection.canonical_url);
+      newResolvingUrls.delete(collection.permanent_url);
+
+      if (collection.is_my_output) {
+        myClaimIds.add(collection.claim_id);
+      }
+    }
+
     newResolvingUrls.delete(url);
-    if (!stream && !channel && !pendingIds.includes(byUri[url])) {
+    if (!stream && !channel && !collection && !pendingIds.includes(byUri[url])) {
       byUri[url] = null;
     }
   });
@@ -304,6 +329,57 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_FAILED] = (state: State, action: any): State
   return Object.assign({}, state, {
     fetchingMyChannels: false,
   });
+};
+
+reducers[ACTIONS.FETCH_COLLECTION_LIST_STARTED] = (state: State): State => ({
+  ...state,
+  fetchingMyCollections: true,
+});
+
+reducers[ACTIONS.FETCH_COLLECTION_LIST_COMPLETED] = (state: State, action: any): State => {
+  const { claims }: { claims: Array<CollectionClaim> } = action.data;
+  const myClaims = state.myClaims || [];
+  let myClaimIds = new Set(myClaims);
+  const pendingIds = state.pendingIds || [];
+  let myCollectionClaims;
+  const byId = Object.assign({}, state.byId);
+  const byUri = Object.assign({}, state.claimsByUri);
+
+  if (!claims.length) {
+    // $FlowFixMe
+    myCollectionClaims = null;
+  } else {
+    myCollectionClaims = new Set(state.myCollectionClaims);
+    claims.forEach(claim => {
+      const { meta } = claim;
+      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId } = claim;
+      // maybe add info about items in collection
+
+      byUri[canonicalUrl] = claimId;
+      byUri[permanentUrl] = claimId;
+
+      // $FlowFixMe
+      myCollectionClaims.add(claimId);
+      // we don't want to overwrite a pending result with a resolve
+      if (!pendingIds.some(c => c === claimId)) {
+        byId[claimId] = claim;
+      }
+      myClaimIds.add(claimId);
+    });
+  }
+
+  return {
+    ...state,
+    byId,
+    claimsByUri: byUri,
+    fetchingMyCollections: false,
+    myCollectionClaims: myCollectionClaims ? Array.from(myCollectionClaims) : null,
+    myClaims: myClaimIds ? Array.from(myClaimIds) : null,
+  };
+};
+
+reducers[ACTIONS.FETCH_COLLECTION_LIST_FAILED] = (state: State): State => {
+  return { ...state, fetchingMyCollections: false };
 };
 
 reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED] = (state: State, action: any): State => {
@@ -519,6 +595,54 @@ reducers[ACTIONS.UPDATE_CHANNEL_FAILED] = (state: State, action: any): State => 
     updatingChannel: false,
   });
 };
+
+reducers[ACTIONS.CLEAR_COLLECTION_ERRORS] = (state: State): State => ({
+  ...state,
+  createCollectionError: null,
+  updateCollectionError: null,
+});
+
+reducers[ACTIONS.COLLECTION_PUBLISH_STARTED] = (state: State): State => ({
+  ...state,
+  creatingCollection: true,
+  createCollectionError: null,
+});
+
+reducers[ACTIONS.COLLECTION_PUBLISH_COMPLETED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    creatingCollection: false,
+  });
+};
+
+reducers[ACTIONS.COLLECTION_PUBLISH_FAILED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    creatingCollection: false,
+    createCollectionError: action.data.error,
+  });
+};
+
+reducers[ACTIONS.COLLECTION_PUBLISH_UPDATE_STARTED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    updateCollectionError: '',
+    updatingCollection: true,
+  });
+};
+
+reducers[ACTIONS.COLLECTION_PUBLISH_UPDATE_COMPLETED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    updateCollectionError: '',
+    updatingCollection: false,
+  });
+};
+
+reducers[ACTIONS.COLLECTION_PUBLISH_UPDATE_FAILED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    updateCollectionError: action.data.error,
+    updatingCollection: false,
+  });
+};
+
+// COLLECTION_PUBLISH_ABANDON_...
 
 reducers[ACTIONS.IMPORT_CHANNEL_STARTED] = (state: State): State =>
   Object.assign({}, state, { pendingChannelImports: true });
