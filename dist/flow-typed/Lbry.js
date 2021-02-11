@@ -137,8 +137,8 @@ declare type CommentListResponse = {
 
 declare type MyReactions = {
   // Keys are the commentId
-  [string]: Array<string>
-}
+  [string]: Array<string>,
+};
 
 declare type OthersReactions = {
   // Keys are the commentId
@@ -146,12 +146,12 @@ declare type OthersReactions = {
     // Keys are the reaction_type, e.g. 'like'
     [string]: number,
   },
-}
+};
 
 declare type CommentReactListResponse = {
   my_reactions: Array<MyReactions>,
   others_reactions: Array<OthersReactions>,
-}
+};
 
 declare type CommentHideResponse = {
   // keyed by the CommentIds entered
@@ -174,6 +174,11 @@ declare type ChannelListResponse = {
   page_size: number,
   total_items: number,
   total_pages: number,
+};
+
+declare type ChannelSignResponse = {
+  signature: string,
+  signing_ts: string,
 };
 
 declare type FileListResponse = {
@@ -285,6 +290,7 @@ declare type LbryTypes = {
   channel_update: (params: {}) => Promise<ChannelUpdateResponse>,
   channel_import: (params: {}) => Promise<string>,
   channel_list: (params: {}) => Promise<ChannelListResponse>,
+  channel_sign: (params: {}) => Promise<ChannelSignResponse>,
   stream_abandon: (params: {}) => Promise<GenericTxResponse>,
   stream_list: (params: {}) => Promise<StreamListResponse>,
   channel_abandon: (params: {}) => Promise<GenericTxResponse>,

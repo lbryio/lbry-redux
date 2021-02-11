@@ -1070,6 +1070,7 @@ const Lbry = {
   stream_abandon: params => daemonCallWithResult('stream_abandon', params),
   stream_list: params => daemonCallWithResult('stream_list', params),
   channel_abandon: params => daemonCallWithResult('channel_abandon', params),
+  channel_sign: params => daemonCallWithResult('channel_sign', params),
   support_create: params => daemonCallWithResult('support_create', params),
   support_list: params => daemonCallWithResult('support_list', params),
   stream_repost: params => daemonCallWithResult('stream_repost', params),

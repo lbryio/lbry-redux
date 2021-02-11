@@ -10,6 +10,7 @@ import {
   selectClaimsByUri,
   selectMyChannelClaims,
   selectPendingIds,
+  selectClaimsById,
 } from 'redux/selectors/claims';
 import { doFetchTxoPage } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
@@ -64,7 +65,7 @@ export function doResolveUris(
     } = {};
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
-      async(result: ResolveResponse) => {
+      async (result: ResolveResponse) => {
         let repostedResults = {};
         const repostsToResolve = [];
         const fallbackResolveInfo = {
