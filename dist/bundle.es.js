@@ -1531,6 +1531,18 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition', 'startTime']);
   const { claimId, claimName, contentName } = deprecatedParts;
 
+  {
+    if (claimId) {
+      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
+    }
+    if (claimName) {
+      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
+    }
+    if (contentName) {
+      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
+    }
+  }
+
   if (!claimName && !channelName && !streamName) {
     console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
   }
@@ -4599,6 +4611,7 @@ const doPrepareEdit = (claim, uri, fileInfo, fs) => dispatch => {
       currency: 'LBC'
     },
     languages,
+    release_time,
     license,
     license_url: licenseUrl,
     thumbnail,
@@ -4614,6 +4627,7 @@ const doPrepareEdit = (claim, uri, fileInfo, fs) => dispatch => {
     description,
     fee,
     languages,
+    release_time: release_time ? Number(release_time) * 1000 : undefined,
     thumbnail: thumbnail ? thumbnail.url : null,
     title,
     uri,
@@ -4664,6 +4678,7 @@ const doPublish = (success, fail, preview) => (dispatch, getState) => {
     filePath,
     description,
     language,
+    release_time,
     license,
     licenseUrl,
     useLBRYUploader,
@@ -4731,7 +4746,9 @@ const doPublish = (success, fail, preview) => (dispatch, getState) => {
   }
 
   // Set release time to curret date. On edits, keep original release/transaction time as release_time
-  if (myClaimForUriEditing && myClaimForUriEditing.value.release_time) {
+  if (release_time) {
+    publishPayload.release_time = Number(Math.round(new Date(release_time) / 1000));
+  } else if (myClaimForUriEditing && myClaimForUriEditing.value.release_time) {
     publishPayload.release_time = Number(myClaimForUri.value.release_time);
   } else if (myClaimForUriEditing && myClaimForUriEditing.timestamp) {
     publishPayload.release_time = Number(myClaimForUriEditing.timestamp);
@@ -5903,6 +5920,7 @@ const defaultState$4 = {
   uploadThumbnailStatus: API_DOWN,
   description: '',
   language: '',
+  release_time: undefined,
   nsfw: false,
   channel: CHANNEL_ANONYMOUS,
   channelId: '',
