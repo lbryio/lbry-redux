@@ -523,6 +523,11 @@ export const selectFetchingMyChannels = createSelector(
   state => state.fetchingMyChannels
 );
 
+export const selectFetchingMyCollections = createSelector(
+  selectState,
+  state => state.fetchingMyCollections
+);
+
 export const selectMyChannelClaims = createSelector(
   selectState,
   selectClaimsById,
@@ -547,6 +552,11 @@ export const selectMyChannelClaims = createSelector(
 export const selectMyChannelUrls = createSelector(
   selectMyChannelClaims,
   claims => (claims ? claims.map(claim => claim.canonical_url || claim.permanent_url) : undefined)
+);
+
+export const selectMyCollectionIds = createSelector(
+  selectState,
+  state => state.myCollectionClaims
 );
 
 export const selectResolvingUris = createSelector(

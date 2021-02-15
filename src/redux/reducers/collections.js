@@ -2,92 +2,68 @@
 import { handleActions } from 'util/redux-utils';
 import * as ACTIONS from 'constants/action_types';
 
-type PlaylistItem = {
-  url: string,
-  leftOff: number,
-  added?: number,
-  claimId: string,
+const getTimestamp = () => {
+  return Math.floor(Date.now() / 1000);
 };
 
-type Playlist = {
-  items: Array<PlaylistItem>,
-  name: string,
-  createdAt: number,
-  updatedAt: number,
-  collectionClaimId: ?string,
-  builtin: boolean,
-};
-
-type PlaylistState = {
-  myListsById: { [string]: Playlist },
-  resolvedListsById: { [string]: Playlist },
-  isResolvingCollection: boolean,
-  collectionIdsToResolve: Array<string>, // given an Id, search if necessary, then get all the items
-  error: string,
-};
-// find some way to store resolved pl={url} collection playlists that are not saved
-// find some way to copy url collection playlists to saved/sidebar playlists
-
-// I need a place for my published lists
-// I need a place for my unpublished lists (watch later, etc)
-// I need a place for resolved lists
-const defaultState: PlaylistState = {
-  myListsById: {
+const defaultState: CollectionState = {
+  builtin: {
     watchlater: {
-      items: [{ url: 'lbry://@seriously#5/seriouspublish#c'}],
+      items: [
+        {
+          url: 'lbry://@seriously#5/seriouspublish#c',
+          claimId: 'c1b740eb88f96b465f65e5f1542564539df1c62e',
+        },
+      ],
       id: 'watchlater',
       name: 'Watch Later',
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      collectionClaimId: null,
-      builtin: true,
+      updatedAt: getTimestamp(),
+      type: 'stream',
     },
     favorites: {
       items: [
-        { url: 'lbry://@seriously#5/seriouspublish#c'},
-        { url: 'lbry://@JIGGYTOM#4/niece#a'},
-        { url: 'lbry://@Karmakut#7/my-new-favorite-vehicle-in-squad-ft#4'},
+        {
+          url: 'lbry://@seriously#5/seriouspublish#c',
+          claimId: 'c1b740eb88f96b465f65e5f1542564539df1c62e',
+        },
       ],
-      id: 'favorites',
+      id: 'favoritestreams',
       name: 'Favorites',
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      collectionClaimId: null,
-      builtin: true,
+      type: 'stream',
+      updatedAt: getTimestamp(),
     },
   },
-  resolvedListsById:{
-
-  },
+  resolved: {},
+  unpublished: {},
+  saved: [],
+  mine: [],
+  isResolvingCollectionById: [],
   error: null,
 };
 
 const collectionsReducer = handleActions(
   {
     [ACTIONS.PLAYLIST_CREATE]: (state, action) => {
-      const { saved, entry: params } = action.data; // { id:, items: Array<any>}
+      const { entry: params } = action.data; // { id:, items: Array<any>}
       const newListTemplate = {
         id: params.id,
         name: params.name,
         items: [],
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        collectionClaimId: null,
-        builtin: false,
+        updatedAt: getTimestamp(),
       };
 
       const newList = Object.assign({}, newListTemplate, { ...params });
-      const { myListsById: lists } = state;
+      const { unpublished: lists } = state;
       const newLists = Object.assign({}, lists, { [params.id]: newList });
 
       return {
         ...state,
-        myListsById: newLists,
+        unpublished: newLists,
       };
     },
 
     [ACTIONS.PLAYLIST_DELETE]: (state, action) => {
-      const { myListsById: lists } = state;
+      const { unpublished: lists } = state;
       const { name } = action.data;
       if (lists && lists[name] && lists[name].userList) {
         delete lists[name];
@@ -98,57 +74,68 @@ const collectionsReducer = handleActions(
     },
 
     [ACTIONS.PLAYLIST_UPDATE]: (state, action) => {
-      const { myListsById: lists } = state;
+      const { unpublished: lists } = state;
       const newLists = Object.assign({}, lists);
-
       const { id, playlist } = action.data;
       newLists[id] = playlist;
-      newLists[id]['updatedAt'] = Date.now();
+      newLists[id]['updatedAt'] = getTimestamp();
 
       return {
         ...state,
-        myListsById: newLists,
+        unpublished: newLists,
       };
     },
     [ACTIONS.PLAYLIST_ERROR]: (state, action) => {
-
       return Object.assign({}, state, {
         error: action.data.message,
       });
     },
-    [ACTIONS.COLLECTION_RESOLVE_STARTED]: (state) => {
+
+    [ACTIONS.COLLECTION_RESOLVE_STARTED]: (state, action) => {
+      const { ids } = action.data;
+      const { isResolvingCollectionById } = state;
+      const newResolving = isResolvingCollectionById.concat();
+      ids.forEach(id => {
+        newResolving.push(id);
+      });
       return Object.assign({}, state, {
         ...state,
         error: '',
-        isResolvingCollection: true, //add id
+        isResolvingCollectionById: newResolving,
       });
     },
+    // [ACTIONS.USER_STATE_POPULATE]: (
+    //   state,
+    //   action
+    // ) => {
+    //   const { collectionTest } = action.data;
+    //   // do something about checking timestamps and merging
+    //   return {
+    //     ...state,
+    //     unpublished: collectionTest || state.unpublished,
+    //
+    //   };
+    // },
     [ACTIONS.COLLECTION_RESOLVE_COMPLETED]: (state, action) => {
-      const { entry: params } = action.data;
-
-      const newList = {
-        id: params.id,
-        name: params.name,
-        items: params.items,
-        createdAt: params.createdAt,
-        updatedAt: params.updatedAt,
-        builtin: false,
-      };
-
-      const { resolvedListsById: lists } = state;
-      const newLists = Object.assign({}, lists, { [params.id]: newList });
-
+      const { resolvedCollections, entry: params, id } = action.data;
+      const resolvedIds = Object.keys(resolvedCollections);
+      const { isResolvingCollectionById, resolved: lists } = state;
+      const newResolving = isResolvingCollectionById.filter(i => resolvedIds.includes(id));
+      const newLists = Object.assign({}, lists, resolvedCollections);
 
       return Object.assign({}, state, {
         ...state,
-        resolvedListsById: newLists,
-        isResolvingCollection: false, // add id
+        resolved: newLists,
+        isResolvingCollectionById: newResolving,
       });
     },
     [ACTIONS.COLLECTION_RESOLVE_FAILED]: (state, action) => {
+      const { id } = action.data;
+      const { isResolvingCollectionById } = state;
+      const newResolving = isResolvingCollectionById.filter(i => i !== id);
       return Object.assign({}, state, {
         ...state,
-        isResolvingCollection: false,
+        isResolvingCollectionById: newResolving,
         error: action.data.message,
       });
     },

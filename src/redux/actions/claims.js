@@ -33,7 +33,6 @@ export function doResolveUris(
     const resolvingUris = selectResolvingUris(state);
     const claimsByUri = selectClaimsByUri(state);
     const urisToResolve = normalizedUris.filter(uri => {
-
       if (resolvingUris.includes(uri)) {
         return false;
       }
@@ -62,12 +61,14 @@ export function doResolveUris(
         stream: ?StreamClaim,
         channel: ?ChannelClaim,
         claimsInChannel: ?number,
+        collection: ?CollectionClaim,
       },
     } = {};
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
       async(result: ResolveResponse) => {
         let repostedResults = {};
+        const collectionClaimIdsToResolve = [];
         const repostsToResolve = [];
         const fallbackResolveInfo = {
           stream: null,
@@ -81,6 +82,7 @@ export function doResolveUris(
             // https://github.com/facebook/flow/issues/2221
             if (uriResolveInfo) {
               if (uriResolveInfo.error) {
+                // $FlowFixMe
                 resolveInfo[uri] = { ...fallbackResolveInfo };
               } else {
                 if (checkReposts) {
@@ -130,6 +132,9 @@ export function doResolveUris(
           type: ACTIONS.RESOLVE_URIS_COMPLETED,
           data: { resolveInfo },
         });
+        // now collection claims are added, get their stuff
+        // if collections: doResolveCollections(claimIds)
+
         return result;
       }
     );
@@ -570,11 +575,41 @@ export function doFetchChannelListMine(
   };
 }
 
+export function doFetchCollectionListMine(
+  page: number = 1,
+  pageSize: number = 99999,
+  resolve: boolean = true
+) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.FETCH_COLLECTION_LIST_STARTED,
+    });
+
+    const callback = (response: CollectionListResponse) => {
+      const { items } = response;
+      dispatch({
+        type: ACTIONS.FETCH_COLLECTION_LIST_COMPLETED,
+        data: { claims: items },
+      });
+    };
+
+    const failure = error => {
+      dispatch({
+        type: ACTIONS.FETCH_COLLECTION_LIST_FAILED,
+        data: error,
+      });
+    };
+
+    Lbry.collection_list({ page, page_size: pageSize, resolve }).then(callback, failure);
+  };
+}
+
+// wanted to async this :(
 export function doClaimSearch(
   options: {
     page_size: number,
     page: number,
-    no_totals: boolean,
+    no_totals?: boolean,
     any_tags?: Array<string>,
     claim_ids?: Array<string>,
     channel_ids?: Array<string>,
@@ -672,7 +707,19 @@ export function doRepost(options: StreamRepostOptions) {
   };
 }
 
-export function doCollectionCreate(options: CollectionRepostOptions) {
+export function doCollectionCreate(options: {
+  name: string,
+  bid: string,
+  blocking: true,
+  title?: string,
+  cover_url?: string,
+  thumbnail_url?: string,
+  description?: string,
+  website_url?: string,
+  email?: string,
+  tags?: Array<string>,
+  languages?: Array<string>,
+}) {
   return (dispatch: Dispatch) => {
     // $FlowFixMe
     return new Promise(resolve => {
@@ -713,7 +760,20 @@ export function doCollectionCreate(options: CollectionRepostOptions) {
   };
 }
 
-export function doCollectionUpdate(options: CollectionRepostOptions) {
+export function doCollectionUpdate(options: {
+  name: string,
+  bid: string,
+  blocking: true,
+  title?: string,
+  cover_url?: string,
+  thumbnail_url?: string,
+  description?: string,
+  website_url?: string,
+  claim_id: string,
+  email?: string,
+  tags?: Array<string>,
+  languages?: Array<string>,
+}) {
   return (dispatch: Dispatch) => {
     // $FlowFixMe
     return new Promise(resolve => {

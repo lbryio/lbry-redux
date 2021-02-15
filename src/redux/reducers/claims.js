@@ -21,9 +21,11 @@ type State = {
   reflectingById: { [string]: ReflectingUpdate },
   myClaims: ?Array<string>,
   myChannelClaims: ?Array<string>,
+  myCollectionClaims: ?Array<string>,
   abandoningById: { [string]: boolean },
   fetchingChannelClaims: { [string]: number },
   fetchingMyChannels: boolean,
+  fetchingMyCollections: boolean,
   fetchingClaimSearchByQuery: { [string]: boolean },
   purchaseUriSuccess: boolean,
   myPurchases: ?Array<string>,
@@ -66,6 +68,7 @@ const defaultState = {
   fetchingChannelClaims: {},
   resolvingUris: [],
   myChannelClaims: undefined,
+  myCollectionClaims: undefined,
   myClaims: undefined,
   myPurchases: undefined,
   myPurchasesPageNumber: undefined,
@@ -74,6 +77,7 @@ const defaultState = {
   fetchingMyPurchases: false,
   fetchingMyPurchasesError: undefined,
   fetchingMyChannels: false,
+  fetchingMyCollections: false,
   abandoningById: {},
   pendingIds: [],
   reflectingById: {},
@@ -167,11 +171,28 @@ function handleClaimAction(state: State, action: any): State {
     }
 
     if (collection) {
+      if (pendingIds.includes(collection.claim_id)) {
+        byId[collection.claim_id] = mergeClaim(collection, byId[collection.claim_id]);
+      } else {
+        byId[collection.claim_id] = collection;
+      }
+      byUri[url] = collection.claim_id;
 
+      // If url isn't a canonical_url, make sure that is added too
+      byUri[collection.canonical_url] = collection.claim_id;
+
+      // Also add the permanent_url here until lighthouse returns canonical_url for search results
+      byUri[collection.permanent_url] = collection.claim_id;
+      newResolvingUrls.delete(collection.canonical_url);
+      newResolvingUrls.delete(collection.permanent_url);
+
+      if (collection.is_my_output) {
+        myClaimIds.add(collection.claim_id);
+      }
     }
 
     newResolvingUrls.delete(url);
-    if (!stream && !channel && !pendingIds.includes(byUri[url])) {
+    if (!stream && !channel && !collection && !pendingIds.includes(byUri[url])) {
       byUri[url] = null;
     }
   });
@@ -308,6 +329,55 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
 reducers[ACTIONS.FETCH_CHANNEL_LIST_FAILED] = (state: State, action: any): State => {
   return Object.assign({}, state, {
     fetchingMyChannels: false,
+  });
+};
+
+reducers[ACTIONS.FETCH_COLLECTION_LIST_STARTED] = (state: State): State =>
+  Object.assign({}, state, { fetchingMyCollections: true });
+
+reducers[ACTIONS.FETCH_COLLECTION_LIST_COMPLETED] = (state: State, action: any): State => {
+  const { claims }: { claims: Array<ChannelClaim> } = action.data;
+  const myClaims = state.myClaims || [];
+  let myClaimIds = new Set(state.myClaims);
+  const pendingIds = state.pendingIds || [];
+  let myCollectionClaims;
+  const byId = Object.assign({}, state.byId);
+  const byUri = Object.assign({}, state.claimsByUri);
+
+  if (!claims.length) {
+    // $FlowFixMe
+    myCollectionClaims = null;
+  } else {
+    myCollectionClaims = new Set(state.myCollectionClaims);
+    claims.forEach(claim => {
+      const { meta } = claim;
+      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId } = claim;
+      // maybe add info about items in collection
+
+      byUri[canonicalUrl] = claimId;
+      byUri[permanentUrl] = claimId;
+
+      // $FlowFixMe
+      myCollectionClaims.add(claimId);
+      if (!pendingIds.some(c => c === claimId)) {
+        byId[claimId] = claim;
+      }
+      myClaimIds.add(claimId);
+    });
+  }
+
+  return Object.assign({}, state, {
+    byId,
+    claimsByUri: byUri,
+    fetchingMyCollections: false,
+    myCollectionClaims: myCollectionClaims ? Array.from(myCollectionClaims) : null,
+    myClaims: myClaimIds ? Array.from(myClaimIds) : null,
+  });
+};
+
+reducers[ACTIONS.FETCH_COLLECTION_LIST_FAILED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    fetchingMyCollections: false,
   });
 };
 
@@ -571,6 +641,8 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State =>
     fetchingClaimSearchByQuery,
   });
 };
+
+// COLLECTION_RESOLVE_COMPLETED: ...handleClaimAction(state, action)
 
 reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State, action: any): State => {
   const { query } = action.data;

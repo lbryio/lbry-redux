@@ -6,6 +6,10 @@ declare type ChannelClaim = GenericClaim & {
   value: ChannelMetadata,
 };
 
+declare type CollectionClaim = GenericClaim & {
+  value: CollectionMetadata,
+};
+
 declare type StreamClaim = GenericClaim & {
   value: StreamMetadata,
 };
@@ -30,7 +34,7 @@ declare type GenericClaim = {
   short_url: string, // permanent_url with short id, no channel
   txid: string, // unique tx id
   type: 'claim' | 'update' | 'support',
-  value_type: 'stream' | 'channel',
+  value_type: 'stream' | 'channel' | 'collection',
   signing_channel?: ChannelClaim,
   reposted_claim?: GenericClaim,
   repost_channel_url?: string,
@@ -73,6 +77,10 @@ declare type ChannelMetadata = GenericMetadata & {
   website_url?: string,
   featured?: Array<string>,
 };
+
+declare type CollectionMetadata = GenericMetadata & {
+  claims: Array<string>,
+}
 
 declare type StreamMetadata = GenericMetadata & {
   license?: string, // License "title" ex: Creative Commons, Custom copyright

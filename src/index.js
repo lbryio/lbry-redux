@@ -67,6 +67,7 @@ export {
   doResolveUris,
   doResolveUri,
   doFetchChannelListMine,
+  doFetchCollectionListMine,
   doCreateChannel,
   doUpdateChannel,
   doClaimSearch,
@@ -147,7 +148,18 @@ export { collectionsReducer } from 'redux/reducers/collections';
 export { makeSelectContentPositionForUri } from 'redux/selectors/content';
 
 export { selectToast, selectError } from 'redux/selectors/notifications';
-export { selectMyPlaylists, selectResolvedPlaylists, makeSelectPlaylistForId, makeSelectUrlsForPlaylistId, makeSelectNameForPlaylistId } from 'redux/selectors/collections';
+export {
+  // selectMyPlaylists,
+  selectBuiltinPlaylists,
+  selectResolvedPlaylists,
+  makeSelectPlaylistForId,
+  selectSavedPlaylists,
+  selectMyPublishedPlaylists,
+  selectMyUnpublishedPlaylists,
+  makeSelectUrlsForPlaylistId,
+  makeSelectNameForPlaylistId,
+  makeSelectIsResolvingCollectionForId,
+} from 'redux/selectors/collections';
 
 export {
   makeSelectClaimForUri,
@@ -207,6 +219,8 @@ export {
   selectAllMyClaimsByOutpoint,
   selectMyClaimsOutpoints,
   selectFetchingMyChannels,
+  selectFetchingMyCollections,
+  selectMyCollectionIds,
   selectMyChannelClaims,
   selectResolvingUris,
   selectPlayingUri,
