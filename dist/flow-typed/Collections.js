@@ -25,6 +25,6 @@ declare type CollectionState = {
   builtin: { [string]: Collection },
   saved: Array<string>,
   mine: Array<string>,
-  isResolvingCollectionById: Array<string>, // given an Id, search if necessary, then get all the items
+  isResolvingCollectionById: Array<string>,
   error?: string | null,
 };
