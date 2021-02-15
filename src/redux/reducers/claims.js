@@ -642,8 +642,6 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State =>
   });
 };
 
-// COLLECTION_RESOLVE_COMPLETED: ...handleClaimAction(state, action)
-
 reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State, action: any): State => {
   const { query } = action.data;
   const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);

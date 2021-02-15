@@ -11,15 +11,15 @@ export const selectSavedCollectionIds = createSelector(
 export const selectBuiltinPlaylists = createSelector(
   selectState,
   state => state.builtin
-); // playlists
+);
 export const selectResolvedPlaylists = createSelector(
   selectState,
   state => state.resolved
-); // collections
+);
 export const selectMyUnpublishedPlaylists = createSelector(
   selectState,
   state => state.unpublished
-); // collections
+);
 export const selectMyPublishedPlaylists = createSelector(
   selectResolvedPlaylists,
   selectMyCollectionIds,
@@ -50,7 +50,6 @@ export const makeSelectIsResolvingCollectionForId = (id: string) =>
     }
   );
 
-// how do we deal with both resolvedCollections and localCollections
 export const makeSelectPlaylistForId = (id: string) =>
   createSelector(
     selectBuiltinPlaylists,

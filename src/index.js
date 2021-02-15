@@ -149,7 +149,6 @@ export { makeSelectContentPositionForUri } from 'redux/selectors/content';
 
 export { selectToast, selectError } from 'redux/selectors/notifications';
 export {
-  // selectMyPlaylists,
   selectBuiltinPlaylists,
   selectResolvedPlaylists,
   makeSelectPlaylistForId,

@@ -795,8 +795,7 @@ export function doCollectionUpdate(options: {
             claims: [collectionClaim],
           },
         });
-        // this only asks for streams and reposts right now
-        dispatch(doFetchClaimListMine(1, 10));
+        dispatch(doFetchCollectionListMine(1, 10));
         resolve(collectionClaim);
       }
 
