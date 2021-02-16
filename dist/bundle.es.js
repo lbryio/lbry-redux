@@ -1531,18 +1531,6 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
         deprecatedParts = _objectWithoutProperties(UrlObj, ['streamName', 'streamClaimId', 'channelName', 'channelClaimId', 'primaryClaimSequence', 'primaryBidPosition', 'secondaryClaimSequence', 'secondaryBidPosition', 'startTime']);
   const { claimId, claimName, contentName } = deprecatedParts;
 
-  {
-    if (claimId) {
-      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
-    }
-    if (claimName) {
-      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
-    }
-    if (contentName) {
-      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
-    }
-  }
-
   if (!claimName && !channelName && !streamName) {
     console.error(__("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url."));
   }
@@ -3324,13 +3312,11 @@ const doCheckPendingTxs = () => (dispatch, getState) => {
       if (noLongerPendingConsolidate.length) {
         if (noLongerPendingConsolidate.includes(pendingConsTxid)) {
           dispatch(doToast({
-            title: __('Wallet Job'),
             message: __('Your wallet is finished consolidating')
           }));
         }
         if (noLongerPendingConsolidate.includes(pendingMassCLaimTxid)) {
           dispatch(doToast({
-            title: __('Wallet Job'),
             message: __('Your tips have been collected')
           }));
         }
