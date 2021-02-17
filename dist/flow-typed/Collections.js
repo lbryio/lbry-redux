@@ -6,8 +6,6 @@ declare type CollectionUpdateParams = {
 
 declare type CollectionItem = {
   url: string,
-  leftOff?: number,
-  added?: number,
   claimId: string,
 };
 
@@ -25,6 +23,6 @@ declare type CollectionState = {
   builtin: { [string]: Collection },
   saved: Array<string>,
   mine: Array<string>,
-  isResolvingCollectionById: Array<string>,
+  isResolvingCollectionById: { [string]: boolean },
   error?: string | null,
 };

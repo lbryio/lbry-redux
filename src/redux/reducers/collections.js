@@ -37,19 +37,21 @@ const defaultState: CollectionState = {
   unpublished: {},
   saved: [],
   mine: [],
-  isResolvingCollectionById: [],
+  isResolvingCollectionById: {},
   error: null,
 };
 
 const collectionsReducer = handleActions(
   {
-    [ACTIONS.PLAYLIST_CREATE]: (state, action) => {
+    [ACTIONS.UNPUBLISHED_COLLECTION_CREATE]: (state, action) => {
       const { entry: params } = action.data; // { id:, items: Array<any>}
+      // entry
       const newListTemplate = {
         id: params.id,
         name: params.name,
         items: [],
         updatedAt: getTimestamp(),
+        type: 'mixed', // what
       };
 
       const newList = Object.assign({}, newListTemplate, { ...params });
@@ -62,7 +64,7 @@ const collectionsReducer = handleActions(
       };
     },
 
-    [ACTIONS.PLAYLIST_DELETE]: (state, action) => {
+    [ACTIONS.UNPUBLISHED_COLLECTION_DELETE]: (state, action) => {
       const { unpublished: lists } = state;
       const { name } = action.data;
       if (lists && lists[name] && lists[name].userList) {
@@ -73,19 +75,18 @@ const collectionsReducer = handleActions(
       });
     },
 
-    [ACTIONS.PLAYLIST_UPDATE]: (state, action) => {
+    [ACTIONS.UNPUBLISHED_COLLECTION_UPDATE]: (state, action) => {
       const { unpublished: lists } = state;
       const newLists = Object.assign({}, lists);
-      const { id, playlist } = action.data;
-      newLists[id] = playlist;
-      newLists[id]['updatedAt'] = getTimestamp();
+      const { id, collection } = action.data;
+      newLists[id] = collection;
 
       return {
         ...state,
         unpublished: newLists,
       };
     },
-    [ACTIONS.PLAYLIST_ERROR]: (state, action) => {
+    [ACTIONS.UNPUBLISHED_COLLECTION_ERROR]: (state, action) => {
       return Object.assign({}, state, {
         error: action.data.message,
       });
@@ -94,9 +95,9 @@ const collectionsReducer = handleActions(
     [ACTIONS.COLLECTION_RESOLVE_STARTED]: (state, action) => {
       const { ids } = action.data;
       const { isResolvingCollectionById } = state;
-      const newResolving = isResolvingCollectionById.concat();
+      const newResolving = Object.assign({}, isResolvingCollectionById);
       ids.forEach(id => {
-        newResolving.push(id);
+        newResolving[id] = true;
       });
       return Object.assign({}, state, {
         ...state,
@@ -117,10 +118,11 @@ const collectionsReducer = handleActions(
     //   };
     // },
     [ACTIONS.COLLECTION_RESOLVE_COMPLETED]: (state, action) => {
-      const { resolvedCollections, entry: params, id } = action.data;
+      const { resolvedCollections } = action.data;
       const resolvedIds = Object.keys(resolvedCollections);
       const { isResolvingCollectionById, resolved: lists } = state;
-      const newResolving = isResolvingCollectionById.filter(i => resolvedIds.includes(id));
+      // remove resolvedIds from isResolvingCollectionById{}
+      const newResolving = Object.assign({}, isResolvingCollectionById);
       const newLists = Object.assign({}, lists, resolvedCollections);
 
       return Object.assign({}, state, {

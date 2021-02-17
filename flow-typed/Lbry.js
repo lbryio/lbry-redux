@@ -190,7 +190,7 @@ declare type CollectionCreateResponse = {
 }
 
 declare type CollectionListResponse = {
-  items: Array<ChannelClaim>,
+  items: Array<Claim>,
   page: number,
   page_size: number,
   total_items: number,
@@ -198,7 +198,7 @@ declare type CollectionListResponse = {
 };
 
 declare type CollectionResolveResponse = {
-  items: Array<ChannelClaim>,
+  items: Array<Claim>,
 };
 
 declare type CollectionResolveOptions = {

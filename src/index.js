@@ -57,7 +57,11 @@ export { buildSharedStateMiddleware } from 'redux/middleware/shared-state';
 
 // actions
 export { doToast, doDismissToast, doError, doDismissError } from 'redux/actions/notifications';
-export { doAddPlaylist, doResolveCollection, doUpdatePlaylist } from 'redux/actions/collections';
+export {
+  doCreateUnpublishedCollection,
+  doResolveCollection,
+  doUpdateUnpublishedCollection,
+} from 'redux/actions/collections';
 
 export {
   doFetchClaimsByChannel,
@@ -149,14 +153,14 @@ export { makeSelectContentPositionForUri } from 'redux/selectors/content';
 
 export { selectToast, selectError } from 'redux/selectors/notifications';
 export {
-  selectBuiltinPlaylists,
-  selectResolvedPlaylists,
-  makeSelectPlaylistForId,
-  selectSavedPlaylists,
-  selectMyPublishedPlaylists,
-  selectMyUnpublishedPlaylists,
-  makeSelectUrlsForPlaylistId,
-  makeSelectNameForPlaylistId,
+  selectBuiltinCollections,
+  selectResolvedCollections,
+  makeSelectCollectionForId,
+  selectSavedCollections,
+  selectMyPublishedCollections,
+  selectMyUnpublishedCollections,
+  makeSelectUrlsForCollectionId,
+  makeSelectNameForCollectionId,
   makeSelectIsResolvingCollectionForId,
 } from 'redux/selectors/collections';
 

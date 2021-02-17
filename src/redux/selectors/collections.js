@@ -8,37 +8,37 @@ export const selectSavedCollectionIds = createSelector(
   selectState,
   collectionState => collectionState.saved
 );
-export const selectBuiltinPlaylists = createSelector(
+export const selectBuiltinCollections = createSelector(
   selectState,
   state => state.builtin
 );
-export const selectResolvedPlaylists = createSelector(
+export const selectResolvedCollections = createSelector(
   selectState,
   state => state.resolved
 );
-export const selectMyUnpublishedPlaylists = createSelector(
+export const selectMyUnpublishedCollections = createSelector(
   selectState,
   state => state.unpublished
 );
-export const selectMyPublishedPlaylists = createSelector(
-  selectResolvedPlaylists,
+export const selectMyPublishedCollections = createSelector(
+  selectResolvedCollections,
   selectMyCollectionIds,
   (resolved, myIds) => {
-    const myPublishedPlaylists = Object.fromEntries(
+    const myPublishedCollections = Object.fromEntries(
       Object.entries(resolved).filter(([key, val]) => myIds.includes(key))
     );
-    return myPublishedPlaylists;
+    return myPublishedCollections;
   }
 );
 
-export const selectSavedPlaylists = createSelector(
-  selectResolvedPlaylists,
+export const selectSavedCollections = createSelector(
+  selectResolvedCollections,
   selectSavedCollectionIds,
   (resolved, myIds) => {
-    const mySavedPlaylists = Object.fromEntries(
+    const mySavedCollections = Object.fromEntries(
       Object.entries(resolved).filter(([key, val]) => myIds.includes(key))
     );
-    return mySavedPlaylists;
+    return mySavedCollections;
   }
 );
 
@@ -46,36 +46,36 @@ export const makeSelectIsResolvingCollectionForId = (id: string) =>
   createSelector(
     selectState,
     state => {
-      return state.isResolvingCollectionById.includes(id);
+      return state.isResolvingCollectionById[id];
     }
   );
 
-export const makeSelectPlaylistForId = (id: string) =>
+export const makeSelectCollectionForId = (id: string) =>
   createSelector(
-    selectBuiltinPlaylists,
-    selectResolvedPlaylists,
-    selectMyUnpublishedPlaylists,
+    selectBuiltinCollections,
+    selectResolvedCollections,
+    selectMyUnpublishedCollections,
     (bLists, rLists, uLists) => {
       // probably return the most updated when both unpublished and published have same id, maybe mark as unsaved
-      const playlist = bLists[id] || rLists[id] || uLists[id];
-      return playlist;
+      const collection = bLists[id] || rLists[id] || uLists[id];
+      return collection;
     }
   );
 
-export const makeSelectUrlsForPlaylistId = (id: string) =>
+export const makeSelectUrlsForCollectionId = (id: string) =>
   createSelector(
-    makeSelectPlaylistForId(id),
-    playlist => {
-      const items = (playlist && playlist.items) || [];
+    makeSelectCollectionForId(id),
+    collection => {
+      const items = (collection && collection.items) || [];
       const urls = items.map(item => item.url);
       return urls;
     }
   );
 
-export const makeSelectNameForPlaylistId = (id: string) =>
+export const makeSelectNameForCollectionId = (id: string) =>
   createSelector(
-    makeSelectPlaylistForId(id),
-    playlist => {
-      return playlist.name || '';
+    makeSelectCollectionForId(id),
+    collection => {
+      return collection.name || '';
     }
   );

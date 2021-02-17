@@ -332,13 +332,15 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_FAILED] = (state: State, action: any): State
   });
 };
 
-reducers[ACTIONS.FETCH_COLLECTION_LIST_STARTED] = (state: State): State =>
-  Object.assign({}, state, { fetchingMyCollections: true });
+reducers[ACTIONS.FETCH_COLLECTION_LIST_STARTED] = (state: State): State => ({
+  ...state,
+  fetchingMyCollections: true,
+});
 
 reducers[ACTIONS.FETCH_COLLECTION_LIST_COMPLETED] = (state: State, action: any): State => {
-  const { claims }: { claims: Array<ChannelClaim> } = action.data;
+  const { claims }: { claims: Array<CollectionClaim> } = action.data;
   const myClaims = state.myClaims || [];
-  let myClaimIds = new Set(state.myClaims);
+  let myClaimIds = new Set(myClaims);
   const pendingIds = state.pendingIds || [];
   let myCollectionClaims;
   const byId = Object.assign({}, state.byId);
@@ -359,6 +361,7 @@ reducers[ACTIONS.FETCH_COLLECTION_LIST_COMPLETED] = (state: State, action: any):
 
       // $FlowFixMe
       myCollectionClaims.add(claimId);
+      // we don't want to overwrite a pending result with a resolve
       if (!pendingIds.some(c => c === claimId)) {
         byId[claimId] = claim;
       }
@@ -366,19 +369,18 @@ reducers[ACTIONS.FETCH_COLLECTION_LIST_COMPLETED] = (state: State, action: any):
     });
   }
 
-  return Object.assign({}, state, {
+  return {
+    ...state,
     byId,
     claimsByUri: byUri,
     fetchingMyCollections: false,
     myCollectionClaims: myCollectionClaims ? Array.from(myCollectionClaims) : null,
     myClaims: myClaimIds ? Array.from(myClaimIds) : null,
-  });
+  };
 };
 
-reducers[ACTIONS.FETCH_COLLECTION_LIST_FAILED] = (state: State, action: any): State => {
-  return Object.assign({}, state, {
-    fetchingMyCollections: false,
-  });
+reducers[ACTIONS.FETCH_COLLECTION_LIST_FAILED] = (state: State): State => {
+  return { ...state, fetchingMyCollections: false };
 };
 
 reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED] = (state: State, action: any): State => {
