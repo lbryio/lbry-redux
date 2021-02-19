@@ -3313,13 +3313,11 @@ const doCheckPendingTxs = () => (dispatch, getState) => {
       if (noLongerPendingConsolidate.length) {
         if (noLongerPendingConsolidate.includes(pendingConsTxid)) {
           dispatch(doToast({
-            title: __('Wallet Job'),
             message: __('Your wallet is finished consolidating')
           }));
         }
         if (noLongerPendingConsolidate.includes(pendingMassCLaimTxid)) {
           dispatch(doToast({
-            title: __('Wallet Job'),
             message: __('Your tips have been collected')
           }));
         }
@@ -5001,7 +4999,8 @@ function handleClaimAction(state, action) {
 
   Object.entries(resolveInfo).forEach(([url, resolveResponse]) => {
     // $FlowFixMe
-    const { claimsInChannel, stream, channel } = resolveResponse;
+    const { claimsInChannel, stream, channel: channelFromResolve } = resolveResponse;
+    const channel = channelFromResolve || stream && stream.signing_channel;
 
     if (stream) {
       if (pendingIds.includes(stream.claim_id)) {

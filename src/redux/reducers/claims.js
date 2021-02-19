@@ -119,7 +119,8 @@ function handleClaimAction(state: State, action: any): State {
 
   Object.entries(resolveInfo).forEach(([url: string, resolveResponse: ResolveResponse]) => {
     // $FlowFixMe
-    const { claimsInChannel, stream, channel } = resolveResponse;
+    const { claimsInChannel, stream, channel: channelFromResolve } = resolveResponse;
+    const channel = channelFromResolve || (stream && stream.signing_channel);
 
     if (stream) {
       if (pendingIds.includes(stream.claim_id)) {
@@ -570,7 +571,10 @@ reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State, action: any): State => {
   const { query } = action.data;
   const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
-  const claimSearchByQueryLastPageReached = Object.assign({}, state.claimSearchByQueryLastPageReached);
+  const claimSearchByQueryLastPageReached = Object.assign(
+    {},
+    state.claimSearchByQueryLastPageReached
+  );
 
   delete fetchingClaimSearchByQuery[query];
 
