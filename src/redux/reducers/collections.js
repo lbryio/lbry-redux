@@ -2,6 +2,10 @@
 import { handleActions } from 'util/redux-utils';
 import * as ACTIONS from 'constants/action_types';
 
+const WATCH_LATER_ID = 'watchlater';
+const FAVORITES_ID = 'favorites';
+
+const BUILTIN_LISTS = [WATCH_LATER_ID, FAVORITES_ID];
 const getTimestamp = () => {
   return Math.floor(Date.now() / 1000);
 };
@@ -27,9 +31,9 @@ const defaultState: CollectionState = {
           claimId: 'c1b740eb88f96b465f65e5f1542564539df1c62e',
         },
       ],
-      id: 'favoritestreams',
+      id: 'favorites',
       name: 'Favorites',
-      type: 'stream',
+      type: 'mixed',
       updatedAt: getTimestamp(),
     },
   },
@@ -76,14 +80,20 @@ const collectionsReducer = handleActions(
     },
 
     [ACTIONS.UNPUBLISHED_COLLECTION_UPDATE]: (state, action) => {
-      const { unpublished: lists } = state;
-      const newLists = Object.assign({}, lists);
       const { id, collection } = action.data;
-      newLists[id] = collection;
+      if (BUILTIN_LISTS.includes(id)) {
+        const { builtin: lists } = state;
+        // redo builtin
+        return {
+          ...state,
+          builtin: { ...lists, [id]: collection },
+        };
+      }
+      const { unpublished: lists } = state;
 
       return {
         ...state,
-        unpublished: newLists,
+        unpublished: { ...lists, [id]: collection },
       };
     },
     [ACTIONS.UNPUBLISHED_COLLECTION_ERROR]: (state, action) => {
@@ -123,6 +133,7 @@ const collectionsReducer = handleActions(
       const { isResolvingCollectionById, resolved: lists } = state;
       // remove resolvedIds from isResolvingCollectionById{}
       const newResolving = Object.assign({}, isResolvingCollectionById);
+      resolvedIds.forEach(resolvedId => delete newResolving[resolvedId]);
       const newLists = Object.assign({}, lists, resolvedCollections);
 
       return Object.assign({}, state, {

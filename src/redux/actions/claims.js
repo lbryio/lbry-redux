@@ -575,11 +575,7 @@ export function doFetchChannelListMine(
   };
 }
 
-export function doFetchCollectionListMine(
-  page: number = 1,
-  pageSize: number = 99999,
-  resolve: boolean = true
-) {
+export function doFetchCollectionListMine(page: number = 1, pageSize: number = 99999) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_COLLECTION_LIST_STARTED,
@@ -600,7 +596,7 @@ export function doFetchCollectionListMine(
       });
     };
 
-    Lbry.collection_list({ page, page_size: pageSize, resolve }).then(callback, failure);
+    Lbry.collection_list({ page, page_size: pageSize, resolve_claims: 1 }).then(callback, failure);
   };
 }
 

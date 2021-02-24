@@ -11,7 +11,11 @@ const getTimestamp = () => {
 };
 
 // maybe take items param
-export const doCreateUnpublishedCollection = (name: string) => (dispatch: Dispatch) => {
+export const doCreateUnpublishedCollection = (
+  name: string,
+  collectionItems: string,
+  sourceId: string
+) => (dispatch: Dispatch) => {
   return dispatch({
     type: ACTIONS.UNPUBLISHED_COLLECTION_CREATE,
     data: {
@@ -19,7 +23,8 @@ export const doCreateUnpublishedCollection = (name: string) => (dispatch: Dispat
         id: uuid(), // start with a uuid, this becomes a claimId after publish
         name: name,
         updatedAt: getTimestamp(),
-        items: [],
+        items: collectionItems || [],
+        sourceId: sourceId,
       },
     },
   });
@@ -108,6 +113,7 @@ export const doResolveCollections = (collectionIds: Array<string>) => async(
 
   const newCollectionItemsById = {};
   const flatResolvedCollectionItems = {};
+  console.log('RESCIBI', resolvedCollectionItemsById);
   resolvedCollectionItemsById.forEach(entry => {
     // $FlowFixMe
     const collectionItems: Array<any> = entry.items;
@@ -143,6 +149,7 @@ export const doResolveCollections = (collectionIds: Array<string>) => async(
     type: ACTIONS.RESOLVE_URIS_COMPLETED,
     data: { resolveInfo: processedClaimsByUri },
   });
+  console.log('newC', newCollectionItemsById);
 
   dispatch({
     type: ACTIONS.COLLECTION_RESOLVE_COMPLETED,

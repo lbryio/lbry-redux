@@ -60,6 +60,7 @@ export { doToast, doDismissToast, doError, doDismissError } from 'redux/actions/
 export {
   doCreateUnpublishedCollection,
   doResolveCollection,
+  doResolveCollections,
   doUpdateUnpublishedCollection,
 } from 'redux/actions/collections';
 
@@ -253,6 +254,7 @@ export {
   selectMyPurchasesCount,
   selectPurchaseUriSuccess,
   makeSelectClaimForClaimId,
+  makeSelectClaimIdForUri,
 } from 'redux/selectors/claims';
 
 export {

@@ -15,6 +15,7 @@ declare type Collection = {
   name: string,
   type: string,
   updatedAt: number,
+  sourceid?: string, // if copied, claimId of original collection
 };
 
 declare type CollectionState = {
