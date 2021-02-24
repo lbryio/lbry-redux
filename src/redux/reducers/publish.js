@@ -85,6 +85,7 @@ export const publishReducer = handleActions(
     },
     [ACTIONS.CLEAR_PUBLISH]: (state: PublishState): PublishState => ({
       ...defaultState,
+      uri: undefined,
       channel: state.channel,
       bid: state.bid,
       optimize: state.optimize,
