@@ -19,11 +19,15 @@ declare type Collection = {
 };
 
 declare type CollectionState = {
-  unpublished: { [string]: Collection },
-  resolved: { [string]: Collection },
-  builtin: { [string]: Collection },
+  unpublished: CollectionGroup,
+  resolved: CollectionGroup,
+  builtin: CollectionGroup,
   saved: Array<string>,
   mine: Array<string>,
   isResolvingCollectionById: { [string]: boolean },
   error?: string | null,
 };
+
+declare type CollectionGroup = {
+  [string]: Collection,
+}

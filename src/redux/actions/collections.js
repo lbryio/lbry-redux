@@ -186,6 +186,7 @@ export const doUpdateUnpublishedCollection = (id: string, params: any) => (
 
   let items = collection.items;
   const passedClaims = params.claims;
+  const order = params.order;
   // add or remove claim
   if (passedClaims) {
     if (params.remove) {
@@ -194,6 +195,9 @@ export const doUpdateUnpublishedCollection = (id: string, params: any) => (
     } else {
       params.claims.forEach(claim => items.push(generateCollectionItem(claim)));
     }
+  }
+
+  if (order) {
   }
 
   dispatch({

@@ -115,18 +115,16 @@ const collectionsReducer = handleActions(
         isResolvingCollectionById: newResolving,
       });
     },
-    // [ACTIONS.USER_STATE_POPULATE]: (
-    //   state,
-    //   action
-    // ) => {
-    //   const { collectionTest } = action.data;
-    //   // do something about checking timestamps and merging
-    //   return {
-    //     ...state,
-    //     unpublished: collectionTest || state.unpublished,
-    //
-    //   };
-    // },
+    [ACTIONS.USER_STATE_POPULATE]: (state, action) => {
+      const { builtinCollectionTest, savedCollectionTest, unpublishedCollectionTest } = action.data;
+      // do something about checking timestamps and merging
+      return {
+        ...state,
+        unpublished: unpublishedCollectionTest || state.unpublished,
+        builtin: builtinCollectionTest || state.builtin,
+        saved: savedCollectionTest || state.saved,
+      };
+    },
     [ACTIONS.COLLECTION_RESOLVE_COMPLETED]: (state, action) => {
       const { resolvedCollections } = action.data;
       const resolvedIds = Object.keys(resolvedCollections);

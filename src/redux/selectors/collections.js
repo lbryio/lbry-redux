@@ -72,6 +72,18 @@ export const makeSelectUrlsForCollectionId = (id: string) =>
     }
   );
 
+export const makeSelectNextUrlForCollection = (id: string, index: number) =>
+  createSelector(
+    makeSelectUrlsForCollectionId(id),
+    urls => {
+      const url = urls[index + 1];
+      if (url) {
+        return url;
+      }
+      return null;
+    }
+  );
+
 export const makeSelectNameForCollectionId = (id: string) =>
   createSelector(
     makeSelectCollectionForId(id),
