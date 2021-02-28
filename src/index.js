@@ -12,7 +12,7 @@ import * as TXO_LIST from 'constants/txo_list';
 import * as SPEECH_URLS from 'constants/speech_urls';
 import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
-import * as COLLECTIONS_PARAMS from 'constants/collections';
+import * as COLLECTION_PARAMS from 'constants/collections';
 import { DEFAULT_KNOWN_TAGS, DEFAULT_FOLLOWED_TAGS, MATURE_TAGS } from 'constants/tags';
 import Lbry, { apiCall } from 'lbry';
 import LbryFirst from 'lbry-first';
@@ -36,7 +36,7 @@ export {
   MATURE_TAGS,
   SPEECH_URLS,
   SHARED_PREFERENCES,
-  COLLECTIONS_PARAMS,
+  COLLECTION_PARAMS,
 };
 
 // common

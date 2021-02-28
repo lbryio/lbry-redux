@@ -1,2 +1,2 @@
-export const COLLECTION_PARAM = 'col';
-export const COLLECTOIN_INDEX_PARAM = 'index';
+export const COLLECTION_ID = 'colid';
+export const COLLECTION_INDEX = 'colindex';

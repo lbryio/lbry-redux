@@ -159,6 +159,9 @@ export const doResolveCollections = (collectionIds: Array<string>) => async(
 
 export const doResolveCollection = (collectionId: string) => doResolveCollections([collectionId]);
 
+/*
+  updateCollection: If ID is only in published, put update in dirty
+ */
 export const doUpdateUnpublishedCollection = (id: string, params: any) => (
   dispatch: Dispatch,
   getState: GetState
@@ -198,6 +201,8 @@ export const doUpdateUnpublishedCollection = (id: string, params: any) => (
   }
 
   if (order) {
+    const [movedItem] = items.splice(order.from, 1);
+    items.splice(order.to, 0, movedItem);
   }
 
   dispatch({
