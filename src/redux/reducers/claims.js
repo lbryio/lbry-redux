@@ -13,6 +13,7 @@ import mergeClaim from 'util/merge-claim';
 
 type State = {
   createChannelError: ?string,
+  createCollectionError: ?string,
   channelClaimCounts: { [string]: number },
   claimsByUri: { [string]: string },
   byId: { [string]: Claim },
@@ -36,6 +37,7 @@ type State = {
   claimSearchByQuery: { [string]: Array<string> },
   claimSearchByQueryLastPageReached: { [string]: Array<boolean> },
   creatingChannel: boolean,
+  creatingCollection: boolean,
   paginatedClaimsByChannel: {
     [string]: {
       all: Array<string>,
@@ -45,7 +47,9 @@ type State = {
     },
   },
   updateChannelError: ?string,
+  updateCollectionError: ?string,
   updatingChannel: boolean,
+  updatingCollection: boolean,
   pendingChannelImport: string | boolean,
   repostLoading: boolean,
   repostError: ?string,
@@ -86,9 +90,13 @@ const defaultState = {
   claimSearchByQueryLastPageReached: {},
   fetchingClaimSearchByQuery: {},
   updateChannelError: '',
+  updateCollectionError: '',
   updatingChannel: false,
   creatingChannel: false,
   createChannelError: undefined,
+  updatingCollection: false,
+  creatingCollection: false,
+  createCollectionError: undefined,
   pendingChannelImport: false,
   repostLoading: false,
   repostError: undefined,
@@ -594,6 +602,52 @@ reducers[ACTIONS.UPDATE_CHANNEL_FAILED] = (state: State, action: any): State => 
   return Object.assign({}, state, {
     updateChannelError: action.data.message,
     updatingChannel: false,
+  });
+};
+
+reducers[ACTIONS.CLEAR_COLLECTION_ERRORS] = (state: State): State => ({
+  ...state,
+  createCollectionError: null,
+  updateCollectionError: null,
+});
+
+reducers[ACTIONS.PUBLISHED_COLLECTION_CREATE_STARTED] = (state: State): State => ({
+  ...state,
+  creatingCollection: true,
+  createCollectionError: null,
+});
+
+reducers[ACTIONS.PUBLISHED_COLLECTION_CREATE_COMPLETED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    creatingCollection: false,
+  });
+};
+
+reducers[ACTIONS.PUBLISHED_COLLECTION_CREATE_FAILED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    creatingCollection: false,
+    createCollectionError: action.data,
+  });
+};
+
+reducers[ACTIONS.PUBLISHED_COLLECTION_UPDATE_STARTED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    updateCollectionError: '',
+    updatingCollection: true,
+  });
+};
+
+reducers[ACTIONS.PUBLISHED_COLLECTION_UPDATE_COMPLETED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    updateCollectionError: '',
+    updatingCollection: false,
+  });
+};
+
+reducers[ACTIONS.PUBLISHED_COLLECTION_UPDATE_FAILED] = (state: State, action: any): State => {
+  return Object.assign({}, state, {
+    updateCollectionError: action.data.message,
+    updatingCollection: false,
   });
 };
 

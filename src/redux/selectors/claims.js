@@ -89,10 +89,11 @@ export const makeSelectClaimIsPending = (uri: string) =>
     }
   );
 
-export const makeSelectClaimIdForUri = (uri: string) => createSelector(
-  selectClaimIdsByUri,
-  claimIds => claimIds[uri],
-);
+export const makeSelectClaimIdForUri = (uri: string) =>
+  createSelector(
+    selectClaimIdsByUri,
+    claimIds => claimIds[uri]
+  );
 
 export const selectReflectingById = createSelector(
   selectState,
@@ -270,8 +271,8 @@ export const makeSelectMyPurchasesForPage = (query: ?string, page: number = 1) =
       const end = Number(page) * Number(PAGE_SIZE);
       return matchingFileInfos && matchingFileInfos.length
         ? matchingFileInfos
-          .slice(start, end)
-          .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
+            .slice(start, end)
+            .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
         : [];
     }
   );
@@ -377,8 +378,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-            ? claim.meta.creation_timestamp * 1000
-            : null);
+          ? claim.meta.creation_timestamp * 1000
+          : null);
       if (!timestamp) {
         return undefined;
       }
@@ -865,3 +866,23 @@ export const makeSelectTagInClaimOrChannelForUri = (uri: string, tag: string) =>
       return claimTags.includes(tag) || channelTags.includes(tag);
     }
   );
+
+export const selectUpdatingCollection = createSelector(
+  selectState,
+  state => state.updatingCollection
+);
+
+export const selectUpdateCollectionError = createSelector(
+  selectState,
+  state => state.updateCollectionError
+);
+
+export const selectCreatingCollection = createSelector(
+  selectState,
+  state => state.creatingCollection
+);
+
+export const selectCreateCollectionError = createSelector(
+  selectState,
+  state => state.createCollectionError
+);

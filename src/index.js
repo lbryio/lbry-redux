@@ -258,6 +258,10 @@ export {
   selectPurchaseUriSuccess,
   makeSelectClaimForClaimId,
   makeSelectClaimIdForUri,
+  selectUpdatingCollection,
+  selectUpdateCollectionError,
+  selectCreatingCollection,
+  selectCreateCollectionError,
 } from 'redux/selectors/claims';
 
 export {
