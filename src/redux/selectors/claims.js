@@ -94,6 +94,12 @@ export const selectReflectingById = createSelector(
   state => state.reflectingById
 );
 
+export const makeSelectClaimForClaimId = (claimId: string) =>
+  createSelector(
+    selectClaimsById,
+    byId => byId[claimId]
+  );
+
 export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true) =>
   createSelector(
     selectClaimIdsByUri,

@@ -2234,6 +2234,8 @@ const makeSelectClaimIsPending = uri => reselect.createSelector(selectClaimIdsBy
 
 const selectReflectingById = reselect.createSelector(selectState$1, state => state.reflectingById);
 
+const makeSelectClaimForClaimId = claimId => reselect.createSelector(selectClaimsById, byId => byId[claimId]);
+
 const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
   let validUri;
   let channelClaimId;
@@ -2726,6 +2728,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 const FIFTEEN_SECONDS = 15000;
 let walletBalancePromise = null;
+
 function doUpdateBalance() {
   return (dispatch, getState) => {
     const {
@@ -2797,6 +2800,29 @@ function doFetchTxoPage() {
     const queryParams = selectTxoPageParams(state);
 
     lbryProxy.txo_list(queryParams).then(res => {
+      const items = res.items || [];
+      const claimsById = selectClaimsById(state);
+
+      const channelIds = items.reduce((acc, cur) => {
+        if (cur.type === 'support' && cur.signing_channel && !claimsById[cur.signing_channel.channel_id]) {
+          acc.push(cur.signing_channel.channel_id);
+        }
+        return acc;
+      }, []);
+
+      if (channelIds.length) {
+        const searchParams = {
+          page_size: 9999,
+          page: 1,
+          no_totals: true,
+          claim_ids: channelIds
+        };
+        // make sure redux has these channels resolved
+        dispatch(doClaimSearch(searchParams));
+      }
+
+      return res;
+    }).then(res => {
       dispatch({
         type: FETCH_TXO_PAGE_COMPLETED,
         data: res
@@ -3193,6 +3219,7 @@ function doWalletReconnect() {
     });
   };
 }
+
 function doWalletDecrypt() {
   return dispatch => {
     dispatch({
@@ -6538,6 +6565,7 @@ exports.makeSelectAmountForUri = makeSelectAmountForUri;
 exports.makeSelectCanonicalUrlForUri = makeSelectCanonicalUrlForUri;
 exports.makeSelectChannelForClaimUri = makeSelectChannelForClaimUri;
 exports.makeSelectChannelPermUrlForClaimUri = makeSelectChannelPermUrlForClaimUri;
+exports.makeSelectClaimForClaimId = makeSelectClaimForClaimId;
 exports.makeSelectClaimForUri = makeSelectClaimForUri;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;
 exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;

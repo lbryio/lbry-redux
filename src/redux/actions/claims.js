@@ -65,7 +65,7 @@ export function doResolveUris(
     } = {};
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
-      async (result: ResolveResponse) => {
+      async(result: ResolveResponse) => {
         let repostedResults = {};
         const repostsToResolve = [];
         const fallbackResolveInfo = {
@@ -573,6 +573,7 @@ export function doClaimSearch(
     page: number,
     no_totals: boolean,
     any_tags?: Array<string>,
+    claim_ids?: Array<string>,
     channel_ids?: Array<string>,
     not_channel_ids?: Array<string>,
     not_tags?: Array<string>,
