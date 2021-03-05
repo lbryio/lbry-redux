@@ -254,7 +254,7 @@ export const doPublish = (success: Function, fail: Function, preview: Function) 
     filePath,
     description,
     language,
-    release_time,
+    releaseTime,
     license,
     licenseUrl,
     useLBRYUploader,
@@ -342,8 +342,8 @@ export const doPublish = (success: Function, fail: Function, preview: Function) 
   }
 
   // Set release time to curret date. On edits, keep original release/transaction time as release_time
-  if (release_time) {
-    publishPayload.release_time = Number(Math.round(new Date(release_time) / 1000));
+  if (releaseTime) {
+    publishPayload.release_time = Number(Math.round(new Date(releaseTime) / 1000));
   } else if (myClaimForUriEditing && myClaimForUriEditing.value.release_time) {
     publishPayload.release_time = Number(myClaimForUri.value.release_time);
   } else if (myClaimForUriEditing && myClaimForUriEditing.timestamp) {
