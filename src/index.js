@@ -188,6 +188,7 @@ export {
   makeSelectIsAbandoningClaimForUri,
   selectPendingIds,
   selectReflectingById,
+  makeSelectClaimForClaimId,
   selectClaimsById,
   selectClaimsByUri,
   selectAllClaimsByChannel,

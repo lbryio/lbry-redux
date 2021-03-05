@@ -10,11 +10,12 @@ import {
   selectPendingMassClaimTxid,
 } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
-import { selectMyClaimsRaw } from 'redux/selectors/claims';
-import { doFetchChannelListMine, doFetchClaimListMine } from 'redux/actions/claims';
+import { selectMyClaimsRaw, selectClaimsById } from 'redux/selectors/claims';
+import { doFetchChannelListMine, doFetchClaimListMine, doClaimSearch } from 'redux/actions/claims';
 
 const FIFTEEN_SECONDS = 15000;
 let walletBalancePromise = null;
+
 export function doUpdateBalance() {
   return (dispatch, getState) => {
     const {
@@ -88,6 +89,34 @@ export function doFetchTxoPage() {
     const queryParams = selectTxoPageParams(state);
 
     Lbry.txo_list(queryParams)
+      .then(res => {
+        const items = res.items || [];
+        const claimsById = selectClaimsById(state);
+
+        const channelIds = items.reduce((acc, cur) => {
+          if (
+            cur.type === 'support' &&
+            cur.signing_channel &&
+            !claimsById[cur.signing_channel.channel_id]
+          ) {
+            acc.push(cur.signing_channel.channel_id);
+          }
+          return acc;
+        }, []);
+
+        if (channelIds.length) {
+          const searchParams = {
+            page_size: 9999,
+            page: 1,
+            no_totals: true,
+            claim_ids: channelIds,
+          };
+          // make sure redux has these channels resolved
+          dispatch(doClaimSearch(searchParams));
+        }
+
+        return res;
+      })
       .then(res => {
         dispatch({
           type: ACTIONS.FETCH_TXO_PAGE_COMPLETED,
@@ -517,6 +546,7 @@ export function doWalletReconnect() {
     });
   };
 }
+
 export function doWalletDecrypt() {
   return dispatch => {
     dispatch({
