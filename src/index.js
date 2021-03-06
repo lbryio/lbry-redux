@@ -256,7 +256,6 @@ export {
   selectFetchingMyPurchasesError,
   selectMyPurchasesCount,
   selectPurchaseUriSuccess,
-  makeSelectClaimForClaimId,
   makeSelectClaimIdForUri,
   selectUpdatingCollection,
   selectUpdateCollectionError,
