@@ -12,11 +12,22 @@ const CHANNEL_ANONYMOUS = 'anonymous';
 const CHANNEL_NEW = 'new';
 const PAGE_SIZE = 20;
 
+const LEVEL_1_STAKED_AMOUNT = 1;
+const LEVEL_2_STAKED_AMOUNT = 2;
+const LEVEL_3_STAKED_AMOUNT = 3;
+const LEVEL_4_STAKED_AMOUNT = 4;
+const LEVEL_5_STAKED_AMOUNT = 5;
+
 var claim = /*#__PURE__*/Object.freeze({
   MINIMUM_PUBLISH_BID: MINIMUM_PUBLISH_BID,
   CHANNEL_ANONYMOUS: CHANNEL_ANONYMOUS,
   CHANNEL_NEW: CHANNEL_NEW,
-  PAGE_SIZE: PAGE_SIZE
+  PAGE_SIZE: PAGE_SIZE,
+  LEVEL_1_STAKED_AMOUNT: LEVEL_1_STAKED_AMOUNT,
+  LEVEL_2_STAKED_AMOUNT: LEVEL_2_STAKED_AMOUNT,
+  LEVEL_3_STAKED_AMOUNT: LEVEL_3_STAKED_AMOUNT,
+  LEVEL_4_STAKED_AMOUNT: LEVEL_4_STAKED_AMOUNT,
+  LEVEL_5_STAKED_AMOUNT: LEVEL_5_STAKED_AMOUNT
 });
 
 const WINDOW_FOCUSED = 'WINDOW_FOCUSED';
@@ -2661,6 +2672,33 @@ const makeSelectTagInClaimOrChannelForUri = (uri, tag) => reselect.createSelecto
   const claimTags = claim && claim.value && claim.value.tags || [];
   const channelTags = claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.tags || [];
   return claimTags.includes(tag) || channelTags.includes(tag);
+});
+
+const makeSelectTotalStakedAmountForChannelUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+  if (!claim || !claim.amount || !claim.meta || !claim.meta.support_amount) {
+    return 0;
+  }
+
+  return parseFloat(claim.amount) + parseFloat(claim.meta.support_amount) || 0;
+});
+
+const makeSelectStakedLevelForChannelUri = uri => reselect.createSelector(makeSelectTotalStakedAmountForChannelUri(uri), amount => {
+  let level = LEVEL_1_STAKED_AMOUNT;
+  switch (true) {
+    case amount >= 1 && amount < 50:
+      level = LEVEL_2_STAKED_AMOUNT;
+      break;
+    case amount >= 50 && amount < 250:
+      level = LEVEL_3_STAKED_AMOUNT;
+      break;
+    case amount >= 250 && amount < 1000:
+      level = LEVEL_4_STAKED_AMOUNT;
+      break;
+    case amount >= 1000:
+      level = LEVEL_5_STAKED_AMOUNT;
+      break;
+  }
+  return level;
 });
 
 function numberWithCommas(x) {
@@ -6612,6 +6650,7 @@ exports.makeSelectReflectingClaimForUri = makeSelectReflectingClaimForUri;
 exports.makeSelectSearchDownloadUrlsCount = makeSelectSearchDownloadUrlsCount;
 exports.makeSelectSearchDownloadUrlsForPage = makeSelectSearchDownloadUrlsForPage;
 exports.makeSelectShortUrlForUri = makeSelectShortUrlForUri;
+exports.makeSelectStakedLevelForChannelUri = makeSelectStakedLevelForChannelUri;
 exports.makeSelectStreamingUrlForUri = makeSelectStreamingUrlForUri;
 exports.makeSelectSupportsForUri = makeSelectSupportsForUri;
 exports.makeSelectTagInClaimOrChannelForUri = makeSelectTagInClaimOrChannelForUri;
@@ -6622,6 +6661,7 @@ exports.makeSelectTotalClaimsInChannelSearch = makeSelectTotalClaimsInChannelSea
 exports.makeSelectTotalItemsForChannel = makeSelectTotalItemsForChannel;
 exports.makeSelectTotalPagesForChannel = makeSelectTotalPagesForChannel;
 exports.makeSelectTotalPagesInChannelSearch = makeSelectTotalPagesInChannelSearch;
+exports.makeSelectTotalStakedAmountForChannelUri = makeSelectTotalStakedAmountForChannelUri;
 exports.makeSelectUriIsStreamable = makeSelectUriIsStreamable;
 exports.normalizeURI = normalizeURI;
 exports.notificationsReducer = notificationsReducer;
