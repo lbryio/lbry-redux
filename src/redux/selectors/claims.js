@@ -3,7 +3,7 @@ import { normalizeURI, buildURI, parseURI } from 'lbryURI';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
 import { isClaimNsfw, filterClaims } from 'util/claim';
-import { PAGE_SIZE } from 'constants/claim';
+import * as CLAIM from 'constants/claim';
 
 const selectState = state => state.claims || {};
 
@@ -261,8 +261,8 @@ export const makeSelectMyPurchasesForPage = (query: ?string, page: number = 1) =
 
       const fileInfos = myPurchases.map(uri => claimsByUri[uri]);
       const matchingFileInfos = filterClaims(fileInfos, query);
-      const start = (Number(page) - 1) * Number(PAGE_SIZE);
-      const end = Number(page) * Number(PAGE_SIZE);
+      const start = (Number(page) - 1) * Number(CLAIM.PAGE_SIZE);
+      const end = Number(page) * Number(CLAIM.PAGE_SIZE);
       return matchingFileInfos && matchingFileInfos.length
         ? matchingFileInfos
           .slice(start, end)
@@ -824,8 +824,8 @@ export const makeSelectMyStreamUrlsForPage = (page: number = 1) =>
   createSelector(
     selectMyClaimUrisWithoutChannels,
     urls => {
-      const start = (Number(page) - 1) * Number(PAGE_SIZE);
-      const end = Number(page) * Number(PAGE_SIZE);
+      const start = (Number(page) - 1) * Number(CLAIM.PAGE_SIZE);
+      const end = Number(page) * Number(CLAIM.PAGE_SIZE);
 
       return urls && urls.length ? urls.slice(start, end) : [];
     }
@@ -848,5 +848,40 @@ export const makeSelectTagInClaimOrChannelForUri = (uri: string, tag: string) =>
           claim.signing_channel.value.tags) ||
         [];
       return claimTags.includes(tag) || channelTags.includes(tag);
+    }
+  );
+
+export const makeSelectTotalStakedAmountForChannelUri = (uri: string) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    claim => {
+      if (!claim || !claim.amount || !claim.meta || !claim.meta.support_amount) {
+        return 0;
+      }
+
+      return parseFloat(claim.amount) + parseFloat(claim.meta.support_amount) || 0;
+    }
+  );
+
+export const makeSelectStakedLevelForChannelUri = (uri: string) =>
+  createSelector(
+    makeSelectTotalStakedAmountForChannelUri(uri),
+    amount => {
+      let level = CLAIM.LEVEL_1_STAKED_AMOUNT;
+      switch (true) {
+        case amount >= 1 && amount < 50:
+          level = CLAIM.LEVEL_2_STAKED_AMOUNT;
+          break;
+        case amount >= 50 && amount < 250:
+          level = CLAIM.LEVEL_3_STAKED_AMOUNT;
+          break;
+        case amount >= 250 && amount < 1000:
+          level = CLAIM.LEVEL_4_STAKED_AMOUNT;
+          break;
+        case amount >= 1000:
+          level = CLAIM.LEVEL_5_STAKED_AMOUNT;
+          break;
+      }
+      return level;
     }
   );

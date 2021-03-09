@@ -163,6 +163,8 @@ export {
   makeSelectEffectiveAmountForUri,
   makeSelectTagsForUri,
   makeSelectTagInClaimOrChannelForUri,
+  makeSelectTotalStakedAmountForChannelUri,
+  makeSelectStakedLevelForChannelUri,
   makeSelectContentTypeForUri,
   makeSelectIsUriResolving,
   makeSelectPendingClaimForUri,
