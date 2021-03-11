@@ -72,7 +72,7 @@ const defaultState = {
   fetchingChannelClaims: {},
   resolvingUris: [],
   myChannelClaims: undefined,
-  myCollectionClaims: undefined,
+  myCollectionClaims: [],
   myClaims: undefined,
   myPurchases: undefined,
   myPurchasesPageNumber: undefined,
@@ -112,16 +112,7 @@ const defaultState = {
 };
 
 function handleClaimAction(state: State, action: any): State {
-  const {
-    resolveInfo,
-  }: {
-    [string]: {
-      stream: ?StreamClaim,
-      channel: ?ChannelClaim,
-      claimsInChannel: ?number,
-      collection: ?CollectionClaim,
-    },
-  } = action.data;
+  const { resolveInfo }: ClaimActionResolveInfo = action.data;
 
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
@@ -611,45 +602,47 @@ reducers[ACTIONS.CLEAR_COLLECTION_ERRORS] = (state: State): State => ({
   updateCollectionError: null,
 });
 
-reducers[ACTIONS.PUBLISHED_COLLECTION_CREATE_STARTED] = (state: State): State => ({
+reducers[ACTIONS.COLLECTION_PUBLISH_STARTED] = (state: State): State => ({
   ...state,
   creatingCollection: true,
   createCollectionError: null,
 });
 
-reducers[ACTIONS.PUBLISHED_COLLECTION_CREATE_COMPLETED] = (state: State, action: any): State => {
+reducers[ACTIONS.COLLECTION_PUBLISH_COMPLETED] = (state: State, action: any): State => {
   return Object.assign({}, state, {
     creatingCollection: false,
   });
 };
 
-reducers[ACTIONS.PUBLISHED_COLLECTION_CREATE_FAILED] = (state: State, action: any): State => {
+reducers[ACTIONS.COLLECTION_PUBLISH_FAILED] = (state: State, action: any): State => {
   return Object.assign({}, state, {
     creatingCollection: false,
-    createCollectionError: action.data,
+    createCollectionError: action.data.error,
   });
 };
 
-reducers[ACTIONS.PUBLISHED_COLLECTION_UPDATE_STARTED] = (state: State, action: any): State => {
+reducers[ACTIONS.COLLECTION_PUBLISH_UPDATE_STARTED] = (state: State, action: any): State => {
   return Object.assign({}, state, {
     updateCollectionError: '',
     updatingCollection: true,
   });
 };
 
-reducers[ACTIONS.PUBLISHED_COLLECTION_UPDATE_COMPLETED] = (state: State, action: any): State => {
+reducers[ACTIONS.COLLECTION_PUBLISH_UPDATE_COMPLETED] = (state: State, action: any): State => {
   return Object.assign({}, state, {
     updateCollectionError: '',
     updatingCollection: false,
   });
 };
 
-reducers[ACTIONS.PUBLISHED_COLLECTION_UPDATE_FAILED] = (state: State, action: any): State => {
+reducers[ACTIONS.COLLECTION_PUBLISH_UPDATE_FAILED] = (state: State, action: any): State => {
   return Object.assign({}, state, {
-    updateCollectionError: action.data.message,
+    updateCollectionError: action.data.error,
     updatingCollection: false,
   });
 };
+
+// COLLECTION_PUBLISH_ABANDON_...
 
 reducers[ACTIONS.IMPORT_CHANNEL_STARTED] = (state: State): State =>
   Object.assign({}, state, { pendingChannelImports: true });

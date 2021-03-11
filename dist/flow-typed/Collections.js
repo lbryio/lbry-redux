@@ -1,8 +1,8 @@
 declare type CollectionUpdateParams = {
-  remove: boolean,
-  claims: Array<GenericClaim>,
-  name: string,
-  order: { from: number, to: number },
+  remove?: boolean,
+  claims?: Array<GenericClaim>,
+  name?: string,
+  order?: { from: number, to: number },
 }
 
 declare type CollectionItem = {

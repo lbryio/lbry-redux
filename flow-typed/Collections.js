@@ -1,8 +1,8 @@
 declare type CollectionUpdateParams = {
-  remove: boolean,
-  claims: Array<GenericClaim>,
-  name: string,
-  order: { from: number, to: number },
+  remove?: boolean,
+  claims?: Array<GenericClaim>,
+  name?: string,
+  order?: { from: number, to: number },
 }
 
 declare type CollectionItem = {
@@ -12,7 +12,7 @@ declare type CollectionItem = {
 
 declare type Collection = {
   id: string,
-  items: Array<CollectionItem>,
+  items: Array<?CollectionItem>,
   name: string,
   type: string,
   updatedAt: number,
@@ -22,9 +22,10 @@ declare type Collection = {
 declare type CollectionState = {
   unpublished: CollectionGroup,
   resolved: CollectionGroup,
+  pending: CollectionGroup,
+  edited: CollectionGroup,
   builtin: CollectionGroup,
   saved: Array<string>,
-  mine: Array<string>,
   isResolvingCollectionById: { [string]: boolean },
   error?: string | null,
 };

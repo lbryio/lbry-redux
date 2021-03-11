@@ -166,20 +166,26 @@ const PURCHASE_LIST_STARTED = 'PURCHASE_LIST_STARTED';
 const PURCHASE_LIST_COMPLETED = 'PURCHASE_LIST_COMPLETED';
 const PURCHASE_LIST_FAILED = 'PURCHASE_LIST_FAILED';
 
-const PUBLISHED_COLLECTION_CREATE_STARTED = 'PUBLISHED_COLLECTION_CREATE_STARTED';
-const PUBLISHED_COLLECTION_CREATE_COMPLETED = 'PUBLISHED_COLLECTION_CREATE_COMPLETED';
-const PUBLISHED_COLLECTION_CREATE_FAILED = 'PUBLISHED_COLLECTION_CREATE_FAILED';
-const PUBLISHED_COLLECTION_UPDATE_STARTED = 'PUBLISHED_COLLECTION_UPDATE_STARTED';
-const PUBLISHED_COLLECTION_UPDATE_COMPLETED = 'PUBLISHED_COLLECTION_UPDATE_COMPLETED';
-const PUBLISHED_COLLECTION_UPDATE_FAILED = 'PUBLISHED_COLLECTION_UPDATE_FAILED';
+const COLLECTION_PUBLISH_STARTED = 'COLLECTION_PUBLISH_STARTED';
+const COLLECTION_PUBLISH_COMPLETED = 'COLLECTION_PUBLISH_COMPLETED';
+const COLLECTION_PUBLISH_FAILED = 'COLLECTION_PUBLISH_FAILED';
+const COLLECTION_PUBLISH_UPDATE_STARTED = 'COLLECTION_PUBLISH_UPDATE_STARTED';
+const COLLECTION_PUBLISH_UPDATE_COMPLETED = 'COLLECTION_PUBLISH_UPDATE_COMPLETED';
+const COLLECTION_PUBLISH_UPDATE_FAILED = 'COLLECTION_PUBLISH_UPDATE_FAILED';
+const COLLECTION_PUBLISH_ABANDON_STARTED = 'COLLECTION_PUBLISH_ABANDON_STARTED';
+const COLLECTION_PUBLISH_ABANDON_COMPLETED = 'COLLECTION_PUBLISH_ABANDON_COMPLETED';
+const COLLECTION_PUBLISH_ABANDON_FAILED = 'COLLECTION_PUBLISH_ABANDON_FAILED';
 const CLEAR_COLLECTION_ERRORS = 'CLEAR_COLLECTION_ERRORS';
-const COLLECTION_RESOLVE_STARTED = 'COLLECTION_RESOLVE_STARTED';
-const COLLECTION_RESOLVE_COMPLETED = 'COLLECTION_RESOLVE_COMPLETED';
-const COLLECTION_RESOLVE_FAILED = 'COLLECTION_RESOLVE_FAILED';
-const UNPUBLISHED_COLLECTION_CREATE = 'UNPUBLISHED_COLLECTION_CREATE';
-const UNPUBLISHED_COLLECTION_DELETE = 'UNPUBLISHED_COLLECTION_DELETE';
-const UNPUBLISHED_COLLECTION_UPDATE = 'UNPUBLISHED_COLLECTION_UPDATE';
-const UNPUBLISHED_COLLECTION_ERROR = 'UNPUBLISHED_COLLECTION_ERROR';
+const COLLECTION_ITEMS_RESOLVE_STARTED = 'COLLECTION_ITEMS_RESOLVE_STARTED';
+const COLLECTION_ITEMS_RESOLVE_COMPLETED = 'COLLECTION_ITEMS_RESOLVE_COMPLETED';
+const COLLECTION_ITEMS_RESOLVE_FAILED = 'COLLECTION_ITEMS_RESOLVE_FAILED';
+const COLLECTION_NEW = 'COLLECTION_NEW';
+const COLLECTION_DELETE = 'COLLECTION_DELETE';
+const COLLECTION_PENDING = 'COLLECTION_PENDING';
+const COLLECTION_EDIT = 'COLLECTION_EDIT';
+const COLLECTION_COPY = 'COLLECTION_COPY';
+const COLLECTION_SAVE = 'COLLECTION_SAVE';
+const COLLECTION_ERROR = 'COLLECTION_ERROR';
 
 // Comments
 const COMMENT_LIST_STARTED = 'COMMENT_LIST_STARTED';
@@ -458,20 +464,26 @@ var action_types = /*#__PURE__*/Object.freeze({
   PURCHASE_LIST_STARTED: PURCHASE_LIST_STARTED,
   PURCHASE_LIST_COMPLETED: PURCHASE_LIST_COMPLETED,
   PURCHASE_LIST_FAILED: PURCHASE_LIST_FAILED,
-  PUBLISHED_COLLECTION_CREATE_STARTED: PUBLISHED_COLLECTION_CREATE_STARTED,
-  PUBLISHED_COLLECTION_CREATE_COMPLETED: PUBLISHED_COLLECTION_CREATE_COMPLETED,
-  PUBLISHED_COLLECTION_CREATE_FAILED: PUBLISHED_COLLECTION_CREATE_FAILED,
-  PUBLISHED_COLLECTION_UPDATE_STARTED: PUBLISHED_COLLECTION_UPDATE_STARTED,
-  PUBLISHED_COLLECTION_UPDATE_COMPLETED: PUBLISHED_COLLECTION_UPDATE_COMPLETED,
-  PUBLISHED_COLLECTION_UPDATE_FAILED: PUBLISHED_COLLECTION_UPDATE_FAILED,
+  COLLECTION_PUBLISH_STARTED: COLLECTION_PUBLISH_STARTED,
+  COLLECTION_PUBLISH_COMPLETED: COLLECTION_PUBLISH_COMPLETED,
+  COLLECTION_PUBLISH_FAILED: COLLECTION_PUBLISH_FAILED,
+  COLLECTION_PUBLISH_UPDATE_STARTED: COLLECTION_PUBLISH_UPDATE_STARTED,
+  COLLECTION_PUBLISH_UPDATE_COMPLETED: COLLECTION_PUBLISH_UPDATE_COMPLETED,
+  COLLECTION_PUBLISH_UPDATE_FAILED: COLLECTION_PUBLISH_UPDATE_FAILED,
+  COLLECTION_PUBLISH_ABANDON_STARTED: COLLECTION_PUBLISH_ABANDON_STARTED,
+  COLLECTION_PUBLISH_ABANDON_COMPLETED: COLLECTION_PUBLISH_ABANDON_COMPLETED,
+  COLLECTION_PUBLISH_ABANDON_FAILED: COLLECTION_PUBLISH_ABANDON_FAILED,
   CLEAR_COLLECTION_ERRORS: CLEAR_COLLECTION_ERRORS,
-  COLLECTION_RESOLVE_STARTED: COLLECTION_RESOLVE_STARTED,
-  COLLECTION_RESOLVE_COMPLETED: COLLECTION_RESOLVE_COMPLETED,
-  COLLECTION_RESOLVE_FAILED: COLLECTION_RESOLVE_FAILED,
-  UNPUBLISHED_COLLECTION_CREATE: UNPUBLISHED_COLLECTION_CREATE,
-  UNPUBLISHED_COLLECTION_DELETE: UNPUBLISHED_COLLECTION_DELETE,
-  UNPUBLISHED_COLLECTION_UPDATE: UNPUBLISHED_COLLECTION_UPDATE,
-  UNPUBLISHED_COLLECTION_ERROR: UNPUBLISHED_COLLECTION_ERROR,
+  COLLECTION_ITEMS_RESOLVE_STARTED: COLLECTION_ITEMS_RESOLVE_STARTED,
+  COLLECTION_ITEMS_RESOLVE_COMPLETED: COLLECTION_ITEMS_RESOLVE_COMPLETED,
+  COLLECTION_ITEMS_RESOLVE_FAILED: COLLECTION_ITEMS_RESOLVE_FAILED,
+  COLLECTION_NEW: COLLECTION_NEW,
+  COLLECTION_DELETE: COLLECTION_DELETE,
+  COLLECTION_PENDING: COLLECTION_PENDING,
+  COLLECTION_EDIT: COLLECTION_EDIT,
+  COLLECTION_COPY: COLLECTION_COPY,
+  COLLECTION_SAVE: COLLECTION_SAVE,
+  COLLECTION_ERROR: COLLECTION_ERROR,
   COMMENT_LIST_STARTED: COMMENT_LIST_STARTED,
   COMMENT_LIST_COMPLETED: COMMENT_LIST_COMPLETED,
   COMMENT_LIST_FAILED: COMMENT_LIST_FAILED,
@@ -2733,52 +2745,6 @@ const selectCreatingCollection = reselect.createSelector(selectState$1, state =>
 
 const selectCreateCollectionError = reselect.createSelector(selectState$1, state => state.createCollectionError);
 
-//      
-
-const selectState$2 = state => state.collections;
-
-const selectSavedCollectionIds = reselect.createSelector(selectState$2, collectionState => collectionState.saved);
-const selectBuiltinCollections = reselect.createSelector(selectState$2, state => state.builtin);
-const selectResolvedCollections = reselect.createSelector(selectState$2, state => state.resolved);
-const selectMyUnpublishedCollections = reselect.createSelector(selectState$2, state => state.unpublished);
-const selectMyPublishedCollections = reselect.createSelector(selectResolvedCollections, selectMyCollectionIds, (resolved, myIds) => {
-  const myPublishedCollections = Object.fromEntries(Object.entries(resolved).filter(([key, val]) => myIds.includes(key)));
-  return myPublishedCollections;
-});
-
-const selectSavedCollections = reselect.createSelector(selectResolvedCollections, selectSavedCollectionIds, (resolved, myIds) => {
-  const mySavedCollections = Object.fromEntries(Object.entries(resolved).filter(([key, val]) => myIds.includes(key)));
-  return mySavedCollections;
-});
-
-const makeSelectIsResolvingCollectionForId = id => reselect.createSelector(selectState$2, state => {
-  return state.isResolvingCollectionById[id];
-});
-
-const makeSelectCollectionForId = id => reselect.createSelector(selectBuiltinCollections, selectResolvedCollections, selectMyUnpublishedCollections, (bLists, rLists, uLists) => {
-  // probably return the most updated when both unpublished and published have same id, maybe mark as unsaved
-  const collection = bLists[id] || rLists[id] || uLists[id];
-  return collection;
-});
-
-const makeSelectUrlsForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
-  const items = collection && collection.items || [];
-  const urls = items.map(item => item.url);
-  return urls;
-});
-
-const makeSelectNextUrlForCollection = (id, index) => reselect.createSelector(makeSelectUrlsForCollectionId(id), urls => {
-  const url = urls[index + 1];
-  if (url) {
-    return url;
-  }
-  return null;
-});
-
-const makeSelectNameForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
-  return collection.name || '';
-});
-
 function numberWithCommas(x) {
   var parts = x.toString().split('.');
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -4011,7 +3977,6 @@ function doFetchCollectionListMine(page = 1, pageSize = 99999) {
   };
 }
 
-// wanted to async this :(
 function doClaimSearch(options = {
   no_totals: true,
   page_size: 10,
@@ -4042,6 +4007,8 @@ function doClaimSearch(options = {
           pageSize: options.page_size
         }
       });
+
+      return resolveInfo;
     };
 
     const failure = err => {
@@ -4052,7 +4019,7 @@ function doClaimSearch(options = {
       });
     };
 
-    lbryProxy.claim_search(_extends$5({}, options, {
+    return lbryProxy.claim_search(_extends$5({}, options, {
       include_purchase_receipt: true
     })).then(success, failure);
   };
@@ -4096,6 +4063,94 @@ function doRepost(options) {
       }
 
       lbryProxy.stream_repost(options).then(success, failure);
+    });
+  };
+}
+
+function doCollectionPublish(options, localId) {
+  return dispatch => {
+    // $FlowFixMe
+    return new Promise(resolve => {
+      dispatch({
+        type: COLLECTION_PUBLISH_STARTED
+      });
+
+      function success(response) {
+        const collectionClaim = response.outputs[0];
+        dispatch({
+          type: COLLECTION_PUBLISH_COMPLETED,
+          data: {
+            collectionClaim,
+            localId: localId
+          }
+        });
+
+        dispatch({
+          type: COLLECTION_PENDING,
+          data: { localId: localId, claimId: collectionClaim.claim_id }
+        });
+        dispatch({
+          type: UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [collectionClaim]
+          }
+        });
+        dispatch(doCheckPendingClaims()); // pass callback?
+        // this only asks for streams and reposts right now
+        dispatch(doFetchCollectionListMine(1, 10));
+        resolve(collectionClaim);
+      }
+
+      function failure(error) {
+        dispatch({
+          type: COLLECTION_PUBLISH_FAILED,
+          data: {
+            error: error.message
+          }
+        });
+      }
+
+      lbryProxy.collection_create(options).then(success, failure);
+    });
+  };
+}
+
+function doCollectionPublishUpdate(options) {
+  return dispatch => {
+    // $FlowFixMe
+    return new Promise(resolve => {
+      dispatch({
+        type: COLLECTION_PUBLISH_UPDATE_STARTED
+      });
+
+      function success(response) {
+        const collectionClaim = response.outputs[0];
+        dispatch({
+          type: COLLECTION_PUBLISH_UPDATE_COMPLETED,
+          data: {
+            collectionClaim
+          }
+        });
+        dispatch({
+          type: UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [collectionClaim]
+          }
+        });
+        dispatch(doFetchCollectionListMine(1, 10));
+        resolve(collectionClaim);
+      }
+
+      function failure(error) {
+        dispatch({
+          type: COLLECTION_PUBLISH_UPDATE_FAILED,
+          data: {
+            error: error.message
+          }
+        });
+      }
+
+      lbryProxy.collection_update(options).then(success, failure);
     });
   };
 }
@@ -4202,16 +4257,95 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
   }, 30000);
 };
 
+//      
+
+const selectState$2 = state => state.collections;
+
+const selectSavedCollectionIds = reselect.createSelector(selectState$2, collectionState => collectionState.saved);
+
+const selectBuiltinCollections = reselect.createSelector(selectState$2, state => state.builtin);
+const selectResolvedCollections = reselect.createSelector(selectState$2, state => state.resolved);
+
+const selectMyUnpublishedCollections = reselect.createSelector(selectState$2, state => state.unpublished);
+
+const selectMyEditedCollections = reselect.createSelector(selectState$2, state => state.edited);
+
+const makeSelectEditedCollectionForId = id => reselect.createSelector(selectMyEditedCollections, eLists => eLists[id]);
+
+const makeSelectPublishedCollectionForId = id => reselect.createSelector(selectResolvedCollections, rLists => rLists[id]);
+
+const makeSelectUnpublishedCollectionForId = id => reselect.createSelector(selectMyUnpublishedCollections, rLists => rLists[id]);
+
+const makeSelectCollectionIsMine = id => reselect.createSelector(selectMyCollectionIds, selectMyUnpublishedCollections, selectBuiltinCollections, (publicIds, privateIds, builtinIds) => {
+  return Boolean(publicIds[id] || privateIds[id] || builtinIds[id]);
+});
+
+const selectMyPublishedCollections = reselect.createSelector(selectResolvedCollections, selectMyEditedCollections, selectMyCollectionIds, (resolved, edited, myIds) => {
+  // all resolved in myIds, except those with local edits newer
+  const myPublishedCollections = Object.fromEntries(Object.entries(resolved).filter(([key, val]) => myIds.includes(key) && (!edited[key] || edited[key].updatedAt < val.updatedAt)));
+  return myPublishedCollections;
+});
+
+const makeSelectMyPublishedCollectionForId = id => reselect.createSelector(selectMyPublishedCollections, myPublishedCollections => myPublishedCollections[id]);
+
+// export const selectSavedCollections = createSelector(
+//   selectResolvedCollections,
+//   selectSavedCollectionIds,
+//   (resolved, myIds) => {
+//     const mySavedCollections = Object.fromEntries(
+//       Object.entries(resolved).filter(([key, val]) => myIds.includes(key))
+//     );
+//     return mySavedCollections;
+//   }
+// );
+
+const makeSelectIsResolvingCollectionForId = id => reselect.createSelector(selectState$2, state => {
+  return state.isResolvingCollectionById[id];
+});
+
+const makeSelectCollectionForId = id => reselect.createSelector(selectBuiltinCollections, selectResolvedCollections, selectMyUnpublishedCollections, selectMyEditedCollections, (bLists, rLists, uLists, eLists) => {
+  const collection = bLists[id] || uLists[id] || eLists[id] || rLists[id];
+  return collection;
+});
+
+const makeSelectUrlsForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
+  const items = collection && collection.items || [];
+  const urls = items.map(item => item.url);
+  return urls;
+});
+
+const makeSelectClaimIdsForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
+  const items = collection && collection.items || [];
+  const ids = items.map(item => item.claimId);
+  return ids;
+});
+
+const makeSelectNextUrlForCollection = (id, index) => reselect.createSelector(makeSelectUrlsForCollectionId(id), urls => {
+  const url = urls[index + 1];
+  if (url) {
+    return url;
+  }
+  return null;
+});
+
+const makeSelectNameForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
+  return collection && collection.name || '';
+});
+
 function _asyncToGenerator$2(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+const WATCH_LATER_ID = 'watchlater';
+const FAVORITES_ID = 'favorites';
+
+const BUILTIN_LISTS = [WATCH_LATER_ID, FAVORITES_ID];
 
 const getTimestamp = () => {
   return Math.floor(Date.now() / 1000);
 };
 
 // maybe take items param
-const doCreateUnpublishedCollection = (name, collectionItems, sourceId) => dispatch => {
+const doLocalCollectionCreate = (name, collectionItems, sourceId) => dispatch => {
   return dispatch({
-    type: UNPUBLISHED_COLLECTION_CREATE,
+    type: COLLECTION_NEW,
     data: {
       entry: {
         id: uuid.v4(), // start with a uuid, this becomes a claimId after publish
@@ -4224,7 +4358,40 @@ const doCreateUnpublishedCollection = (name, collectionItems, sourceId) => dispa
   });
 };
 
-const doResolveCollections = collectionIds => (() => {
+const doLocalCollectionDelete = id => dispatch => {
+  return dispatch({
+    type: COLLECTION_DELETE,
+    data: {
+      id: id
+    }
+  });
+};
+
+// Given a collection, save its collectionId to be resolved and displayed in Library
+// export const doCollectionSave = (
+//   id: string,
+// ) => (dispatch: Dispatch) => {
+//   return dispatch({
+//     type: ACTIONS.COLLECTION_SAVE,
+//     data: {
+//       id: id,
+//     },
+//   });
+// };
+
+// Given a collection and name, copy it to a local private collection with a name
+// export const doCollectionCopy = (
+//   id: string,
+// ) => (dispatch: Dispatch) => {
+//   return dispatch({
+//     type: ACTIONS.COLLECTION_COPY,
+//     data: {
+//       id: id,
+//     },
+//   });
+// };
+
+const doResolveItemsInCollections = collectionIds => (() => {
   var _ref = _asyncToGenerator$2(function* (dispatch, getState) {
     let resolveCollection = (() => {
       var _ref2 = _asyncToGenerator$2(function* (claim_id) {
@@ -4257,7 +4424,7 @@ const doResolveCollections = collectionIds => (() => {
     // make sure the collection is resolved, the items are resolved, and build the collection objects
 
     dispatch({
-      type: COLLECTION_RESOLVE_STARTED,
+      type: COLLECTION_ITEMS_RESOLVE_STARTED,
       data: { ids: collectionIds }
     });
 
@@ -4307,7 +4474,6 @@ const doResolveCollections = collectionIds => (() => {
 
     const newCollectionItemsById = {};
     const flatResolvedCollectionItems = {};
-    console.log('RESCIBI', resolvedCollectionItemsById);
     resolvedCollectionItemsById.forEach(function (entry) {
       // $FlowFixMe
       const collectionItems = entry.items;
@@ -4346,7 +4512,7 @@ const doResolveCollections = collectionIds => (() => {
     console.log('newC', newCollectionItemsById);
 
     dispatch({
-      type: COLLECTION_RESOLVE_COMPLETED,
+      type: COLLECTION_ITEMS_RESOLVE_COMPLETED,
       data: { resolvedCollections: newCollectionItemsById }
     });
   });
@@ -4356,64 +4522,198 @@ const doResolveCollections = collectionIds => (() => {
   };
 })();
 
-const doResolveCollection = collectionId => doResolveCollections([collectionId]);
+const doResolveItemsInCollection = collectionId => doResolveItemsInCollections([collectionId]);
 
 /*
-  updateCollection: If ID is only in published, put update in dirty
+  id can be in published or unpublished
+  if it is in published, copy it into unpublished
+  if it is in unpublished, update it into unpublished
  */
-const doUpdateUnpublishedCollection = (id, params) => (dispatch, getState) => {
-  const state = getState();
-  const collection = makeSelectCollectionForId(id)(state);
+const doCollectionEdit = (id, params) => (() => {
+  var _ref3 = _asyncToGenerator$2(function* (dispatch, getState) {
+    console.log('id', id, 'params', params);
+    const state = getState();
+    const collection = makeSelectCollectionForId(id)(state);
+    const editedCollection = makeSelectEditedCollectionForId(id)(state);
+    const unpublishedCollection = makeSelectUnpublishedCollectionForId(id)(state);
+    const publishedCollection = makeSelectMyPublishedCollectionForId(id)(state);
+    console.log('cols', collection, editedCollection, unpublishedCollection, publishedCollection);
 
-  const generateCollectionItem = claim => {
-    if (claim && claim.canonical_url) {
-      const item = {};
-      item.url = claim.canonical_url;
-      item.claimId = claim.claim_id;
-      return item;
-    }
-  };
+    const isCollectionItemsIdentical = function (first, second) {
+      const getClaimIdString = function (items) {
+        return items.map(function (item) {
+          return item.claimId;
+        }).join(',');
+      };
+      return getClaimIdString(first.items) === getClaimIdString(second.items);
+    };
 
-  if (!collection) {
-    return dispatch({
-      type: UNPUBLISHED_COLLECTION_ERROR,
-      data: {
-        message: 'collection does not exist'
+    // we can edit a published one by copying it
+    // if not published, just add or remove, done.
+    // if published, add, or remove
+    // and if no items, delete.
+
+    const generateCollectionItemFromClaim = function (claim) {
+      if (claim && claim.canonical_url) {
+        const item = {};
+        item.url = claim.canonical_url;
+        item.claimId = claim.claim_id;
+        console.log('generated item', item);
+        return item;
       }
-    });
-  }
+    };
 
-  let items = collection.items;
-  const passedClaims = params.claims;
-  const order = params.order;
-  // add or remove claim
-  if (passedClaims) {
-    if (params.remove) {
-      const passedClaimIds = passedClaims.map(claim => claim.claimId);
-      items = items.filter(it => passedClaimIds.includes(it.claimId)); // filter the claim
-    } else {
-      params.claims.forEach(claim => items.push(generateCollectionItem(claim)));
+    const generateCollectionItemsFromSearchResult = function (results) {
+      return Object.values(results).reduce(function (acc, cur) {
+        let claimId, url;
+        if (cur.stream) {
+          claimId = cur.stream.claim_id;
+          url = cur.stream.permanent_url;
+        } else if (cur.channel) {
+          claimId = cur.channel.claim_id;
+          url = cur.channel.permanent_url;
+        } else if (cur.collection) {
+          claimId = cur.collection.claim_id;
+          url = cur.collection.permanent_url;
+        }
+        acc.push({ url, claimId });
+        return acc;
+      }, []);
+    };
+
+    if (!collection) {
+      return dispatch({
+        type: COLLECTION_ERROR,
+        data: {
+          message: 'collection does not exist'
+        }
+      });
     }
-  }
 
-  if (order) {
-    const [movedItem] = items.splice(order.from, 1);
-    items.splice(order.to, 0, movedItem);
-  }
+    let currentItems = collection.items ? collection.items.concat() : [];
+    const { claims: passedClaims, order, claimIds, replace, remove } = params;
 
-  dispatch({
-    type: UNPUBLISHED_COLLECTION_UPDATE,
-    data: {
-      id: id,
-      collection: {
-        items: items,
-        id: id,
-        name: params.name || collection.name,
-        updatedAt: getTimestamp()
+    let newItems;
+
+    if (passedClaims) {
+      console.log('passedClaims', passedClaims);
+      if (remove) {
+        const passedClaimIds = passedClaims.map(function (claim) {
+          return claim.claim_id;
+        });
+        newItems = currentItems.filter(function (item) {
+          return !passedClaimIds.includes(item.claimId);
+        }); // filter the claim
+      } else {
+        newItems = currentItems;
+        console.log('generate claims', passedClaims);
+        passedClaims.forEach(function (claim) {
+          return newItems.push(generateCollectionItemFromClaim(claim));
+        });
       }
+    }
+
+    if (claimIds) {
+      let options = { claim_ids: claimIds, page: 1, page_size: 9999 };
+      const searchResults = yield dispatch(doClaimSearch(options));
+      if (replace) {
+        newItems = generateCollectionItemsFromSearchResult(searchResults);
+      } else {
+        newItems = currentItems.concat(generateCollectionItemsFromSearchResult(searchResults));
+      }
+      console.log('newItems', newItems);
+    }
+
+    if (order) {
+      const [movedItem] = currentItems.splice(order.from, 1);
+      currentItems.splice(order.to, 0, movedItem);
+    }
+
+    if (editedCollection) {
+      if (isCollectionItemsIdentical(publishedCollection.items, newItems)) {
+        // delete edited if newItems are the same as publishedItems
+        console.log('delete edited private', id);
+
+        dispatch({
+          type: COLLECTION_DELETE,
+          data: {
+            id: id,
+            collectionKey: 'edited'
+          }
+        });
+      } else {
+        console.log('published edited', id, newItems);
+
+        dispatch({
+          type: COLLECTION_EDIT,
+          data: {
+            id: id,
+            collectionKey: 'edited',
+            collection: {
+              items: newItems,
+              id: id,
+              name: params.name || collection.name,
+              updatedAt: getTimestamp()
+            }
+          }
+        });
+      }
+      // check if updatedEditedCollectoin would be same as published collection
+      // update or delete the edited collection
+    } else if (publishedCollection) {
+      console.log('published', id, newItems);
+
+      dispatch({
+        type: COLLECTION_EDIT,
+        data: {
+          id: id,
+          collectionKey: 'edited',
+          collection: {
+            items: newItems,
+            id: id,
+            name: params.name || collection.name,
+            updatedAt: getTimestamp()
+          }
+        }
+      });
+    } else if (BUILTIN_LISTS.includes(id)) {
+      console.log('builtin', id, newItems);
+
+      dispatch({
+        type: COLLECTION_EDIT,
+        data: {
+          id: id,
+          collectionKey: 'builtin',
+          collection: {
+            items: newItems,
+            id: id,
+            name: params.name || collection.name,
+            updatedAt: getTimestamp()
+          }
+        }
+      });
+    } else if (unpublishedCollection) {
+      console.log('private', id, newItems);
+      return dispatch({
+        type: COLLECTION_EDIT,
+        data: {
+          id: id,
+          collectionKey: 'unpublished',
+          collection: {
+            items: newItems,
+            id: id,
+            name: params.name || collection.name,
+            updatedAt: getTimestamp()
+          }
+        }
+      });
     }
   });
-};
+
+  return function (_x4, _x5) {
+    return _ref3.apply(this, arguments);
+  };
+})();
 
 const selectState$3 = state => state.fileInfo || {};
 
@@ -5345,7 +5645,7 @@ const defaultState = {
   fetchingChannelClaims: {},
   resolvingUris: [],
   myChannelClaims: undefined,
-  myCollectionClaims: undefined,
+  myCollectionClaims: [],
   myClaims: undefined,
   myPurchases: undefined,
   myPurchasesPageNumber: undefined,
@@ -5859,44 +6159,46 @@ reducers[CLEAR_COLLECTION_ERRORS] = state => _extends$9({}, state, {
   updateCollectionError: null
 });
 
-reducers[PUBLISHED_COLLECTION_CREATE_STARTED] = state => _extends$9({}, state, {
+reducers[COLLECTION_PUBLISH_STARTED] = state => _extends$9({}, state, {
   creatingCollection: true,
   createCollectionError: null
 });
 
-reducers[PUBLISHED_COLLECTION_CREATE_COMPLETED] = (state, action) => {
+reducers[COLLECTION_PUBLISH_COMPLETED] = (state, action) => {
   return Object.assign({}, state, {
     creatingCollection: false
   });
 };
 
-reducers[PUBLISHED_COLLECTION_CREATE_FAILED] = (state, action) => {
+reducers[COLLECTION_PUBLISH_FAILED] = (state, action) => {
   return Object.assign({}, state, {
     creatingCollection: false,
-    createCollectionError: action.data
+    createCollectionError: action.data.error
   });
 };
 
-reducers[PUBLISHED_COLLECTION_UPDATE_STARTED] = (state, action) => {
+reducers[COLLECTION_PUBLISH_UPDATE_STARTED] = (state, action) => {
   return Object.assign({}, state, {
     updateCollectionError: '',
     updatingCollection: true
   });
 };
 
-reducers[PUBLISHED_COLLECTION_UPDATE_COMPLETED] = (state, action) => {
+reducers[COLLECTION_PUBLISH_UPDATE_COMPLETED] = (state, action) => {
   return Object.assign({}, state, {
     updateCollectionError: '',
     updatingCollection: false
   });
 };
 
-reducers[PUBLISHED_COLLECTION_UPDATE_FAILED] = (state, action) => {
+reducers[COLLECTION_PUBLISH_UPDATE_FAILED] = (state, action) => {
   return Object.assign({}, state, {
-    updateCollectionError: action.data.message,
+    updateCollectionError: action.data.error,
     updatingCollection: false
   });
 };
+
+// COLLECTION_PUBLISH_ABANDON_...
 
 reducers[IMPORT_CHANNEL_STARTED] = state => Object.assign({}, state, { pendingChannelImports: true });
 
@@ -6913,10 +7215,10 @@ const walletReducer = handleActions({
 
 var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const WATCH_LATER_ID = 'watchlater';
-const FAVORITES_ID = 'favorites';
+const WATCH_LATER_ID$1 = 'watchlater';
+const FAVORITES_ID$1 = 'favorites';
 
-const BUILTIN_LISTS = [WATCH_LATER_ID, FAVORITES_ID];
+const BUILTIN_LISTS$1 = [WATCH_LATER_ID$1, FAVORITES_ID$1];
 const getTimestamp$1 = () => {
   return Math.floor(Date.now() / 1000);
 };
@@ -6945,15 +7247,16 @@ const defaultState$6 = {
     }
   },
   resolved: {},
-  unpublished: {},
+  unpublished: {}, // sync
+  edited: {},
+  pending: {},
   saved: [],
-  mine: [],
   isResolvingCollectionById: {},
   error: null
 };
 
 const collectionsReducer = handleActions({
-  [UNPUBLISHED_COLLECTION_CREATE]: (state, action) => {
+  [COLLECTION_NEW]: (state, action) => {
     const { entry: params } = action.data; // { id:, items: Array<any>}
     // entry
     const newListTemplate = {
@@ -6961,7 +7264,7 @@ const collectionsReducer = handleActions({
       name: params.name,
       items: [],
       updatedAt: getTimestamp$1(),
-      type: 'mixed' // what
+      type: 'mixed'
     };
 
     const newList = Object.assign({}, newListTemplate, _extends$e({}, params));
@@ -6973,39 +7276,68 @@ const collectionsReducer = handleActions({
     });
   },
 
-  [UNPUBLISHED_COLLECTION_DELETE]: (state, action) => {
-    const { unpublished: lists } = state;
-    const { name } = action.data;
-    if (lists && lists[name] && lists[name].userList) {
-      delete lists[name];
+  [COLLECTION_DELETE]: (state, action) => {
+    const { id, collectionKey } = action.data;
+    if (collectionKey === 'edits') {
+      const { edits: lists } = state;
+      if (lists && lists[id]) {
+        delete lists[id];
+      }
+      return _extends$e({}, state, { edits: lists });
     }
-    return Object.assign({}, state, {
-      lists
-    });
+    const { unpublished: lists, edits: editlists } = state;
+
+    if (lists && lists[id]) {
+      delete lists[id];
+    } else if (editlists && editlists[id]) {
+      delete editlists[id];
+    }
+
+    return _extends$e({}, state, { unpublished: lists, edits: editlists });
   },
 
-  [UNPUBLISHED_COLLECTION_UPDATE]: (state, action) => {
-    const { id, collection } = action.data;
-    if (BUILTIN_LISTS.includes(id)) {
+  [COLLECTION_PENDING]: (state, action) => {
+    const { localId, claimId } = action.data;
+    const { edits: editList, unpublished: unpublishedList, pending: pendingList } = state;
+    const isEdit = editList[localId];
+    pendingList[claimId] = editList[localId] || unpublishedList[localId];
+    if (isEdit) {
+      editList.delete(localId);
+    } else {
+      unpublishedList.delete(localId);
+    }
+    return _extends$e({}, state, { unpublished: unpublishedList, edits: editList, pending: pendingList });
+  },
+
+  [COLLECTION_EDIT]: (state, action) => {
+    const { id, collectionKey, collection } = action.data;
+
+    if (BUILTIN_LISTS$1.includes(id)) {
       const { builtin: lists } = state;
-      // redo builtin
       return _extends$e({}, state, {
-        builtin: _extends$e({}, lists, { [id]: collection })
+        [collectionKey]: _extends$e({}, lists, { [id]: collection })
+      });
+    }
+
+    if (collectionKey === 'edits') {
+      const { edits: lists } = state;
+      return _extends$e({}, state, {
+        edits: _extends$e({}, lists, { [id]: collection })
       });
     }
     const { unpublished: lists } = state;
-
     return _extends$e({}, state, {
       unpublished: _extends$e({}, lists, { [id]: collection })
     });
   },
-  [UNPUBLISHED_COLLECTION_ERROR]: (state, action) => {
+
+  [COLLECTION_ERROR]: (state, action) => {
     return Object.assign({}, state, {
       error: action.data.message
     });
   },
 
-  [COLLECTION_RESOLVE_STARTED]: (state, action) => {
+  [COLLECTION_ITEMS_RESOLVE_STARTED]: (state, action) => {
     const { ids } = action.data;
     const { isResolvingCollectionById } = state;
     const newResolving = Object.assign({}, isResolvingCollectionById);
@@ -7019,14 +7351,13 @@ const collectionsReducer = handleActions({
   },
   [USER_STATE_POPULATE]: (state, action) => {
     const { builtinCollectionTest, savedCollectionTest, unpublishedCollectionTest } = action.data;
-    // do something about checking timestamps and merging
     return _extends$e({}, state, {
       unpublished: unpublishedCollectionTest || state.unpublished,
       builtin: builtinCollectionTest || state.builtin,
       saved: savedCollectionTest || state.saved
     });
   },
-  [COLLECTION_RESOLVE_COMPLETED]: (state, action) => {
+  [COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
     const { resolvedCollections } = action.data;
     const resolvedIds = Object.keys(resolvedCollections);
     const { isResolvingCollectionById, resolved: lists } = state;
@@ -7034,13 +7365,13 @@ const collectionsReducer = handleActions({
     const newResolving = Object.assign({}, isResolvingCollectionById);
     resolvedIds.forEach(resolvedId => delete newResolving[resolvedId]);
     const newLists = Object.assign({}, lists, resolvedCollections);
-
+    // create pending if null
     return Object.assign({}, state, _extends$e({}, state, {
       resolved: newLists,
       isResolvingCollectionById: newResolving
     }));
   },
-  [COLLECTION_RESOLVE_FAILED]: (state, action) => {
+  [COLLECTION_ITEMS_RESOLVE_FAILED]: (state, action) => {
     const { id } = action.data;
     const { isResolvingCollectionById } = state;
     const newResolving = isResolvingCollectionById.filter(i => i !== id);
@@ -7133,8 +7464,10 @@ exports.doClearPublish = doClearPublish;
 exports.doClearPurchasedUriSuccess = doClearPurchasedUriSuccess;
 exports.doClearRepostError = doClearRepostError;
 exports.doClearSupport = doClearSupport;
+exports.doCollectionEdit = doCollectionEdit;
+exports.doCollectionPublish = doCollectionPublish;
+exports.doCollectionPublishUpdate = doCollectionPublishUpdate;
 exports.doCreateChannel = doCreateChannel;
-exports.doCreateUnpublishedCollection = doCreateUnpublishedCollection;
 exports.doDismissError = doDismissError;
 exports.doDismissToast = doDismissToast;
 exports.doError = doError;
@@ -7151,6 +7484,8 @@ exports.doFileGet = doFileGet;
 exports.doFileList = doFileList;
 exports.doGetNewAddress = doGetNewAddress;
 exports.doImportChannel = doImportChannel;
+exports.doLocalCollectionCreate = doLocalCollectionCreate;
+exports.doLocalCollectionDelete = doLocalCollectionDelete;
 exports.doPopulateSharedUserState = doPopulateSharedUserState;
 exports.doPreferenceGet = doPreferenceGet;
 exports.doPreferenceSet = doPreferenceSet;
@@ -7160,8 +7495,8 @@ exports.doPurchaseList = doPurchaseList;
 exports.doPurchaseUri = doPurchaseUri;
 exports.doRepost = doRepost;
 exports.doResetThumbnailStatus = doResetThumbnailStatus;
-exports.doResolveCollection = doResolveCollection;
-exports.doResolveCollections = doResolveCollections;
+exports.doResolveItemsInCollection = doResolveItemsInCollection;
+exports.doResolveItemsInCollections = doResolveItemsInCollections;
 exports.doResolveUri = doResolveUri;
 exports.doResolveUris = doResolveUris;
 exports.doSendDraftTransaction = doSendDraftTransaction;
@@ -7178,7 +7513,6 @@ exports.doUpdateBlockHeight = doUpdateBlockHeight;
 exports.doUpdateChannel = doUpdateChannel;
 exports.doUpdatePublishForm = doUpdatePublishForm;
 exports.doUpdateTxoPageParams = doUpdateTxoPageParams;
-exports.doUpdateUnpublishedCollection = doUpdateUnpublishedCollection;
 exports.doUploadThumbnail = doUploadThumbnail;
 exports.doUtxoConsolidate = doUtxoConsolidate;
 exports.doWalletDecrypt = doWalletDecrypt;
@@ -7201,6 +7535,7 @@ exports.makeSelectChannelPermUrlForClaimUri = makeSelectChannelPermUrlForClaimUr
 exports.makeSelectClaimForClaimId = makeSelectClaimForClaimId;
 exports.makeSelectClaimForUri = makeSelectClaimForUri;
 exports.makeSelectClaimIdForUri = makeSelectClaimIdForUri;
+exports.makeSelectClaimIdsForCollectionId = makeSelectClaimIdsForCollectionId;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;
 exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
 exports.makeSelectClaimIsPending = makeSelectClaimIsPending;
@@ -7208,12 +7543,14 @@ exports.makeSelectClaimWasPurchased = makeSelectClaimWasPurchased;
 exports.makeSelectClaimsInChannelForCurrentPageState = makeSelectClaimsInChannelForCurrentPageState;
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
 exports.makeSelectCollectionForId = makeSelectCollectionForId;
+exports.makeSelectCollectionIsMine = makeSelectCollectionIsMine;
 exports.makeSelectContentPositionForUri = makeSelectContentPositionForUri;
 exports.makeSelectContentTypeForUri = makeSelectContentTypeForUri;
 exports.makeSelectCoverForUri = makeSelectCoverForUri;
 exports.makeSelectDateForUri = makeSelectDateForUri;
 exports.makeSelectDownloadPathForUri = makeSelectDownloadPathForUri;
 exports.makeSelectDownloadingForUri = makeSelectDownloadingForUri;
+exports.makeSelectEditedCollectionForId = makeSelectEditedCollectionForId;
 exports.makeSelectEffectiveAmountForUri = makeSelectEffectiveAmountForUri;
 exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
@@ -7229,6 +7566,7 @@ exports.makeSelectMediaTypeForUri = makeSelectMediaTypeForUri;
 exports.makeSelectMetadataForUri = makeSelectMetadataForUri;
 exports.makeSelectMetadataItemForUri = makeSelectMetadataItemForUri;
 exports.makeSelectMyChannelPermUrlForName = makeSelectMyChannelPermUrlForName;
+exports.makeSelectMyPublishedCollectionForId = makeSelectMyPublishedCollectionForId;
 exports.makeSelectMyPurchasesForPage = makeSelectMyPurchasesForPage;
 exports.makeSelectMyStreamUrlsForPage = makeSelectMyStreamUrlsForPage;
 exports.makeSelectNameForCollectionId = makeSelectNameForCollectionId;
@@ -7240,6 +7578,7 @@ exports.makeSelectPendingAmountByUri = makeSelectPendingAmountByUri;
 exports.makeSelectPendingClaimForUri = makeSelectPendingClaimForUri;
 exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
+exports.makeSelectPublishedCollectionForId = makeSelectPublishedCollectionForId;
 exports.makeSelectReflectingClaimForUri = makeSelectReflectingClaimForUri;
 exports.makeSelectSearchDownloadUrlsCount = makeSelectSearchDownloadUrlsCount;
 exports.makeSelectSearchDownloadUrlsForPage = makeSelectSearchDownloadUrlsForPage;
@@ -7254,6 +7593,7 @@ exports.makeSelectTotalClaimsInChannelSearch = makeSelectTotalClaimsInChannelSea
 exports.makeSelectTotalItemsForChannel = makeSelectTotalItemsForChannel;
 exports.makeSelectTotalPagesForChannel = makeSelectTotalPagesForChannel;
 exports.makeSelectTotalPagesInChannelSearch = makeSelectTotalPagesInChannelSearch;
+exports.makeSelectUnpublishedCollectionForId = makeSelectUnpublishedCollectionForId;
 exports.makeSelectUriIsStreamable = makeSelectUriIsStreamable;
 exports.makeSelectUrlsForCollectionId = makeSelectUrlsForCollectionId;
 exports.normalizeURI = normalizeURI;
@@ -7335,6 +7675,7 @@ exports.selectMyClaimsPageNumber = selectMyClaimsPageNumber;
 exports.selectMyClaimsRaw = selectMyClaimsRaw;
 exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
 exports.selectMyCollectionIds = selectMyCollectionIds;
+exports.selectMyEditedCollections = selectMyEditedCollections;
 exports.selectMyPublishedCollections = selectMyPublishedCollections;
 exports.selectMyPurchases = selectMyPurchases;
 exports.selectMyPurchasesCount = selectMyPurchasesCount;
@@ -7356,7 +7697,7 @@ exports.selectRepostLoading = selectRepostLoading;
 exports.selectReservedBalance = selectReservedBalance;
 exports.selectResolvedCollections = selectResolvedCollections;
 exports.selectResolvingUris = selectResolvingUris;
-exports.selectSavedCollections = selectSavedCollections;
+exports.selectSavedCollectionIds = selectSavedCollectionIds;
 exports.selectSupportsBalance = selectSupportsBalance;
 exports.selectSupportsByOutpoint = selectSupportsByOutpoint;
 exports.selectTakeOverAmount = selectTakeOverAmount;

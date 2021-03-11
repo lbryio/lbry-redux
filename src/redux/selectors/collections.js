@@ -8,6 +8,7 @@ export const selectSavedCollectionIds = createSelector(
   selectState,
   collectionState => collectionState.saved
 );
+
 export const selectBuiltinCollections = createSelector(
   selectState,
   state => state.builtin
@@ -16,31 +17,87 @@ export const selectResolvedCollections = createSelector(
   selectState,
   state => state.resolved
 );
+
 export const selectMyUnpublishedCollections = createSelector(
   selectState,
   state => state.unpublished
 );
+
+export const selectMyEditedCollections = createSelector(
+  selectState,
+  state => state.edited
+);
+
+export const selectPendingCollections = createSelector(
+  selectState,
+  state => state.pending
+);
+
+export const makeSelectEditedCollectionForId = (id: string) =>
+  createSelector(
+    selectMyEditedCollections,
+    eLists => eLists[id]
+  );
+
+export const makeSelectPublishedCollectionForId = (id: string) =>
+  createSelector(
+    selectResolvedCollections,
+    rLists => rLists[id]
+  );
+
+export const makeSelectUnpublishedCollectionForId = (id: string) =>
+  createSelector(
+    selectMyUnpublishedCollections,
+    rLists => rLists[id]
+  );
+
+export const makeSelectCollectionIsMine = (id: string) =>
+  createSelector(
+    selectMyCollectionIds,
+    selectMyUnpublishedCollections,
+    selectBuiltinCollections,
+    (publicIds, privateIds, builtinIds) => {
+      return Boolean(publicIds[id] || privateIds[id] || builtinIds[id]);
+    }
+  );
+
 export const selectMyPublishedCollections = createSelector(
   selectResolvedCollections,
+  selectPendingCollections,
+  selectMyEditedCollections,
   selectMyCollectionIds,
-  (resolved, myIds) => {
+  (resolved, pending, edited, myIds) => {
+    // all resolved in myIds, except those with local edits newer
     const myPublishedCollections = Object.fromEntries(
-      Object.entries(resolved).filter(([key, val]) => myIds.includes(key))
+      Object.entries(pending).concat(
+        Object.entries(resolved).filter(
+          ([key, val]) =>
+            myIds.includes(key) &&
+            // $FlowFixMe
+            (!edited[key] || edited[key].updatedAt < val.updatedAt)
+        )
+      )
     );
     return myPublishedCollections;
   }
 );
 
-export const selectSavedCollections = createSelector(
-  selectResolvedCollections,
-  selectSavedCollectionIds,
-  (resolved, myIds) => {
-    const mySavedCollections = Object.fromEntries(
-      Object.entries(resolved).filter(([key, val]) => myIds.includes(key))
-    );
-    return mySavedCollections;
-  }
-);
+export const makeSelectMyPublishedCollectionForId = (id: string) =>
+  createSelector(
+    selectMyPublishedCollections,
+    myPublishedCollections => myPublishedCollections[id]
+  );
+
+// export const selectSavedCollections = createSelector(
+//   selectResolvedCollections,
+//   selectSavedCollectionIds,
+//   (resolved, myIds) => {
+//     const mySavedCollections = Object.fromEntries(
+//       Object.entries(resolved).filter(([key, val]) => myIds.includes(key))
+//     );
+//     return mySavedCollections;
+//   }
+// );
 
 export const makeSelectIsResolvingCollectionForId = (id: string) =>
   createSelector(
@@ -55,9 +112,10 @@ export const makeSelectCollectionForId = (id: string) =>
     selectBuiltinCollections,
     selectResolvedCollections,
     selectMyUnpublishedCollections,
-    (bLists, rLists, uLists) => {
-      // probably return the most updated when both unpublished and published have same id, maybe mark as unsaved
-      const collection = bLists[id] || rLists[id] || uLists[id];
+    selectMyEditedCollections,
+    selectPendingCollections,
+    (bLists, rLists, uLists, eLists, pLists) => {
+      const collection = bLists[id] || uLists[id] || eLists[id] || rLists[id] || pLists[id];
       return collection;
     }
   );
@@ -69,6 +127,16 @@ export const makeSelectUrlsForCollectionId = (id: string) =>
       const items = (collection && collection.items) || [];
       const urls = items.map(item => item.url);
       return urls;
+    }
+  );
+
+export const makeSelectClaimIdsForCollectionId = (id: string) =>
+  createSelector(
+    makeSelectCollectionForId(id),
+    collection => {
+      const items = (collection && collection.items) || [];
+      const ids = items.map(item => item.claimId);
+      return ids;
     }
   );
 
@@ -88,6 +156,6 @@ export const makeSelectNameForCollectionId = (id: string) =>
   createSelector(
     makeSelectCollectionForId(id),
     collection => {
-      return collection.name || '';
+      return (collection && collection.name) || '';
     }
   );

@@ -38,16 +38,17 @@ const defaultState: CollectionState = {
     },
   },
   resolved: {},
-  unpublished: {},
+  unpublished: {}, // sync
+  edited: {},
+  pending: {},
   saved: [],
-  mine: [],
   isResolvingCollectionById: {},
   error: null,
 };
 
 const collectionsReducer = handleActions(
   {
-    [ACTIONS.UNPUBLISHED_COLLECTION_CREATE]: (state, action) => {
+    [ACTIONS.COLLECTION_NEW]: (state, action) => {
       const { entry: params } = action.data; // { id:, items: Array<any>}
       // entry
       const newListTemplate = {
@@ -55,7 +56,7 @@ const collectionsReducer = handleActions(
         name: params.name,
         items: [],
         updatedAt: getTimestamp(),
-        type: 'mixed', // what
+        type: 'mixed',
       };
 
       const newList = Object.assign({}, newListTemplate, { ...params });
@@ -68,41 +69,70 @@ const collectionsReducer = handleActions(
       };
     },
 
-    [ACTIONS.UNPUBLISHED_COLLECTION_DELETE]: (state, action) => {
-      const { unpublished: lists } = state;
-      const { name } = action.data;
-      if (lists && lists[name] && lists[name].userList) {
-        delete lists[name];
+    [ACTIONS.COLLECTION_DELETE]: (state, action) => {
+      const { id, collectionKey } = action.data;
+
+      if (collectionKey && state[collectionKey] && state[collectionKey][id]) {
+        delete state[collectionKey][id];
       }
-      return Object.assign({}, state, {
-        lists,
-      });
+      const { edited: editList, unpublished: unpublishedList, pending: pendingList } = state;
+
+      if (editList[id]) {
+        delete editList[id];
+      } else if (unpublishedList[id]) {
+        delete unpublishedList[id];
+      } else if (pendingList[id]) {
+        delete pendingList[id];
+      }
+
+      return { ...state, edited: editList, unpublished: unpublishedList, pending: pendingList };
     },
 
-    [ACTIONS.UNPUBLISHED_COLLECTION_UPDATE]: (state, action) => {
-      const { id, collection } = action.data;
+    [ACTIONS.COLLECTION_PENDING]: (state, action) => {
+      const { localId, claimId } = action.data;
+      const { edited: editList, unpublished: unpublishedList, pending: pendingList } = state;
+      const isEdit = editList[localId];
+      pendingList[claimId] = editList[localId] || unpublishedList[localId];
+      if (isEdit) {
+        editList.delete(localId);
+      } else {
+        unpublishedList.delete(localId);
+      }
+      return { ...state, unpublished: unpublishedList, edited: editList, pending: pendingList };
+    },
+
+    [ACTIONS.COLLECTION_EDIT]: (state, action) => {
+      const { id, collectionKey, collection } = action.data;
+
       if (BUILTIN_LISTS.includes(id)) {
         const { builtin: lists } = state;
-        // redo builtin
         return {
           ...state,
-          builtin: { ...lists, [id]: collection },
+          [collectionKey]: { ...lists, [id]: collection },
+        };
+      }
+
+      if (collectionKey === 'edited') {
+        const { edited: lists } = state;
+        return {
+          ...state,
+          edited: { ...lists, [id]: collection },
         };
       }
       const { unpublished: lists } = state;
-
       return {
         ...state,
         unpublished: { ...lists, [id]: collection },
       };
     },
-    [ACTIONS.UNPUBLISHED_COLLECTION_ERROR]: (state, action) => {
+
+    [ACTIONS.COLLECTION_ERROR]: (state, action) => {
       return Object.assign({}, state, {
         error: action.data.message,
       });
     },
 
-    [ACTIONS.COLLECTION_RESOLVE_STARTED]: (state, action) => {
+    [ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED]: (state, action) => {
       const { ids } = action.data;
       const { isResolvingCollectionById } = state;
       const newResolving = Object.assign({}, isResolvingCollectionById);
@@ -117,7 +147,6 @@ const collectionsReducer = handleActions(
     },
     [ACTIONS.USER_STATE_POPULATE]: (state, action) => {
       const { builtinCollectionTest, savedCollectionTest, unpublishedCollectionTest } = action.data;
-      // do something about checking timestamps and merging
       return {
         ...state,
         unpublished: unpublishedCollectionTest || state.unpublished,
@@ -125,22 +154,29 @@ const collectionsReducer = handleActions(
         saved: savedCollectionTest || state.saved,
       };
     },
-    [ACTIONS.COLLECTION_RESOLVE_COMPLETED]: (state, action) => {
+    [ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
       const { resolvedCollections } = action.data;
+      const { pending: pendingList } = state;
       const resolvedIds = Object.keys(resolvedCollections);
       const { isResolvingCollectionById, resolved: lists } = state;
       // remove resolvedIds from isResolvingCollectionById{}
       const newResolving = Object.assign({}, isResolvingCollectionById);
-      resolvedIds.forEach(resolvedId => delete newResolving[resolvedId]);
+      resolvedIds.forEach(resolvedId => {
+        delete newResolving[resolvedId];
+        if (pendingList[resolvedId]) {
+          delete pendingList[resolvedId];
+        }
+      });
       const newLists = Object.assign({}, lists, resolvedCollections);
-
+      // create pending if null
       return Object.assign({}, state, {
         ...state,
+        pending: pendingList,
         resolved: newLists,
         isResolvingCollectionById: newResolving,
       });
     },
-    [ACTIONS.COLLECTION_RESOLVE_FAILED]: (state, action) => {
+    [ACTIONS.COLLECTION_ITEMS_RESOLVE_FAILED]: (state, action) => {
       const { id } = action.data;
       const { isResolvingCollectionById } = state;
       const newResolving = isResolvingCollectionById.filter(i => i !== id);

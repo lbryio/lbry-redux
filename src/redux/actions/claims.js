@@ -18,6 +18,8 @@ import { creditsToString } from 'util/format-credits';
 import { batchActions } from 'util/batch-actions';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { PAGE_SIZE } from 'constants/claim';
+import { selectPendingCollections } from '../selectors/collections';
+import { doResolveItemsInCollection } from './collections';
 
 type ResolveEntries = Array<[string, GenericClaim]>;
 
@@ -600,7 +602,6 @@ export function doFetchCollectionListMine(page: number = 1, pageSize: number = 9
   };
 }
 
-// wanted to async this :(
 export function doClaimSearch(
   options: {
     page_size: number,
@@ -644,6 +645,8 @@ export function doClaimSearch(
           pageSize: options.page_size,
         },
       });
+
+      return resolveInfo;
     };
 
     const failure = err => {
@@ -654,7 +657,7 @@ export function doClaimSearch(
       });
     };
 
-    Lbry.claim_search({
+    return Lbry.claim_search({
       ...options,
       include_purchase_receipt: true,
     }).then(success, failure);
@@ -703,30 +706,42 @@ export function doRepost(options: StreamRepostOptions) {
   };
 }
 
-export function doCollectionCreate(options: {
-  name: string,
-  bid: string,
-  blocking: true,
-  title?: string,
-  thumbnail_url?: string,
-  description?: string,
-  tags?: Array<string>,
-  languages?: Array<string>,
-}) {
+export function doCollectionPublish(
+  options: {
+    name: string,
+    bid: string,
+    blocking: true,
+    title?: string,
+    channel_id?: string,
+    thumbnail_url?: string,
+    description?: string,
+    tags?: Array<string>,
+    languages?: Array<string>,
+    claims: Array<string>,
+  },
+  localId: string
+) {
   return (dispatch: Dispatch) => {
     // $FlowFixMe
     return new Promise(resolve => {
       dispatch({
-        type: ACTIONS.PUBLISHED_COLLECTION_CREATE_STARTED,
+        type: ACTIONS.COLLECTION_PUBLISH_STARTED,
       });
 
       function success(response) {
         const collectionClaim = response.outputs[0];
         dispatch({
-          type: ACTIONS.PUBLISHED_COLLECTION_CREATE_COMPLETED,
+          type: ACTIONS.COLLECTION_PUBLISH_COMPLETED,
           data: {
             collectionClaim,
+            localId: localId,
           },
+        });
+        // shift unpublished collection to pending collection with new publish id
+        // recent publish won't resolve this second.
+        dispatch({
+          type: ACTIONS.COLLECTION_PENDING,
+          data: { localId: localId, claimId: collectionClaim.claim_id },
         });
         dispatch({
           type: ACTIONS.UPDATE_PENDING_CLAIMS,
@@ -734,14 +749,14 @@ export function doCollectionCreate(options: {
             claims: [collectionClaim],
           },
         });
-        // this only asks for streams and reposts right now
+        dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
         resolve(collectionClaim);
       }
 
       function failure(error) {
         dispatch({
-          type: ACTIONS.PUBLISHED_COLLECTION_CREATE_FAILED,
+          type: ACTIONS.COLLECTION_PUBLISH_FAILED,
           data: {
             error: error.message,
           },
@@ -753,10 +768,9 @@ export function doCollectionCreate(options: {
   };
 }
 
-export function doCollectionUpdate(options: {
-  name: string,
-  bid: string,
-  blocking: true,
+export function doCollectionPublishUpdate(options: {
+  bid?: string,
+  blocking?: true,
   title?: string,
   thumbnail_url?: string,
   description?: string,
@@ -768,13 +782,13 @@ export function doCollectionUpdate(options: {
     // $FlowFixMe
     return new Promise(resolve => {
       dispatch({
-        type: ACTIONS.PUBLISHED_COLLECTION_CREATE_STARTED,
+        type: ACTIONS.COLLECTION_PUBLISH_UPDATE_STARTED,
       });
 
       function success(response) {
         const collectionClaim = response.outputs[0];
         dispatch({
-          type: ACTIONS.PUBLISHED_COLLECTION_CREATE_COMPLETED,
+          type: ACTIONS.COLLECTION_PUBLISH_UPDATE_COMPLETED,
           data: {
             collectionClaim,
           },
@@ -791,14 +805,14 @@ export function doCollectionUpdate(options: {
 
       function failure(error) {
         dispatch({
-          type: ACTIONS.PUBLISHED_COLLECTION_CREATE_FAILED,
+          type: ACTIONS.COLLECTION_PUBLISH_UPDATE_FAILED,
           data: {
             error: error.message,
           },
         });
       }
 
-      Lbry.collection_create(options).then(success, failure);
+      Lbry.collection_update(options).then(success, failure);
     });
   };
 }
@@ -874,6 +888,7 @@ export const doCheckPendingClaims = (onConfirmed: Function) => (
   const checkClaimList = () => {
     const state = getState();
     const pendingIdSet = new Set(selectPendingIds(state));
+    const pendingCollections = selectPendingCollections(state);
     Lbry.claim_list({ page: 1, page_size: 10 })
       .then(result => {
         const claims = result.items;
@@ -882,6 +897,9 @@ export const doCheckPendingClaims = (onConfirmed: Function) => (
           const { claim_id: claimId } = claim;
           if (claim.confirmations > 0 && pendingIdSet.has(claimId)) {
             pendingIdSet.delete(claimId);
+            if (Object.keys(pendingCollections.includes(claim.claim_id))) {
+              dispatch(doResolveItemsInCollection(claim.claim_id));
+            }
             claimsToConfirm.push(claim);
             if (onConfirmed) {
               onConfirmed(claim);
@@ -889,12 +907,14 @@ export const doCheckPendingClaims = (onConfirmed: Function) => (
           }
         });
         if (claimsToConfirm.length) {
-          dispatch({
-            type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
-            data: {
-              claims: claimsToConfirm,
-            },
-          });
+          if (claimsToConfirm) {
+            dispatch({
+              type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
+              data: {
+                claims: claimsToConfirm,
+              },
+            });
+          }
         }
         return pendingIdSet.size;
       })

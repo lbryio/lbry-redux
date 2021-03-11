@@ -60,10 +60,11 @@ export { buildSharedStateMiddleware } from 'redux/middleware/shared-state';
 // actions
 export { doToast, doDismissToast, doError, doDismissError } from 'redux/actions/notifications';
 export {
-  doCreateUnpublishedCollection,
-  doResolveCollection,
-  doResolveCollections,
-  doUpdateUnpublishedCollection,
+  doLocalCollectionCreate,
+  doResolveItemsInCollection,
+  doResolveItemsInCollections,
+  doCollectionEdit,
+  doLocalCollectionDelete,
 } from 'redux/actions/collections';
 
 export {
@@ -85,6 +86,8 @@ export {
   doCheckPublishNameAvailability,
   doPurchaseList,
   doCheckPendingClaims,
+  doCollectionPublish,
+  doCollectionPublishUpdate,
 } from 'redux/actions/claims';
 
 export { doClearPurchasedUriSuccess, doPurchaseUri, doFileGet } from 'redux/actions/file';
@@ -156,13 +159,20 @@ export { makeSelectContentPositionForUri } from 'redux/selectors/content';
 
 export { selectToast, selectError } from 'redux/selectors/notifications';
 export {
+  selectSavedCollectionIds,
   selectBuiltinCollections,
   selectResolvedCollections,
-  makeSelectCollectionForId,
-  selectSavedCollections,
-  selectMyPublishedCollections,
   selectMyUnpublishedCollections,
+  selectMyEditedCollections,
+  selectMyPublishedCollections,
+  makeSelectEditedCollectionForId,
+  makeSelectPublishedCollectionForId,
+  makeSelectCollectionIsMine,
+  makeSelectMyPublishedCollectionForId,
+  makeSelectUnpublishedCollectionForId,
+  makeSelectCollectionForId,
   makeSelectUrlsForCollectionId,
+  makeSelectClaimIdsForCollectionId,
   makeSelectNameForCollectionId,
   makeSelectIsResolvingCollectionForId,
   makeSelectNextUrlForCollection,
