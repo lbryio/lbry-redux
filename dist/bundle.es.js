@@ -1132,7 +1132,7 @@ const Lbry = {
   collection_resolve: params => daemonCallWithResult('collection_resolve', params),
   collection_list: params => daemonCallWithResult('collection_list', params),
   collection_create: params => daemonCallWithResult('collection_create', params),
-  collection_update: params => daemonCallWithResult('collection_create', params),
+  collection_update: params => daemonCallWithResult('collection_update', params),
 
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),
@@ -3455,6 +3455,85 @@ function batchActions(...actions) {
   };
 }
 
+//      
+
+const selectState$2 = state => state.collections;
+
+const selectSavedCollectionIds = reselect.createSelector(selectState$2, collectionState => collectionState.saved);
+
+const selectBuiltinCollections = reselect.createSelector(selectState$2, state => state.builtin);
+const selectResolvedCollections = reselect.createSelector(selectState$2, state => state.resolved);
+
+const selectMyUnpublishedCollections = reselect.createSelector(selectState$2, state => state.unpublished);
+
+const selectMyEditedCollections = reselect.createSelector(selectState$2, state => state.edited);
+
+const selectPendingCollections = reselect.createSelector(selectState$2, state => state.pending);
+
+const makeSelectEditedCollectionForId = id => reselect.createSelector(selectMyEditedCollections, eLists => eLists[id]);
+
+const makeSelectPublishedCollectionForId = id => reselect.createSelector(selectResolvedCollections, rLists => rLists[id]);
+
+const makeSelectUnpublishedCollectionForId = id => reselect.createSelector(selectMyUnpublishedCollections, rLists => rLists[id]);
+
+const makeSelectCollectionIsMine = id => reselect.createSelector(selectMyCollectionIds, selectMyUnpublishedCollections, selectBuiltinCollections, (publicIds, privateIds, builtinIds) => {
+  return Boolean(publicIds[id] || privateIds[id] || builtinIds[id]);
+});
+
+const selectMyPublishedCollections = reselect.createSelector(selectResolvedCollections, selectPendingCollections, selectMyEditedCollections, selectMyCollectionIds, (resolved, pending, edited, myIds) => {
+  // all resolved in myIds, except those with local edits newer
+  const myPublishedCollections = Object.fromEntries(Object.entries(pending).concat(Object.entries(resolved).filter(([key, val]) => myIds.includes(key) && (
+  // $FlowFixMe
+  !edited[key] || edited[key].updatedAt < val.updatedAt))));
+  return myPublishedCollections;
+});
+
+const makeSelectMyPublishedCollectionForId = id => reselect.createSelector(selectMyPublishedCollections, myPublishedCollections => myPublishedCollections[id]);
+
+// export const selectSavedCollections = createSelector(
+//   selectResolvedCollections,
+//   selectSavedCollectionIds,
+//   (resolved, myIds) => {
+//     const mySavedCollections = Object.fromEntries(
+//       Object.entries(resolved).filter(([key, val]) => myIds.includes(key))
+//     );
+//     return mySavedCollections;
+//   }
+// );
+
+const makeSelectIsResolvingCollectionForId = id => reselect.createSelector(selectState$2, state => {
+  return state.isResolvingCollectionById[id];
+});
+
+const makeSelectCollectionForId = id => reselect.createSelector(selectBuiltinCollections, selectResolvedCollections, selectMyUnpublishedCollections, selectMyEditedCollections, selectPendingCollections, (bLists, rLists, uLists, eLists, pLists) => {
+  const collection = bLists[id] || uLists[id] || eLists[id] || rLists[id] || pLists[id];
+  return collection;
+});
+
+const makeSelectUrlsForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
+  const items = collection && collection.items || [];
+  const urls = items.map(item => item.url);
+  return urls;
+});
+
+const makeSelectClaimIdsForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
+  const items = collection && collection.items || [];
+  const ids = items.map(item => item.claimId);
+  return ids;
+});
+
+const makeSelectNextUrlForCollection = (id, index) => reselect.createSelector(makeSelectUrlsForCollectionId(id), urls => {
+  const url = urls[index + 1];
+  if (url) {
+    return url;
+  }
+  return null;
+});
+
+const makeSelectNameForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
+  return collection && collection.name || '';
+});
+
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _asyncToGenerator$1(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
@@ -4084,7 +4163,8 @@ function doCollectionPublish(options, localId) {
             localId: localId
           }
         });
-
+        // shift unpublished collection to pending collection with new publish id
+        // recent publish won't resolve this second.
         dispatch({
           type: COLLECTION_PENDING,
           data: { localId: localId, claimId: collectionClaim.claim_id }
@@ -4095,8 +4175,7 @@ function doCollectionPublish(options, localId) {
             claims: [collectionClaim]
           }
         });
-        dispatch(doCheckPendingClaims()); // pass callback?
-        // this only asks for streams and reposts right now
+        dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
         resolve(collectionClaim);
       }
@@ -4223,6 +4302,7 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
   const checkClaimList = () => {
     const state = getState();
     const pendingIdSet = new Set(selectPendingIds(state));
+    const pendingCollections = selectPendingCollections(state);
     lbryProxy.claim_list({ page: 1, page_size: 10 }).then(result => {
       const claims = result.items;
       const claimsToConfirm = [];
@@ -4230,6 +4310,9 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
         const { claim_id: claimId } = claim;
         if (claim.confirmations > 0 && pendingIdSet.has(claimId)) {
           pendingIdSet.delete(claimId);
+          if (Object.keys(pendingCollections.includes(claim.claim_id))) {
+            dispatch(doResolveItemsInCollection(claim.claim_id));
+          }
           claimsToConfirm.push(claim);
           if (onConfirmed) {
             onConfirmed(claim);
@@ -4237,12 +4320,14 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
         }
       });
       if (claimsToConfirm.length) {
-        dispatch({
-          type: UPDATE_CONFIRMED_CLAIMS,
-          data: {
-            claims: claimsToConfirm
-          }
-        });
+        if (claimsToConfirm) {
+          dispatch({
+            type: UPDATE_CONFIRMED_CLAIMS,
+            data: {
+              claims: claimsToConfirm
+            }
+          });
+        }
       }
       return pendingIdSet.size;
     }).then(len => {
@@ -4256,81 +4341,6 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
     checkClaimList();
   }, 30000);
 };
-
-//      
-
-const selectState$2 = state => state.collections;
-
-const selectSavedCollectionIds = reselect.createSelector(selectState$2, collectionState => collectionState.saved);
-
-const selectBuiltinCollections = reselect.createSelector(selectState$2, state => state.builtin);
-const selectResolvedCollections = reselect.createSelector(selectState$2, state => state.resolved);
-
-const selectMyUnpublishedCollections = reselect.createSelector(selectState$2, state => state.unpublished);
-
-const selectMyEditedCollections = reselect.createSelector(selectState$2, state => state.edited);
-
-const makeSelectEditedCollectionForId = id => reselect.createSelector(selectMyEditedCollections, eLists => eLists[id]);
-
-const makeSelectPublishedCollectionForId = id => reselect.createSelector(selectResolvedCollections, rLists => rLists[id]);
-
-const makeSelectUnpublishedCollectionForId = id => reselect.createSelector(selectMyUnpublishedCollections, rLists => rLists[id]);
-
-const makeSelectCollectionIsMine = id => reselect.createSelector(selectMyCollectionIds, selectMyUnpublishedCollections, selectBuiltinCollections, (publicIds, privateIds, builtinIds) => {
-  return Boolean(publicIds[id] || privateIds[id] || builtinIds[id]);
-});
-
-const selectMyPublishedCollections = reselect.createSelector(selectResolvedCollections, selectMyEditedCollections, selectMyCollectionIds, (resolved, edited, myIds) => {
-  // all resolved in myIds, except those with local edits newer
-  const myPublishedCollections = Object.fromEntries(Object.entries(resolved).filter(([key, val]) => myIds.includes(key) && (!edited[key] || edited[key].updatedAt < val.updatedAt)));
-  return myPublishedCollections;
-});
-
-const makeSelectMyPublishedCollectionForId = id => reselect.createSelector(selectMyPublishedCollections, myPublishedCollections => myPublishedCollections[id]);
-
-// export const selectSavedCollections = createSelector(
-//   selectResolvedCollections,
-//   selectSavedCollectionIds,
-//   (resolved, myIds) => {
-//     const mySavedCollections = Object.fromEntries(
-//       Object.entries(resolved).filter(([key, val]) => myIds.includes(key))
-//     );
-//     return mySavedCollections;
-//   }
-// );
-
-const makeSelectIsResolvingCollectionForId = id => reselect.createSelector(selectState$2, state => {
-  return state.isResolvingCollectionById[id];
-});
-
-const makeSelectCollectionForId = id => reselect.createSelector(selectBuiltinCollections, selectResolvedCollections, selectMyUnpublishedCollections, selectMyEditedCollections, (bLists, rLists, uLists, eLists) => {
-  const collection = bLists[id] || uLists[id] || eLists[id] || rLists[id];
-  return collection;
-});
-
-const makeSelectUrlsForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
-  const items = collection && collection.items || [];
-  const urls = items.map(item => item.url);
-  return urls;
-});
-
-const makeSelectClaimIdsForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
-  const items = collection && collection.items || [];
-  const ids = items.map(item => item.claimId);
-  return ids;
-});
-
-const makeSelectNextUrlForCollection = (id, index) => reselect.createSelector(makeSelectUrlsForCollectionId(id), urls => {
-  const url = urls[index + 1];
-  if (url) {
-    return url;
-  }
-  return null;
-});
-
-const makeSelectNameForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
-  return collection && collection.name || '';
-});
 
 function _asyncToGenerator$2(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 const WATCH_LATER_ID = 'watchlater';
@@ -4509,7 +4519,6 @@ const doResolveItemsInCollections = collectionIds => (() => {
       type: RESOLVE_URIS_COMPLETED,
       data: { resolveInfo: processedClaimsByUri }
     });
-    console.log('newC', newCollectionItemsById);
 
     dispatch({
       type: COLLECTION_ITEMS_RESOLVE_COMPLETED,
@@ -4524,47 +4533,37 @@ const doResolveItemsInCollections = collectionIds => (() => {
 
 const doResolveItemsInCollection = collectionId => doResolveItemsInCollections([collectionId]);
 
-/*
-  id can be in published or unpublished
-  if it is in published, copy it into unpublished
-  if it is in unpublished, update it into unpublished
- */
 const doCollectionEdit = (id, params) => (() => {
   var _ref3 = _asyncToGenerator$2(function* (dispatch, getState) {
-    console.log('id', id, 'params', params);
     const state = getState();
     const collection = makeSelectCollectionForId(id)(state);
     const editedCollection = makeSelectEditedCollectionForId(id)(state);
     const unpublishedCollection = makeSelectUnpublishedCollectionForId(id)(state);
     const publishedCollection = makeSelectMyPublishedCollectionForId(id)(state);
-    console.log('cols', collection, editedCollection, unpublishedCollection, publishedCollection);
 
-    const isCollectionItemsIdentical = function (first, second) {
+    const isCollectionItemsIdentical = function (first = [], second = []) {
+      // $FlowFixMe
       const getClaimIdString = function (items) {
         return items.map(function (item) {
           return item.claimId;
         }).join(',');
       };
-      return getClaimIdString(first.items) === getClaimIdString(second.items);
+      return getClaimIdString(first) === getClaimIdString(second);
     };
-
-    // we can edit a published one by copying it
-    // if not published, just add or remove, done.
-    // if published, add, or remove
-    // and if no items, delete.
 
     const generateCollectionItemFromClaim = function (claim) {
       if (claim && claim.canonical_url) {
         const item = {};
         item.url = claim.canonical_url;
         item.claimId = claim.claim_id;
-        console.log('generated item', item);
         return item;
       }
     };
 
     const generateCollectionItemsFromSearchResult = function (results) {
-      return Object.values(results).reduce(function (acc, cur) {
+      return Object.values(results)
+      // $FlowFixMe
+      .reduce(function (acc, cur) {
         let claimId, url;
         if (cur.stream) {
           claimId = cur.stream.claim_id;
@@ -4575,6 +4574,8 @@ const doCollectionEdit = (id, params) => (() => {
         } else if (cur.collection) {
           claimId = cur.collection.claim_id;
           url = cur.collection.permanent_url;
+        } else {
+          return acc;
         }
         acc.push({ url, claimId });
         return acc;
@@ -4593,20 +4594,18 @@ const doCollectionEdit = (id, params) => (() => {
     let currentItems = collection.items ? collection.items.concat() : [];
     const { claims: passedClaims, order, claimIds, replace, remove } = params;
 
-    let newItems;
+    let newItems = currentItems;
 
     if (passedClaims) {
-      console.log('passedClaims', passedClaims);
       if (remove) {
         const passedClaimIds = passedClaims.map(function (claim) {
           return claim.claim_id;
         });
+        // $FlowFixMe
         newItems = currentItems.filter(function (item) {
           return !passedClaimIds.includes(item.claimId);
-        }); // filter the claim
+        });
       } else {
-        newItems = currentItems;
-        console.log('generate claims', passedClaims);
         passedClaims.forEach(function (claim) {
           return newItems.push(generateCollectionItemFromClaim(claim));
         });
@@ -4621,7 +4620,6 @@ const doCollectionEdit = (id, params) => (() => {
       } else {
         newItems = currentItems.concat(generateCollectionItemsFromSearchResult(searchResults));
       }
-      console.log('newItems', newItems);
     }
 
     if (order) {
@@ -4632,8 +4630,6 @@ const doCollectionEdit = (id, params) => (() => {
     if (editedCollection) {
       if (isCollectionItemsIdentical(publishedCollection.items, newItems)) {
         // delete edited if newItems are the same as publishedItems
-        console.log('delete edited private', id);
-
         dispatch({
           type: COLLECTION_DELETE,
           data: {
@@ -4642,8 +4638,6 @@ const doCollectionEdit = (id, params) => (() => {
           }
         });
       } else {
-        console.log('published edited', id, newItems);
-
         dispatch({
           type: COLLECTION_EDIT,
           data: {
@@ -4658,11 +4652,7 @@ const doCollectionEdit = (id, params) => (() => {
           }
         });
       }
-      // check if updatedEditedCollectoin would be same as published collection
-      // update or delete the edited collection
     } else if (publishedCollection) {
-      console.log('published', id, newItems);
-
       dispatch({
         type: COLLECTION_EDIT,
         data: {
@@ -4677,8 +4667,6 @@ const doCollectionEdit = (id, params) => (() => {
         }
       });
     } else if (BUILTIN_LISTS.includes(id)) {
-      console.log('builtin', id, newItems);
-
       dispatch({
         type: COLLECTION_EDIT,
         data: {
@@ -4693,7 +4681,6 @@ const doCollectionEdit = (id, params) => (() => {
         }
       });
     } else if (unpublishedCollection) {
-      console.log('private', id, newItems);
       return dispatch({
         type: COLLECTION_EDIT,
         data: {
@@ -5685,9 +5672,7 @@ const defaultState = {
 };
 
 function handleClaimAction(state, action) {
-  const {
-    resolveInfo
-  } = action.data;
+  const { resolveInfo } = action.data;
 
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
@@ -7278,27 +7263,26 @@ const collectionsReducer = handleActions({
 
   [COLLECTION_DELETE]: (state, action) => {
     const { id, collectionKey } = action.data;
-    if (collectionKey === 'edits') {
-      const { edits: lists } = state;
-      if (lists && lists[id]) {
-        delete lists[id];
-      }
-      return _extends$e({}, state, { edits: lists });
-    }
-    const { unpublished: lists, edits: editlists } = state;
 
-    if (lists && lists[id]) {
-      delete lists[id];
-    } else if (editlists && editlists[id]) {
-      delete editlists[id];
+    if (collectionKey && state[collectionKey] && state[collectionKey][id]) {
+      delete state[collectionKey][id];
+    }
+    const { edited: editList, unpublished: unpublishedList, pending: pendingList } = state;
+
+    if (editList[id]) {
+      delete editList[id];
+    } else if (unpublishedList[id]) {
+      delete unpublishedList[id];
+    } else if (pendingList[id]) {
+      delete pendingList[id];
     }
 
-    return _extends$e({}, state, { unpublished: lists, edits: editlists });
+    return _extends$e({}, state, { edited: editList, unpublished: unpublishedList, pending: pendingList });
   },
 
   [COLLECTION_PENDING]: (state, action) => {
     const { localId, claimId } = action.data;
-    const { edits: editList, unpublished: unpublishedList, pending: pendingList } = state;
+    const { edited: editList, unpublished: unpublishedList, pending: pendingList } = state;
     const isEdit = editList[localId];
     pendingList[claimId] = editList[localId] || unpublishedList[localId];
     if (isEdit) {
@@ -7306,7 +7290,7 @@ const collectionsReducer = handleActions({
     } else {
       unpublishedList.delete(localId);
     }
-    return _extends$e({}, state, { unpublished: unpublishedList, edits: editList, pending: pendingList });
+    return _extends$e({}, state, { unpublished: unpublishedList, edited: editList, pending: pendingList });
   },
 
   [COLLECTION_EDIT]: (state, action) => {
@@ -7319,10 +7303,10 @@ const collectionsReducer = handleActions({
       });
     }
 
-    if (collectionKey === 'edits') {
-      const { edits: lists } = state;
+    if (collectionKey === 'edited') {
+      const { edited: lists } = state;
       return _extends$e({}, state, {
-        edits: _extends$e({}, lists, { [id]: collection })
+        edited: _extends$e({}, lists, { [id]: collection })
       });
     }
     const { unpublished: lists } = state;
@@ -7359,14 +7343,21 @@ const collectionsReducer = handleActions({
   },
   [COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
     const { resolvedCollections } = action.data;
+    const { pending: pendingList } = state;
     const resolvedIds = Object.keys(resolvedCollections);
     const { isResolvingCollectionById, resolved: lists } = state;
     // remove resolvedIds from isResolvingCollectionById{}
     const newResolving = Object.assign({}, isResolvingCollectionById);
-    resolvedIds.forEach(resolvedId => delete newResolving[resolvedId]);
+    resolvedIds.forEach(resolvedId => {
+      delete newResolving[resolvedId];
+      if (pendingList[resolvedId]) {
+        delete pendingList[resolvedId];
+      }
+    });
     const newLists = Object.assign({}, lists, resolvedCollections);
     // create pending if null
     return Object.assign({}, state, _extends$e({}, state, {
+      pending: pendingList,
       resolved: newLists,
       isResolvingCollectionById: newResolving
     }));

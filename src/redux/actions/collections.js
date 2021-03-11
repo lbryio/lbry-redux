@@ -73,7 +73,7 @@ export const doLocalCollectionDelete = (id: string) => (dispatch: Dispatch) => {
 //   });
 // };
 
-export const doResolveItemsInCollections = (collectionIds: Array<string>) => async(
+export const doResolveItemsInCollections = (collectionIds: Array<string>) => async (
   dispatch: Dispatch,
   getState: GetState
 ) => {
@@ -201,12 +201,7 @@ export const doResolveItemsInCollections = (collectionIds: Array<string>) => asy
 export const doResolveItemsInCollection = (collectionId: string) =>
   doResolveItemsInCollections([collectionId]);
 
-/*
-  id can be in published or unpublished
-  if it is in published, copy it into unpublished
-  if it is in unpublished, update it into unpublished
- */
-export const doCollectionEdit = (id: string, params: any) => async(
+export const doCollectionEdit = (id: string, params: any) => async (
   dispatch: Dispatch,
   getState: GetState
 ) => {
@@ -225,11 +220,6 @@ export const doCollectionEdit = (id: string, params: any) => async(
       items.map(item => item.claimId).join(',');
     return getClaimIdString(first) === getClaimIdString(second);
   };
-
-  // we can edit a published one by copying it
-  // if not published, just add or remove, done.
-  // if published, add, or remove
-  // and if no items, delete.
 
   const generateCollectionItemFromClaim = (claim: GenericClaim) => {
     if (claim && claim.canonical_url) {
@@ -295,7 +285,7 @@ export const doCollectionEdit = (id: string, params: any) => async(
       // $FlowFixMe
       newItems = currentItems.filter(
         (item: CollectionItem) => !passedClaimIds.includes(item.claimId)
-      ); // filter the claim
+      );
     } else {
       passedClaims.forEach(claim => newItems.push(generateCollectionItemFromClaim(claim)));
     }
@@ -341,8 +331,6 @@ export const doCollectionEdit = (id: string, params: any) => async(
         },
       });
     }
-    // check if updatedEditedCollectoin would be same as published collection
-    // update or delete the edited collection
   } else if (publishedCollection) {
     dispatch({
       type: ACTIONS.COLLECTION_EDIT,

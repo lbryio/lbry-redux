@@ -144,3 +144,12 @@ declare type PurchaseReceipt = {
   txid: string,
   type: 'purchase',
 };
+
+declare type ClaimActionResolveInfo = {
+  [string]: {
+    stream: ?StreamClaim,
+    channel: ?ChannelClaim,
+    claimsInChannel: ?number,
+    collection: ?CollectionClaim,
+  },
+}

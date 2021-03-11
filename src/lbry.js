@@ -93,7 +93,7 @@ const Lbry: LbryTypes = {
   collection_resolve: params => daemonCallWithResult('collection_resolve', params),
   collection_list: params => daemonCallWithResult('collection_list', params),
   collection_create: params => daemonCallWithResult('collection_create', params),
-  collection_update: params => daemonCallWithResult('collection_create', params),
+  collection_update: params => daemonCallWithResult('collection_update', params),
 
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),
