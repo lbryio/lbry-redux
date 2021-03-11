@@ -12,11 +12,11 @@ const CHANNEL_ANONYMOUS = 'anonymous';
 const CHANNEL_NEW = 'new';
 const PAGE_SIZE = 20;
 
-const LEVEL_1_STAKED_AMOUNT = 1;
-const LEVEL_2_STAKED_AMOUNT = 2;
-const LEVEL_3_STAKED_AMOUNT = 3;
-const LEVEL_4_STAKED_AMOUNT = 4;
-const LEVEL_5_STAKED_AMOUNT = 5;
+const LEVEL_1_STAKED_AMOUNT = 0;
+const LEVEL_2_STAKED_AMOUNT = 1;
+const LEVEL_3_STAKED_AMOUNT = 50;
+const LEVEL_4_STAKED_AMOUNT = 250;
+const LEVEL_5_STAKED_AMOUNT = 1000;
 
 var claim = /*#__PURE__*/Object.freeze({
   MINIMUM_PUBLISH_BID: MINIMUM_PUBLISH_BID,
@@ -2683,19 +2683,19 @@ const makeSelectTotalStakedAmountForChannelUri = uri => reselect.createSelector(
 });
 
 const makeSelectStakedLevelForChannelUri = uri => reselect.createSelector(makeSelectTotalStakedAmountForChannelUri(uri), amount => {
-  let level = LEVEL_1_STAKED_AMOUNT;
+  let level = 1;
   switch (true) {
-    case amount >= 1 && amount < 50:
-      level = LEVEL_2_STAKED_AMOUNT;
+    case amount >= LEVEL_2_STAKED_AMOUNT && amount < LEVEL_3_STAKED_AMOUNT:
+      level = 2;
       break;
-    case amount >= 50 && amount < 250:
-      level = LEVEL_3_STAKED_AMOUNT;
+    case amount >= LEVEL_3_STAKED_AMOUNT && amount < LEVEL_4_STAKED_AMOUNT:
+      level = 3;
       break;
-    case amount >= 250 && amount < 1000:
-      level = LEVEL_4_STAKED_AMOUNT;
+    case amount >= LEVEL_4_STAKED_AMOUNT && amount < LEVEL_5_STAKED_AMOUNT:
+      level = 4;
       break;
-    case amount >= 1000:
-      level = LEVEL_5_STAKED_AMOUNT;
+    case amount >= LEVEL_5_STAKED_AMOUNT:
+      level = 5;
       break;
   }
   return level;

@@ -867,19 +867,19 @@ export const makeSelectStakedLevelForChannelUri = (uri: string) =>
   createSelector(
     makeSelectTotalStakedAmountForChannelUri(uri),
     amount => {
-      let level = CLAIM.LEVEL_1_STAKED_AMOUNT;
+      let level = 1;
       switch (true) {
-        case amount >= 1 && amount < 50:
-          level = CLAIM.LEVEL_2_STAKED_AMOUNT;
+        case amount >= CLAIM.LEVEL_2_STAKED_AMOUNT && amount < CLAIM.LEVEL_3_STAKED_AMOUNT:
+          level = 2;
           break;
-        case amount >= 50 && amount < 250:
-          level = CLAIM.LEVEL_3_STAKED_AMOUNT;
+        case amount >= CLAIM.LEVEL_3_STAKED_AMOUNT && amount < CLAIM.LEVEL_4_STAKED_AMOUNT:
+          level = 3;
           break;
-        case amount >= 250 && amount < 1000:
-          level = CLAIM.LEVEL_4_STAKED_AMOUNT;
+        case amount >= CLAIM.LEVEL_4_STAKED_AMOUNT && amount < CLAIM.LEVEL_5_STAKED_AMOUNT:
+          level = 4;
           break;
-        case amount >= 1000:
-          level = CLAIM.LEVEL_5_STAKED_AMOUNT;
+        case amount >= CLAIM.LEVEL_5_STAKED_AMOUNT:
+          level = 5;
           break;
       }
       return level;
