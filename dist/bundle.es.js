@@ -1752,12 +1752,13 @@ function extractUserState(rawObj) {
       following,
       tags,
       blocked,
+      btcAddresses,
       settings,
       app_welcome_version,
       sharing_3P
     } = rawObj.value;
 
-    return _extends$1({}, subscriptions ? { subscriptions } : {}, following ? { following } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {});
+    return _extends$1({}, subscriptions ? { subscriptions } : {}, following ? { following } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, btcAddresses ? { btcAddresses } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {});
   }
 
   return {};
@@ -1770,6 +1771,7 @@ function doPopulateSharedUserState(sharedSettings) {
       following,
       tags,
       blocked,
+      btcAddresses,
       settings,
       app_welcome_version,
       sharing_3P
@@ -1781,6 +1783,7 @@ function doPopulateSharedUserState(sharedSettings) {
         following,
         tags,
         blocked,
+        btcAddresses,
         settings,
         welcomeVersion: app_welcome_version,
         allowAnalytics: sharing_3P
