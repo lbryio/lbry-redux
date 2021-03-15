@@ -7,10 +7,6 @@ declare type StatusResponse = {
     download_progress: number,
     downloading_headers: boolean,
   },
-  connection_status: {
-    code: string,
-    message: string,
-  },
   dht: {
     node_id: string,
     peers_in_routing_table: number,
@@ -45,6 +41,7 @@ declare type StatusResponse = {
     redirects: {},
   },
   wallet: ?{
+    connected: string,
     best_blockhash: string,
     blocks: number,
     blocks_behind: number,
