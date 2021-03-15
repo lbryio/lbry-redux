@@ -65,7 +65,7 @@ export function doResolveUris(
     } = {};
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
-      async(result: ResolveResponse) => {
+      async (result: ResolveResponse) => {
         let repostedResults = {};
         const repostsToResolve = [];
         const fallbackResolveInfo = {
@@ -140,18 +140,24 @@ export function doResolveUri(uri: string) {
 export function doFetchClaimListMine(
   page: number = 1,
   pageSize: number = 99999,
-  resolve: boolean = true
+  resolve: boolean = true,
+  filterBy: Array<string> = []
 ) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED,
     });
 
+    let claimTypes = ['stream', 'repost'];
+    if (filterBy && filterBy.length !== 0) {
+      claimTypes = claimTypes.filter(t => filterBy.includes(t));
+    }
+
     // $FlowFixMe
     Lbry.claim_list({
       page: page,
       page_size: pageSize,
-      claim_type: ['stream', 'repost'],
+      claim_type: claimTypes,
       resolve,
     }).then((result: StreamListResponse) => {
       dispatch({
