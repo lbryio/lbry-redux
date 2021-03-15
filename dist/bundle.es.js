@@ -2270,7 +2270,7 @@ const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelec
 
     const repostedClaim = claim && claim.reposted_claim;
     if (repostedClaim && returnRepost) {
-      const channelUrl = claim.signing_channel && claim.signing_channel.canonical_url;
+      const channelUrl = claim.signing_channel && (claim.signing_channel.canonical_url || claim.signing_channel.permanent_url);
 
       return _extends$3({}, repostedClaim, {
         repost_url: uri,
