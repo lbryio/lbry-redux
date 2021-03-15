@@ -3522,17 +3522,22 @@ function doResolveUri(uri) {
   return doResolveUris([uri]);
 }
 
-function doFetchClaimListMine(page = 1, pageSize = 99999, resolve = true) {
+function doFetchClaimListMine(page = 1, pageSize = 99999, resolve = true, filterBy = []) {
   return dispatch => {
     dispatch({
       type: FETCH_CLAIM_LIST_MINE_STARTED
     });
 
+    let claimTypes = ['stream', 'repost'];
+    if (filterBy && filterBy.length !== 0) {
+      claimTypes = claimTypes.filter(t => filterBy.includes(t));
+    }
+
     // $FlowFixMe
     lbryProxy.claim_list({
       page: page,
       page_size: pageSize,
-      claim_type: ['stream', 'repost'],
+      claim_type: claimTypes,
       resolve
     }).then(result => {
       dispatch({
