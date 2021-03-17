@@ -2674,6 +2674,14 @@ const makeSelectTagInClaimOrChannelForUri = (uri, tag) => reselect.createSelecto
   return claimTags.includes(tag) || channelTags.includes(tag);
 });
 
+const makeSelectClaimHasSource = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+  if (!claim) {
+    return false;
+  }
+
+  return Boolean(claim.value.source);
+});
+
 const makeSelectTotalStakedAmountForChannelUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   if (!claim || !claim.amount || !claim.meta || !claim.meta.support_amount) {
     return 0;
@@ -4832,34 +4840,7 @@ const doPublish = (success, fail, preview) => (dispatch, getState) => {
 
   // Only pass file on new uploads, not metadata only edits.
   // The sdk will figure it out
-  if (filePath) publishPayload.file_path = filePath;
-
-  if (isLivestreamPublish) {
-    var d = new Date();
-
-    // Set it to one month in future so it's hidden in apps
-    d.setFullYear(d.getFullYear() - 10);
-    d.setHours(0, 0, 0);
-    d.setMilliseconds(0);
-
-    const releaseTimeInSeconds = d / 1000;
-
-    publishPayload.release_time = releaseTimeInSeconds;
-
-    if (publishPayload.tags) {
-      if (!publishPayload.tags.includes('odysee-livestream')) {
-        publishPayload.tags.push('odysee-livestream');
-      }
-    } else {
-      publishPayload.tags = ['odysee-livestream'];
-    }
-  } else if (publishPayload.tags && publishPayload.tags.includes('odysee-livestream')) {
-    let newReleaseTime = new Date();
-    newReleaseTime.setMilliseconds(0);
-    publishPayload.release_time = newReleaseTime / 1000;
-
-    publishPayload.tags = publishPayload.tags.filter(tag => tag !== 'odysee-livestream');
-  }
+  if (filePath && !isLivestreamPublish) publishPayload.file_path = filePath;
 
   if (preview) {
     publishPayload.preview = true;
@@ -6617,6 +6598,7 @@ exports.makeSelectChannelForClaimUri = makeSelectChannelForClaimUri;
 exports.makeSelectChannelPermUrlForClaimUri = makeSelectChannelPermUrlForClaimUri;
 exports.makeSelectClaimForClaimId = makeSelectClaimForClaimId;
 exports.makeSelectClaimForUri = makeSelectClaimForUri;
+exports.makeSelectClaimHasSource = makeSelectClaimHasSource;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;
 exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
 exports.makeSelectClaimIsPending = makeSelectClaimIsPending;

@@ -188,6 +188,7 @@ export {
   makeSelectClaimWasPurchased,
   makeSelectAbandoningClaimById,
   makeSelectIsAbandoningClaimForUri,
+  makeSelectClaimHasSource,
   selectPendingIds,
   selectReflectingById,
   makeSelectClaimForClaimId,
