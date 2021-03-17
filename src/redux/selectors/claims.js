@@ -127,7 +127,9 @@ export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true)
 
         const repostedClaim = claim && claim.reposted_claim;
         if (repostedClaim && returnRepost) {
-          const channelUrl = claim.signing_channel && (claim.signing_channel.canonical_url || claim.signing_channel.permanent_url);
+          const channelUrl =
+            claim.signing_channel &&
+            (claim.signing_channel.canonical_url || claim.signing_channel.permanent_url);
 
           return {
             ...repostedClaim,
@@ -848,6 +850,18 @@ export const makeSelectTagInClaimOrChannelForUri = (uri: string, tag: string) =>
           claim.signing_channel.value.tags) ||
         [];
       return claimTags.includes(tag) || channelTags.includes(tag);
+    }
+  );
+
+export const makeSelectClaimHasSource = (uri: string) =>
+  createSelector(
+    makeSelectClaimForUri(uri),
+    claim => {
+      if (!claim) {
+        return false;
+      }
+
+      return Boolean(claim.value.source);
     }
   );
 
