@@ -585,6 +585,8 @@ export function doClaimSearch(
     not_tags?: Array<string>,
     order_by?: Array<string>,
     release_time?: string,
+    has_source?: boolean,
+    has_no_souce?: boolean,
   } = {
     no_totals: true,
     page_size: 10,
