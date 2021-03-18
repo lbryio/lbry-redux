@@ -2840,8 +2840,11 @@ function doFetchTransactions(page = 1, pageSize = 99999) {
 
 function doFetchTxoPage() {
   return (dispatch, getState) => {
+    const fetchId = Math.random().toString(36).substr(2, 9);
+
     dispatch({
-      type: FETCH_TXO_PAGE_STARTED
+      type: FETCH_TXO_PAGE_STARTED,
+      data: fetchId
     });
 
     const state = getState();
@@ -2873,12 +2876,18 @@ function doFetchTxoPage() {
     }).then(res => {
       dispatch({
         type: FETCH_TXO_PAGE_COMPLETED,
-        data: res
+        data: {
+          result: res,
+          fetchId: fetchId
+        }
       });
     }).catch(e => {
       dispatch({
         type: FETCH_TXO_PAGE_COMPLETED,
-        data: e.message
+        data: {
+          error: e.message,
+          fetchId: fetchId
+        }
       });
     });
   };
@@ -6073,6 +6082,7 @@ const defaultState$5 = {
   massClaimingTips: false,
   pendingMassClaimTxid: null,
   txoPage: {},
+  fetchId: '',
   fetchingTxos: false,
   fetchingTxosError: undefined,
   pendingSupportTransactions: {},
@@ -6100,16 +6110,24 @@ const walletReducer = handleActions({
     });
   },
 
-  [FETCH_TXO_PAGE_STARTED]: state => {
+  [FETCH_TXO_PAGE_STARTED]: (state, action) => {
     return _extends$d({}, state, {
+      fetchId: action.data,
       fetchingTxos: true,
       fetchingTxosError: undefined
     });
   },
 
   [FETCH_TXO_PAGE_COMPLETED]: (state, action) => {
+    if (state.fetchId !== action.data.fetchId) {
+      // Leave 'state' and 'fetchingTxos' alone. The latter would ensure
+      // the spiner would continue spinning for the latest transaction.
+      return _extends$d({}, state);
+    }
+
     return _extends$d({}, state, {
-      txoPage: action.data,
+      txoPage: action.data.result,
+      fetchId: '',
       fetchingTxos: false
     });
   },
@@ -6117,6 +6135,7 @@ const walletReducer = handleActions({
   [FETCH_TXO_PAGE_FAILED]: (state, action) => {
     return _extends$d({}, state, {
       txoPage: {},
+      fetchId: '',
       fetchingTxos: false,
       fetchingTxosError: action.data
     });

@@ -47,6 +47,7 @@ type WalletState = {
   txoFetchParams: {},
   utxoCounts: {},
   txoPage: any,
+  fetchId: string,
   fetchingTxos: boolean,
   fetchingTxosError?: string,
   consolidatingUtxos: boolean,
@@ -99,6 +100,7 @@ const defaultState = {
   massClaimingTips: false,
   pendingMassClaimTxid: null,
   txoPage: {},
+  fetchId: '',
   fetchingTxos: false,
   fetchingTxosError: undefined,
   pendingSupportTransactions: {},
@@ -129,18 +131,26 @@ export const walletReducer = handleActions(
       };
     },
 
-    [ACTIONS.FETCH_TXO_PAGE_STARTED]: (state: WalletState) => {
+    [ACTIONS.FETCH_TXO_PAGE_STARTED]: (state: WalletState, action) => {
       return {
         ...state,
+        fetchId: action.data,
         fetchingTxos: true,
         fetchingTxosError: undefined,
       };
     },
 
     [ACTIONS.FETCH_TXO_PAGE_COMPLETED]: (state: WalletState, action) => {
+      if (state.fetchId !== action.data.fetchId) {
+        // Leave 'state' and 'fetchingTxos' alone. The latter would ensure
+        // the spiner would continue spinning for the latest transaction.
+        return { ...state };
+      }
+
       return {
         ...state,
-        txoPage: action.data,
+        txoPage: action.data.result,
+        fetchId: '',
         fetchingTxos: false,
       };
     },
@@ -149,6 +159,7 @@ export const walletReducer = handleActions(
       return {
         ...state,
         txoPage: {},
+        fetchId: '',
         fetchingTxos: false,
         fetchingTxosError: action.data,
       };

@@ -81,8 +81,13 @@ export function doFetchTransactions(page = 1, pageSize = 99999) {
 
 export function doFetchTxoPage() {
   return (dispatch, getState) => {
+    const fetchId = Math.random()
+      .toString(36)
+      .substr(2, 9);
+
     dispatch({
       type: ACTIONS.FETCH_TXO_PAGE_STARTED,
+      data: fetchId,
     });
 
     const state = getState();
@@ -120,13 +125,19 @@ export function doFetchTxoPage() {
       .then(res => {
         dispatch({
           type: ACTIONS.FETCH_TXO_PAGE_COMPLETED,
-          data: res,
+          data: {
+            result: res,
+            fetchId: fetchId,
+          },
         });
       })
       .catch(e => {
         dispatch({
           type: ACTIONS.FETCH_TXO_PAGE_COMPLETED,
-          data: e.message,
+          data: {
+            error: e.message,
+            fetchId: fetchId,
+          },
         });
       });
   };
