@@ -37,4 +37,5 @@ declare type CollectionEditParams = {
   replace?: boolean,
   order?: { from: number, to: number },
   type?: string,
+  name?: string,
 }

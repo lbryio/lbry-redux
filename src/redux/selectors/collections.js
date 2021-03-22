@@ -68,7 +68,6 @@ export const makeSelectCollectionIsMine = (id: string) =>
     }
   );
 
-// for library page, we want all published
 export const selectMyPublishedCollections = createSelector(
   selectResolvedCollections,
   selectPendingCollections,
@@ -78,21 +77,18 @@ export const selectMyPublishedCollections = createSelector(
     // all resolved in myIds, plus those in pending and edited
     const myPublishedCollections = Object.fromEntries(
       Object.entries(pending).concat(
-        Object.entries(edited)
-          .filter(
-            ([key, val]) => myIds.includes(key)
+        Object.entries(resolved).filter(
+          ([key, val]) =>
+            myIds.includes(key) &&
             // $FlowFixMe
-          )
-          .concat(
-            Object.entries(resolved).filter(
-              ([key, val]) =>
-                myIds.includes(key) &&
-                // $FlowFixMe
-                (!pending[key] && !edited[key])
-            )
-          )
+            !pending[key]
+        )
       )
     );
+    // now add in edited:
+    Object.entries(edited).forEach(([id, item]) => {
+      myPublishedCollections[id] = item;
+    });
     return myPublishedCollections;
   }
 );
@@ -161,6 +157,12 @@ export const makeSelectCollectionForId = (id: string) =>
       const collection = bLists[id] || uLists[id] || eLists[id] || rLists[id] || pLists[id];
       return collection;
     }
+  );
+
+export const makeSelectCollectionForIdHasClaimUrl = (id: string, url: string) =>
+  createSelector(
+    makeSelectCollectionForId(id),
+    collection => collection.items.includes(url)
   );
 
 export const makeSelectUrlsForCollectionId = (id: string) =>

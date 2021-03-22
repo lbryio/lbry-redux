@@ -8,6 +8,7 @@ import {
   makeSelectCollectionForId,
   // makeSelectPublishedCollectionForId, // for "save" or "copy" action
   makeSelectMyPublishedCollectionForId,
+  makeSelectPublishedCollectionForId,
   makeSelectUnpublishedCollectionForId,
   makeSelectEditedCollectionForId,
 } from 'redux/selectors/collections';
@@ -24,6 +25,7 @@ const getTimestamp = () => {
 export const doLocalCollectionCreate = (
   name: string,
   collectionItems: string,
+  type: string,
   sourceId: string
 ) => (dispatch: Dispatch) => {
   return dispatch({
@@ -35,6 +37,7 @@ export const doLocalCollectionCreate = (
         updatedAt: getTimestamp(),
         items: collectionItems || [],
         sourceId: sourceId,
+        type: type || 'collection',
       },
     },
   });
@@ -79,7 +82,7 @@ export const doFetchItemsInCollections = (
     pageSize?: number,
   },
   resolveStartedCallback?: () => void
-) => async (dispatch: Dispatch, getState: GetState) => {
+) => async(dispatch: Dispatch, getState: GetState) => {
   let state = getState();
   // for each collection id,
   // make sure the collection is resolved, the items are resolved, and build the collection objects
@@ -284,7 +287,7 @@ export const doFetchItemsInCollection = (
   return doFetchItemsInCollections(newOptions, cb);
 };
 
-export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async (
+export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async(
   dispatch: Dispatch,
   getState: GetState
 ) => {
@@ -294,7 +297,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   const unpublishedCollection: Collection = makeSelectUnpublishedCollectionForId(collectionId)(
     state
   );
-  const publishedCollection: Collection = makeSelectMyPublishedCollectionForId(collectionId)(state);
+  const publishedCollection: Collection = makeSelectPublishedCollectionForId(collectionId)(state); // needs to be published only
 
   const generateCollectionItemsFromSearchResult = results => {
     return (
@@ -383,8 +386,11 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
     currentItems.splice(order.to, 0, movedItem);
   }
 
+  // console.log('p&e', publishedCollection.items, newItems, publishedCollection.items.join(','), newItems.join(','))
   if (editedCollection) {
     if (publishedCollection.items.join(',') === newItems.join(',')) {
+      // print these
+
       // delete edited if newItems are the same as publishedItems
       dispatch({
         type: ACTIONS.COLLECTION_DELETE,

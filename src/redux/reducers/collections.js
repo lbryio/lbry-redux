@@ -69,7 +69,12 @@ const collectionsReducer = handleActions(
       const newPendingList = Object.assign({}, pendingList);
 
       if (collectionKey && state[collectionKey] && state[collectionKey][id]) {
-        delete state[collectionKey][id];
+        const newList = Object.assign({}, state[collectionKey]);
+        delete newList[id];
+        return {
+          ...state,
+          [collectionKey]: newList,
+        };
       } else {
         if (newEditList[id]) {
           delete newEditList[id];
@@ -178,40 +183,38 @@ const collectionsReducer = handleActions(
     },
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
       const { resolvedCollections, failedCollectionIds } = action.data;
-      const {
-        pending: pendingList,
-        edited: editList,
-        isResolvingCollectionById,
-        resolved: lists,
-      } = state;
+      const { pending, edited, isResolvingCollectionById, resolved } = state;
+      const newPending = Object.assign({}, pending);
+      const newEdited = Object.assign({}, edited);
+      const newResolved = Object.assign({}, resolved, resolvedCollections);
+
       const resolvedIds = Object.keys(resolvedCollections);
       const newResolving = Object.assign({}, isResolvingCollectionById);
-      if (resolvedCollections && resolvedCollections.length) {
+      if (resolvedCollections && Object.keys(resolvedCollections).length) {
         resolvedIds.forEach(resolvedId => {
-          if (editList[resolvedId]) {
-            if (editList[resolvedId]['updatedAt'] < resolvedCollections[resolvedId]['updatedAt']) {
-              delete editList[resolvedId];
+          if (newEdited[resolvedId]) {
+            if (newEdited[resolvedId]['updatedAt'] < resolvedCollections[resolvedId]['updatedAt']) {
+              delete newEdited[resolvedId];
             }
           }
           delete newResolving[resolvedId];
-          if (pendingList[resolvedId]) {
-            delete pendingList[resolvedId];
+          if (newPending[resolvedId]) {
+            delete newPending[resolvedId];
           }
         });
       }
 
-      if (failedCollectionIds && failedCollectionIds.length) {
+      if (failedCollectionIds && Object.keys(failedCollectionIds).length) {
         failedCollectionIds.forEach(failedId => {
           delete newResolving[failedId];
         });
       }
 
-      const newLists = Object.assign({}, lists, resolvedCollections);
-
       return Object.assign({}, state, {
         ...state,
-        pending: pendingList,
-        resolved: newLists,
+        pending: newPending,
+        resolved: newResolved,
+        edited: newEdited,
         isResolvingCollectionById: newResolving,
       });
     },
