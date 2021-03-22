@@ -26,7 +26,6 @@ export const buildSharedStateMiddleware = (
   clearTimeout(timeout);
   const actionResult = next(action);
   // Call `getState` after calling `next` to ensure the state has updated in response to the action
-
   function runPreferences() {
     const nextState: { user: any, settings: any } = getState();
     const syncEnabled =
