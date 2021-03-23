@@ -75,6 +75,12 @@ export const selectPendingIds = createSelector(
   state => state.pendingIds || []
 );
 
+export const selectPendingClaims = createSelector(
+  selectPendingIds,
+  selectClaimsById,
+  (pendingIds, byId) => pendingIds.map(id => byId[id])
+);
+
 export const makeSelectClaimIsPending = (uri: string) =>
   createSelector(
     selectClaimIdsByUri,
