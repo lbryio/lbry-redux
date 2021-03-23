@@ -2234,6 +2234,8 @@ const selectAllClaimsByChannel = reselect.createSelector(selectState$1, state =>
 
 const selectPendingIds = reselect.createSelector(selectState$1, state => state.pendingIds || []);
 
+const selectPendingClaims = reselect.createSelector(selectPendingIds, selectClaimsById, (pendingIds, byId) => pendingIds.map(id => byId[id]));
+
 const makeSelectClaimIsPending = uri => reselect.createSelector(selectClaimIdsByUri, selectPendingIds, (idsByUri, pendingIds) => {
   const claimId = idsByUri[normalizeURI(uri)];
 
@@ -6728,6 +6730,7 @@ exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
 exports.selectMyPurchases = selectMyPurchases;
 exports.selectMyPurchasesCount = selectMyPurchasesCount;
 exports.selectMyStreamUrlsCount = selectMyStreamUrlsCount;
+exports.selectPendingClaims = selectPendingClaims;
 exports.selectPendingConsolidateTxid = selectPendingConsolidateTxid;
 exports.selectPendingIds = selectPendingIds;
 exports.selectPendingMassClaimTxid = selectPendingMassClaimTxid;

@@ -201,6 +201,7 @@ export {
   selectAllFetchingChannelClaims,
   selectIsFetchingClaimListMine,
   selectMyClaims,
+  selectPendingClaims,
   selectMyClaimsWithoutChannels,
   selectMyChannelUrls,
   selectMyClaimUrisWithoutChannels,
