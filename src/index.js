@@ -189,6 +189,7 @@ export {
   makeSelectAbandoningClaimById,
   makeSelectIsAbandoningClaimForUri,
   makeSelectClaimHasSource,
+  makeSelectClaimIsStreamPlaceholder,
   selectPendingIds,
   selectReflectingById,
   makeSelectClaimForClaimId,
