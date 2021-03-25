@@ -2681,7 +2681,7 @@ const makeSelectClaimHasSource = uri => reselect.createSelector(makeSelectClaimF
     return false;
   }
 
-  return Boolean(claim.value.source && claim.value_type === 'stream');
+  return Boolean(claim.value.source);
 });
 
 const makeSelectTotalStakedAmountForChannelUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {

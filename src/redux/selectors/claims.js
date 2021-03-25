@@ -867,7 +867,7 @@ export const makeSelectClaimHasSource = (uri: string) =>
         return false;
       }
 
-      return Boolean(claim.value.source && claim.value_type === 'stream');
+      return Boolean(claim.value.source);
     }
   );
 
