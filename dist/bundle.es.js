@@ -2684,6 +2684,14 @@ const makeSelectClaimHasSource = uri => reselect.createSelector(makeSelectClaimF
   return Boolean(claim.value.source);
 });
 
+const makeSelectClaimIsStreamPlaceholder = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
+  if (!claim) {
+    return false;
+  }
+
+  return Boolean(claim.value_type === 'stream' && !claim.value.source);
+});
+
 const makeSelectTotalStakedAmountForChannelUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   if (!claim || !claim.amount || !claim.meta || !claim.meta.support_amount) {
     return 0;
@@ -6623,6 +6631,7 @@ exports.makeSelectClaimHasSource = makeSelectClaimHasSource;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;
 exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
 exports.makeSelectClaimIsPending = makeSelectClaimIsPending;
+exports.makeSelectClaimIsStreamPlaceholder = makeSelectClaimIsStreamPlaceholder;
 exports.makeSelectClaimWasPurchased = makeSelectClaimWasPurchased;
 exports.makeSelectClaimsInChannelForCurrentPageState = makeSelectClaimsInChannelForCurrentPageState;
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
