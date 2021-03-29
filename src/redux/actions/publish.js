@@ -106,12 +106,12 @@ export const doUploadThumbnail = (
       .then(json => {
         return json.success
           ? dispatch({
-            type: ACTIONS.UPDATE_PUBLISH_FORM,
-            data: {
-              uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-              thumbnail: json.data.serveUrl,
-            },
-          })
+              type: ACTIONS.UPDATE_PUBLISH_FORM,
+              data: {
+                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+                thumbnail: json.data.serveUrl,
+              },
+            })
           : uploadError(json.message || downMessage);
       })
       .catch(err => {
@@ -270,6 +270,7 @@ export const doPublish = (success: Function, fail: Function, preview: Function) 
     locations,
     optimize,
     isLivestreamPublish,
+    remoteFileUrl,
   } = publishData;
 
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
@@ -309,6 +310,7 @@ export const doPublish = (success: Function, fail: Function, preview: Function) 
     blocking: boolean,
     optimize_file?: boolean,
     preview?: boolean,
+    remote_url?: string,
   } = {
     name,
     title,
@@ -324,6 +326,9 @@ export const doPublish = (success: Function, fail: Function, preview: Function) 
   // Temporary solution to keep the same publish flow with the new tags api
   // Eventually we will allow users to enter their own tags on publish
   // `nsfw` will probably be removed
+  if (remoteFileUrl) {
+    publishPayload.remote_url = remoteFileUrl;
+  }
 
   if (publishingLicense) {
     publishPayload.license = publishingLicense;
@@ -407,7 +412,7 @@ export const doCheckReflectingFiles = () => (dispatch: Dispatch, getState: GetSt
   const { checkingReflector } = state.claims;
   let reflectorCheckInterval;
 
-  const checkFileList = async() => {
+  const checkFileList = async () => {
     const state = getState();
     const reflectingById = selectReflectingById(state);
     const ids = Object.keys(reflectingById);

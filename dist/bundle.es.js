@@ -4777,7 +4777,8 @@ const doPublish = (success, fail, preview) => (dispatch, getState) => {
     tags,
     locations,
     optimize,
-    isLivestreamPublish
+    isLivestreamPublish,
+    remoteFileUrl
   } = publishData;
 
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
@@ -4812,6 +4813,9 @@ const doPublish = (success, fail, preview) => (dispatch, getState) => {
   // Temporary solution to keep the same publish flow with the new tags api
   // Eventually we will allow users to enter their own tags on publish
   // `nsfw` will probably be removed
+  if (remoteFileUrl) {
+    publishPayload.remote_url = remoteFileUrl;
+  }
 
   if (publishingLicense) {
     publishPayload.license = publishingLicense;
@@ -5967,6 +5971,7 @@ const defaultState$4 = {
   fileDur: 0,
   fileSize: 0,
   fileVid: false,
+  remoteFileUrl: undefined,
   contentIsFree: true,
   fee: {
     amount: 1,
