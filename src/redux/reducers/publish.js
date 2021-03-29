@@ -9,6 +9,7 @@ type PublishState = {
   editingURI: ?string,
   fileText: ?string,
   filePath: ?string,
+  remoteFileUrl: ?string,
   contentIsFree: boolean,
   fileDur: number,
   fileSize: number,
@@ -44,6 +45,7 @@ const defaultState: PublishState = {
   fileDur: 0,
   fileSize: 0,
   fileVid: false,
+  remoteFileUrl: undefined,
   contentIsFree: true,
   fee: {
     amount: 1,
