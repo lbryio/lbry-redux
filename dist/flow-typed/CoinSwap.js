@@ -2,12 +2,13 @@ declare type CoinSwapInfo = {
   chargeCode: string,
   coins: Array<string>,
   sendAddresses: { [string]: string},
-  sendAmounts: { [string]: number },
+  sendAmounts: { [string]: any },
   lbcAmount: number,
   status?: {
     status: string,
-    receipt_txid: string,
-    lbc_txid: string,
+    receiptCurrency: string,
+    receiptTxid: string,
+    lbcTxid: string,
   },
 }
 
