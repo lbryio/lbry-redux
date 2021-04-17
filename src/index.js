@@ -285,6 +285,7 @@ export {
   selectSupportsByOutpoint,
   selectTotalSupports,
   selectTransactionItems,
+  selectTransactionsFile,
   selectRecentTransactions,
   selectHasTransactions,
   selectIsFetchingTransactions,

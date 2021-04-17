@@ -2,6 +2,7 @@ import { createSelector } from 'reselect';
 import * as TRANSACTIONS from 'constants/transaction_types';
 import { PAGE_SIZE, LATEST_PAGE_SIZE } from 'constants/transaction_list';
 import { selectClaimIdsByUri } from 'redux/selectors/claims';
+import parseData from 'util/parse-data';
 export const selectState = state => state.wallet || {};
 
 export const selectWalletState = selectState;
@@ -265,6 +266,27 @@ export const selectHasTransactions = createSelector(
 export const selectIsFetchingTransactions = createSelector(
   selectState,
   state => state.fetchingTransactions
+);
+
+/**
+ * CSV of 'selectTransactionItems'.
+ */
+export const selectTransactionsFile = createSelector(
+  selectTransactionItems,
+  transactions => {
+    if (!transactions || transactions.length === 0) {
+      // No data.
+      return undefined;
+    }
+
+    const parsed = parseData(transactions, 'csv');
+    if (!parsed) {
+      // Invalid data, or failed to parse.
+      return null;
+    }
+
+    return parsed;
+  }
 );
 
 export const selectIsSendingSupport = createSelector(
