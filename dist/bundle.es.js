@@ -3117,7 +3117,7 @@ function doSetDraftTransactionAddress(address) {
   };
 }
 
-function doSendTip(params, isSupport, successCallback, errorCallback) {
+function doSendTip(params, isSupport, successCallback, errorCallback, shouldNotify = true) {
   return (dispatch, getState) => {
     const state = getState();
     const balance = selectBalance(state);
@@ -3133,19 +3133,21 @@ function doSendTip(params, isSupport, successCallback, errorCallback) {
       return;
     }
 
-    const success = () => {
-      dispatch(doToast({
-        message: shouldSupport ? __('You deposited %amount% LBRY Credits as a support!', { amount: params.amount }) : __('You sent %amount% LBRY Credits as a tip, Mahalo!', { amount: params.amount }),
-        linkText: __('History'),
-        linkTarget: '/wallet'
-      }));
+    const success = response => {
+      if (shouldNotify) {
+        dispatch(doToast({
+          message: shouldSupport ? __('You deposited %amount% LBRY Credits as a support!', { amount: params.amount }) : __('You sent %amount% LBRY Credits as a tip, Mahalo!', { amount: params.amount }),
+          linkText: __('History'),
+          linkTarget: '/wallet'
+        }));
+      }
 
       dispatch({
         type: SUPPORT_TRANSACTION_COMPLETED
       });
 
       if (successCallback) {
-        successCallback();
+        successCallback(response);
       }
     };
 
