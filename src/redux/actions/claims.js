@@ -65,7 +65,7 @@ export function doResolveUris(
     } = {};
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
-      async (result: ResolveResponse) => {
+      async(result: ResolveResponse) => {
         let repostedResults = {};
         const repostsToResolve = [];
         const fallbackResolveInfo = {
@@ -594,7 +594,7 @@ export function doClaimSearch(
   }
 ) {
   const query = createNormalizedClaimSearchKey(options);
-  return (dispatch: Dispatch) => {
+  return async(dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
       data: { query: query },
@@ -618,6 +618,7 @@ export function doClaimSearch(
           pageSize: options.page_size,
         },
       });
+      return true;
     };
 
     const failure = err => {
@@ -626,9 +627,10 @@ export function doClaimSearch(
         data: { query },
         error: err,
       });
+      return false;
     };
 
-    Lbry.claim_search({
+    return await Lbry.claim_search({
       ...options,
       include_purchase_receipt: true,
     }).then(success, failure);

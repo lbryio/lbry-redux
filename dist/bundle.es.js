@@ -4018,44 +4018,52 @@ function doClaimSearch(options = {
   page: 1
 }) {
   const query = createNormalizedClaimSearchKey(options);
-  return dispatch => {
-    dispatch({
-      type: CLAIM_SEARCH_STARTED,
-      data: { query: query }
+  return (() => {
+    var _ref2 = _asyncToGenerator$1(function* (dispatch) {
+      dispatch({
+        type: CLAIM_SEARCH_STARTED,
+        data: { query: query }
+      });
+
+      const success = function (data) {
+        const resolveInfo = {};
+        const urls = [];
+        data.items.forEach(function (stream) {
+          resolveInfo[stream.canonical_url] = { stream };
+          urls.push(stream.canonical_url);
+        });
+
+        dispatch({
+          type: CLAIM_SEARCH_COMPLETED,
+          data: {
+            query,
+            resolveInfo,
+            urls,
+            append: options.page && options.page !== 1,
+            pageSize: options.page_size
+          }
+        });
+        return true;
+      };
+
+      const failure = function (err) {
+        dispatch({
+          type: CLAIM_SEARCH_FAILED,
+          data: { query },
+          error: err
+        });
+        return false;
+      };
+
+      return yield lbryProxy.claim_search(_extends$5({}, options, {
+        include_purchase_receipt: true
+      })).then(success, failure);
     });
 
-    const success = data => {
-      const resolveInfo = {};
-      const urls = [];
-      data.items.forEach(stream => {
-        resolveInfo[stream.canonical_url] = { stream };
-        urls.push(stream.canonical_url);
-      });
-
-      dispatch({
-        type: CLAIM_SEARCH_COMPLETED,
-        data: {
-          query,
-          resolveInfo,
-          urls,
-          append: options.page && options.page !== 1,
-          pageSize: options.page_size
-        }
-      });
+    return function (_x2) {
+      return _ref2.apply(this, arguments);
     };
-
-    const failure = err => {
-      dispatch({
-        type: CLAIM_SEARCH_FAILED,
-        data: { query },
-        error: err
-      });
-    };
-
-    lbryProxy.claim_search(_extends$5({}, options, {
-      include_purchase_receipt: true
-    })).then(success, failure);
-  };
+  })();
 }
 
 function doRepost(options) {
