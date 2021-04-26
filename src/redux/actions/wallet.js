@@ -61,9 +61,8 @@ export function doBalanceSubscribe() {
   };
 }
 
-export function doFetchTransactions(page = 1, pageSize = 99999) {
+export function doFetchTransactions(page = 1, pageSize = 999999) {
   return dispatch => {
-    dispatch(doFetchSupports());
     dispatch({
       type: ACTIONS.FETCH_TRANSACTIONS_STARTED,
     });

@@ -2911,9 +2911,8 @@ function doBalanceSubscribe() {
   };
 }
 
-function doFetchTransactions(page = 1, pageSize = 99999) {
+function doFetchTransactions(page = 1, pageSize = 999999) {
   return dispatch => {
-    dispatch(doFetchSupports());
     dispatch({
       type: FETCH_TRANSACTIONS_STARTED
     });
@@ -2992,23 +2991,6 @@ function doUpdateTxoPageParams(params) {
     });
 
     dispatch(doFetchTxoPage());
-  };
-}
-
-function doFetchSupports(page = 1, pageSize = 99999) {
-  return dispatch => {
-    dispatch({
-      type: FETCH_SUPPORTS_STARTED
-    });
-
-    lbryProxy.support_list({ page, page_size: pageSize }).then(result => {
-      dispatch({
-        type: FETCH_SUPPORTS_COMPLETED,
-        data: {
-          supports: result.items
-        }
-      });
-    });
   };
 }
 
