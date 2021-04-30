@@ -106,12 +106,12 @@ export const doUploadThumbnail = (
       .then(json => {
         return json.success
           ? dispatch({
-              type: ACTIONS.UPDATE_PUBLISH_FORM,
-              data: {
-                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-                thumbnail: json.data.serveUrl,
-              },
-            })
+            type: ACTIONS.UPDATE_PUBLISH_FORM,
+            data: {
+              uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+              thumbnail: json.data.serveUrl,
+            },
+          })
           : uploadError(json.message || downMessage);
       })
       .catch(err => {
@@ -200,7 +200,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
     description,
     fee,
     languages,
-    release_time: release_time ? Number(release_time) * 1000 : undefined,
+    releaseTime: release_time ? Number(release_time) * 1000 : undefined,
     thumbnail: thumbnail ? thumbnail.url : null,
     title,
     uri,
@@ -412,7 +412,7 @@ export const doCheckReflectingFiles = () => (dispatch: Dispatch, getState: GetSt
   const { checkingReflector } = state.claims;
   let reflectorCheckInterval;
 
-  const checkFileList = async () => {
+  const checkFileList = async() => {
     const state = getState();
     const reflectingById = selectReflectingById(state);
     const ids = Object.keys(reflectingById);
