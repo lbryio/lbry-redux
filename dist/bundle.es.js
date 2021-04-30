@@ -4786,7 +4786,8 @@ const doPrepareEdit = (claim, uri, fileInfo, fs) => dispatch => {
     description,
     fee,
     languages,
-    release_time: release_time ? Number(release_time) * 1000 : undefined,
+    releaseTime: release_time,
+    releaseTimeEdited: undefined,
     thumbnail: thumbnail ? thumbnail.url : null,
     title,
     uri,
@@ -4837,7 +4838,7 @@ const doPublish = (success, fail, preview) => (dispatch, getState) => {
     filePath,
     description,
     language,
-    releaseTime,
+    releaseTimeEdited,
     license,
     licenseUrl,
     useLBRYUploader,
@@ -4909,8 +4910,8 @@ const doPublish = (success, fail, preview) => (dispatch, getState) => {
   }
 
   // Set release time to curret date. On edits, keep original release/transaction time as release_time
-  if (releaseTime) {
-    publishPayload.release_time = Number(Math.round(new Date(releaseTime) / 1000));
+  if (releaseTimeEdited) {
+    publishPayload.release_time = releaseTimeEdited;
   } else if (myClaimForUriEditing && myClaimForUriEditing.value.release_time) {
     publishPayload.release_time = Number(myClaimForUri.value.release_time);
   } else if (myClaimForUriEditing && myClaimForUriEditing.timestamp) {
@@ -6060,6 +6061,7 @@ const defaultState$4 = {
   description: '',
   language: '',
   releaseTime: undefined,
+  releaseTimeEdited: undefined,
   nsfw: false,
   channel: CHANNEL_ANONYMOUS,
   channelId: '',

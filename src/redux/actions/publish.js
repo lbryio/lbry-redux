@@ -200,7 +200,8 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
     description,
     fee,
     languages,
-    releaseTime: release_time ? Number(release_time) * 1000 : undefined,
+    releaseTime: release_time,
+    releaseTimeEdited: undefined,
     thumbnail: thumbnail ? thumbnail.url : null,
     title,
     uri,
@@ -254,7 +255,7 @@ export const doPublish = (success: Function, fail: Function, preview: Function) 
     filePath,
     description,
     language,
-    releaseTime,
+    releaseTimeEdited,
     license,
     licenseUrl,
     useLBRYUploader,
@@ -347,8 +348,8 @@ export const doPublish = (success: Function, fail: Function, preview: Function) 
   }
 
   // Set release time to curret date. On edits, keep original release/transaction time as release_time
-  if (releaseTime) {
-    publishPayload.release_time = Number(Math.round(new Date(releaseTime) / 1000));
+  if (releaseTimeEdited) {
+    publishPayload.release_time = releaseTimeEdited;
   } else if (myClaimForUriEditing && myClaimForUriEditing.value.release_time) {
     publishPayload.release_time = Number(myClaimForUri.value.release_time);
   } else if (myClaimForUriEditing && myClaimForUriEditing.timestamp) {
