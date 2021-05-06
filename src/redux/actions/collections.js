@@ -12,10 +12,7 @@ import {
   makeSelectUnpublishedCollectionForId,
   makeSelectEditedCollectionForId,
 } from 'redux/selectors/collections';
-const WATCH_LATER_ID = 'watchlater';
-const FAVORITES_ID = 'favorites';
-
-const BUILTIN_LISTS = [WATCH_LATER_ID, FAVORITES_ID];
+import * as COLS from 'constants/collections';
 
 const getTimestamp = () => {
   return Math.floor(Date.now() / 1000);
@@ -37,7 +34,7 @@ export const doLocalCollectionCreate = (
         updatedAt: getTimestamp(),
         items: collectionItems || [],
         sourceId: sourceId,
-        type: type || 'collection',
+        type: type,
       },
     },
   });
@@ -343,7 +340,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   let currentItems = collection.items ? collection.items.concat() : [];
   const { claims: passedClaims, order, claimIds, replace, remove, type } = params;
 
-  const collectionType = type || 'collection';
+  const collectionType = type || collection.type;
   let newItems: Array<?string> = currentItems;
 
   if (passedClaims) {
@@ -430,7 +427,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
         },
       },
     });
-  } else if (BUILTIN_LISTS.includes(collectionId)) {
+  } else if (COLS.BUILTIN_LISTS.includes(collectionId)) {
     dispatch({
       type: ACTIONS.COLLECTION_EDIT,
       data: {

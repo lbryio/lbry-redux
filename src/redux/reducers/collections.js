@@ -1,12 +1,8 @@
 // @flow
 import { handleActions } from 'util/redux-utils';
 import * as ACTIONS from 'constants/action_types';
-import * as COLLECTION_CONSTS from 'constants/collections';
+import * as COLS from 'constants/collections';
 
-const WATCH_LATER_ID = 'watchlater';
-const FAVORITES_ID = 'favorites';
-
-const BUILTIN_LISTS = [WATCH_LATER_ID, FAVORITES_ID];
 const getTimestamp = () => {
   return Math.floor(Date.now() / 1000);
 };
@@ -14,17 +10,21 @@ const getTimestamp = () => {
 const defaultState: CollectionState = {
   builtin: {
     watchlater: {
-      items: ['lbry://seriouspublish#c1b740eb88f96b465f65e5f1542564539df1c62e'],
-      id: WATCH_LATER_ID,
+      items: [
+        'lbry://why-wolves-determine-the-shape-of-rivers#d8a60a057ac9adb6b618be6985ca8361c730c02e',
+      ],
+      id: COLS.WATCH_LATER_ID,
       name: 'Watch Later',
       updatedAt: getTimestamp(),
-      type: 'playlist',
+      type: COLS.COL_TYPE_PLAYLIST,
     },
     favorites: {
-      items: ['lbry://seriouspublish#c1b740eb88f96b465f65e5f1542564539df1c62e'],
-      id: FAVORITES_ID,
+      items: [
+        'lbry://why-wolves-determine-the-shape-of-rivers#d8a60a057ac9adb6b618be6985ca8361c730c02e',
+      ],
+      id: COLS.FAVORITES_ID,
       name: 'Favorites',
-      type: 'collection',
+      type: COLS.COL_TYPE_PLAYLIST,
       updatedAt: getTimestamp(),
     },
   },
@@ -47,7 +47,7 @@ const collectionsReducer = handleActions(
         name: params.name,
         items: [],
         updatedAt: getTimestamp(),
-        type: params.type || 'mixed',
+        type: params.type,
       };
 
       const newList = Object.assign({}, newListTemplate, { ...params });
@@ -131,7 +131,7 @@ const collectionsReducer = handleActions(
     [ACTIONS.COLLECTION_EDIT]: (state, action) => {
       const { id, collectionKey, collection } = action.data;
 
-      if (BUILTIN_LISTS.includes(id)) {
+      if (COLS.BUILTIN_LISTS.includes(id)) {
         const { builtin: lists } = state;
         return {
           ...state,

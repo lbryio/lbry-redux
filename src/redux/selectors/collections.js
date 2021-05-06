@@ -162,7 +162,7 @@ export const makeSelectCollectionForId = (id: string) =>
 export const makeSelectCollectionForIdHasClaimUrl = (id: string, url: string) =>
   createSelector(
     makeSelectCollectionForId(id),
-    collection => collection.items.includes(url)
+    collection => collection && collection.items.includes(url)
   );
 
 export const makeSelectUrlsForCollectionId = (id: string) =>
