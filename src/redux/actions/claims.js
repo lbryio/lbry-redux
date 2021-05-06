@@ -422,7 +422,7 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
       description?: string,
       website_url?: string,
       email?: string,
-      tags?: Array<string>,
+      tags?: Array<Tag>,
       languages?: Array<string>,
     } = {
       name,
@@ -801,11 +801,12 @@ export function doCollectionPublishUpdate(options: {
   bid?: string,
   blocking?: true,
   title?: string,
-  thumbnail_url?: string,
+  thumbnailUrl?: string,
   description?: string,
   claim_id: string,
-  tags?: Array<string>,
+  tags?: Array<Tag>,
   languages?: Array<string>,
+  claims?: Array<string>,
 }) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
@@ -813,12 +814,35 @@ export function doCollectionPublishUpdate(options: {
     // get publish params from claim
     // $FlowFixMe
 
-    const collectionClaim = makeSelectClaimForClaimId(options.claim_id)(state);
-    // TODO: add old claim entries to params
-    const editItems = makeSelectEditedCollectionForId(options.claim_id)(state);
-    const oldParams: CollectionUpdateParams = {
-      bid: collectionClaim.amount,
+    const updateParams: {
+      bid?: string,
+      blocking?: true,
+      title?: string,
+      thumbnail_url?: string,
+      description?: string,
+      claim_id: string,
+      tags?: Array<string>,
+      languages?: Array<string>,
+      claims?: Array<string>,
+    } = {
+      bid: creditsToString(options.bid),
+      title: options.title,
+      thumbnail_url: options.thumbnailUrl,
+      description: options.description,
+      tags: [],
+      languages: options.languages || [],
+      locations: [],
+      blocking: true,
+      claim_id: options.claim_id,
     };
+
+    if (options.tags) {
+      updateParams['tags'] = options.tags.map(tag => tag.name);
+    }
+
+    if (options.claims) {
+      updateParams['claims'] = options.claims;
+    }
     // $FlowFixMe
     return new Promise(resolve => {
       dispatch({
@@ -839,6 +863,7 @@ export function doCollectionPublishUpdate(options: {
             claims: [collectionClaim],
           },
         });
+        dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
         resolve(collectionClaim);
       }
@@ -852,7 +877,7 @@ export function doCollectionPublishUpdate(options: {
         });
       }
 
-      Lbry.collection_update(options).then(success, failure);
+      Lbry.collection_update(updateParams).then(success, failure);
     });
   };
 }

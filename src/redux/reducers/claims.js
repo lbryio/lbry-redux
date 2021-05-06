@@ -341,15 +341,12 @@ reducers[ACTIONS.FETCH_COLLECTION_LIST_COMPLETED] = (state: State, action: any):
   const myClaims = state.myClaims || [];
   let myClaimIds = new Set(myClaims);
   const pendingIds = state.pendingIds || [];
-  let myCollectionClaims;
+  let myCollectionClaimsSet = new Set([]);
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
 
-  if (!claims.length) {
-    // $FlowFixMe
-    myCollectionClaims = null;
-  } else {
-    myCollectionClaims = new Set(state.myCollectionClaims);
+  if (claims.length) {
+    myCollectionClaimsSet = new Set(state.myCollectionClaims);
     claims.forEach(claim => {
       const { meta } = claim;
       const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId } = claim;
@@ -359,7 +356,7 @@ reducers[ACTIONS.FETCH_COLLECTION_LIST_COMPLETED] = (state: State, action: any):
       byUri[permanentUrl] = claimId;
 
       // $FlowFixMe
-      myCollectionClaims.add(claimId);
+      myCollectionClaimsSet.add(claimId);
       // we don't want to overwrite a pending result with a resolve
       if (!pendingIds.some(c => c === claimId)) {
         byId[claimId] = claim;
@@ -373,7 +370,7 @@ reducers[ACTIONS.FETCH_COLLECTION_LIST_COMPLETED] = (state: State, action: any):
     byId,
     claimsByUri: byUri,
     fetchingMyCollections: false,
-    myCollectionClaims: myCollectionClaims ? Array.from(myCollectionClaims) : null,
+    myCollectionClaims: Array.from(myCollectionClaimsSet),
     myClaims: myClaimIds ? Array.from(myClaimIds) : null,
   };
 };

@@ -134,6 +134,9 @@ const ABANDON_CLAIM_SUCCEEDED = 'ABANDON_CLAIM_SUCCEEDED';
 const FETCH_CHANNEL_LIST_STARTED = 'FETCH_CHANNEL_LIST_STARTED';
 const FETCH_CHANNEL_LIST_COMPLETED = 'FETCH_CHANNEL_LIST_COMPLETED';
 const FETCH_CHANNEL_LIST_FAILED = 'FETCH_CHANNEL_LIST_FAILED';
+const FETCH_COLLECTION_LIST_STARTED = 'FETCH_COLLECTION_LIST_STARTED';
+const FETCH_COLLECTION_LIST_COMPLETED = 'FETCH_COLLECTION_LIST_COMPLETED';
+const FETCH_COLLECTION_LIST_FAILED = 'FETCH_COLLECTION_LIST_FAILED';
 const CREATE_CHANNEL_STARTED = 'CREATE_CHANNEL_STARTED';
 const CREATE_CHANNEL_COMPLETED = 'CREATE_CHANNEL_COMPLETED';
 const CREATE_CHANNEL_FAILED = 'CREATE_CHANNEL_FAILED';
@@ -143,6 +146,7 @@ const UPDATE_CHANNEL_FAILED = 'UPDATE_CHANNEL_FAILED';
 const IMPORT_CHANNEL_STARTED = 'IMPORT_CHANNEL_STARTED';
 const IMPORT_CHANNEL_COMPLETED = 'IMPORT_CHANNEL_COMPLETED';
 const IMPORT_CHANNEL_FAILED = 'IMPORT_CHANNEL_FAILED';
+const CLEAR_CHANNEL_ERRORS = 'CLEAR_CHANNEL_ERRORS';
 const PUBLISH_STARTED = 'PUBLISH_STARTED';
 const PUBLISH_COMPLETED = 'PUBLISH_COMPLETED';
 const PUBLISH_FAILED = 'PUBLISH_FAILED';
@@ -161,7 +165,6 @@ const CLAIM_REPOST_STARTED = 'CLAIM_REPOST_STARTED';
 const CLAIM_REPOST_COMPLETED = 'CLAIM_REPOST_COMPLETED';
 const CLAIM_REPOST_FAILED = 'CLAIM_REPOST_FAILED';
 const CLEAR_REPOST_ERROR = 'CLEAR_REPOST_ERROR';
-const CLEAR_CHANNEL_ERRORS = 'CLEAR_CHANNEL_ERRORS';
 const CHECK_PUBLISH_NAME_STARTED = 'CHECK_PUBLISH_NAME_STARTED';
 const CHECK_PUBLISH_NAME_COMPLETED = 'CHECK_PUBLISH_NAME_COMPLETED';
 const UPDATE_PENDING_CLAIMS = 'UPDATE_PENDING_CLAIMS';
@@ -173,6 +176,27 @@ const TOGGLE_CHECKING_PENDING = 'TOGGLE_CHECKING_PENDING';
 const PURCHASE_LIST_STARTED = 'PURCHASE_LIST_STARTED';
 const PURCHASE_LIST_COMPLETED = 'PURCHASE_LIST_COMPLETED';
 const PURCHASE_LIST_FAILED = 'PURCHASE_LIST_FAILED';
+
+const COLLECTION_PUBLISH_STARTED = 'COLLECTION_PUBLISH_STARTED';
+const COLLECTION_PUBLISH_COMPLETED = 'COLLECTION_PUBLISH_COMPLETED';
+const COLLECTION_PUBLISH_FAILED = 'COLLECTION_PUBLISH_FAILED';
+const COLLECTION_PUBLISH_UPDATE_STARTED = 'COLLECTION_PUBLISH_UPDATE_STARTED';
+const COLLECTION_PUBLISH_UPDATE_COMPLETED = 'COLLECTION_PUBLISH_UPDATE_COMPLETED';
+const COLLECTION_PUBLISH_UPDATE_FAILED = 'COLLECTION_PUBLISH_UPDATE_FAILED';
+const COLLECTION_PUBLISH_ABANDON_STARTED = 'COLLECTION_PUBLISH_ABANDON_STARTED';
+const COLLECTION_PUBLISH_ABANDON_COMPLETED = 'COLLECTION_PUBLISH_ABANDON_COMPLETED';
+const COLLECTION_PUBLISH_ABANDON_FAILED = 'COLLECTION_PUBLISH_ABANDON_FAILED';
+const CLEAR_COLLECTION_ERRORS = 'CLEAR_COLLECTION_ERRORS';
+const COLLECTION_ITEMS_RESOLVE_STARTED = 'COLLECTION_ITEMS_RESOLVE_STARTED';
+const COLLECTION_ITEMS_RESOLVE_COMPLETED = 'COLLECTION_ITEMS_RESOLVE_COMPLETED';
+const COLLECTION_ITEMS_RESOLVE_FAILED = 'COLLECTION_ITEMS_RESOLVE_FAILED';
+const COLLECTION_NEW = 'COLLECTION_NEW';
+const COLLECTION_DELETE = 'COLLECTION_DELETE';
+const COLLECTION_PENDING = 'COLLECTION_PENDING';
+const COLLECTION_EDIT = 'COLLECTION_EDIT';
+const COLLECTION_COPY = 'COLLECTION_COPY';
+const COLLECTION_SAVE = 'COLLECTION_SAVE';
+const COLLECTION_ERROR = 'COLLECTION_ERROR';
 
 // Comments
 const COMMENT_LIST_STARTED = 'COMMENT_LIST_STARTED';
@@ -409,6 +433,9 @@ var action_types = /*#__PURE__*/Object.freeze({
   FETCH_CHANNEL_LIST_STARTED: FETCH_CHANNEL_LIST_STARTED,
   FETCH_CHANNEL_LIST_COMPLETED: FETCH_CHANNEL_LIST_COMPLETED,
   FETCH_CHANNEL_LIST_FAILED: FETCH_CHANNEL_LIST_FAILED,
+  FETCH_COLLECTION_LIST_STARTED: FETCH_COLLECTION_LIST_STARTED,
+  FETCH_COLLECTION_LIST_COMPLETED: FETCH_COLLECTION_LIST_COMPLETED,
+  FETCH_COLLECTION_LIST_FAILED: FETCH_COLLECTION_LIST_FAILED,
   CREATE_CHANNEL_STARTED: CREATE_CHANNEL_STARTED,
   CREATE_CHANNEL_COMPLETED: CREATE_CHANNEL_COMPLETED,
   CREATE_CHANNEL_FAILED: CREATE_CHANNEL_FAILED,
@@ -418,6 +445,7 @@ var action_types = /*#__PURE__*/Object.freeze({
   IMPORT_CHANNEL_STARTED: IMPORT_CHANNEL_STARTED,
   IMPORT_CHANNEL_COMPLETED: IMPORT_CHANNEL_COMPLETED,
   IMPORT_CHANNEL_FAILED: IMPORT_CHANNEL_FAILED,
+  CLEAR_CHANNEL_ERRORS: CLEAR_CHANNEL_ERRORS,
   PUBLISH_STARTED: PUBLISH_STARTED,
   PUBLISH_COMPLETED: PUBLISH_COMPLETED,
   PUBLISH_FAILED: PUBLISH_FAILED,
@@ -436,7 +464,6 @@ var action_types = /*#__PURE__*/Object.freeze({
   CLAIM_REPOST_COMPLETED: CLAIM_REPOST_COMPLETED,
   CLAIM_REPOST_FAILED: CLAIM_REPOST_FAILED,
   CLEAR_REPOST_ERROR: CLEAR_REPOST_ERROR,
-  CLEAR_CHANNEL_ERRORS: CLEAR_CHANNEL_ERRORS,
   CHECK_PUBLISH_NAME_STARTED: CHECK_PUBLISH_NAME_STARTED,
   CHECK_PUBLISH_NAME_COMPLETED: CHECK_PUBLISH_NAME_COMPLETED,
   UPDATE_PENDING_CLAIMS: UPDATE_PENDING_CLAIMS,
@@ -448,6 +475,26 @@ var action_types = /*#__PURE__*/Object.freeze({
   PURCHASE_LIST_STARTED: PURCHASE_LIST_STARTED,
   PURCHASE_LIST_COMPLETED: PURCHASE_LIST_COMPLETED,
   PURCHASE_LIST_FAILED: PURCHASE_LIST_FAILED,
+  COLLECTION_PUBLISH_STARTED: COLLECTION_PUBLISH_STARTED,
+  COLLECTION_PUBLISH_COMPLETED: COLLECTION_PUBLISH_COMPLETED,
+  COLLECTION_PUBLISH_FAILED: COLLECTION_PUBLISH_FAILED,
+  COLLECTION_PUBLISH_UPDATE_STARTED: COLLECTION_PUBLISH_UPDATE_STARTED,
+  COLLECTION_PUBLISH_UPDATE_COMPLETED: COLLECTION_PUBLISH_UPDATE_COMPLETED,
+  COLLECTION_PUBLISH_UPDATE_FAILED: COLLECTION_PUBLISH_UPDATE_FAILED,
+  COLLECTION_PUBLISH_ABANDON_STARTED: COLLECTION_PUBLISH_ABANDON_STARTED,
+  COLLECTION_PUBLISH_ABANDON_COMPLETED: COLLECTION_PUBLISH_ABANDON_COMPLETED,
+  COLLECTION_PUBLISH_ABANDON_FAILED: COLLECTION_PUBLISH_ABANDON_FAILED,
+  CLEAR_COLLECTION_ERRORS: CLEAR_COLLECTION_ERRORS,
+  COLLECTION_ITEMS_RESOLVE_STARTED: COLLECTION_ITEMS_RESOLVE_STARTED,
+  COLLECTION_ITEMS_RESOLVE_COMPLETED: COLLECTION_ITEMS_RESOLVE_COMPLETED,
+  COLLECTION_ITEMS_RESOLVE_FAILED: COLLECTION_ITEMS_RESOLVE_FAILED,
+  COLLECTION_NEW: COLLECTION_NEW,
+  COLLECTION_DELETE: COLLECTION_DELETE,
+  COLLECTION_PENDING: COLLECTION_PENDING,
+  COLLECTION_EDIT: COLLECTION_EDIT,
+  COLLECTION_COPY: COLLECTION_COPY,
+  COLLECTION_SAVE: COLLECTION_SAVE,
+  COLLECTION_ERROR: COLLECTION_ERROR,
   COMMENT_LIST_STARTED: COMMENT_LIST_STARTED,
   COMMENT_LIST_COMPLETED: COMMENT_LIST_COMPLETED,
   COMMENT_LIST_FAILED: COMMENT_LIST_FAILED,
@@ -993,6 +1040,28 @@ var shared_preferences = /*#__PURE__*/Object.freeze({
   CLIENT_SYNC_KEYS: CLIENT_SYNC_KEYS
 });
 
+const COLLECTION_ID = 'colid';
+const COLLECTION_INDEX = 'colindex';
+
+const COL_TYPE_PLAYLIST = 'playlist';
+const COL_TYPE_CHANNELS = 'channelCollection';
+
+const WATCH_LATER_ID = 'watchlater';
+const FAVORITES_ID = 'favorites';
+const FAVORITE_CHANNELS_ID = 'favoriteChannels';
+const BUILTIN_LISTS = [WATCH_LATER_ID, FAVORITES_ID, FAVORITE_CHANNELS_ID];
+
+var collections = /*#__PURE__*/Object.freeze({
+  COLLECTION_ID: COLLECTION_ID,
+  COLLECTION_INDEX: COLLECTION_INDEX,
+  COL_TYPE_PLAYLIST: COL_TYPE_PLAYLIST,
+  COL_TYPE_CHANNELS: COL_TYPE_CHANNELS,
+  WATCH_LATER_ID: WATCH_LATER_ID,
+  FAVORITES_ID: FAVORITES_ID,
+  FAVORITE_CHANNELS_ID: FAVORITE_CHANNELS_ID,
+  BUILTIN_LISTS: BUILTIN_LISTS
+});
+
 const DEFAULT_FOLLOWED_TAGS = ['art', 'automotive', 'blockchain', 'comedy', 'economics', 'education', 'gaming', 'music', 'news', 'science', 'sports', 'technology'];
 
 const MATURE_TAGS = ['porn', 'porno', 'nsfw', 'mature', 'xxx', 'sex', 'creampie', 'blowjob', 'handjob', 'vagina', 'boobs', 'big boobs', 'big dick', 'pussy', 'cumshot', 'anal', 'hard fucking', 'ass', 'fuck', 'hentai'];
@@ -1085,6 +1154,10 @@ const Lbry = {
   support_create: params => daemonCallWithResult('support_create', params),
   support_list: params => daemonCallWithResult('support_list', params),
   stream_repost: params => daemonCallWithResult('stream_repost', params),
+  collection_resolve: params => daemonCallWithResult('collection_resolve', params),
+  collection_list: params => daemonCallWithResult('collection_list', params),
+  collection_create: params => daemonCallWithResult('collection_create', params),
+  collection_update: params => daemonCallWithResult('collection_update', params),
 
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),
@@ -1755,10 +1828,13 @@ function extractUserState(rawObj) {
       coin_swap_codes,
       settings,
       app_welcome_version,
-      sharing_3P
+      sharing_3P,
+      unpublishedCollectionTest,
+      builtinCollectionTest,
+      savedCollectionTest
     } = rawObj.value;
 
-    return _extends$1({}, subscriptions ? { subscriptions } : {}, following ? { following } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, coin_swap_codes ? { coin_swap_codes } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {});
+    return _extends$1({}, subscriptions ? { subscriptions } : {}, following ? { following } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, coin_swap_codes ? { coin_swap_codes } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {}, unpublishedCollectionTest ? { unpublishedCollectionTest } : {}, builtinCollectionTest ? { builtinCollectionTest } : {}, savedCollectionTest ? { savedCollectionTest } : {});
   }
 
   return {};
@@ -1774,7 +1850,10 @@ function doPopulateSharedUserState(sharedSettings) {
       coin_swap_codes,
       settings,
       app_welcome_version,
-      sharing_3P
+      sharing_3P,
+      unpublishedCollectionTest,
+      builtinCollectionTest,
+      savedCollectionTest
     } = extractUserState(sharedSettings);
     dispatch({
       type: USER_STATE_POPULATE,
@@ -1786,7 +1865,10 @@ function doPopulateSharedUserState(sharedSettings) {
         coinSwapCodes: coin_swap_codes,
         settings,
         welcomeVersion: app_welcome_version,
-        allowAnalytics: sharing_3P
+        allowAnalytics: sharing_3P,
+        unpublishedCollectionTest,
+        builtinCollectionTest,
+        savedCollectionTest
       }
     });
   };
@@ -1867,7 +1949,6 @@ const buildSharedStateMiddleware = (actions, sharedStateFilters, sharedStateCb) 
   clearTimeout(timeout);
   const actionResult = next(action);
   // Call `getState` after calling `next` to ensure the state has updated in response to the action
-
   function runPreferences() {
     const nextState = getState();
     const syncEnabled = nextState.settings && nextState.settings.clientSettings && nextState.settings.clientSettings.enable_sync;
@@ -2328,6 +2409,8 @@ const makeSelectClaimIsPending = uri => reselect.createSelector(selectClaimIdsBy
   return false;
 });
 
+const makeSelectClaimIdForUri = uri => reselect.createSelector(selectClaimIdsByUri, claimIds => claimIds[uri]);
+
 const selectReflectingById = reselect.createSelector(selectState$1, state => state.reflectingById);
 
 const makeSelectClaimForClaimId = claimId => reselect.createSelector(selectClaimsById, byId => byId[claimId]);
@@ -2568,6 +2651,8 @@ const selectMyClaimsOutpoints = reselect.createSelector(selectMyClaims, myClaims
 
 const selectFetchingMyChannels = reselect.createSelector(selectState$1, state => state.fetchingMyChannels);
 
+const selectFetchingMyCollections = reselect.createSelector(selectState$1, state => state.fetchingMyCollections);
+
 const selectMyChannelClaims = reselect.createSelector(selectState$1, selectClaimsById, (state, byId) => {
   const ids = state.myChannelClaims;
   if (!ids) {
@@ -2586,6 +2671,8 @@ const selectMyChannelClaims = reselect.createSelector(selectState$1, selectClaim
 });
 
 const selectMyChannelUrls = reselect.createSelector(selectMyChannelClaims, claims => claims ? claims.map(claim => claim.canonical_url || claim.permanent_url) : undefined);
+
+const selectMyCollectionIds = reselect.createSelector(selectState$1, state => state.myCollectionClaims);
 
 const selectResolvingUris = reselect.createSelector(selectState$1, state => state.resolvingUris || []);
 
@@ -2801,6 +2888,14 @@ const makeSelectStakedLevelForChannelUri = uri => reselect.createSelector(makeSe
   }
   return level;
 });
+
+const selectUpdatingCollection = reselect.createSelector(selectState$1, state => state.updatingCollection);
+
+const selectUpdateCollectionError = reselect.createSelector(selectState$1, state => state.updateCollectionError);
+
+const selectCreatingCollection = reselect.createSelector(selectState$1, state => state.creatingCollection);
+
+const selectCreateCollectionError = reselect.createSelector(selectState$1, state => state.createCollectionError);
 
 function numberWithCommas(x) {
   var parts = x.toString().split('.');
@@ -3505,6 +3600,112 @@ function batchActions(...actions) {
   };
 }
 
+//      
+
+const selectState$2 = state => state.collections;
+
+const selectSavedCollectionIds = reselect.createSelector(selectState$2, collectionState => collectionState.saved);
+
+const selectBuiltinCollections = reselect.createSelector(selectState$2, state => state.builtin);
+const selectResolvedCollections = reselect.createSelector(selectState$2, state => state.resolved);
+
+const selectMyUnpublishedCollections = reselect.createSelector(selectState$2, state => state.unpublished);
+
+const selectMyEditedCollections = reselect.createSelector(selectState$2, state => state.edited);
+
+const selectPendingCollections = reselect.createSelector(selectState$2, state => state.pending);
+
+const makeSelectEditedCollectionForId = id => reselect.createSelector(selectMyEditedCollections, eLists => eLists[id]);
+
+const makeSelectPendingCollectionForId = id => reselect.createSelector(selectPendingCollections, pending => pending[id]);
+
+const makeSelectPublishedCollectionForId = id => reselect.createSelector(selectResolvedCollections, rLists => rLists[id]);
+
+const makeSelectUnpublishedCollectionForId = id => reselect.createSelector(selectMyUnpublishedCollections, rLists => rLists[id]);
+
+const makeSelectCollectionIsMine = id => reselect.createSelector(selectMyCollectionIds, selectMyUnpublishedCollections, selectBuiltinCollections, (publicIds, privateIds, builtinIds) => {
+  return Boolean(publicIds.includes(id) || privateIds[id] || builtinIds[id]);
+});
+
+const selectMyPublishedCollections = reselect.createSelector(selectResolvedCollections, selectPendingCollections, selectMyEditedCollections, selectMyCollectionIds, (resolved, pending, edited, myIds) => {
+  // all resolved in myIds, plus those in pending and edited
+  const myPublishedCollections = Object.fromEntries(Object.entries(pending).concat(Object.entries(resolved).filter(([key, val]) => myIds.includes(key) &&
+  // $FlowFixMe
+  !pending[key])));
+  // now add in edited:
+  Object.entries(edited).forEach(([id, item]) => {
+    myPublishedCollections[id] = item;
+  });
+  return myPublishedCollections;
+});
+
+const selectMyPublishedMixedCollections = reselect.createSelector(selectMyPublishedCollections, published => {
+  const myCollections = Object.fromEntries(
+  // $FlowFixMe
+  Object.entries(published).filter(([key, collection]) => {
+    // $FlowFixMe
+    return collection.type === 'collection';
+  }));
+  return myCollections;
+});
+
+const selectMyPublishedPlaylistCollections = reselect.createSelector(selectMyPublishedCollections, published => {
+  const myCollections = Object.fromEntries(
+  // $FlowFixMe
+  Object.entries(published).filter(([key, collection]) => {
+    // $FlowFixMe
+    return collection.type === 'playlist';
+  }));
+  return myCollections;
+});
+
+const makeSelectMyPublishedCollectionForId = id => reselect.createSelector(selectMyPublishedCollections, myPublishedCollections => myPublishedCollections[id]);
+
+// export const selectSavedCollections = createSelector(
+//   selectResolvedCollections,
+//   selectSavedCollectionIds,
+//   (resolved, myIds) => {
+//     const mySavedCollections = Object.fromEntries(
+//       Object.entries(resolved).filter(([key, val]) => myIds.includes(key))
+//     );
+//     return mySavedCollections;
+//   }
+// );
+
+const makeSelectIsResolvingCollectionForId = id => reselect.createSelector(selectState$2, state => {
+  return state.isResolvingCollectionById[id];
+});
+
+const makeSelectCollectionForId = id => reselect.createSelector(selectBuiltinCollections, selectResolvedCollections, selectMyUnpublishedCollections, selectMyEditedCollections, selectPendingCollections, (bLists, rLists, uLists, eLists, pLists) => {
+  const collection = bLists[id] || uLists[id] || eLists[id] || rLists[id] || pLists[id];
+  return collection;
+});
+
+const makeSelectCollectionForIdHasClaimUrl = (id, url) => reselect.createSelector(makeSelectCollectionForId(id), collection => collection && collection.items.includes(url));
+
+const makeSelectUrlsForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => collection && collection.items);
+
+const makeSelectClaimIdsForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
+  const items = collection && collection.items || [];
+  const ids = items.map(item => {
+    const { claimId } = parseURI(item);
+    return claimId;
+  });
+  return ids;
+});
+
+const makeSelectNextUrlForCollection = (id, index) => reselect.createSelector(makeSelectUrlsForCollectionId(id), urls => {
+  const url = urls[index + 1];
+  if (url) {
+    return url;
+  }
+  return null;
+});
+
+const makeSelectNameForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
+  return collection && collection.name || '';
+});
+
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _asyncToGenerator$1(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
@@ -3542,6 +3743,8 @@ function doResolveUris(uris, returnCachedClaims = false, resolveReposts = true) 
 
     const resolveInfo = {};
 
+    const collectionIds = [];
+
     return lbryProxy.resolve(_extends$5({ urls: urisToResolve }, options)).then((() => {
       var _ref = _asyncToGenerator$1(function* (result) {
         let repostedResults = {};
@@ -3558,6 +3761,7 @@ function doResolveUris(uris, returnCachedClaims = false, resolveReposts = true) 
             // https://github.com/facebook/flow/issues/2221
             if (uriResolveInfo) {
               if (uriResolveInfo.error) {
+                // $FlowFixMe
                 resolveInfo[uri] = _extends$5({}, fallbackResolveInfo);
               } else {
                 if (checkReposts) {
@@ -3574,6 +3778,10 @@ function doResolveUris(uris, returnCachedClaims = false, resolveReposts = true) 
                   result.channel = uriResolveInfo;
                   // $FlowFixMe
                   result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+                } else if (uriResolveInfo.value_type === 'collection') {
+                  result.collection = uriResolveInfo;
+                  // $FlowFixMe
+                  collectionIds.push(uriResolveInfo.claim_id);
                 } else {
                   result.stream = uriResolveInfo;
                   if (uriResolveInfo.signing_channel) {
@@ -3602,6 +3810,13 @@ function doResolveUris(uris, returnCachedClaims = false, resolveReposts = true) 
           type: RESOLVE_URIS_COMPLETED,
           data: { resolveInfo }
         });
+
+        if (collectionIds.length) {
+          dispatch(doFetchItemsInCollections({ collectionIds: collectionIds, pageSize: 5 }));
+        }
+        // now collection claims are added, get their stuff
+        // if collections: doResolveCollections(claimIds)
+
         return result;
       });
 
@@ -4001,6 +4216,36 @@ function doFetchChannelListMine(page = 1, pageSize = 99999, resolve = true) {
   };
 }
 
+function doFetchCollectionListMine(page = 1, pageSize = 99999) {
+  return dispatch => {
+    dispatch({
+      type: FETCH_COLLECTION_LIST_STARTED
+    });
+
+    const callback = response => {
+      const { items } = response;
+      dispatch({
+        type: FETCH_COLLECTION_LIST_COMPLETED,
+        data: { claims: items }
+      });
+      dispatch(doFetchItemsInCollections({
+        collectionIds: items.map(claim => claim.claim_id),
+        page_size: 5
+      }));
+      // update or fetch collections?
+    };
+
+    const failure = error => {
+      dispatch({
+        type: FETCH_COLLECTION_LIST_FAILED,
+        data: error
+      });
+    };
+
+    lbryProxy.collection_list({ page, page_size: pageSize, resolve_claims: 1 }).then(callback, failure);
+  };
+}
+
 function doClaimSearch(options = {
   no_totals: true,
   page_size: 10,
@@ -4032,7 +4277,8 @@ function doClaimSearch(options = {
             pageSize: options.page_size
           }
         });
-        return true;
+        // was return true
+        return resolveInfo;
       };
 
       const failure = function (err) {
@@ -4093,6 +4339,117 @@ function doRepost(options) {
       }
 
       lbryProxy.stream_repost(options).then(success, failure);
+    });
+  };
+}
+
+function doCollectionPublish(options, localId) {
+  return dispatch => {
+    // $FlowFixMe
+    return new Promise(resolve => {
+      dispatch({
+        type: COLLECTION_PUBLISH_STARTED
+      });
+
+      function success(response) {
+        const collectionClaim = response.outputs[0];
+        dispatch(batchActions({
+          type: COLLECTION_PUBLISH_COMPLETED
+        },
+        // shift unpublished collection to pending collection with new publish id
+        // recent publish won't resolve this second. handle it in checkPending
+        {
+          type: COLLECTION_PENDING,
+          data: { localId: localId, claimId: collectionClaim.claim_id }
+        }, {
+          type: UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [collectionClaim]
+          }
+        }));
+        dispatch(doCheckPendingClaims());
+        dispatch(doFetchCollectionListMine(1, 10));
+        resolve(collectionClaim);
+      }
+
+      function failure(error) {
+        dispatch({
+          type: COLLECTION_PUBLISH_FAILED,
+          data: {
+            error: error.message
+          }
+        });
+      }
+
+      lbryProxy.collection_create(options).then(success, failure);
+    });
+  };
+}
+
+function doCollectionPublishUpdate(options) {
+  return (dispatch, getState) => {
+    const state = getState();
+    // select claim forclaim_id
+    // get publish params from claim
+    // $FlowFixMe
+
+    const updateParams = {
+      bid: creditsToString(options.bid),
+      title: options.title,
+      thumbnail_url: options.thumbnailUrl,
+      description: options.description,
+      tags: [],
+      languages: options.languages || [],
+      locations: [],
+      blocking: true
+    };
+
+    if (options.claim_id) {
+      updateParams['claim_id'] = options.claim_id;
+    }
+
+    if (options.tags) {
+      updateParams['tags'] = options.tags.map(tag => tag.name);
+    }
+
+    if (options.claims) {
+      updateParams['claims'] = options.claims;
+    }
+    // $FlowFixMe
+    return new Promise(resolve => {
+      dispatch({
+        type: COLLECTION_PUBLISH_UPDATE_STARTED
+      });
+
+      function success(response) {
+        const collectionClaim = response.outputs[0];
+        dispatch({
+          type: COLLECTION_PUBLISH_UPDATE_COMPLETED,
+          data: {
+            collectionClaim
+          }
+        });
+        dispatch({
+          type: UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [collectionClaim]
+          }
+        });
+        dispatch(doCheckPendingClaims());
+        dispatch(doFetchCollectionListMine(1, 10));
+        resolve(collectionClaim);
+      }
+
+      function failure(error) {
+        dispatch({
+          type: COLLECTION_PUBLISH_UPDATE_FAILED,
+          data: {
+            error: error.message
+          }
+        });
+      }
+
+      lbryProxy.collection_update(updateParams).then(success, failure);
     });
   };
 }
@@ -4165,6 +4522,7 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
   const checkClaimList = () => {
     const state = getState();
     const pendingIdSet = new Set(selectPendingIds(state));
+    const pendingCollections = selectPendingCollections(state);
     lbryProxy.claim_list({ page: 1, page_size: 10 }).then(result => {
       const claims = result.items;
       const claimsToConfirm = [];
@@ -4172,6 +4530,9 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
         const { claim_id: claimId } = claim;
         if (claim.confirmations > 0 && pendingIdSet.has(claimId)) {
           pendingIdSet.delete(claimId);
+          if (Object.keys(pendingCollections).includes(claim.claim_id)) {
+            dispatch(doFetchItemsInCollection({ collectionId: claim.claim_id }));
+          }
           claimsToConfirm.push(claim);
           if (onConfirmed) {
             onConfirmed(claim);
@@ -4199,11 +4560,440 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
   }, 30000);
 };
 
-const selectState$2 = state => state.fileInfo || {};
+function _asyncToGenerator$2(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
-const selectFileInfosByOutpoint = reselect.createSelector(selectState$2, state => state.byOutpoint || {});
+const getTimestamp = () => {
+  return Math.floor(Date.now() / 1000);
+};
 
-const selectIsFetchingFileList = reselect.createSelector(selectState$2, state => state.isFetchingFileList);
+// maybe take items param
+const doLocalCollectionCreate = (name, collectionItems, type, sourceId) => dispatch => {
+  return dispatch({
+    type: COLLECTION_NEW,
+    data: {
+      entry: {
+        id: uuid.v4(), // start with a uuid, this becomes a claimId after publish
+        name: name,
+        updatedAt: getTimestamp(),
+        items: collectionItems || [],
+        sourceId: sourceId,
+        type: type
+      }
+    }
+  });
+};
+
+const doLocalCollectionDelete = id => dispatch => {
+  return dispatch({
+    type: COLLECTION_DELETE,
+    data: {
+      id: id
+    }
+  });
+};
+
+// Given a collection, save its collectionId to be resolved and displayed in Library
+// export const doCollectionSave = (
+//   id: string,
+// ) => (dispatch: Dispatch) => {
+//   return dispatch({
+//     type: ACTIONS.COLLECTION_SAVE,
+//     data: {
+//       id: id,
+//     },
+//   });
+// };
+
+// Given a collection and name, copy it to a local private collection with a name
+// export const doCollectionCopy = (
+//   id: string,
+// ) => (dispatch: Dispatch) => {
+//   return dispatch({
+//     type: ACTIONS.COLLECTION_COPY,
+//     data: {
+//       id: id,
+//     },
+//   });
+// };
+
+const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) => (() => {
+  var _ref = _asyncToGenerator$2(function* (dispatch, getState) {
+    let resolveCollectionItems = (() => {
+      var _ref2 = _asyncToGenerator$2(function* (claimId, totalItems, pageSize) {
+        // take [ {}, {} ], return {}
+        // only need items [ Claim... ] and total_items
+        const mergeResults = function (arrayOfResults) {
+          const mergedResults = {
+            items: [],
+            total_items: 0
+          };
+          arrayOfResults.forEach(function (result) {
+            mergedResults.items = mergedResults.items.concat(result.items);
+            mergedResults.total_items = result.total_items;
+          });
+          return mergedResults;
+        };
+
+        try {
+          const BATCH_SIZE = 10; // up batch size when sdk bug fixed
+          const batches = [];
+          let fetchResult;
+          if (!pageSize) {
+            // batch all
+            for (let i = 0; i < Math.ceil(totalItems / BATCH_SIZE); i++) {
+              batches[i] = lbryProxy.collection_resolve({
+                claim_id: claimId,
+                page: i + 1,
+                page_size: BATCH_SIZE
+              });
+            }
+            const resultArray = yield Promise.all(batches);
+            fetchResult = mergeResults(resultArray);
+          } else {
+            fetchResult = yield lbryProxy.collection_resolve({
+              claim_id: claimId,
+              page: 1,
+              page_size: pageSize
+            });
+          }
+          // $FlowFixMe
+          const itemsById = { claimId: claimId };
+          if (fetchResult.items) {
+            itemsById.items = fetchResult.items;
+          } else {
+            itemsById.items = null;
+          }
+          return itemsById;
+        } catch (e) {
+          return {
+            claimId: claimId,
+            items: null
+          };
+        }
+      });
+
+      return function resolveCollectionItems(_x3, _x4, _x5) {
+        return _ref2.apply(this, arguments);
+      };
+    })();
+
+    let state = getState();
+    // for each collection id,
+    // make sure the collection is resolved, the items are resolved, and build the collection objects
+
+    const { collectionIds, pageSize } = resolveItemsOptions;
+
+    dispatch({
+      type: COLLECTION_ITEMS_RESOLVE_STARTED,
+      data: { ids: collectionIds }
+    });
+
+    if (resolveStartedCallback) resolveStartedCallback();
+
+    const collectionIdsToSearch = collectionIds.filter(function (claimId) {
+      return !state.claims.byId[claimId];
+    });
+    if (collectionIdsToSearch.length) {
+      let claimSearchOptions = { claim_ids: collectionIdsToSearch, page: 1, page_size: 9999 };
+      yield dispatch(doClaimSearch(claimSearchOptions));
+    }
+    const invalidCollectionIds = [];
+    const stateAfterClaimSearch = getState();
+
+    const promises = [];
+    collectionIds.forEach(function (collectionId) {
+      const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
+      if (!claim) {
+        invalidCollectionIds.push(collectionId);
+      } else {
+        const claimCount = claim.value.claims && claim.value.claims.length;
+        if (pageSize) {
+          promises.push(resolveCollectionItems(collectionId, claimCount, pageSize));
+        } else {
+          promises.push(resolveCollectionItems(collectionId, claimCount));
+        }
+      }
+    });
+
+    // $FlowFixMe
+    const resolvedCollectionItemsById = yield Promise.all(promises);
+
+    function processClaims(resultClaimsByUri) {
+      const processedClaims = {};
+      Object.entries(resultClaimsByUri).forEach(([uri, uriResolveInfo]) => {
+        // Flow has terrible Object.entries support
+        // https://github.com/facebook/flow/issues/2221
+        if (uriResolveInfo) {
+          let result = {};
+          if (uriResolveInfo.value_type === 'channel') {
+            result.channel = uriResolveInfo;
+            // $FlowFixMe
+            result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+            // ALSO SKIP COLLECTIONS
+          } else {
+            result.stream = uriResolveInfo;
+            if (uriResolveInfo.signing_channel) {
+              result.channel = uriResolveInfo.signing_channel;
+              result.claimsInChannel = uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel || 0;
+            }
+          }
+          // $FlowFixMe
+          processedClaims[uri] = result;
+        }
+      });
+      return processedClaims;
+    }
+
+    const newCollectionItemsById = {};
+    const flatResolvedCollectionItems = {};
+    resolvedCollectionItemsById.forEach(function (entry) {
+      // $FlowFixMe
+      const collectionItems = entry.items;
+      const collectionId = entry.claimId;
+      if (collectionItems) {
+        const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
+
+        const editedCollection = makeSelectEditedCollectionForId(collectionId)(stateAfterClaimSearch);
+        const { name, timestamp } = claim || {};
+        const valueTypes = new Set();
+        const streamTypes = new Set();
+
+        let items = [];
+        collectionItems.forEach(function (collectionItem) {
+          // here's where we would just items.push(collectionItem.permanent_url
+          items.push(collectionItem.permanent_url);
+          valueTypes.add(collectionItem.value_type);
+          if (collectionItem.value.stream_type) {
+            streamTypes.add(collectionItem.value.stream_type);
+          }
+          flatResolvedCollectionItems[collectionItem.canonical_url] = collectionItem;
+        });
+        const isPlaylist = valueTypes.size === 1 && valueTypes.has('stream') && (streamTypes.size === 1 && (streamTypes.has('audio') || streamTypes.has('video')) || streamTypes.size === 2 && streamTypes.has('audio') && streamTypes.has('video'));
+
+        newCollectionItemsById[collectionId] = {
+          items,
+          id: collectionId,
+          name: name,
+          itemCount: claim.value.claims.length,
+          type: isPlaylist ? 'playlist' : 'collection',
+          updatedAt: timestamp
+        };
+        // clear any stale edits
+        if (editedCollection && timestamp > editedCollection['updatedAt']) {
+          dispatch({
+            type: COLLECTION_DELETE,
+            data: {
+              id: collectionId,
+              collectionKey: 'edited'
+            }
+          });
+        }
+      }
+    });
+    const processedClaimsByUri = processClaims(flatResolvedCollectionItems);
+
+    dispatch({
+      type: RESOLVE_URIS_COMPLETED,
+      data: { resolveInfo: processedClaimsByUri }
+    });
+
+    dispatch({
+      type: COLLECTION_ITEMS_RESOLVE_COMPLETED,
+      data: {
+        resolvedCollections: newCollectionItemsById,
+        failedCollectionIds: invalidCollectionIds
+      }
+    });
+  });
+
+  return function (_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+})();
+
+const doFetchItemsInCollection = (options, cb) => {
+  const { collectionId, pageSize } = options;
+  const newOptions = {
+    collectionIds: [collectionId]
+  };
+  if (pageSize) newOptions.pageSize = pageSize;
+  return doFetchItemsInCollections(newOptions, cb);
+};
+
+const doCollectionEdit = (collectionId, params) => (() => {
+  var _ref3 = _asyncToGenerator$2(function* (dispatch, getState) {
+    const state = getState();
+    const collection = makeSelectCollectionForId(collectionId)(state);
+    const editedCollection = makeSelectEditedCollectionForId(collectionId)(state);
+    const unpublishedCollection = makeSelectUnpublishedCollectionForId(collectionId)(state);
+    const publishedCollection = makeSelectPublishedCollectionForId(collectionId)(state); // needs to be published only
+
+    const generateCollectionItemsFromSearchResult = function (results) {
+      return Object.values(results)
+      // $FlowFixMe
+      .reduce(function (acc, cur) {
+        let url;
+        if (cur.stream) {
+          url = cur.stream.permanent_url;
+        } else if (cur.channel) {
+          url = cur.channel.permanent_url;
+        } else if (cur.collection) {
+          url = cur.collection.permanent_url;
+        } else {
+          return acc;
+        }
+        acc.push(url);
+        return acc;
+      }, []);
+    };
+
+    if (!collection) {
+      return dispatch({
+        type: COLLECTION_ERROR,
+        data: {
+          message: 'collection does not exist'
+        }
+      });
+    }
+
+    let currentItems = collection.items ? collection.items.concat() : [];
+    const { claims: passedClaims, order, claimIds, replace, remove, type } = params;
+
+    const collectionType = type || collection.type;
+    let newItems = currentItems;
+
+    if (passedClaims) {
+      if (remove) {
+        const passedUrls = passedClaims.map(function (claim) {
+          return claim.permanent_url;
+        });
+        // $FlowFixMe // need this?
+        newItems = currentItems.filter(function (item) {
+          return !passedUrls.includes(item);
+        });
+      } else {
+        passedClaims.forEach(function (claim) {
+          return newItems.push(claim.permanent_url);
+        });
+      }
+    }
+
+    if (claimIds) {
+      const batches = [];
+      if (claimIds.length > 50) {
+        for (let i = 0; i < Math.ceil(claimIds.length / 50); i++) {
+          batches[i] = claimIds.slice(i * 50, (i + 1) * 50);
+        }
+      } else {
+        batches[0] = claimIds;
+      }
+      const resultArray = yield Promise.all(batches.map(function (batch) {
+        let options = { claim_ids: batch, page: 1, page_size: 50 };
+        return dispatch(doClaimSearch(options));
+      }));
+
+      const searchResults = Object.assign({}, ...resultArray);
+
+      if (replace) {
+        newItems = generateCollectionItemsFromSearchResult(searchResults);
+      } else {
+        newItems = currentItems.concat(generateCollectionItemsFromSearchResult(searchResults));
+      }
+    }
+
+    if (order) {
+      const [movedItem] = currentItems.splice(order.from, 1);
+      currentItems.splice(order.to, 0, movedItem);
+    }
+
+    // console.log('p&e', publishedCollection.items, newItems, publishedCollection.items.join(','), newItems.join(','))
+    if (editedCollection) {
+      if (publishedCollection.items.join(',') === newItems.join(',')) {
+        // print these
+
+        // delete edited if newItems are the same as publishedItems
+        dispatch({
+          type: COLLECTION_DELETE,
+          data: {
+            id: collectionId,
+            collectionKey: 'edited'
+          }
+        });
+      } else {
+        dispatch({
+          type: COLLECTION_EDIT,
+          data: {
+            id: collectionId,
+            collectionKey: 'edited',
+            collection: {
+              items: newItems,
+              id: collectionId,
+              name: params.name || collection.name,
+              updatedAt: getTimestamp(),
+              type: collectionType
+            }
+          }
+        });
+      }
+    } else if (publishedCollection) {
+      dispatch({
+        type: COLLECTION_EDIT,
+        data: {
+          id: collectionId,
+          collectionKey: 'edited',
+          collection: {
+            items: newItems,
+            id: collectionId,
+            name: params.name || collection.name,
+            updatedAt: getTimestamp(),
+            type: collectionType
+          }
+        }
+      });
+    } else if (BUILTIN_LISTS.includes(collectionId)) {
+      dispatch({
+        type: COLLECTION_EDIT,
+        data: {
+          id: collectionId,
+          collectionKey: 'builtin',
+          collection: {
+            items: newItems,
+            id: collectionId,
+            name: params.name || collection.name,
+            updatedAt: getTimestamp(),
+            type: collectionType
+          }
+        }
+      });
+    } else if (unpublishedCollection) {
+      dispatch({
+        type: COLLECTION_EDIT,
+        data: {
+          id: collectionId,
+          collectionKey: 'unpublished',
+          collection: {
+            items: newItems,
+            id: collectionId,
+            name: params.name || collection.name,
+            updatedAt: getTimestamp(),
+            type: collectionType
+          }
+        }
+      });
+    }
+    return true;
+  });
+
+  return function (_x6, _x7) {
+    return _ref3.apply(this, arguments);
+  };
+})();
+
+const selectState$3 = state => state.fileInfo || {};
+
+const selectFileInfosByOutpoint = reselect.createSelector(selectState$3, state => state.byOutpoint || {});
+
+const selectIsFetchingFileList = reselect.createSelector(selectState$3, state => state.isFetchingFileList);
 
 const selectIsFetchingFileListDownloadedOrPublished = reselect.createSelector(selectIsFetchingFileList, selectIsFetchingClaimListMine, (isFetchingFileList, isFetchingClaimListMine) => isFetchingFileList || isFetchingClaimListMine);
 
@@ -4213,14 +5003,14 @@ const makeSelectFileInfoForUri = uri => reselect.createSelector(selectClaimsByUr
   return outpoint ? byOutpoint[outpoint] : undefined;
 });
 
-const selectDownloadingByOutpoint = reselect.createSelector(selectState$2, state => state.downloadingByOutpoint || {});
+const selectDownloadingByOutpoint = reselect.createSelector(selectState$3, state => state.downloadingByOutpoint || {});
 
 const makeSelectDownloadingForUri = uri => reselect.createSelector(selectDownloadingByOutpoint, makeSelectFileInfoForUri(uri), (byOutpoint, fileInfo) => {
   if (!fileInfo) return false;
   return byOutpoint[fileInfo.outpoint];
 });
 
-const selectUrisLoading = reselect.createSelector(selectState$2, state => state.fetching || {});
+const selectUrisLoading = reselect.createSelector(selectState$3, state => state.fetching || {});
 
 const makeSelectLoadingForUri = uri => reselect.createSelector(selectUrisLoading, makeSelectClaimForUri(uri), (fetchingByOutpoint, claim) => {
   if (!claim) {
@@ -4274,9 +5064,9 @@ const selectTotalDownloadProgress = reselect.createSelector(selectDownloadingFil
   return -1;
 });
 
-const selectFileListPublishedSort = reselect.createSelector(selectState$2, state => state.fileListPublishedSort);
+const selectFileListPublishedSort = reselect.createSelector(selectState$3, state => state.fileListPublishedSort);
 
-const selectFileListDownloadedSort = reselect.createSelector(selectState$2, state => state.fileListDownloadedSort);
+const selectFileListDownloadedSort = reselect.createSelector(selectState$3, state => state.fileListDownloadedSort);
 
 const selectDownloadedUris = reselect.createSelector(selectFileInfosDownloaded,
 // We should use permament_url but it doesn't exist in file_list
@@ -4529,10 +5319,10 @@ var _extends$6 = Object.assign || function (target) { for (var i = 1; i < argume
 
 function _objectWithoutProperties$2(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-const selectState$3 = state => state.publish || {};
+const selectState$4 = state => state.publish || {};
 
 // Is the current uri the same as the uri they clicked "edit" on
-const selectIsStillEditing = reselect.createSelector(selectState$3, publishState => {
+const selectIsStillEditing = reselect.createSelector(selectState$4, publishState => {
   const { editingURI, uri } = publishState;
 
   if (!editingURI || !uri) {
@@ -4557,7 +5347,7 @@ const selectIsStillEditing = reselect.createSelector(selectState$3, publishState
   return currentName === editName;
 });
 
-const selectPublishFormValues = reselect.createSelector(selectState$3, state => state.settings, selectIsStillEditing, (publishState, settingsState, isStillEditing) => {
+const selectPublishFormValues = reselect.createSelector(selectState$4, state => state.settings, selectIsStillEditing, (publishState, settingsState, isStillEditing) => {
   const { pendingPublish, language } = publishState,
         formValues = _objectWithoutProperties$2(publishState, ['pendingPublish', 'language']);
   const { clientSettings } = settingsState;
@@ -4573,7 +5363,7 @@ const selectPublishFormValues = reselect.createSelector(selectState$3, state => 
 
   return _extends$6({}, formValues, { language: actualLanguage });
 });
-const makeSelectPublishFormValue = item => reselect.createSelector(selectState$3, state => state[item]);
+const makeSelectPublishFormValue = item => reselect.createSelector(selectState$4, state => state[item]);
 
 const selectMyClaimForUri = reselect.createSelector(selectPublishFormValues, selectIsStillEditing, selectClaimsById, selectMyClaimsWithoutChannels, ({ editingURI, uri }, isStillEditing, claimsById, myClaims) => {
   const { channelName: contentName, streamName: claimName } = parseURI(uri);
@@ -4586,7 +5376,7 @@ const selectMyClaimForUri = reselect.createSelector(selectPublishFormValues, sel
   return isStillEditing ? claimsById[editClaimId] : myClaims.find(claim => !contentName ? claim.name === claimName : claim.name === contentName || claim.name === claimName);
 });
 
-const selectIsResolvingPublishUris = reselect.createSelector(selectState$3, selectResolvingUris, ({ uri, name }, resolvingUris) => {
+const selectIsResolvingPublishUris = reselect.createSelector(selectState$4, selectResolvingUris, ({ uri, name }, resolvingUris) => {
   if (uri) {
     const isResolvingUri = resolvingUris.includes(uri);
     const { isChannel } = parseURI(uri);
@@ -4603,7 +5393,7 @@ const selectIsResolvingPublishUris = reselect.createSelector(selectState$3, sele
   return false;
 });
 
-const selectTakeOverAmount = reselect.createSelector(selectState$3, selectMyClaimForUri, selectClaimsByUri, ({ name }, myClaimForUri, claimsByUri) => {
+const selectTakeOverAmount = reselect.createSelector(selectState$4, selectMyClaimForUri, selectClaimsByUri, ({ name }, myClaimForUri, claimsByUri) => {
   if (!name) {
     return null;
   }
@@ -4628,7 +5418,7 @@ const selectTakeOverAmount = reselect.createSelector(selectState$3, selectMyClai
 
 var _extends$7 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _asyncToGenerator$2(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+function _asyncToGenerator$3(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 const doResetThumbnailStatus = () => dispatch => {
   dispatch({
@@ -4973,7 +5763,7 @@ const doCheckReflectingFiles = () => (dispatch, getState) => {
   let reflectorCheckInterval;
 
   const checkFileList = (() => {
-    var _ref = _asyncToGenerator$2(function* () {
+    var _ref = _asyncToGenerator$3(function* () {
       const state = getState();
       const reflectingById = selectReflectingById(state);
       const ids = Object.keys(reflectingById);
@@ -5106,6 +5896,7 @@ const defaultState = {
   fetchingChannelClaims: {},
   resolvingUris: [],
   myChannelClaims: undefined,
+  myCollectionClaims: [],
   myClaims: undefined,
   myPurchases: undefined,
   myPurchasesPageNumber: undefined,
@@ -5114,6 +5905,7 @@ const defaultState = {
   fetchingMyPurchases: false,
   fetchingMyPurchasesError: undefined,
   fetchingMyChannels: false,
+  fetchingMyCollections: false,
   abandoningById: {},
   pendingIds: [],
   reflectingById: {},
@@ -5122,9 +5914,13 @@ const defaultState = {
   claimSearchByQueryLastPageReached: {},
   fetchingClaimSearchByQuery: {},
   updateChannelError: '',
+  updateCollectionError: '',
   updatingChannel: false,
   creatingChannel: false,
   createChannelError: undefined,
+  updatingCollection: false,
+  creatingCollection: false,
+  createCollectionError: undefined,
   pendingChannelImport: false,
   repostLoading: false,
   repostError: undefined,
@@ -5140,9 +5936,7 @@ const defaultState = {
 };
 
 function handleClaimAction(state, action) {
-  const {
-    resolveInfo
-  } = action.data;
+  const { resolveInfo } = action.data;
 
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
@@ -5153,7 +5947,7 @@ function handleClaimAction(state, action) {
 
   Object.entries(resolveInfo).forEach(([url, resolveResponse]) => {
     // $FlowFixMe
-    const { claimsInChannel, stream, channel: channelFromResolve } = resolveResponse;
+    const { claimsInChannel, stream, channel: channelFromResolve, collection } = resolveResponse;
     const channel = channelFromResolve || stream && stream.signing_channel;
 
     if (stream) {
@@ -5199,8 +5993,29 @@ function handleClaimAction(state, action) {
       newResolvingUrls.delete(channel.permanent_url);
     }
 
+    if (collection) {
+      if (pendingIds.includes(collection.claim_id)) {
+        byId[collection.claim_id] = mergeClaims(collection, byId[collection.claim_id]);
+      } else {
+        byId[collection.claim_id] = collection;
+      }
+      byUri[url] = collection.claim_id;
+
+      // If url isn't a canonical_url, make sure that is added too
+      byUri[collection.canonical_url] = collection.claim_id;
+
+      // Also add the permanent_url here until lighthouse returns canonical_url for search results
+      byUri[collection.permanent_url] = collection.claim_id;
+      newResolvingUrls.delete(collection.canonical_url);
+      newResolvingUrls.delete(collection.permanent_url);
+
+      if (collection.is_my_output) {
+        myClaimIds.add(collection.claim_id);
+      }
+    }
+
     newResolvingUrls.delete(url);
-    if (!stream && !channel && !pendingIds.includes(byUri[url])) {
+    if (!stream && !channel && !collection && !pendingIds.includes(byUri[url])) {
       byUri[url] = null;
     }
   });
@@ -5333,6 +6148,51 @@ reducers[FETCH_CHANNEL_LIST_FAILED] = (state, action) => {
   return Object.assign({}, state, {
     fetchingMyChannels: false
   });
+};
+
+reducers[FETCH_COLLECTION_LIST_STARTED] = state => _extends$9({}, state, {
+  fetchingMyCollections: true
+});
+
+reducers[FETCH_COLLECTION_LIST_COMPLETED] = (state, action) => {
+  const { claims } = action.data;
+  const myClaims = state.myClaims || [];
+  let myClaimIds = new Set(myClaims);
+  const pendingIds = state.pendingIds || [];
+  let myCollectionClaimsSet = new Set([]);
+  const byId = Object.assign({}, state.byId);
+  const byUri = Object.assign({}, state.claimsByUri);
+
+  if (claims.length) {
+    myCollectionClaimsSet = new Set(state.myCollectionClaims);
+    claims.forEach(claim => {
+      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId } = claim;
+      // maybe add info about items in collection
+
+      byUri[canonicalUrl] = claimId;
+      byUri[permanentUrl] = claimId;
+
+      // $FlowFixMe
+      myCollectionClaimsSet.add(claimId);
+      // we don't want to overwrite a pending result with a resolve
+      if (!pendingIds.some(c => c === claimId)) {
+        byId[claimId] = claim;
+      }
+      myClaimIds.add(claimId);
+    });
+  }
+
+  return _extends$9({}, state, {
+    byId,
+    claimsByUri: byUri,
+    fetchingMyCollections: false,
+    myCollectionClaims: Array.from(myCollectionClaimsSet),
+    myClaims: myClaimIds ? Array.from(myClaimIds) : null
+  });
+};
+
+reducers[FETCH_COLLECTION_LIST_FAILED] = state => {
+  return _extends$9({}, state, { fetchingMyCollections: false });
 };
 
 reducers[FETCH_CHANNEL_CLAIMS_STARTED] = (state, action) => {
@@ -5539,6 +6399,52 @@ reducers[UPDATE_CHANNEL_FAILED] = (state, action) => {
     updatingChannel: false
   });
 };
+
+reducers[CLEAR_COLLECTION_ERRORS] = state => _extends$9({}, state, {
+  createCollectionError: null,
+  updateCollectionError: null
+});
+
+reducers[COLLECTION_PUBLISH_STARTED] = state => _extends$9({}, state, {
+  creatingCollection: true,
+  createCollectionError: null
+});
+
+reducers[COLLECTION_PUBLISH_COMPLETED] = (state, action) => {
+  return Object.assign({}, state, {
+    creatingCollection: false
+  });
+};
+
+reducers[COLLECTION_PUBLISH_FAILED] = (state, action) => {
+  return Object.assign({}, state, {
+    creatingCollection: false,
+    createCollectionError: action.data.error
+  });
+};
+
+reducers[COLLECTION_PUBLISH_UPDATE_STARTED] = (state, action) => {
+  return Object.assign({}, state, {
+    updateCollectionError: '',
+    updatingCollection: true
+  });
+};
+
+reducers[COLLECTION_PUBLISH_UPDATE_COMPLETED] = (state, action) => {
+  return Object.assign({}, state, {
+    updateCollectionError: '',
+    updatingCollection: false
+  });
+};
+
+reducers[COLLECTION_PUBLISH_UPDATE_FAILED] = (state, action) => {
+  return Object.assign({}, state, {
+    updateCollectionError: action.data.error,
+    updatingCollection: false
+  });
+};
+
+// COLLECTION_PUBLISH_ABANDON_...
 
 reducers[IMPORT_CHANNEL_STARTED] = state => Object.assign({}, state, { pendingChannelImports: true });
 
@@ -6565,11 +7471,224 @@ const walletReducer = handleActions({
   })
 }, defaultState$5);
 
+var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+const getTimestamp$1 = () => {
+  return Math.floor(Date.now() / 1000);
+};
+
+const defaultState$6 = {
+  builtin: {
+    watchlater: {
+      items: ['lbry://why-wolves-determine-the-shape-of-rivers#d8a60a057ac9adb6b618be6985ca8361c730c02e'],
+      id: WATCH_LATER_ID,
+      name: 'Watch Later',
+      updatedAt: getTimestamp$1(),
+      type: COL_TYPE_PLAYLIST
+    },
+    favorites: {
+      items: ['lbry://why-wolves-determine-the-shape-of-rivers#d8a60a057ac9adb6b618be6985ca8361c730c02e'],
+      id: FAVORITES_ID,
+      name: 'Favorites',
+      type: COL_TYPE_PLAYLIST,
+      updatedAt: getTimestamp$1()
+    }
+  },
+  resolved: {},
+  unpublished: {}, // sync
+  edited: {},
+  pending: {},
+  saved: [],
+  isResolvingCollectionById: {},
+  error: null
+};
+
+const collectionsReducer = handleActions({
+  [COLLECTION_NEW]: (state, action) => {
+    const { entry: params } = action.data; // { id:, items: Array<string>}
+    // entry
+    const newListTemplate = {
+      id: params.id,
+      name: params.name,
+      items: [],
+      updatedAt: getTimestamp$1(),
+      type: params.type
+    };
+
+    const newList = Object.assign({}, newListTemplate, _extends$e({}, params));
+    const { unpublished: lists } = state;
+    const newLists = Object.assign({}, lists, { [params.id]: newList });
+
+    return _extends$e({}, state, {
+      unpublished: newLists
+    });
+  },
+
+  [COLLECTION_DELETE]: (state, action) => {
+    const { id, collectionKey } = action.data;
+    const { edited: editList, unpublished: unpublishedList, pending: pendingList } = state;
+    const newEditList = Object.assign({}, editList);
+    const newUnpublishedList = Object.assign({}, unpublishedList);
+
+    const newPendingList = Object.assign({}, pendingList);
+
+    if (collectionKey && state[collectionKey] && state[collectionKey][id]) {
+      const newList = Object.assign({}, state[collectionKey]);
+      delete newList[id];
+      return _extends$e({}, state, {
+        [collectionKey]: newList
+      });
+    } else {
+      if (newEditList[id]) {
+        delete newEditList[id];
+      } else if (newUnpublishedList[id]) {
+        delete newUnpublishedList[id];
+      } else if (newPendingList[id]) {
+        delete newPendingList[id];
+      }
+    }
+    return _extends$e({}, state, {
+      edited: newEditList,
+      unpublished: newUnpublishedList,
+      pending: newPendingList
+    });
+  },
+
+  [COLLECTION_PENDING]: (state, action) => {
+    const { localId, claimId } = action.data;
+    const { edited: editList, unpublished: unpublishedList, pending: pendingList } = state;
+    const newEditList = Object.assign({}, editList);
+    const newUnpublishedList = Object.assign({}, unpublishedList);
+    const newPendingList = Object.assign({}, pendingList);
+
+    const isEdit = editList[localId];
+    if (localId) {
+      // pending from unpublished -> published
+      // delete from local
+      newPendingList[claimId] = Object.assign({}, newEditList[localId] || newUnpublishedList[localId] || {});
+      if (isEdit) {
+        delete newEditList[localId];
+      } else {
+        delete newUnpublishedList[localId];
+      }
+    } else {
+      // pending from edited published -> published
+      if (isEdit) {
+        newPendingList[claimId] = Object.assign({}, newEditList[claimId]);
+        delete newEditList[claimId];
+      }
+    }
+
+    return _extends$e({}, state, {
+      edited: newEditList,
+      unpublished: newUnpublishedList,
+      pending: newPendingList
+    });
+  },
+
+  [COLLECTION_EDIT]: (state, action) => {
+    const { id, collectionKey, collection } = action.data;
+
+    if (BUILTIN_LISTS.includes(id)) {
+      const { builtin: lists } = state;
+      return _extends$e({}, state, {
+        [collectionKey]: _extends$e({}, lists, { [id]: collection })
+      });
+    }
+
+    if (collectionKey === 'edited') {
+      const { edited: lists } = state;
+      return _extends$e({}, state, {
+        edited: _extends$e({}, lists, { [id]: collection })
+      });
+    }
+    const { unpublished: lists } = state;
+    return _extends$e({}, state, {
+      unpublished: _extends$e({}, lists, { [id]: collection })
+    });
+  },
+
+  [COLLECTION_ERROR]: (state, action) => {
+    return Object.assign({}, state, {
+      error: action.data.message
+    });
+  },
+
+  [COLLECTION_ITEMS_RESOLVE_STARTED]: (state, action) => {
+    const { ids } = action.data;
+    const { isResolvingCollectionById } = state;
+    const newResolving = Object.assign({}, isResolvingCollectionById);
+    ids.forEach(id => {
+      newResolving[id] = true;
+    });
+    return Object.assign({}, state, _extends$e({}, state, {
+      error: '',
+      isResolvingCollectionById: newResolving
+    }));
+  },
+  [USER_STATE_POPULATE]: (state, action) => {
+    const { builtinCollectionTest, savedCollectionTest, unpublishedCollectionTest } = action.data;
+    return _extends$e({}, state, {
+      unpublished: unpublishedCollectionTest || state.unpublished,
+      builtin: builtinCollectionTest || state.builtin,
+      saved: savedCollectionTest || state.saved
+    });
+  },
+  [COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
+    const { resolvedCollections, failedCollectionIds } = action.data;
+    const { pending, edited, isResolvingCollectionById, resolved } = state;
+    const newPending = Object.assign({}, pending);
+    const newEdited = Object.assign({}, edited);
+    const newResolved = Object.assign({}, resolved, resolvedCollections);
+
+    const resolvedIds = Object.keys(resolvedCollections);
+    const newResolving = Object.assign({}, isResolvingCollectionById);
+    if (resolvedCollections && Object.keys(resolvedCollections).length) {
+      resolvedIds.forEach(resolvedId => {
+        if (newEdited[resolvedId]) {
+          if (newEdited[resolvedId]['updatedAt'] < resolvedCollections[resolvedId]['updatedAt']) {
+            delete newEdited[resolvedId];
+          }
+        }
+        delete newResolving[resolvedId];
+        if (newPending[resolvedId]) {
+          delete newPending[resolvedId];
+        }
+      });
+    }
+
+    if (failedCollectionIds && Object.keys(failedCollectionIds).length) {
+      failedCollectionIds.forEach(failedId => {
+        delete newResolving[failedId];
+      });
+    }
+
+    return Object.assign({}, state, _extends$e({}, state, {
+      pending: newPending,
+      resolved: newResolved,
+      edited: newEdited,
+      isResolvingCollectionById: newResolving
+    }));
+  },
+  [COLLECTION_ITEMS_RESOLVE_FAILED]: (state, action) => {
+    const { ids } = action.data;
+    const { isResolvingCollectionById } = state;
+    const newResolving = Object.assign({}, isResolvingCollectionById);
+    ids.forEach(id => {
+      delete newResolving[id];
+    });
+    return Object.assign({}, state, _extends$e({}, state, {
+      isResolvingCollectionById: newResolving,
+      error: action.data.message
+    }));
+  }
+}, defaultState$6);
+
 //      
 
-const selectState$4 = state => state.content || {};
+const selectState$5 = state => state.content || {};
 
-const makeSelectContentPositionForUri = uri => reselect.createSelector(selectState$4, makeSelectClaimForUri(uri), (state, claim) => {
+const makeSelectContentPositionForUri = uri => reselect.createSelector(selectState$5, makeSelectClaimForUri(uri), (state, claim) => {
   if (!claim) {
     return null;
   }
@@ -6578,14 +7697,14 @@ const makeSelectContentPositionForUri = uri => reselect.createSelector(selectSta
   return state.positions[id] ? state.positions[id][outpoint] : null;
 });
 
-var _extends$e = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$f = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-const selectState$5 = state => state.notifications || {};
+const selectState$6 = state => state.notifications || {};
 
-const selectToast = reselect.createSelector(selectState$5, state => {
+const selectToast = reselect.createSelector(selectState$6, state => {
   if (state.toasts.length) {
     const { id, params } = state.toasts[0];
-    return _extends$e({
+    return _extends$f({
       id
     }, params);
   }
@@ -6593,7 +7712,7 @@ const selectToast = reselect.createSelector(selectState$5, state => {
   return null;
 });
 
-const selectError = reselect.createSelector(selectState$5, state => {
+const selectError = reselect.createSelector(selectState$6, state => {
   if (state.errors.length) {
     const { error } = state.errors[0];
     return {
@@ -6607,6 +7726,7 @@ const selectError = reselect.createSelector(selectState$5, state => {
 exports.ABANDON_STATES = abandon_states;
 exports.ACTIONS = action_types;
 exports.CLAIM_VALUES = claim;
+exports.COLLECTIONS_CONSTS = collections;
 exports.DAEMON_SETTINGS = daemon_settings;
 exports.DEFAULT_FOLLOWED_TAGS = DEFAULT_FOLLOWED_TAGS;
 exports.DEFAULT_KNOWN_TAGS = DEFAULT_KNOWN_TAGS;
@@ -6628,6 +7748,7 @@ exports.batchActions = batchActions;
 exports.buildSharedStateMiddleware = buildSharedStateMiddleware;
 exports.buildURI = buildURI;
 exports.claimsReducer = claimsReducer;
+exports.collectionsReducer = collectionsReducer;
 exports.contentReducer = contentReducer;
 exports.convertToShareLink = convertToShareLink;
 exports.createNormalizedClaimSearchKey = createNormalizedClaimSearchKey;
@@ -6645,6 +7766,9 @@ exports.doClearPublish = doClearPublish;
 exports.doClearPurchasedUriSuccess = doClearPurchasedUriSuccess;
 exports.doClearRepostError = doClearRepostError;
 exports.doClearSupport = doClearSupport;
+exports.doCollectionEdit = doCollectionEdit;
+exports.doCollectionPublish = doCollectionPublish;
+exports.doCollectionPublishUpdate = doCollectionPublishUpdate;
 exports.doCreateChannel = doCreateChannel;
 exports.doDismissError = doDismissError;
 exports.doDismissToast = doDismissToast;
@@ -6652,8 +7776,11 @@ exports.doError = doError;
 exports.doFetchChannelListMine = doFetchChannelListMine;
 exports.doFetchClaimListMine = doFetchClaimListMine;
 exports.doFetchClaimsByChannel = doFetchClaimsByChannel;
+exports.doFetchCollectionListMine = doFetchCollectionListMine;
 exports.doFetchFileInfo = doFetchFileInfo;
 exports.doFetchFileInfos = doFetchFileInfos;
+exports.doFetchItemsInCollection = doFetchItemsInCollection;
+exports.doFetchItemsInCollections = doFetchItemsInCollections;
 exports.doFetchTransactions = doFetchTransactions;
 exports.doFetchTxoPage = doFetchTxoPage;
 exports.doFetchUtxoCounts = doFetchUtxoCounts;
@@ -6661,6 +7788,8 @@ exports.doFileGet = doFileGet;
 exports.doFileList = doFileList;
 exports.doGetNewAddress = doGetNewAddress;
 exports.doImportChannel = doImportChannel;
+exports.doLocalCollectionCreate = doLocalCollectionCreate;
+exports.doLocalCollectionDelete = doLocalCollectionDelete;
 exports.doPopulateSharedUserState = doPopulateSharedUserState;
 exports.doPreferenceGet = doPreferenceGet;
 exports.doPreferenceSet = doPreferenceSet;
@@ -6708,6 +7837,8 @@ exports.makeSelectChannelPermUrlForClaimUri = makeSelectChannelPermUrlForClaimUr
 exports.makeSelectClaimForClaimId = makeSelectClaimForClaimId;
 exports.makeSelectClaimForUri = makeSelectClaimForUri;
 exports.makeSelectClaimHasSource = makeSelectClaimHasSource;
+exports.makeSelectClaimIdForUri = makeSelectClaimIdForUri;
+exports.makeSelectClaimIdsForCollectionId = makeSelectClaimIdsForCollectionId;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;
 exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
 exports.makeSelectClaimIsPending = makeSelectClaimIsPending;
@@ -6715,12 +7846,16 @@ exports.makeSelectClaimIsStreamPlaceholder = makeSelectClaimIsStreamPlaceholder;
 exports.makeSelectClaimWasPurchased = makeSelectClaimWasPurchased;
 exports.makeSelectClaimsInChannelForCurrentPageState = makeSelectClaimsInChannelForCurrentPageState;
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
+exports.makeSelectCollectionForId = makeSelectCollectionForId;
+exports.makeSelectCollectionForIdHasClaimUrl = makeSelectCollectionForIdHasClaimUrl;
+exports.makeSelectCollectionIsMine = makeSelectCollectionIsMine;
 exports.makeSelectContentPositionForUri = makeSelectContentPositionForUri;
 exports.makeSelectContentTypeForUri = makeSelectContentTypeForUri;
 exports.makeSelectCoverForUri = makeSelectCoverForUri;
 exports.makeSelectDateForUri = makeSelectDateForUri;
 exports.makeSelectDownloadPathForUri = makeSelectDownloadPathForUri;
 exports.makeSelectDownloadingForUri = makeSelectDownloadingForUri;
+exports.makeSelectEditedCollectionForId = makeSelectEditedCollectionForId;
 exports.makeSelectEffectiveAmountForUri = makeSelectEffectiveAmountForUri;
 exports.makeSelectFetchingChannelClaims = makeSelectFetchingChannelClaims;
 exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
@@ -6728,6 +7863,7 @@ exports.makeSelectFileNameForUri = makeSelectFileNameForUri;
 exports.makeSelectFilePartlyDownloaded = makeSelectFilePartlyDownloaded;
 exports.makeSelectFilteredTransactionsForPage = makeSelectFilteredTransactionsForPage;
 exports.makeSelectIsAbandoningClaimForUri = makeSelectIsAbandoningClaimForUri;
+exports.makeSelectIsResolvingCollectionForId = makeSelectIsResolvingCollectionForId;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
 exports.makeSelectLatestTransactions = makeSelectLatestTransactions;
 exports.makeSelectLoadingForUri = makeSelectLoadingForUri;
@@ -6735,15 +7871,20 @@ exports.makeSelectMediaTypeForUri = makeSelectMediaTypeForUri;
 exports.makeSelectMetadataForUri = makeSelectMetadataForUri;
 exports.makeSelectMetadataItemForUri = makeSelectMetadataItemForUri;
 exports.makeSelectMyChannelPermUrlForName = makeSelectMyChannelPermUrlForName;
+exports.makeSelectMyPublishedCollectionForId = makeSelectMyPublishedCollectionForId;
 exports.makeSelectMyPurchasesForPage = makeSelectMyPurchasesForPage;
 exports.makeSelectMyStreamUrlsForPage = makeSelectMyStreamUrlsForPage;
+exports.makeSelectNameForCollectionId = makeSelectNameForCollectionId;
+exports.makeSelectNextUrlForCollection = makeSelectNextUrlForCollection;
 exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
 exports.makeSelectOmittedCountForChannel = makeSelectOmittedCountForChannel;
 exports.makeSelectPendingAmountByUri = makeSelectPendingAmountByUri;
 exports.makeSelectPendingClaimForUri = makeSelectPendingClaimForUri;
+exports.makeSelectPendingCollectionForId = makeSelectPendingCollectionForId;
 exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
+exports.makeSelectPublishedCollectionForId = makeSelectPublishedCollectionForId;
 exports.makeSelectReflectingClaimForUri = makeSelectReflectingClaimForUri;
 exports.makeSelectSearchDownloadUrlsCount = makeSelectSearchDownloadUrlsCount;
 exports.makeSelectSearchDownloadUrlsForPage = makeSelectSearchDownloadUrlsForPage;
@@ -6760,7 +7901,9 @@ exports.makeSelectTotalItemsForChannel = makeSelectTotalItemsForChannel;
 exports.makeSelectTotalPagesForChannel = makeSelectTotalPagesForChannel;
 exports.makeSelectTotalPagesInChannelSearch = makeSelectTotalPagesInChannelSearch;
 exports.makeSelectTotalStakedAmountForChannelUri = makeSelectTotalStakedAmountForChannelUri;
+exports.makeSelectUnpublishedCollectionForId = makeSelectUnpublishedCollectionForId;
 exports.makeSelectUriIsStreamable = makeSelectUriIsStreamable;
+exports.makeSelectUrlsForCollectionId = makeSelectUrlsForCollectionId;
 exports.normalizeURI = normalizeURI;
 exports.notificationsReducer = notificationsReducer;
 exports.parseQueryParams = parseQueryParams;
@@ -6776,6 +7919,7 @@ exports.selectAllFetchingChannelClaims = selectAllFetchingChannelClaims;
 exports.selectAllMyClaimsByOutpoint = selectAllMyClaimsByOutpoint;
 exports.selectBalance = selectBalance;
 exports.selectBlocks = selectBlocks;
+exports.selectBuiltinCollections = selectBuiltinCollections;
 exports.selectChannelClaimCounts = selectChannelClaimCounts;
 exports.selectChannelImportPending = selectChannelImportPending;
 exports.selectClaimIdsByUri = selectClaimIdsByUri;
@@ -6785,7 +7929,9 @@ exports.selectClaimsBalance = selectClaimsBalance;
 exports.selectClaimsById = selectClaimsById;
 exports.selectClaimsByUri = selectClaimsByUri;
 exports.selectCreateChannelError = selectCreateChannelError;
+exports.selectCreateCollectionError = selectCreateCollectionError;
 exports.selectCreatingChannel = selectCreatingChannel;
+exports.selectCreatingCollection = selectCreatingCollection;
 exports.selectCurrentChannelPage = selectCurrentChannelPage;
 exports.selectDownloadUrlsCount = selectDownloadUrlsCount;
 exports.selectDownloadedUris = selectDownloadedUris;
@@ -6800,6 +7946,7 @@ exports.selectFetchingClaimSearch = selectFetchingClaimSearch;
 exports.selectFetchingClaimSearchByQuery = selectFetchingClaimSearchByQuery;
 exports.selectFetchingMyChannels = selectFetchingMyChannels;
 exports.selectFetchingMyClaimsPageError = selectFetchingMyClaimsPageError;
+exports.selectFetchingMyCollections = selectFetchingMyCollections;
 exports.selectFetchingMyPurchasesError = selectFetchingMyPurchasesError;
 exports.selectFetchingTxosError = selectFetchingTxosError;
 exports.selectFileInfosByOutpoint = selectFileInfosByOutpoint;
@@ -6835,9 +7982,15 @@ exports.selectMyClaimsPageItemCount = selectMyClaimsPageItemCount;
 exports.selectMyClaimsPageNumber = selectMyClaimsPageNumber;
 exports.selectMyClaimsRaw = selectMyClaimsRaw;
 exports.selectMyClaimsWithoutChannels = selectMyClaimsWithoutChannels;
+exports.selectMyCollectionIds = selectMyCollectionIds;
+exports.selectMyEditedCollections = selectMyEditedCollections;
+exports.selectMyPublishedCollections = selectMyPublishedCollections;
+exports.selectMyPublishedMixedCollections = selectMyPublishedMixedCollections;
+exports.selectMyPublishedPlaylistCollections = selectMyPublishedPlaylistCollections;
 exports.selectMyPurchases = selectMyPurchases;
 exports.selectMyPurchasesCount = selectMyPurchasesCount;
 exports.selectMyStreamUrlsCount = selectMyStreamUrlsCount;
+exports.selectMyUnpublishedCollections = selectMyUnpublishedCollections;
 exports.selectPendingClaims = selectPendingClaims;
 exports.selectPendingConsolidateTxid = selectPendingConsolidateTxid;
 exports.selectPendingIds = selectPendingIds;
@@ -6853,7 +8006,9 @@ exports.selectReflectingById = selectReflectingById;
 exports.selectRepostError = selectRepostError;
 exports.selectRepostLoading = selectRepostLoading;
 exports.selectReservedBalance = selectReservedBalance;
+exports.selectResolvedCollections = selectResolvedCollections;
 exports.selectResolvingUris = selectResolvingUris;
+exports.selectSavedCollectionIds = selectSavedCollectionIds;
 exports.selectSupportsBalance = selectSupportsBalance;
 exports.selectSupportsByOutpoint = selectSupportsByOutpoint;
 exports.selectTakeOverAmount = selectTakeOverAmount;
@@ -6871,7 +8026,9 @@ exports.selectTxoPage = selectTxoPage;
 exports.selectTxoPageNumber = selectTxoPageNumber;
 exports.selectTxoPageParams = selectTxoPageParams;
 exports.selectUpdateChannelError = selectUpdateChannelError;
+exports.selectUpdateCollectionError = selectUpdateCollectionError;
 exports.selectUpdatingChannel = selectUpdatingChannel;
+exports.selectUpdatingCollection = selectUpdatingCollection;
 exports.selectUrisLoading = selectUrisLoading;
 exports.selectUtxoCounts = selectUtxoCounts;
 exports.selectWalletDecryptPending = selectWalletDecryptPending;
