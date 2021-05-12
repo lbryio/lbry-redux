@@ -3706,6 +3706,13 @@ const makeSelectNameForCollectionId = id => reselect.createSelector(makeSelectCo
   return collection && collection.name || '';
 });
 
+const makeSelectCountForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
+  if (collection.itemCount !== undefined) {
+    return collection.itemCount;
+  }
+  return collection.items.length;
+});
+
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _asyncToGenerator$1(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
@@ -4242,7 +4249,7 @@ function doFetchCollectionListMine(page = 1, pageSize = 99999) {
       });
     };
 
-    lbryProxy.collection_list({ page, page_size: pageSize, resolve_claims: 1 }).then(callback, failure);
+    lbryProxy.collection_list({ page, page_size: pageSize, resolve_claims: 1, resolve: true }).then(callback, failure);
   };
 }
 
@@ -4354,7 +4361,8 @@ function doCollectionPublish(options, localId) {
       function success(response) {
         const collectionClaim = response.outputs[0];
         dispatch(batchActions({
-          type: COLLECTION_PUBLISH_COMPLETED
+          type: COLLECTION_PUBLISH_COMPLETED,
+          data: { claimId: collectionClaim.claim_id }
         },
         // shift unpublished collection to pending collection with new publish id
         // recent publish won't resolve this second. handle it in checkPending
@@ -4401,12 +4409,10 @@ function doCollectionPublishUpdate(options) {
       tags: [],
       languages: options.languages || [],
       locations: [],
-      blocking: true
+      blocking: true,
+      claim_id: options.claim_id,
+      clear_claims: true
     };
-
-    if (options.claim_id) {
-      updateParams['claim_id'] = options.claim_id;
-    }
 
     if (options.tags) {
       updateParams['tags'] = options.tags.map(tag => tag.name);
@@ -4428,6 +4434,10 @@ function doCollectionPublishUpdate(options) {
           data: {
             collectionClaim
           }
+        });
+        dispatch({
+          type: COLLECTION_PENDING,
+          data: { claimId: collectionClaim.claim_id }
         });
         dispatch({
           type: UPDATE_PENDING_CLAIMS,
@@ -4532,6 +4542,7 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
           pendingIdSet.delete(claimId);
           if (Object.keys(pendingCollections).includes(claim.claim_id)) {
             dispatch(doFetchItemsInCollection({ collectionId: claim.claim_id }));
+            dispatch(doCollectionDelete(claim.claim_id, 'pending'));
           }
           claimsToConfirm.push(claim);
           if (onConfirmed) {
@@ -4583,11 +4594,12 @@ const doLocalCollectionCreate = (name, collectionItems, type, sourceId) => dispa
   });
 };
 
-const doLocalCollectionDelete = id => dispatch => {
+const doCollectionDelete = (id, colKey = undefined, keepLocal) => dispatch => {
   return dispatch({
     type: COLLECTION_DELETE,
     data: {
-      id: id
+      id: id,
+      collectionKey: colKey
     }
   });
 };
@@ -6420,8 +6432,17 @@ reducers[COLLECTION_PUBLISH_STARTED] = state => _extends$9({}, state, {
 });
 
 reducers[COLLECTION_PUBLISH_COMPLETED] = (state, action) => {
+  const myCollections = state.myCollectionClaims || [];
+  const myClaims = state.myClaims || [];
+  const { claimId } = action.data;
+  let myClaimIds = new Set(myClaims);
+  let myCollectionClaimsSet = new Set(myCollections);
+  myClaimIds.add(claimId);
+  myCollectionClaimsSet.add(claimId);
   return Object.assign({}, state, {
-    creatingCollection: false
+    creatingCollection: false,
+    myClaims: Array.from(myClaimIds),
+    myCollectionClaims: Array.from(myCollectionClaimsSet)
   });
 };
 
@@ -7777,6 +7798,7 @@ exports.doClearPublish = doClearPublish;
 exports.doClearPurchasedUriSuccess = doClearPurchasedUriSuccess;
 exports.doClearRepostError = doClearRepostError;
 exports.doClearSupport = doClearSupport;
+exports.doCollectionDelete = doCollectionDelete;
 exports.doCollectionEdit = doCollectionEdit;
 exports.doCollectionPublish = doCollectionPublish;
 exports.doCollectionPublishUpdate = doCollectionPublishUpdate;
@@ -7800,7 +7822,6 @@ exports.doFileList = doFileList;
 exports.doGetNewAddress = doGetNewAddress;
 exports.doImportChannel = doImportChannel;
 exports.doLocalCollectionCreate = doLocalCollectionCreate;
-exports.doLocalCollectionDelete = doLocalCollectionDelete;
 exports.doPopulateSharedUserState = doPopulateSharedUserState;
 exports.doPreferenceGet = doPreferenceGet;
 exports.doPreferenceSet = doPreferenceSet;
@@ -7862,6 +7883,7 @@ exports.makeSelectCollectionForIdHasClaimUrl = makeSelectCollectionForIdHasClaim
 exports.makeSelectCollectionIsMine = makeSelectCollectionIsMine;
 exports.makeSelectContentPositionForUri = makeSelectContentPositionForUri;
 exports.makeSelectContentTypeForUri = makeSelectContentTypeForUri;
+exports.makeSelectCountForCollectionId = makeSelectCountForCollectionId;
 exports.makeSelectCoverForUri = makeSelectCoverForUri;
 exports.makeSelectDateForUri = makeSelectDateForUri;
 exports.makeSelectDownloadPathForUri = makeSelectDownloadPathForUri;

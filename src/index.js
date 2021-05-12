@@ -64,7 +64,7 @@ export {
   doFetchItemsInCollection,
   doFetchItemsInCollections,
   doCollectionEdit,
-  doLocalCollectionDelete,
+  doCollectionDelete,
 } from 'redux/actions/collections';
 
 export {
@@ -177,6 +177,7 @@ export {
   makeSelectUrlsForCollectionId,
   makeSelectClaimIdsForCollectionId,
   makeSelectNameForCollectionId,
+  makeSelectCountForCollectionId,
   makeSelectIsResolvingCollectionForId,
   makeSelectNextUrlForCollection,
   makeSelectCollectionForIdHasClaimUrl,

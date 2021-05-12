@@ -606,8 +606,17 @@ reducers[ACTIONS.COLLECTION_PUBLISH_STARTED] = (state: State): State => ({
 });
 
 reducers[ACTIONS.COLLECTION_PUBLISH_COMPLETED] = (state: State, action: any): State => {
+  const myCollections = state.myCollectionClaims || [];
+  const myClaims = state.myClaims || [];
+  const { claimId } = action.data;
+  let myClaimIds = new Set(myClaims);
+  let myCollectionClaimsSet = new Set(myCollections);
+  myClaimIds.add(claimId);
+  myCollectionClaimsSet.add(claimId);
   return Object.assign({}, state, {
     creatingCollection: false,
+    myClaims: Array.from(myClaimIds),
+    myCollectionClaims: Array.from(myCollectionClaimsSet),
   });
 };
 
