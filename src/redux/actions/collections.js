@@ -40,11 +40,16 @@ export const doLocalCollectionCreate = (
   });
 };
 
-export const doLocalCollectionDelete = (id: string) => (dispatch: Dispatch) => {
+export const doCollectionDelete = (
+  id: string,
+  colKey: ?string = undefined,
+  keepLocal?: boolean
+) => (dispatch: Dispatch) => {
   return dispatch({
     type: ACTIONS.COLLECTION_DELETE,
     data: {
       id: id,
+      collectionKey: colKey,
     },
   });
 };

@@ -24,7 +24,11 @@ import {
   makeSelectEditedCollectionForId,
   selectPendingCollections,
 } from 'redux/selectors/collections';
-import { doFetchItemsInCollection, doFetchItemsInCollections } from 'redux/actions/collections';
+import {
+  doFetchItemsInCollection,
+  doFetchItemsInCollections,
+  doCollectionDelete,
+} from 'redux/actions/collections';
 
 type ResolveEntries = Array<[string, GenericClaim]>;
 
@@ -624,7 +628,10 @@ export function doFetchCollectionListMine(page: number = 1, pageSize: number = 9
       });
     };
 
-    Lbry.collection_list({ page, page_size: pageSize, resolve_claims: 1 }).then(callback, failure);
+    Lbry.collection_list({ page, page_size: pageSize, resolve_claims: 1, resolve: true }).then(
+      callback,
+      failure
+    );
   };
 }
 
@@ -763,6 +770,7 @@ export function doCollectionPublish(
           batchActions(
             {
               type: ACTIONS.COLLECTION_PUBLISH_COMPLETED,
+              data: { claimId: collectionClaim.claim_id },
             },
             // shift unpublished collection to pending collection with new publish id
             // recent publish won't resolve this second. handle it in checkPending
@@ -824,6 +832,7 @@ export function doCollectionPublishUpdate(options: {
       tags?: Array<string>,
       languages?: Array<string>,
       claims?: Array<string>,
+      clear_claims: boolean,
     } = {
       bid: creditsToString(options.bid),
       title: options.title,
@@ -834,6 +843,7 @@ export function doCollectionPublishUpdate(options: {
       locations: [],
       blocking: true,
       claim_id: options.claim_id,
+      clear_claims: true,
     };
 
     if (options.tags) {
@@ -856,6 +866,10 @@ export function doCollectionPublishUpdate(options: {
           data: {
             collectionClaim,
           },
+        });
+        dispatch({
+          type: ACTIONS.COLLECTION_PENDING,
+          data: { claimId: collectionClaim.claim_id },
         });
         dispatch({
           type: ACTIONS.UPDATE_PENDING_CLAIMS,
@@ -964,6 +978,7 @@ export const doCheckPendingClaims = (onConfirmed: Function) => (
             pendingIdSet.delete(claimId);
             if (Object.keys(pendingCollections).includes(claim.claim_id)) {
               dispatch(doFetchItemsInCollection({ collectionId: claim.claim_id }));
+              dispatch(doCollectionDelete(claim.claim_id, 'pending'));
             }
             claimsToConfirm.push(claim);
             if (onConfirmed) {

@@ -203,3 +203,14 @@ export const makeSelectNameForCollectionId = (id: string) =>
       return (collection && collection.name) || '';
     }
   );
+
+export const makeSelectCountForCollectionId = (id: string) =>
+  createSelector(
+    makeSelectCollectionForId(id),
+    collection => {
+      if (collection.itemCount !== undefined) {
+        return collection.itemCount;
+      }
+      return collection.items.length;
+    }
+  );
