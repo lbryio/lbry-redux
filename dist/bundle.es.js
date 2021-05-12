@@ -6056,6 +6056,7 @@ const defaultState$4 = {
   thumbnail_url: '',
   thumbnailPath: '',
   uploadThumbnailStatus: API_DOWN,
+  thumbnailError: undefined,
   description: '',
   language: '',
   releaseTime: undefined,
