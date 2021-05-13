@@ -40,11 +40,9 @@ export const doLocalCollectionCreate = (
   });
 };
 
-export const doCollectionDelete = (
-  id: string,
-  colKey: ?string = undefined,
-  keepLocal?: boolean
-) => (dispatch: Dispatch) => {
+export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
+  dispatch: Dispatch
+) => {
   return dispatch({
     type: ACTIONS.COLLECTION_DELETE,
     data: {
@@ -219,7 +217,8 @@ export const doFetchItemsInCollections = (
       const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
 
       const editedCollection = makeSelectEditedCollectionForId(collectionId)(stateAfterClaimSearch);
-      const { name, timestamp } = claim || {};
+      const { name, timestamp, value } = claim || {};
+      const { title } = value;
       const valueTypes = new Set();
       const streamTypes = new Set();
 
@@ -242,7 +241,7 @@ export const doFetchItemsInCollections = (
       newCollectionItemsById[collectionId] = {
         items,
         id: collectionId,
-        name: name,
+        name: title || name,
         itemCount: claim.value.claims.length,
         type: isPlaylist ? 'playlist' : 'collection',
         updatedAt: timestamp,
