@@ -4634,7 +4634,8 @@ const doResetThumbnailStatus = () => dispatch => {
   dispatch({
     type: UPDATE_PUBLISH_FORM,
     data: {
-      thumbnailPath: ''
+      thumbnailPath: '',
+      thumbnailError: undefined
     }
   });
 
@@ -4690,6 +4691,13 @@ const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => disp
       }
     }, doError(error)));
   };
+
+  dispatch({
+    type: UPDATE_PUBLISH_FORM,
+    data: {
+      thumbnailError: undefined
+    }
+  });
 
   const doUpload = data => {
     return fetch(SPEECH_PUBLISH, {
