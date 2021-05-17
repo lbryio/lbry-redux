@@ -21,6 +21,7 @@ export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
     type: ACTIONS.UPDATE_PUBLISH_FORM,
     data: {
       thumbnailPath: '',
+      thumbnailError: undefined,
     },
   });
 
@@ -96,6 +97,13 @@ export const doUploadThumbnail = (
     );
   };
 
+  dispatch({
+    type: ACTIONS.UPDATE_PUBLISH_FORM,
+    data: {
+      thumbnailError: undefined,
+    },
+  });
+
   const doUpload = data => {
     return fetch(SPEECH_PUBLISH, {
       method: 'POST',
@@ -106,12 +114,12 @@ export const doUploadThumbnail = (
       .then(json => {
         return json.success
           ? dispatch({
-            type: ACTIONS.UPDATE_PUBLISH_FORM,
-            data: {
-              uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-              thumbnail: json.data.serveUrl,
-            },
-          })
+              type: ACTIONS.UPDATE_PUBLISH_FORM,
+              data: {
+                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+                thumbnail: json.data.serveUrl,
+              },
+            })
           : uploadError(json.message || downMessage);
       })
       .catch(err => {
@@ -413,7 +421,7 @@ export const doCheckReflectingFiles = () => (dispatch: Dispatch, getState: GetSt
   const { checkingReflector } = state.claims;
   let reflectorCheckInterval;
 
-  const checkFileList = async() => {
+  const checkFileList = async () => {
     const state = getState();
     const reflectingById = selectReflectingById(state);
     const ids = Object.keys(reflectingById);
