@@ -21,7 +21,7 @@ const getTimestamp = () => {
 // maybe take items param
 export const doLocalCollectionCreate = (
   name: string,
-  collectionItems: string,
+  collectionItems: Array<string>,
   type: string,
   sourceId: string
 ) => (dispatch: Dispatch) => {
