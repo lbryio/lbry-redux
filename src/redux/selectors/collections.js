@@ -208,9 +208,12 @@ export const makeSelectCountForCollectionId = (id: string) =>
   createSelector(
     makeSelectCollectionForId(id),
     collection => {
-      if (collection.itemCount !== undefined) {
-        return collection.itemCount;
+      if (collection) {
+        if (collection.itemCount !== undefined) {
+          return collection.itemCount;
+        }
+        return collection.items.length;
       }
-      return collection.items.length;
+      return null;
     }
   );

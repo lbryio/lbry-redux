@@ -3707,10 +3707,13 @@ const makeSelectNameForCollectionId = id => reselect.createSelector(makeSelectCo
 });
 
 const makeSelectCountForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
-  if (collection.itemCount !== undefined) {
-    return collection.itemCount;
+  if (collection) {
+    if (collection.itemCount !== undefined) {
+      return collection.itemCount;
+    }
+    return collection.items.length;
   }
-  return collection.items.length;
+  return null;
 });
 
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -4594,7 +4597,7 @@ const doLocalCollectionCreate = (name, collectionItems, type, sourceId) => dispa
   });
 };
 
-const doCollectionDelete = (id, colKey = undefined, keepLocal) => dispatch => {
+const doCollectionDelete = (id, colKey = undefined) => dispatch => {
   return dispatch({
     type: COLLECTION_DELETE,
     data: {
@@ -4766,7 +4769,8 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
         const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
 
         const editedCollection = makeSelectEditedCollectionForId(collectionId)(stateAfterClaimSearch);
-        const { name, timestamp } = claim || {};
+        const { name, timestamp, value } = claim || {};
+        const { title } = value;
         const valueTypes = new Set();
         const streamTypes = new Set();
 
@@ -4785,7 +4789,7 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
         newCollectionItemsById[collectionId] = {
           items,
           id: collectionId,
-          name: name,
+          name: title || name,
           itemCount: claim.value.claims.length,
           type: isPlaylist ? 'playlist' : 'collection',
           updatedAt: timestamp
