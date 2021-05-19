@@ -1390,11 +1390,11 @@ const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
-const regexInvalidURI = /[ =&#:$@%?;/\\"<>%\{\}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
+const regexInvalidURI = /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
 const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
-const regexPartModifierSeparator = '([:$#]?)([^/]*)';
+const regexPartModifierSeparator = '([:$#*]?)([^/]*)'; // eventually remove # as separator
 const queryStringBreaker = '^([\\S]+)([?][\\S]*)';
 const separateQuerystring = new RegExp(queryStringBreaker);
 
@@ -1499,9 +1499,9 @@ function parseURIModifier(modSeperator, modValue) {
       throw new Error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
     }
 
-    if (modSeperator === '#') {
+    if (modSeperator === '#' || modSeperator === ':') {
       claimId = modValue;
-    } else if (modSeperator === ':') {
+    } else if (modSeperator === '*') {
       claimSequence = modValue;
     } else if (modSeperator === '$') {
       bidPosition = modValue;
@@ -3497,14 +3497,6 @@ const doCheckPendingTxs = () => (dispatch, getState) => {
   }, 30000);
 };
 
-// https://github.com/reactjs/redux/issues/911
-function batchActions(...actions) {
-  return {
-    type: 'BATCH_ACTIONS',
-    actions
-  };
-}
-
 var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _asyncToGenerator$1(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
@@ -4280,7 +4272,7 @@ const selectFileListDownloadedSort = reselect.createSelector(selectState$2, stat
 
 const selectDownloadedUris = reselect.createSelector(selectFileInfosDownloaded,
 // We should use permament_url but it doesn't exist in file_list
-info => info.slice().map(claim => `lbry://${claim.claim_name}#${claim.claim_id}`));
+info => info.slice().map(claim => `lbry://${claim.claim_name}:${claim.claim_id}`));
 
 const makeSelectMediaTypeForUri = uri => reselect.createSelector(makeSelectFileInfoForUri(uri), makeSelectContentTypeForUri(uri), (fileInfo, contentType) => {
   if (!fileInfo && !contentType) {
@@ -4522,6 +4514,14 @@ function doSetFileListSort(page, value) {
   return {
     type: SET_FILE_LIST_SORT,
     data: { page, value }
+  };
+}
+
+// https://github.com/reactjs/redux/issues/911
+function batchActions(...actions) {
+  return {
+    type: 'BATCH_ACTIONS',
+    actions
   };
 }
 

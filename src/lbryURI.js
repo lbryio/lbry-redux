@@ -4,11 +4,11 @@ const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
-export const regexInvalidURI = /[ =&#:$@%?;/\\"<>%\{\}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
+export const regexInvalidURI = /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
 export const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
-const regexPartModifierSeparator = '([:$#]?)([^/]*)';
+const regexPartModifierSeparator = '([:$#*]?)([^/]*)'; // eventually remove # as separator
 const queryStringBreaker = '^([\\S]+)([?][\\S]*)';
 const separateQuerystring = new RegExp(queryStringBreaker);
 
@@ -144,9 +144,9 @@ function parseURIModifier(modSeperator: ?string, modValue: ?string) {
       throw new Error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
     }
 
-    if (modSeperator === '#') {
+    if (modSeperator === '#' || modSeperator === ':') {
       claimId = modValue;
-    } else if (modSeperator === ':') {
+    } else if (modSeperator === '*') {
       claimSequence = modValue;
     } else if (modSeperator === '$') {
       bidPosition = modValue;
