@@ -4407,7 +4407,7 @@ function doCollectionPublishUpdate(options) {
     const updateParams = {
       bid: creditsToString(options.bid),
       title: options.title,
-      thumbnail_url: options.thumbnailUrl,
+      thumbnail_url: options.thumbnail_url,
       description: options.description,
       tags: [],
       languages: options.languages || [],

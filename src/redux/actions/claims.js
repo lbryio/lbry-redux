@@ -809,7 +809,7 @@ export function doCollectionPublishUpdate(options: {
   bid?: string,
   blocking?: true,
   title?: string,
-  thumbnailUrl?: string,
+  thumbnail_url?: string,
   description?: string,
   claim_id: string,
   tags?: Array<Tag>,
@@ -836,7 +836,7 @@ export function doCollectionPublishUpdate(options: {
     } = {
       bid: creditsToString(options.bid),
       title: options.title,
-      thumbnail_url: options.thumbnailUrl,
+      thumbnail_url: options.thumbnail_url,
       description: options.description,
       tags: [],
       languages: options.languages || [],
