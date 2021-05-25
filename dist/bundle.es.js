@@ -4580,7 +4580,8 @@ const getTimestamp = () => {
   return Math.floor(Date.now() / 1000);
 };
 
-// maybe take items param
+const FETCH_BATCH_SIZE = 10;
+
 const doLocalCollectionCreate = (name, collectionItems, type, sourceId) => dispatch => {
   return dispatch({
     type: COLLECTION_NEW,
@@ -4633,11 +4634,26 @@ const doCollectionDelete = (id, colKey = undefined) => dispatch => {
 
 const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) => (() => {
   var _ref = _asyncToGenerator$2(function* (dispatch, getState) {
-    let resolveCollectionItems = (() => {
-      var _ref2 = _asyncToGenerator$2(function* (claimId, totalItems, pageSize) {
+    let fetchItemsForCollectionClaim = (() => {
+      var _ref2 = _asyncToGenerator$2(function* (claim, pageSize) {
         // take [ {}, {} ], return {}
-        // only need items [ Claim... ] and total_items
-        const mergeResults = function (arrayOfResults) {
+        // only need items [ url... ] and total_items
+        const totalItems = claim.value.claims && claim.value.claims.length;
+        const claimId = claim.claim_id;
+        const itemOrder = claim.value.claims;
+
+        const sortResults = function (results, claimList) {
+          const newResults = [];
+          claimList.forEach(function (id) {
+            const item = results.pop(function (i) {
+              return i.claim_id === id;
+            });
+            if (item) newResults.push(item);
+          });
+          return newResults;
+        };
+
+        const mergeBatches = function (arrayOfResults, claimList) {
           const mergedResults = {
             items: [],
             total_items: 0
@@ -4646,35 +4662,42 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
             mergedResults.items = mergedResults.items.concat(result.items);
             mergedResults.total_items = result.total_items;
           });
+
+          mergedResults.items = sortResults(mergedResults.items, claimList);
           return mergedResults;
         };
 
         try {
-          const BATCH_SIZE = 10; // up batch size when sdk bug fixed
+          // sdk had a strange bug that would only return so many, so this had to be batched.
+          // otherwise large lists of, ~500 channels for a homepage category failed
+          const batchSize = pageSize || FETCH_BATCH_SIZE;
           const batches = [];
-          let fetchResult;
-          if (!pageSize) {
-            // batch all
-            for (let i = 0; i < Math.ceil(totalItems / BATCH_SIZE); i++) {
-              batches[i] = lbryProxy.collection_resolve({
+          /*
+            // this was `collection_resolve` which returns claims for collection in order
+            // however, this fails when a claim is pending. :/
+            for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
+              batches[i] = Lbry.collection_resolve({
                 claim_id: claimId,
                 page: i + 1,
-                page_size: BATCH_SIZE
+                page_size: batchSize,
               });
             }
-            const resultArray = yield Promise.all(batches);
-            fetchResult = mergeResults(resultArray);
-          } else {
-            fetchResult = yield lbryProxy.collection_resolve({
-              claim_id: claimId,
-              page: 1,
-              page_size: pageSize
+          */
+
+          for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
+            batches[i] = lbryProxy.claim_search({
+              claim_ids: claim.value.claims,
+              page: i + 1,
+              page_size: batchSize
             });
           }
+          const itemsInBatches = yield Promise.all(batches);
+          const result = mergeBatches(itemsInBatches, itemOrder);
+
           // $FlowFixMe
           const itemsById = { claimId: claimId };
-          if (fetchResult.items) {
-            itemsById.items = fetchResult.items;
+          if (result.items) {
+            itemsById.items = result.items;
           } else {
             itemsById.items = null;
           }
@@ -4687,15 +4710,19 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
         }
       });
 
-      return function resolveCollectionItems(_x3, _x4, _x5) {
+      return function fetchItemsForCollectionClaim(_x3, _x4) {
         return _ref2.apply(this, arguments);
       };
     })();
 
+    /*
+    1) make sure all the collection claims are loaded into claims reducer, search/resolve if necessary.
+    2) get the item claims for each
+    3) format and make sure they're in the order as in the claim
+    4) Build the collection objects and update collections reducer
+    5) Update redux claims reducer
+     */
     let state = getState();
-    // for each collection id,
-    // make sure the collection is resolved, the items are resolved, and build the collection objects
-
     const { collectionIds, pageSize } = resolveItemsOptions;
 
     dispatch({
@@ -4708,33 +4735,15 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
     const collectionIdsToSearch = collectionIds.filter(function (claimId) {
       return !state.claims.byId[claimId];
     });
+
     if (collectionIdsToSearch.length) {
-      let claimSearchOptions = { claim_ids: collectionIdsToSearch, page: 1, page_size: 9999 };
-      yield dispatch(doClaimSearch(claimSearchOptions));
+      yield dispatch(doClaimSearch({ claim_ids: collectionIdsToSearch, page: 1, page_size: 9999 }));
     }
-    const invalidCollectionIds = [];
+
     const stateAfterClaimSearch = getState();
 
-    const promises = [];
-    collectionIds.forEach(function (collectionId) {
-      const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
-      if (!claim) {
-        invalidCollectionIds.push(collectionId);
-      } else {
-        const claimCount = claim.value.claims && claim.value.claims.length;
-        if (pageSize) {
-          promises.push(resolveCollectionItems(collectionId, claimCount, pageSize));
-        } else {
-          promises.push(resolveCollectionItems(collectionId, claimCount));
-        }
-      }
-    });
-
-    // $FlowFixMe
-    const resolvedCollectionItemsById = yield Promise.all(promises);
-
-    function processClaims(resultClaimsByUri) {
-      const processedClaims = {};
+    function formatForClaimActions(resultClaimsByUri) {
+      const formattedClaims = {};
       Object.entries(resultClaimsByUri).forEach(([uri, uriResolveInfo]) => {
         // Flow has terrible Object.entries support
         // https://github.com/facebook/flow/issues/2221
@@ -4745,6 +4754,8 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
             // $FlowFixMe
             result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
             // ALSO SKIP COLLECTIONS
+          } else if (uriResolveInfo.value_type === 'collection') {
+            result.collection = uriResolveInfo;
           } else {
             result.stream = uriResolveInfo;
             if (uriResolveInfo.signing_channel) {
@@ -4753,15 +4764,29 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
             }
           }
           // $FlowFixMe
-          processedClaims[uri] = result;
+          formattedClaims[uri] = result;
         }
       });
-      return processedClaims;
+      return formattedClaims;
     }
 
-    const newCollectionItemsById = {};
-    const flatResolvedCollectionItems = {};
-    resolvedCollectionItemsById.forEach(function (entry) {
+    const invalidCollectionIds = [];
+    const promisedCollectionItemFetches = [];
+    collectionIds.forEach(function (collectionId) {
+      const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
+      if (!claim) {
+        invalidCollectionIds.push(collectionId);
+      } else {
+        promisedCollectionItemFetches.push(fetchItemsForCollectionClaim(claim, pageSize));
+      }
+    });
+
+    // $FlowFixMe
+    const collectionItemsById = yield Promise.all(promisedCollectionItemFetches);
+
+    const newCollectionObjectsById = {};
+    const resolvedItemsByUrl = {};
+    collectionItemsById.forEach(function (entry) {
       // $FlowFixMe
       const collectionItems = entry.items;
       const collectionId = entry.claimId;
@@ -4774,27 +4799,31 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
         const valueTypes = new Set();
         const streamTypes = new Set();
 
-        let items = [];
-        collectionItems.forEach(function (collectionItem) {
-          // here's where we would just items.push(collectionItem.permanent_url
-          items.push(collectionItem.permanent_url);
-          valueTypes.add(collectionItem.value_type);
-          if (collectionItem.value.stream_type) {
-            streamTypes.add(collectionItem.value.stream_type);
-          }
-          flatResolvedCollectionItems[collectionItem.canonical_url] = collectionItem;
-        });
-        const isPlaylist = valueTypes.size === 1 && valueTypes.has('stream') && (streamTypes.size === 1 && (streamTypes.has('audio') || streamTypes.has('video')) || streamTypes.size === 2 && streamTypes.has('audio') && streamTypes.has('video'));
+        let newItems = [];
+        let isPlaylist;
 
-        newCollectionItemsById[collectionId] = {
-          items,
+        if (collectionItems) {
+          collectionItems.forEach(function (collectionItem) {
+            // here's where we would just items.push(collectionItem.permanent_url
+            newItems.push(collectionItem.permanent_url);
+            valueTypes.add(collectionItem.value_type);
+            if (collectionItem.value.stream_type) {
+              streamTypes.add(collectionItem.value.stream_type);
+            }
+            resolvedItemsByUrl[collectionItem.canonical_url] = collectionItem;
+          });
+          isPlaylist = valueTypes.size === 1 && valueTypes.has('stream') && (streamTypes.size === 1 && (streamTypes.has('audio') || streamTypes.has('video')) || streamTypes.size === 2 && streamTypes.has('audio') && streamTypes.has('video'));
+        }
+
+        newCollectionObjectsById[collectionId] = {
+          items: newItems,
           id: collectionId,
           name: title || name,
           itemCount: claim.value.claims.length,
           type: isPlaylist ? 'playlist' : 'collection',
           updatedAt: timestamp
         };
-        // clear any stale edits
+
         if (editedCollection && timestamp > editedCollection['updatedAt']) {
           dispatch({
             type: COLLECTION_DELETE,
@@ -4804,19 +4833,21 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
             }
           });
         }
+      } else {
+        invalidCollectionIds.push(collectionId);
       }
     });
-    const processedClaimsByUri = processClaims(flatResolvedCollectionItems);
+    const formattedClaimsByUri = formatForClaimActions(collectionItemsById);
 
     dispatch({
       type: RESOLVE_URIS_COMPLETED,
-      data: { resolveInfo: processedClaimsByUri }
+      data: { resolveInfo: formattedClaimsByUri }
     });
 
     dispatch({
       type: COLLECTION_ITEMS_RESOLVE_COMPLETED,
       data: {
-        resolvedCollections: newCollectionItemsById,
+        resolvedCollections: newCollectionObjectsById,
         failedCollectionIds: invalidCollectionIds
       }
     });
@@ -4924,10 +4955,8 @@ const doCollectionEdit = (collectionId, params) => (() => {
 
     // console.log('p&e', publishedCollection.items, newItems, publishedCollection.items.join(','), newItems.join(','))
     if (editedCollection) {
+      // delete edited if newItems are the same as publishedItems
       if (publishedCollection.items.join(',') === newItems.join(',')) {
-        // print these
-
-        // delete edited if newItems are the same as publishedItems
         dispatch({
           type: COLLECTION_DELETE,
           data: {
@@ -5000,7 +5029,7 @@ const doCollectionEdit = (collectionId, params) => (() => {
     return true;
   });
 
-  return function (_x6, _x7) {
+  return function (_x5, _x6) {
     return _ref3.apply(this, arguments);
   };
 })();
@@ -7597,7 +7626,7 @@ const collectionsReducer = handleActions({
     const newUnpublishedList = Object.assign({}, unpublishedList);
     const newPendingList = Object.assign({}, pendingList);
 
-    const isEdit = editList[localId];
+    const isEdit = editList[localId || claimId];
     if (localId) {
       // pending from unpublished -> published
       // delete from local
