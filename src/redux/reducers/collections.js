@@ -10,18 +10,14 @@ const getTimestamp = () => {
 const defaultState: CollectionState = {
   builtin: {
     watchlater: {
-      items: [
-        'lbry://why-wolves-determine-the-shape-of-rivers#d8a60a057ac9adb6b618be6985ca8361c730c02e',
-      ],
+      items: [],
       id: COLS.WATCH_LATER_ID,
       name: 'Watch Later',
       updatedAt: getTimestamp(),
       type: COLS.COL_TYPE_PLAYLIST,
     },
     favorites: {
-      items: [
-        'lbry://why-wolves-determine-the-shape-of-rivers#d8a60a057ac9adb6b618be6985ca8361c730c02e',
-      ],
+      items: [],
       id: COLS.FAVORITES_ID,
       name: 'Favorites',
       type: COLS.COL_TYPE_PLAYLIST,
@@ -99,25 +95,15 @@ const collectionsReducer = handleActions(
       const newUnpublishedList = Object.assign({}, unpublishedList);
       const newPendingList = Object.assign({}, pendingList);
 
-      const isEdit = editList[localId || claimId];
+      const isEdit = editList[claimId];
       if (localId) {
-        // pending from unpublished -> published
-        // delete from local
-        newPendingList[claimId] = Object.assign(
-          {},
-          newEditList[localId] || newUnpublishedList[localId] || {}
-        );
-        if (isEdit) {
-          delete newEditList[localId];
-        } else {
-          delete newUnpublishedList[localId];
-        }
+        // new publish
+        newPendingList[claimId] = Object.assign({}, newUnpublishedList[localId] || {});
+        delete newUnpublishedList[localId];
       } else {
-        // pending from edited published -> published
-        if (isEdit) {
-          newPendingList[claimId] = Object.assign({}, newEditList[claimId]);
-          delete newEditList[claimId];
-        }
+        // edit update
+        newPendingList[claimId] = Object.assign({}, newEditList[claimId]);
+        delete newEditList[claimId];
       }
 
       return {
