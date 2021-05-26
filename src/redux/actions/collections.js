@@ -2,7 +2,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { v4 as uuid } from 'uuid';
 import Lbry from 'lbry';
-import { doClaimSearch } from 'redux/actions/claims';
+import { doClaimSearch, doAbandonClaim } from 'redux/actions/claims';
 import { makeSelectClaimForClaimId } from 'redux/selectors/claims';
 import {
   makeSelectCollectionForId,
@@ -42,15 +42,24 @@ export const doLocalCollectionCreate = (
 };
 
 export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
-  dispatch: Dispatch
+  dispatch: Dispatch,
+  getState: GetState
 ) => {
-  return dispatch({
-    type: ACTIONS.COLLECTION_DELETE,
-    data: {
-      id: id,
-      collectionKey: colKey,
-    },
-  });
+  const state = getState();
+  const claim = makeSelectClaimForClaimId(id)(state);
+  const collectionDelete = () =>
+    dispatch({
+      type: ACTIONS.COLLECTION_DELETE,
+      data: {
+        id: id,
+        collectionKey: colKey,
+      },
+    });
+  if (claim) {
+    const { txid, nout } = claim;
+    return dispatch(doAbandonClaim(txid, nout, collectionDelete));
+  }
+  return collectionDelete();
 };
 
 // Given a collection, save its collectionId to be resolved and displayed in Library

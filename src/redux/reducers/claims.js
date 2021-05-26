@@ -528,6 +528,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
   const newMyClaims = state.myClaims ? state.myClaims.slice() : [];
   const newMyChannelClaims = state.myChannelClaims ? state.myChannelClaims.slice() : [];
   const claimsByUri = Object.assign({}, state.claimsByUri);
+  const newMyCollectionClaims = state.myCollectionClaims ? state.myCollectionClaims.slice() : [];
 
   Object.keys(claimsByUri).forEach(uri => {
     if (claimsByUri[uri] === claimId) {
@@ -536,12 +537,14 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
   });
   const myClaims = newMyClaims.filter(i => i !== claimId);
   const myChannelClaims = newMyChannelClaims.filter(i => i !== claimId);
+  const myCollectionClaims = newMyCollectionClaims.filter(i => i !== claimId);
 
   delete byId[claimId];
 
   return Object.assign({}, state, {
     myClaims,
     myChannelClaims,
+    myCollectionClaims,
     byId,
     claimsByUri,
   });

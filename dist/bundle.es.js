@@ -4598,14 +4598,21 @@ const doLocalCollectionCreate = (name, collectionItems, type, sourceId) => dispa
   });
 };
 
-const doCollectionDelete = (id, colKey = undefined) => dispatch => {
-  return dispatch({
+const doCollectionDelete = (id, colKey = undefined) => (dispatch, getState) => {
+  const state = getState();
+  const claim = makeSelectClaimForClaimId(id)(state);
+  const collectionDelete = () => dispatch({
     type: COLLECTION_DELETE,
     data: {
       id: id,
       collectionKey: colKey
     }
   });
+  if (claim) {
+    const { txid, nout } = claim;
+    return dispatch(doAbandonClaim(txid, nout, collectionDelete));
+  }
+  return collectionDelete();
 };
 
 // Given a collection, save its collectionId to be resolved and displayed in Library
@@ -4645,10 +4652,11 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
         const sortResults = function (results, claimList) {
           const newResults = [];
           claimList.forEach(function (id) {
-            const item = results.pop(function (i) {
+            const index = results.findIndex(function (i) {
               return i.claim_id === id;
             });
-            if (item) newResults.push(item);
+            const item = results.splice(index, 1);
+            if (item) newResults.push(item[0]);
           });
           return newResults;
         };
@@ -6391,6 +6399,7 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   const newMyClaims = state.myClaims ? state.myClaims.slice() : [];
   const newMyChannelClaims = state.myChannelClaims ? state.myChannelClaims.slice() : [];
   const claimsByUri = Object.assign({}, state.claimsByUri);
+  const newMyCollectionClaims = state.myCollectionClaims ? state.myCollectionClaims.slice() : [];
 
   Object.keys(claimsByUri).forEach(uri => {
     if (claimsByUri[uri] === claimId) {
@@ -6399,12 +6408,14 @@ reducers[ABANDON_CLAIM_SUCCEEDED] = (state, action) => {
   });
   const myClaims = newMyClaims.filter(i => i !== claimId);
   const myChannelClaims = newMyChannelClaims.filter(i => i !== claimId);
+  const myCollectionClaims = newMyCollectionClaims.filter(i => i !== claimId);
 
   delete byId[claimId];
 
   return Object.assign({}, state, {
     myClaims,
     myChannelClaims,
+    myCollectionClaims,
     byId,
     claimsByUri
   });
@@ -7545,14 +7556,14 @@ const getTimestamp$1 = () => {
 const defaultState$6 = {
   builtin: {
     watchlater: {
-      items: ['lbry://why-wolves-determine-the-shape-of-rivers#d8a60a057ac9adb6b618be6985ca8361c730c02e'],
+      items: [],
       id: WATCH_LATER_ID,
       name: 'Watch Later',
       updatedAt: getTimestamp$1(),
       type: COL_TYPE_PLAYLIST
     },
     favorites: {
-      items: ['lbry://why-wolves-determine-the-shape-of-rivers#d8a60a057ac9adb6b618be6985ca8361c730c02e'],
+      items: [],
       id: FAVORITES_ID,
       name: 'Favorites',
       type: COL_TYPE_PLAYLIST,
@@ -7626,22 +7637,15 @@ const collectionsReducer = handleActions({
     const newUnpublishedList = Object.assign({}, unpublishedList);
     const newPendingList = Object.assign({}, pendingList);
 
-    const isEdit = editList[localId || claimId];
+    const isEdit = editList[claimId];
     if (localId) {
-      // pending from unpublished -> published
-      // delete from local
-      newPendingList[claimId] = Object.assign({}, newEditList[localId] || newUnpublishedList[localId] || {});
-      if (isEdit) {
-        delete newEditList[localId];
-      } else {
-        delete newUnpublishedList[localId];
-      }
+      // new publish
+      newPendingList[claimId] = Object.assign({}, newUnpublishedList[localId] || {});
+      delete newUnpublishedList[localId];
     } else {
-      // pending from edited published -> published
-      if (isEdit) {
-        newPendingList[claimId] = Object.assign({}, newEditList[claimId]);
-        delete newEditList[claimId];
-      }
+      // edit update
+      newPendingList[claimId] = Object.assign({}, newEditList[claimId]);
+      delete newEditList[claimId];
     }
 
     return _extends$e({}, state, {
