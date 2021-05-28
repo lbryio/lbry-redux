@@ -4380,7 +4380,7 @@ function doCollectionPublish(options, localId) {
         }));
         dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
-        resolve(collectionClaim);
+        return collectionClaim;
       }
 
       function failure(error) {
@@ -4450,7 +4450,7 @@ function doCollectionPublishUpdate(options) {
         });
         dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
-        resolve(collectionClaim);
+        return collectionClaim;
       }
 
       function failure(error) {
@@ -4608,7 +4608,8 @@ const doCollectionDelete = (id, colKey = undefined) => (dispatch, getState) => {
       collectionKey: colKey
     }
   });
-  if (claim) {
+  if (claim && !colKey) {
+    // could support "abandon, but keep" later
     const { txid, nout } = claim;
     return dispatch(doAbandonClaim(txid, nout, collectionDelete));
   }
