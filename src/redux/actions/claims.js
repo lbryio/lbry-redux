@@ -788,7 +788,7 @@ export function doCollectionPublish(
         );
         dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
-        resolve(collectionClaim);
+        return collectionClaim;
       }
 
       function failure(error) {
@@ -879,7 +879,7 @@ export function doCollectionPublishUpdate(options: {
         });
         dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
-        resolve(collectionClaim);
+        return collectionClaim;
       }
 
       function failure(error) {

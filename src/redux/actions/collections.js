@@ -55,7 +55,8 @@ export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
         collectionKey: colKey,
       },
     });
-  if (claim) {
+  if (claim && !colKey) {
+    // could support "abandon, but keep" later
     const { txid, nout } = claim;
     return dispatch(doAbandonClaim(txid, nout, collectionDelete));
   }
@@ -92,7 +93,7 @@ export const doFetchItemsInCollections = (
     pageSize?: number,
   },
   resolveStartedCallback?: () => void
-) => async(dispatch: Dispatch, getState: GetState) => {
+) => async (dispatch: Dispatch, getState: GetState) => {
   /*
   1) make sure all the collection claims are loaded into claims reducer, search/resolve if necessary.
   2) get the item claims for each
@@ -328,7 +329,7 @@ export const doFetchItemsInCollection = (
   return doFetchItemsInCollections(newOptions, cb);
 };
 
-export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async(
+export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async (
   dispatch: Dispatch,
   getState: GetState
 ) => {
