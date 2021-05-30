@@ -4313,7 +4313,6 @@ function doClaimSearch(options = {
 
 function doRepost(options) {
   return dispatch => {
-    // $FlowFixMe
     return new Promise(resolve => {
       dispatch({
         type: CLAIM_REPOST_STARTED
@@ -4356,6 +4355,24 @@ function doRepost(options) {
 function doCollectionPublish(options, localId) {
   return dispatch => {
     // $FlowFixMe
+
+    const params = {
+      name: options.name,
+      bid: creditsToString(options.bid),
+      title: options.title,
+      thumbnail_url: options.thumbnail_url,
+      description: options.description,
+      tags: [],
+      languages: options.languages || [],
+      locations: [],
+      blocking: true,
+      claims: options.claims
+    };
+
+    if (options.tags) {
+      params['tags'] = options.tags.map(tag => tag.name);
+    }
+
     return new Promise(resolve => {
       dispatch({
         type: COLLECTION_PUBLISH_STARTED
@@ -4392,7 +4409,7 @@ function doCollectionPublish(options, localId) {
         });
       }
 
-      lbryProxy.collection_create(options).then(success, failure);
+      lbryProxy.collection_create(params).then(success, failure);
     });
   };
 }
