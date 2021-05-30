@@ -701,8 +701,7 @@ export function doClaimSearch(
 }
 
 export function doRepost(options: StreamRepostOptions) {
-  return (dispatch: Dispatch) => {
-    // $FlowFixMe
+  return (dispatch: Dispatch): Promise<any> => {
     return new Promise(resolve => {
       dispatch({
         type: ACTIONS.CLAIM_REPOST_STARTED,
@@ -751,14 +750,42 @@ export function doCollectionPublish(
     channel_id?: string,
     thumbnail_url?: string,
     description?: string,
-    tags?: Array<string>,
+    tags?: Array<Tag>,
     languages?: Array<string>,
     claims: Array<string>,
   },
   localId: string
 ) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): Promise<any> => {
     // $FlowFixMe
+
+    const params: {
+      name: string,
+      bid: string,
+      blocking?: true,
+      title?: string,
+      thumbnail_url?: string,
+      description?: string,
+      tags?: Array<string>,
+      languages?: Array<string>,
+      claims: Array<string>,
+    } = {
+      name: options.name,
+      bid: creditsToString(options.bid),
+      title: options.title,
+      thumbnail_url: options.thumbnail_url,
+      description: options.description,
+      tags: [],
+      languages: options.languages || [],
+      locations: [],
+      blocking: true,
+      claims: options.claims,
+    };
+
+    if (options.tags) {
+      params['tags'] = options.tags.map(tag => tag.name);
+    }
+
     return new Promise(resolve => {
       dispatch({
         type: ACTIONS.COLLECTION_PUBLISH_STARTED,
@@ -800,7 +827,7 @@ export function doCollectionPublish(
         });
       }
 
-      Lbry.collection_create(options).then(success, failure);
+      Lbry.collection_create(params).then(success, failure);
     });
   };
 }
