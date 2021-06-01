@@ -13,9 +13,9 @@ type SharedData = {
     settings?: any,
     app_welcome_version?: number,
     sharing_3P?: boolean,
-    unpublishedCollectionTest: CollectionGroup,
-    builtinCollectionTest: CollectionGroup,
-    savedCollectionTest: Array<string>,
+    unpublishedCollections: CollectionGroup,
+    builtinCollections: CollectionGroup,
+    savedCollections: Array<string>,
   },
 };
 
@@ -30,9 +30,9 @@ function extractUserState(rawObj: SharedData) {
       settings,
       app_welcome_version,
       sharing_3P,
-      unpublishedCollectionTest,
-      builtinCollectionTest,
-      savedCollectionTest,
+      unpublishedCollections,
+      builtinCollections,
+      savedCollections,
     } = rawObj.value;
 
     return {
@@ -44,9 +44,9 @@ function extractUserState(rawObj: SharedData) {
       ...(settings ? { settings } : {}),
       ...(app_welcome_version ? { app_welcome_version } : {}),
       ...(sharing_3P ? { sharing_3P } : {}),
-      ...(unpublishedCollectionTest ? { unpublishedCollectionTest } : {}),
-      ...(builtinCollectionTest ? { builtinCollectionTest } : {}),
-      ...(savedCollectionTest ? { savedCollectionTest } : {}),
+      ...(unpublishedCollections ? { unpublishedCollections } : {}),
+      ...(builtinCollections ? { builtinCollections } : {}),
+      ...(savedCollections ? { savedCollections } : {}),
     };
   }
 
@@ -64,9 +64,9 @@ export function doPopulateSharedUserState(sharedSettings: any) {
       settings,
       app_welcome_version,
       sharing_3P,
-      unpublishedCollectionTest,
-      builtinCollectionTest,
-      savedCollectionTest,
+      unpublishedCollections,
+      builtinCollections,
+      savedCollections,
     } = extractUserState(sharedSettings);
     dispatch({
       type: ACTIONS.USER_STATE_POPULATE,
@@ -79,9 +79,9 @@ export function doPopulateSharedUserState(sharedSettings: any) {
         settings,
         welcomeVersion: app_welcome_version,
         allowAnalytics: sharing_3P,
-        unpublishedCollectionTest,
-        builtinCollectionTest,
-        savedCollectionTest,
+        unpublishedCollections,
+        builtinCollections,
+        savedCollections,
       },
     });
   };

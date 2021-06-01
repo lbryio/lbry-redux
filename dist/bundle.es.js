@@ -1829,12 +1829,12 @@ function extractUserState(rawObj) {
       settings,
       app_welcome_version,
       sharing_3P,
-      unpublishedCollectionTest,
-      builtinCollectionTest,
-      savedCollectionTest
+      unpublishedCollections,
+      builtinCollections,
+      savedCollections
     } = rawObj.value;
 
-    return _extends$1({}, subscriptions ? { subscriptions } : {}, following ? { following } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, coin_swap_codes ? { coin_swap_codes } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {}, unpublishedCollectionTest ? { unpublishedCollectionTest } : {}, builtinCollectionTest ? { builtinCollectionTest } : {}, savedCollectionTest ? { savedCollectionTest } : {});
+    return _extends$1({}, subscriptions ? { subscriptions } : {}, following ? { following } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, coin_swap_codes ? { coin_swap_codes } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {}, unpublishedCollections ? { unpublishedCollections } : {}, builtinCollections ? { builtinCollections } : {}, savedCollections ? { savedCollections } : {});
   }
 
   return {};
@@ -1851,9 +1851,9 @@ function doPopulateSharedUserState(sharedSettings) {
       settings,
       app_welcome_version,
       sharing_3P,
-      unpublishedCollectionTest,
-      builtinCollectionTest,
-      savedCollectionTest
+      unpublishedCollections,
+      builtinCollections,
+      savedCollections
     } = extractUserState(sharedSettings);
     dispatch({
       type: USER_STATE_POPULATE,
@@ -1866,9 +1866,9 @@ function doPopulateSharedUserState(sharedSettings) {
         settings,
         welcomeVersion: app_welcome_version,
         allowAnalytics: sharing_3P,
-        unpublishedCollectionTest,
-        builtinCollectionTest,
-        savedCollectionTest
+        unpublishedCollections,
+        builtinCollections,
+        savedCollections
       }
     });
   };
