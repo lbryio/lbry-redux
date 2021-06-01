@@ -799,7 +799,7 @@ export function doCollectionPublish(
               type: ACTIONS.COLLECTION_PUBLISH_COMPLETED,
               data: { claimId: collectionClaim.claim_id },
             },
-            // shift unpublished collection to pending collection with new publish id
+            // move unpublished collection to pending collection with new publish id
             // recent publish won't resolve this second. handle it in checkPending
             {
               type: ACTIONS.COLLECTION_PENDING,
@@ -843,11 +843,8 @@ export function doCollectionPublishUpdate(options: {
   languages?: Array<string>,
   claims?: Array<string>,
 }) {
-  return (dispatch: Dispatch, getState: GetState) => {
-    const state = getState();
-    // select claim forclaim_id
-    // get publish params from claim
-    // $FlowFixMe
+  return (dispatch: Dispatch): Promise<any> => {
+    // TODO: implement one click update
 
     const updateParams: {
       bid?: string,
@@ -880,7 +877,6 @@ export function doCollectionPublishUpdate(options: {
     if (options.claims) {
       updateParams['claims'] = options.claims;
     }
-    // $FlowFixMe
     return new Promise(resolve => {
       dispatch({
         type: ACTIONS.COLLECTION_PUBLISH_UPDATE_STARTED,

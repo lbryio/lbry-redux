@@ -159,12 +159,12 @@ const collectionsReducer = handleActions(
       });
     },
     [ACTIONS.USER_STATE_POPULATE]: (state, action) => {
-      const { builtinCollectionTest, savedCollectionTest, unpublishedCollectionTest } = action.data;
+      const { builtinCollections, savedCollections, unpublishedCollections } = action.data;
       return {
         ...state,
-        unpublished: unpublishedCollectionTest || state.unpublished,
-        builtin: builtinCollectionTest || state.builtin,
-        saved: savedCollectionTest || state.saved,
+        unpublished: unpublishedCollections || state.unpublished,
+        builtin: builtinCollections || state.builtin,
+        saved: savedCollections || state.saved,
       };
     },
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
