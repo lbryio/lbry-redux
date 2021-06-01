@@ -4384,7 +4384,7 @@ function doCollectionPublish(options, localId) {
           type: COLLECTION_PUBLISH_COMPLETED,
           data: { claimId: collectionClaim.claim_id }
         },
-        // shift unpublished collection to pending collection with new publish id
+        // move unpublished collection to pending collection with new publish id
         // recent publish won't resolve this second. handle it in checkPending
         {
           type: COLLECTION_PENDING,
@@ -4415,11 +4415,8 @@ function doCollectionPublish(options, localId) {
 }
 
 function doCollectionPublishUpdate(options) {
-  return (dispatch, getState) => {
-    const state = getState();
-    // select claim forclaim_id
-    // get publish params from claim
-    // $FlowFixMe
+  return dispatch => {
+    // TODO: implement one click update
 
     const updateParams = {
       bid: creditsToString(options.bid),
@@ -4441,7 +4438,6 @@ function doCollectionPublishUpdate(options) {
     if (options.claims) {
       updateParams['claims'] = options.claims;
     }
-    // $FlowFixMe
     return new Promise(resolve => {
       dispatch({
         type: COLLECTION_PUBLISH_UPDATE_STARTED
@@ -7714,11 +7710,11 @@ const collectionsReducer = handleActions({
     }));
   },
   [USER_STATE_POPULATE]: (state, action) => {
-    const { builtinCollectionTest, savedCollectionTest, unpublishedCollectionTest } = action.data;
+    const { builtinCollections, savedCollections, unpublishedCollections } = action.data;
     return _extends$e({}, state, {
-      unpublished: unpublishedCollectionTest || state.unpublished,
-      builtin: builtinCollectionTest || state.builtin,
-      saved: savedCollectionTest || state.saved
+      unpublished: unpublishedCollections || state.unpublished,
+      builtin: builtinCollections || state.builtin,
+      saved: savedCollections || state.saved
     });
   },
   [COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
