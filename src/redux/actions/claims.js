@@ -151,8 +151,6 @@ export function doResolveUris(
         if (collectionIds.length) {
           dispatch(doFetchItemsInCollections({ collectionIds: collectionIds, pageSize: 5 }));
         }
-        // now collection claims are added, get their stuff
-        // if collections: doResolveCollections(claimIds)
 
         return result;
       }
@@ -618,7 +616,6 @@ export function doFetchCollectionListMine(page: number = 1, pageSize: number = 9
           page_size: 5,
         })
       );
-      // update or fetch collections?
     };
 
     const failure = error => {
@@ -680,7 +677,6 @@ export function doClaimSearch(
           pageSize: options.page_size,
         },
       });
-      // was return true
       return resolveInfo;
     };
 
@@ -762,6 +758,7 @@ export function doCollectionPublish(
     const params: {
       name: string,
       bid: string,
+      channel_id?: string,
       blocking?: true,
       title?: string,
       thumbnail_url?: string,
@@ -784,6 +781,10 @@ export function doCollectionPublish(
 
     if (options.tags) {
       params['tags'] = options.tags.map(tag => tag.name);
+    }
+
+    if (options.channel_id) {
+      params['channel_id'] = options.channel_id;
     }
 
     return new Promise(resolve => {

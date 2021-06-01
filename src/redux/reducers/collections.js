@@ -95,7 +95,6 @@ const collectionsReducer = handleActions(
       const newUnpublishedList = Object.assign({}, unpublishedList);
       const newPendingList = Object.assign({}, pendingList);
 
-      const isEdit = editList[claimId];
       if (localId) {
         // new publish
         newPendingList[claimId] = Object.assign({}, newUnpublishedList[localId] || {});

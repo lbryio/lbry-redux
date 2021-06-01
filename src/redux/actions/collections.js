@@ -93,7 +93,7 @@ export const doFetchItemsInCollections = (
     pageSize?: number,
   },
   resolveStartedCallback?: () => void
-) => async (dispatch: Dispatch, getState: GetState) => {
+) => async(dispatch: Dispatch, getState: GetState) => {
   /*
   1) make sure all the collection claims are loaded into claims reducer, search/resolve if necessary.
   2) get the item claims for each
@@ -120,8 +120,6 @@ export const doFetchItemsInCollections = (
   const stateAfterClaimSearch = getState();
 
   async function fetchItemsForCollectionClaim(claim: CollectionClaim, pageSize?: number) {
-    // take [ {}, {} ], return {}
-    // only need items [ url... ] and total_items
     const totalItems = claim.value.claims && claim.value.claims.length;
     const claimId = claim.claim_id;
     const itemOrder = claim.value.claims;
@@ -154,21 +152,8 @@ export const doFetchItemsInCollections = (
     };
 
     try {
-      // sdk had a strange bug that would only return so many, so this had to be batched.
-      // otherwise large lists of, ~500 channels for a homepage category failed
       const batchSize = pageSize || FETCH_BATCH_SIZE;
       const batches: Array<Promise<any>> = [];
-      /*
-        // this was `collection_resolve` which returns claims for collection in order
-        // however, this fails when a claim is pending. :/
-        for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
-          batches[i] = Lbry.collection_resolve({
-            claim_id: claimId,
-            page: i + 1,
-            page_size: batchSize,
-          });
-        }
-      */
 
       for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
         batches[i] = Lbry.claim_search({
@@ -264,7 +249,6 @@ export const doFetchItemsInCollections = (
 
       if (collectionItems) {
         collectionItems.forEach(collectionItem => {
-          // here's where we would just items.push(collectionItem.permanent_url
           newItems.push(collectionItem.permanent_url);
           valueTypes.add(collectionItem.value_type);
           if (collectionItem.value.stream_type) {
@@ -329,7 +313,7 @@ export const doFetchItemsInCollection = (
   return doFetchItemsInCollections(newOptions, cb);
 };
 
-export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async (
+export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async(
   dispatch: Dispatch,
   getState: GetState
 ) => {
