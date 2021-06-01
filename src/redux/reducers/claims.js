@@ -162,7 +162,7 @@ function handleClaimAction(state: State, action: any): State {
       } else {
         byId[channel.claim_id] = channel;
       }
-      // Also add the permanent_url here until lighthouse returns canonical_url for search results
+
       byUri[channel.permanent_url] = channel.claim_id;
       byUri[channel.canonical_url] = channel.claim_id;
       newResolvingUrls.delete(channel.canonical_url);
@@ -176,11 +176,7 @@ function handleClaimAction(state: State, action: any): State {
         byId[collection.claim_id] = collection;
       }
       byUri[url] = collection.claim_id;
-
-      // If url isn't a canonical_url, make sure that is added too
       byUri[collection.canonical_url] = collection.claim_id;
-
-      // Also add the permanent_url here until lighthouse returns canonical_url for search results
       byUri[collection.permanent_url] = collection.claim_id;
       newResolvingUrls.delete(collection.canonical_url);
       newResolvingUrls.delete(collection.permanent_url);
@@ -350,7 +346,6 @@ reducers[ACTIONS.FETCH_COLLECTION_LIST_COMPLETED] = (state: State, action: any):
     claims.forEach(claim => {
       const { meta } = claim;
       const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId } = claim;
-      // maybe add info about items in collection
 
       byUri[canonicalUrl] = claimId;
       byUri[permanentUrl] = claimId;
@@ -650,8 +645,6 @@ reducers[ACTIONS.COLLECTION_PUBLISH_UPDATE_FAILED] = (state: State, action: any)
     updatingCollection: false,
   });
 };
-
-// COLLECTION_PUBLISH_ABANDON_...
 
 reducers[ACTIONS.IMPORT_CHANNEL_STARTED] = (state: State): State =>
   Object.assign({}, state, { pendingChannelImports: true });

@@ -1,10 +1,3 @@
-declare type CollectionUpdateParams = {
-  remove?: boolean,
-  claims?: Array<Claim>,
-  name?: string,
-  order?: { from: number, to: number },
-}
-
 declare type Collection = {
   id: string,
   items: Array<?string>,

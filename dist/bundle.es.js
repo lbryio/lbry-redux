@@ -3824,8 +3824,6 @@ function doResolveUris(uris, returnCachedClaims = false, resolveReposts = true) 
         if (collectionIds.length) {
           dispatch(doFetchItemsInCollections({ collectionIds: collectionIds, pageSize: 5 }));
         }
-        // now collection claims are added, get their stuff
-        // if collections: doResolveCollections(claimIds)
 
         return result;
       });
@@ -4242,7 +4240,6 @@ function doFetchCollectionListMine(page = 1, pageSize = 99999) {
         collectionIds: items.map(claim => claim.claim_id),
         page_size: 5
       }));
-      // update or fetch collections?
     };
 
     const failure = error => {
@@ -4287,7 +4284,6 @@ function doClaimSearch(options = {
             pageSize: options.page_size
           }
         });
-        // was return true
         return resolveInfo;
       };
 
@@ -4371,6 +4367,10 @@ function doCollectionPublish(options, localId) {
 
     if (options.tags) {
       params['tags'] = options.tags.map(tag => tag.name);
+    }
+
+    if (options.channel_id) {
+      params['channel_id'] = options.channel_id;
     }
 
     return new Promise(resolve => {
@@ -4657,8 +4657,6 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
   var _ref = _asyncToGenerator$2(function* (dispatch, getState) {
     let fetchItemsForCollectionClaim = (() => {
       var _ref2 = _asyncToGenerator$2(function* (claim, pageSize) {
-        // take [ {}, {} ], return {}
-        // only need items [ url... ] and total_items
         const totalItems = claim.value.claims && claim.value.claims.length;
         const claimId = claim.claim_id;
         const itemOrder = claim.value.claims;
@@ -4690,21 +4688,8 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
         };
 
         try {
-          // sdk had a strange bug that would only return so many, so this had to be batched.
-          // otherwise large lists of, ~500 channels for a homepage category failed
           const batchSize = pageSize || FETCH_BATCH_SIZE;
           const batches = [];
-          /*
-            // this was `collection_resolve` which returns claims for collection in order
-            // however, this fails when a claim is pending. :/
-            for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
-              batches[i] = Lbry.collection_resolve({
-                claim_id: claimId,
-                page: i + 1,
-                page_size: batchSize,
-              });
-            }
-          */
 
           for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
             batches[i] = lbryProxy.claim_search({
@@ -4826,7 +4811,6 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
 
         if (collectionItems) {
           collectionItems.forEach(function (collectionItem) {
-            // here's where we would just items.push(collectionItem.permanent_url
             newItems.push(collectionItem.permanent_url);
             valueTypes.add(collectionItem.value_type);
             if (collectionItem.value.stream_type) {
@@ -6053,7 +6037,7 @@ function handleClaimAction(state, action) {
       } else {
         byId[channel.claim_id] = channel;
       }
-      // Also add the permanent_url here until lighthouse returns canonical_url for search results
+
       byUri[channel.permanent_url] = channel.claim_id;
       byUri[channel.canonical_url] = channel.claim_id;
       newResolvingUrls.delete(channel.canonical_url);
@@ -6067,11 +6051,7 @@ function handleClaimAction(state, action) {
         byId[collection.claim_id] = collection;
       }
       byUri[url] = collection.claim_id;
-
-      // If url isn't a canonical_url, make sure that is added too
       byUri[collection.canonical_url] = collection.claim_id;
-
-      // Also add the permanent_url here until lighthouse returns canonical_url for search results
       byUri[collection.permanent_url] = collection.claim_id;
       newResolvingUrls.delete(collection.canonical_url);
       newResolvingUrls.delete(collection.permanent_url);
@@ -6234,7 +6214,6 @@ reducers[FETCH_COLLECTION_LIST_COMPLETED] = (state, action) => {
     myCollectionClaimsSet = new Set(state.myCollectionClaims);
     claims.forEach(claim => {
       const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId } = claim;
-      // maybe add info about items in collection
 
       byUri[canonicalUrl] = claimId;
       byUri[permanentUrl] = claimId;
@@ -6522,8 +6501,6 @@ reducers[COLLECTION_PUBLISH_UPDATE_FAILED] = (state, action) => {
     updatingCollection: false
   });
 };
-
-// COLLECTION_PUBLISH_ABANDON_...
 
 reducers[IMPORT_CHANNEL_STARTED] = state => Object.assign({}, state, { pendingChannelImports: true });
 
@@ -7640,7 +7617,6 @@ const collectionsReducer = handleActions({
     const newUnpublishedList = Object.assign({}, unpublishedList);
     const newPendingList = Object.assign({}, pendingList);
 
-    const isEdit = editList[claimId];
     if (localId) {
       // new publish
       newPendingList[claimId] = Object.assign({}, newUnpublishedList[localId] || {});
