@@ -1044,7 +1044,7 @@ const COLLECTION_ID = 'colid';
 const COLLECTION_INDEX = 'colindex';
 
 const COL_TYPE_PLAYLIST = 'playlist';
-const COL_TYPE_CHANNELS = 'channelCollection';
+const COL_TYPE_CHANNELS = 'channelList';
 
 const WATCH_LATER_ID = 'watchlater';
 const FAVORITES_ID = 'favorites';
@@ -4397,7 +4397,7 @@ function doCollectionPublish(options, localId) {
         }));
         dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
-        return collectionClaim;
+        return resolve(collectionClaim);
       }
 
       function failure(error) {
@@ -4409,7 +4409,7 @@ function doCollectionPublish(options, localId) {
         });
       }
 
-      lbryProxy.collection_create(params).then(success, failure);
+      return lbryProxy.collection_create(params).then(success, failure);
     });
   };
 }
@@ -4463,7 +4463,7 @@ function doCollectionPublishUpdate(options) {
         });
         dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
-        return collectionClaim;
+        return resolve(collectionClaim);
       }
 
       function failure(error) {
@@ -4475,7 +4475,7 @@ function doCollectionPublishUpdate(options) {
         });
       }
 
-      lbryProxy.collection_update(updateParams).then(success, failure);
+      return lbryProxy.collection_update(updateParams).then(success, failure);
     });
   };
 }
