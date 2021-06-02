@@ -816,7 +816,7 @@ export function doCollectionPublish(
         );
         dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
-        return collectionClaim;
+        return resolve(collectionClaim);
       }
 
       function failure(error) {
@@ -828,7 +828,7 @@ export function doCollectionPublish(
         });
       }
 
-      Lbry.collection_create(params).then(success, failure);
+      return Lbry.collection_create(params).then(success, failure);
     });
   };
 }
@@ -903,7 +903,7 @@ export function doCollectionPublishUpdate(options: {
         });
         dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
-        return collectionClaim;
+        return resolve(collectionClaim);
       }
 
       function failure(error) {
@@ -915,7 +915,7 @@ export function doCollectionPublishUpdate(options: {
         });
       }
 
-      Lbry.collection_update(updateParams).then(success, failure);
+      return Lbry.collection_update(updateParams).then(success, failure);
     });
   };
 }
