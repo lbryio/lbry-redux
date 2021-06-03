@@ -4387,14 +4387,15 @@ function doCollectionPublish(options, localId) {
         // move unpublished collection to pending collection with new publish id
         // recent publish won't resolve this second. handle it in checkPending
         {
-          type: COLLECTION_PENDING,
-          data: { localId: localId, claimId: collectionClaim.claim_id }
-        }, {
           type: UPDATE_PENDING_CLAIMS,
           data: {
             claims: [collectionClaim]
           }
         }));
+        dispatch({
+          type: COLLECTION_PENDING,
+          data: { localId: localId, claimId: collectionClaim.claim_id }
+        });
         dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
         return resolve(collectionClaim);
