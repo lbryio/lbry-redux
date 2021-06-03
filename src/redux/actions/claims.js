@@ -79,7 +79,7 @@ export function doResolveUris(
     const collectionIds: Array<string> = [];
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
-      async(result: ResolveResponse) => {
+      async (result: ResolveResponse) => {
         let repostedResults = {};
         const collectionClaimIdsToResolve = [];
         const repostsToResolve = [];
@@ -653,7 +653,7 @@ export function doClaimSearch(
   }
 ) {
   const query = createNormalizedClaimSearchKey(options);
-  return async(dispatch: Dispatch) => {
+  return async (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
       data: { query: query },
@@ -803,10 +803,6 @@ export function doCollectionPublish(
             // move unpublished collection to pending collection with new publish id
             // recent publish won't resolve this second. handle it in checkPending
             {
-              type: ACTIONS.COLLECTION_PENDING,
-              data: { localId: localId, claimId: collectionClaim.claim_id },
-            },
-            {
               type: ACTIONS.UPDATE_PENDING_CLAIMS,
               data: {
                 claims: [collectionClaim],
@@ -814,6 +810,10 @@ export function doCollectionPublish(
             }
           )
         );
+        dispatch({
+          type: ACTIONS.COLLECTION_PENDING,
+          data: { localId: localId, claimId: collectionClaim.claim_id },
+        });
         dispatch(doCheckPendingClaims());
         dispatch(doFetchCollectionListMine(1, 10));
         return resolve(collectionClaim);
