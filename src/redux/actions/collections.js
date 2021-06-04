@@ -93,7 +93,7 @@ export const doFetchItemsInCollections = (
     pageSize?: number,
   },
   resolveStartedCallback?: () => void
-) => async(dispatch: Dispatch, getState: GetState) => {
+) => async (dispatch: Dispatch, getState: GetState) => {
   /*
   1) make sure all the collection claims are loaded into claims reducer, search/resolve if necessary.
   2) get the item claims for each
@@ -124,14 +124,19 @@ export const doFetchItemsInCollections = (
     const claimId = claim.claim_id;
     const itemOrder = claim.value.claims;
 
-    const sortResults = (results: Array<Claim>, claimList) => {
-      const newResults: Array<Claim> = [];
+    const sortResults = (items: Array<Claim>, claimList) => {
+      const newItems: Array<Claim> = [];
       claimList.forEach(id => {
-        const index = results.findIndex(i => i.claim_id === id);
-        const item = results.splice(index, 1);
-        if (item) newResults.push(item[0]);
+        const index = items.findIndex(i => i.claim_id === id);
+        if (index >= 0) {
+          newItems.push(items[index]);
+        }
       });
-      return newResults;
+      /*
+        This will return newItems[] of length less than total_items below
+        if one or more of the claims has been abandoned. That's ok for now.
+      */
+      return newItems;
     };
 
     const mergeBatches = (
@@ -313,7 +318,7 @@ export const doFetchItemsInCollection = (
   return doFetchItemsInCollections(newOptions, cb);
 };
 
-export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async(
+export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async (
   dispatch: Dispatch,
   getState: GetState
 ) => {

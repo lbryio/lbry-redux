@@ -1040,8 +1040,8 @@ var shared_preferences = /*#__PURE__*/Object.freeze({
   CLIENT_SYNC_KEYS: CLIENT_SYNC_KEYS
 });
 
-const COLLECTION_ID = 'colid';
-const COLLECTION_INDEX = 'colindex';
+const COLLECTION_ID = 'lid';
+const COLLECTION_INDEX = 'linx';
 
 const COL_TYPE_PLAYLIST = 'playlist';
 const COL_TYPE_CHANNELS = 'channelList';
@@ -4662,16 +4662,21 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
         const claimId = claim.claim_id;
         const itemOrder = claim.value.claims;
 
-        const sortResults = function (results, claimList) {
-          const newResults = [];
+        const sortResults = function (items, claimList) {
+          const newItems = [];
           claimList.forEach(function (id) {
-            const index = results.findIndex(function (i) {
+            const index = items.findIndex(function (i) {
               return i.claim_id === id;
             });
-            const item = results.splice(index, 1);
-            if (item) newResults.push(item[0]);
+            if (index >= 0) {
+              newItems.push(items[index]);
+            }
           });
-          return newResults;
+          /*
+            This will return newItems[] of length less than total_items below
+            if one or more of the claims has been abandoned. That's ok for now.
+          */
+          return newItems;
         };
 
         const mergeBatches = function (arrayOfResults, claimList) {
