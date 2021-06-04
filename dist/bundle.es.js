@@ -4153,7 +4153,6 @@ function doUpdateChannel(params, cb) {
     }
 
     // we'll need to remove these once we add locations/channels to channel page edit/create options
-
     if (channelClaim && channelClaim.value && channelClaim.value.locations) {
       updateParams.locations = channelClaim.value.locations;
     }
@@ -4187,7 +4186,7 @@ function doImportChannel(certificate) {
       type: IMPORT_CHANNEL_STARTED
     });
 
-    return lbryProxy.channel_import({ channel_data: certificate }).then(result => {
+    return lbryProxy.channel_import({ channel_data: certificate }).then(() => {
       dispatch({
         type: IMPORT_CHANNEL_COMPLETED
       });
