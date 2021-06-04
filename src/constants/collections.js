@@ -1,5 +1,5 @@
-export const COLLECTION_ID = 'colid';
-export const COLLECTION_INDEX = 'colindex';
+export const COLLECTION_ID = 'lid';
+export const COLLECTION_INDEX = 'linx';
 
 export const COL_TYPE_PLAYLIST = 'playlist';
 export const COL_TYPE_CHANNELS = 'channelList';
