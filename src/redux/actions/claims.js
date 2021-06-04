@@ -10,8 +10,6 @@ import {
   selectClaimsByUri,
   selectMyChannelClaims,
   selectPendingIds,
-  selectClaimsById,
-  makeSelectClaimForClaimId,
 } from 'redux/selectors/claims';
 
 import { doFetchTxoPage } from 'redux/actions/wallet';
@@ -21,7 +19,6 @@ import { batchActions } from 'util/batch-actions';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { PAGE_SIZE } from 'constants/claim';
 import {
-  makeSelectEditedCollectionForId,
   selectPendingCollections,
 } from 'redux/selectors/collections';
 import {
@@ -29,8 +26,6 @@ import {
   doFetchItemsInCollections,
   doCollectionDelete,
 } from 'redux/actions/collections';
-
-type ResolveEntries = Array<[string, GenericClaim]>;
 
 export function doResolveUris(
   uris: Array<string>,
@@ -79,9 +74,8 @@ export function doResolveUris(
     const collectionIds: Array<string> = [];
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
-      async (result: ResolveResponse) => {
+      async(result: ResolveResponse) => {
         let repostedResults = {};
-        const collectionClaimIdsToResolve = [];
         const repostsToResolve = [];
         const fallbackResolveInfo = {
           stream: null,
@@ -518,7 +512,6 @@ export function doUpdateChannel(params: any, cb: any) {
     }
 
     // we'll need to remove these once we add locations/channels to channel page edit/create options
-
     if (channelClaim && channelClaim.value && channelClaim.value.locations) {
       updateParams.locations = channelClaim.value.locations;
     }
@@ -556,7 +549,7 @@ export function doImportChannel(certificate: string) {
     });
 
     return Lbry.channel_import({ channel_data: certificate })
-      .then((result: string) => {
+      .then(() => {
         dispatch({
           type: ACTIONS.IMPORT_CHANNEL_COMPLETED,
         });
@@ -653,7 +646,7 @@ export function doClaimSearch(
   }
 ) {
   const query = createNormalizedClaimSearchKey(options);
-  return async (dispatch: Dispatch) => {
+  return async(dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
       data: { query: query },

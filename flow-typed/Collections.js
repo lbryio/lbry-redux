@@ -5,7 +5,7 @@ declare type Collection = {
   type: string,
   updatedAt: number,
   totalItems?: number,
-  sourceid?: string, // if copied, claimId of original collection
+  sourceId?: string, // if copied, claimId of original collection
 };
 
 declare type CollectionState = {
