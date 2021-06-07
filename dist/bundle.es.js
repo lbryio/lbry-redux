@@ -3694,10 +3694,20 @@ const makeSelectClaimIdsForCollectionId = id => reselect.createSelector(makeSele
   return ids;
 });
 
-const makeSelectNextUrlForCollection = (id, index) => reselect.createSelector(makeSelectUrlsForCollectionId(id), urls => {
-  const url = urls[index + 1];
-  if (url) {
-    return url;
+const makeSelectIndexForUrlInCollection = (url, id) => reselect.createSelector(makeSelectUrlsForCollectionId(id), urls => {
+  const index = urls.findIndex(u => u === url);
+  if (index > -1) {
+    return index;
+  }
+  return null;
+});
+
+const makeSelectNextUrlForCollectionAndUrl = (id, url) => reselect.createSelector(makeSelectIndexForUrlInCollection(url, id), makeSelectUrlsForCollectionId(id), (index, urls) => {
+  if (urls && index >= -1) {
+    const url = urls[index + 1];
+    if (url) {
+      return url;
+    }
   }
   return null;
 });
@@ -7916,6 +7926,7 @@ exports.makeSelectFileInfoForUri = makeSelectFileInfoForUri;
 exports.makeSelectFileNameForUri = makeSelectFileNameForUri;
 exports.makeSelectFilePartlyDownloaded = makeSelectFilePartlyDownloaded;
 exports.makeSelectFilteredTransactionsForPage = makeSelectFilteredTransactionsForPage;
+exports.makeSelectIndexForUrlInCollection = makeSelectIndexForUrlInCollection;
 exports.makeSelectIsAbandoningClaimForUri = makeSelectIsAbandoningClaimForUri;
 exports.makeSelectIsResolvingCollectionForId = makeSelectIsResolvingCollectionForId;
 exports.makeSelectIsUriResolving = makeSelectIsUriResolving;
@@ -7929,7 +7940,7 @@ exports.makeSelectMyPublishedCollectionForId = makeSelectMyPublishedCollectionFo
 exports.makeSelectMyPurchasesForPage = makeSelectMyPurchasesForPage;
 exports.makeSelectMyStreamUrlsForPage = makeSelectMyStreamUrlsForPage;
 exports.makeSelectNameForCollectionId = makeSelectNameForCollectionId;
-exports.makeSelectNextUrlForCollection = makeSelectNextUrlForCollection;
+exports.makeSelectNextUrlForCollectionAndUrl = makeSelectNextUrlForCollectionAndUrl;
 exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
 exports.makeSelectOmittedCountForChannel = makeSelectOmittedCountForChannel;

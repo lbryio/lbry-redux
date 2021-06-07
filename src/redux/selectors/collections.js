@@ -184,13 +184,28 @@ export const makeSelectClaimIdsForCollectionId = (id: string) =>
     }
   );
 
-export const makeSelectNextUrlForCollection = (id: string, index: number) =>
+export const makeSelectIndexForUrlInCollection = (url: string, id: string) =>
   createSelector(
     makeSelectUrlsForCollectionId(id),
     urls => {
-      const url = urls[index + 1];
-      if (url) {
-        return url;
+      const index = urls.findIndex(u => u === url);
+      if (index > -1) {
+        return index;
+      }
+      return null;
+    }
+  );
+
+export const makeSelectNextUrlForCollectionAndUrl = (id: string, url: string) =>
+  createSelector(
+    makeSelectIndexForUrlInCollection(url, id),
+    makeSelectUrlsForCollectionId(id),
+    (index, urls) => {
+      if (urls && index >= -1) {
+        const url = urls[index + 1];
+        if (url) {
+          return url;
+        }
       }
       return null;
     }
