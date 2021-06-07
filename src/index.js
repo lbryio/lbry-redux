@@ -179,7 +179,8 @@ export {
   makeSelectNameForCollectionId,
   makeSelectCountForCollectionId,
   makeSelectIsResolvingCollectionForId,
-  makeSelectNextUrlForCollection,
+  makeSelectIndexForUrlInCollection,
+  makeSelectNextUrlForCollectionAndUrl,
   makeSelectCollectionForIdHasClaimUrl,
 } from 'redux/selectors/collections';
 
