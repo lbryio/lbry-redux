@@ -188,7 +188,7 @@ export const makeSelectIndexForUrlInCollection = (url: string, id: string) =>
   createSelector(
     makeSelectUrlsForCollectionId(id),
     urls => {
-      const index = urls.findIndex(u => u === url);
+      const index = urls && urls.findIndex(u => u === url);
       if (index > -1) {
         return index;
       }
