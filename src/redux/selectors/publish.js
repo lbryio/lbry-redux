@@ -43,7 +43,8 @@ export const selectPublishFormValues = createSelector(
   state => state.settings,
   selectIsStillEditing,
   (publishState, settingsState, isStillEditing) => {
-    const { pendingPublish, language, ...formValues } = publishState;
+    const { languages, ...formValues } = publishState;
+    const language = languages[0];
     const { clientSettings } = settingsState;
     const { language: languageSet } = clientSettings;
 
