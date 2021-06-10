@@ -1051,6 +1051,11 @@ const FAVORITES_ID = 'favorites';
 const FAVORITE_CHANNELS_ID = 'favoriteChannels';
 const BUILTIN_LISTS = [WATCH_LATER_ID, FAVORITES_ID, FAVORITE_CHANNELS_ID];
 
+const COL_KEY_EDITED = 'edited';
+const COL_KEY_UNPUBLISHED = 'unpublished';
+const COL_KEY_PENDING = 'pending';
+const COL_KEY_SAVED = 'saved';
+
 var collections = /*#__PURE__*/Object.freeze({
   COLLECTION_ID: COLLECTION_ID,
   COLLECTION_INDEX: COLLECTION_INDEX,
@@ -1059,7 +1064,11 @@ var collections = /*#__PURE__*/Object.freeze({
   WATCH_LATER_ID: WATCH_LATER_ID,
   FAVORITES_ID: FAVORITES_ID,
   FAVORITE_CHANNELS_ID: FAVORITE_CHANNELS_ID,
-  BUILTIN_LISTS: BUILTIN_LISTS
+  BUILTIN_LISTS: BUILTIN_LISTS,
+  COL_KEY_EDITED: COL_KEY_EDITED,
+  COL_KEY_UNPUBLISHED: COL_KEY_UNPUBLISHED,
+  COL_KEY_PENDING: COL_KEY_PENDING,
+  COL_KEY_SAVED: COL_KEY_SAVED
 });
 
 const DEFAULT_FOLLOWED_TAGS = ['art', 'automotive', 'blockchain', 'comedy', 'economics', 'education', 'gaming', 'music', 'news', 'science', 'sports', 'technology'];
