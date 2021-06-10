@@ -1051,6 +1051,11 @@ const FAVORITES_ID = 'favorites';
 const FAVORITE_CHANNELS_ID = 'favoriteChannels';
 const BUILTIN_LISTS = [WATCH_LATER_ID, FAVORITES_ID, FAVORITE_CHANNELS_ID];
 
+const COL_KEY_EDITED = 'edited';
+const COL_KEY_UNPUBLISHED = 'unpublished';
+const COL_KEY_PENDING = 'pending';
+const COL_KEY_SAVED = 'saved';
+
 var collections = /*#__PURE__*/Object.freeze({
   COLLECTION_ID: COLLECTION_ID,
   COLLECTION_INDEX: COLLECTION_INDEX,
@@ -1059,7 +1064,11 @@ var collections = /*#__PURE__*/Object.freeze({
   WATCH_LATER_ID: WATCH_LATER_ID,
   FAVORITES_ID: FAVORITES_ID,
   FAVORITE_CHANNELS_ID: FAVORITE_CHANNELS_ID,
-  BUILTIN_LISTS: BUILTIN_LISTS
+  BUILTIN_LISTS: BUILTIN_LISTS,
+  COL_KEY_EDITED: COL_KEY_EDITED,
+  COL_KEY_UNPUBLISHED: COL_KEY_UNPUBLISHED,
+  COL_KEY_PENDING: COL_KEY_PENDING,
+  COL_KEY_SAVED: COL_KEY_SAVED
 });
 
 const DEFAULT_FOLLOWED_TAGS = ['art', 'automotive', 'blockchain', 'comedy', 'economics', 'education', 'gaming', 'music', 'news', 'science', 'sports', 'technology'];
@@ -3694,22 +3703,27 @@ const makeSelectClaimIdsForCollectionId = id => reselect.createSelector(makeSele
   return ids;
 });
 
-const makeSelectIndexForUrlInCollection = (url, id) => reselect.createSelector(makeSelectUrlsForCollectionId(id), urls => {
+const makeSelectIndexForUrlInCollection = (url, id) => reselect.createSelector(makeSelectUrlsForCollectionId(id), makeSelectClaimForUri(url), (urls, claim) => {
   const index = urls && urls.findIndex(u => u === url);
   if (index > -1) {
     return index;
+  } else if (claim) {
+    const index = urls && urls.findIndex(u => u === claim.permanent_url);
+    if (index > -1) return index;
+    return claim;
   }
   return null;
 });
 
-const makeSelectNextUrlForCollectionAndUrl = (id, url) => reselect.createSelector(makeSelectIndexForUrlInCollection(url, id), makeSelectUrlsForCollectionId(id), (index, urls) => {
-  if (urls && index >= -1) {
-    const url = urls[index + 1];
-    if (url) {
-      return url;
-    }
+const makeSelectNextUrlForCollectionAndUrl = (id, url) => reselect.createSelector(makeSelectIndexForUrlInCollection(url, id), selectClaimsByUri, makeSelectUrlsForCollectionId(id), (index, claims, urls) => {
+  if (index > -1) {
+    // We'll get the next playble url
+    const remainingUrls = urls.slice(index + 1);
+    const nextUrl = remainingUrls.find(u => claims[u].value.stream_type && (claims[u].value.stream_type === 'video' || claims[u].value.stream_type === 'audio'));
+    return nextUrl || null;
+  } else {
+    return null;
   }
-  return null;
 });
 
 const makeSelectNameForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
