@@ -1,6 +1,10 @@
 // @flow
 import { createSelector } from 'reselect';
-import { selectMyCollectionIds } from 'redux/selectors/claims';
+import {
+  selectMyCollectionIds,
+  makeSelectClaimForUri,
+  selectClaimsByUri,
+} from 'redux/selectors/claims';
 import { parseURI } from 'lbryURI';
 
 const selectState = (state: { collections: CollectionState }) => state.collections;
@@ -187,10 +191,15 @@ export const makeSelectClaimIdsForCollectionId = (id: string) =>
 export const makeSelectIndexForUrlInCollection = (url: string, id: string) =>
   createSelector(
     makeSelectUrlsForCollectionId(id),
-    urls => {
+    makeSelectClaimForUri(url),
+    (urls, claim) => {
       const index = urls && urls.findIndex(u => u === url);
       if (index > -1) {
         return index;
+      } else if (claim) {
+        const index = urls && urls.findIndex(u => u === claim.permanent_url);
+        if (index > -1) return index;
+        return claim;
       }
       return null;
     }
@@ -199,15 +208,21 @@ export const makeSelectIndexForUrlInCollection = (url: string, id: string) =>
 export const makeSelectNextUrlForCollectionAndUrl = (id: string, url: string) =>
   createSelector(
     makeSelectIndexForUrlInCollection(url, id),
+    selectClaimsByUri,
     makeSelectUrlsForCollectionId(id),
-    (index, urls) => {
-      if (urls && index >= -1) {
-        const url = urls[index + 1];
-        if (url) {
-          return url;
-        }
+    (index, claims, urls) => {
+      if (index > -1) {
+        // We'll get the next playble url
+        const remainingUrls = urls.slice(index + 1);
+        const nextUrl = remainingUrls.find(
+          u =>
+            claims[u].value.stream_type &&
+            (claims[u].value.stream_type === 'video' || claims[u].value.stream_type === 'audio')
+        );
+        return nextUrl || null;
+      } else {
+        return null;
       }
-      return null;
     }
   );
 

@@ -3694,22 +3694,27 @@ const makeSelectClaimIdsForCollectionId = id => reselect.createSelector(makeSele
   return ids;
 });
 
-const makeSelectIndexForUrlInCollection = (url, id) => reselect.createSelector(makeSelectUrlsForCollectionId(id), urls => {
+const makeSelectIndexForUrlInCollection = (url, id) => reselect.createSelector(makeSelectUrlsForCollectionId(id), makeSelectClaimForUri(url), (urls, claim) => {
   const index = urls && urls.findIndex(u => u === url);
   if (index > -1) {
     return index;
+  } else if (claim) {
+    const index = urls && urls.findIndex(u => u === claim.permanent_url);
+    if (index > -1) return index;
+    return claim;
   }
   return null;
 });
 
-const makeSelectNextUrlForCollectionAndUrl = (id, url) => reselect.createSelector(makeSelectIndexForUrlInCollection(url, id), makeSelectUrlsForCollectionId(id), (index, urls) => {
-  if (urls && index >= -1) {
-    const url = urls[index + 1];
-    if (url) {
-      return url;
-    }
+const makeSelectNextUrlForCollectionAndUrl = (id, url) => reselect.createSelector(makeSelectIndexForUrlInCollection(url, id), selectClaimsByUri, makeSelectUrlsForCollectionId(id), (index, claims, urls) => {
+  if (index > -1) {
+    // We'll get the next playble url
+    const remainingUrls = urls.slice(index + 1);
+    const nextUrl = remainingUrls.find(u => claims[u].value.stream_type && (claims[u].value.stream_type === 'video' || claims[u].value.stream_type === 'audio'));
+    return nextUrl || null;
+  } else {
+    return null;
   }
-  return null;
 });
 
 const makeSelectNameForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => {
