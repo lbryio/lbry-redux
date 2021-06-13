@@ -5430,7 +5430,7 @@ const selectIsStillEditing = reselect.createSelector(selectState$4, publishState
 const selectPublishFormValues = reselect.createSelector(selectState$4, state => state.settings, selectIsStillEditing, (publishState, settingsState, isStillEditing) => {
   const { languages } = publishState,
         formValues = _objectWithoutProperties$2(publishState, ['languages']);
-  const language = languages[0];
+  const language = languages && languages.length && languages[0];
   const { clientSettings } = settingsState;
   const { language: languageSet } = clientSettings;
 
