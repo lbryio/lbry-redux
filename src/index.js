@@ -282,6 +282,7 @@ export {
   selectUpdateCollectionError,
   selectCreatingCollection,
   selectCreateCollectionError,
+  makeSelectClaimIdIsPending,
 } from 'redux/selectors/claims';
 
 export {
