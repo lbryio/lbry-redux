@@ -2418,6 +2418,10 @@ const makeSelectClaimIsPending = uri => reselect.createSelector(selectClaimIdsBy
   return false;
 });
 
+const makeSelectClaimIdIsPending = claimId => reselect.createSelector(selectPendingIds, pendingIds => {
+  return pendingIds.some(i => i === claimId);
+});
+
 const makeSelectClaimIdForUri = uri => reselect.createSelector(selectClaimIdsByUri, claimIds => claimIds[uri]);
 
 const selectReflectingById = reselect.createSelector(selectState$1, state => state.reflectingById);
@@ -2632,7 +2636,7 @@ const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaim
   return [...claims];
 });
 
-const selectMyClaimsWithoutChannels = reselect.createSelector(selectMyClaims, myClaims => myClaims.filter(claim => !claim.name.match(/^@/)).sort((a, b) => a.timestamp - b.timestamp));
+const selectMyClaimsWithoutChannels = reselect.createSelector(selectMyClaims, myClaims => myClaims.filter(claim => claim && !claim.name.match(/^@/)).sort((a, b) => a.timestamp - b.timestamp));
 
 const selectMyClaimUrisWithoutChannels = reselect.createSelector(selectMyClaimsWithoutChannels, myClaims => {
   return myClaims.sort((a, b) => {
@@ -7927,6 +7931,7 @@ exports.makeSelectClaimForClaimId = makeSelectClaimForClaimId;
 exports.makeSelectClaimForUri = makeSelectClaimForUri;
 exports.makeSelectClaimHasSource = makeSelectClaimHasSource;
 exports.makeSelectClaimIdForUri = makeSelectClaimIdForUri;
+exports.makeSelectClaimIdIsPending = makeSelectClaimIdIsPending;
 exports.makeSelectClaimIdsForCollectionId = makeSelectClaimIdsForCollectionId;
 exports.makeSelectClaimIsMine = makeSelectClaimIsMine;
 exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
