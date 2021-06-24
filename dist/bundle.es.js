@@ -2370,7 +2370,13 @@ var _extends$3 = Object.assign || function (target) { for (var i = 1; i < argume
 
 const selectState$1 = state => state.claims || {};
 
-const selectClaimsById = reselect.createSelector(selectState$1, state => state.byId || {});
+const selectById = reselect.createSelector(selectState$1, state => state.byId || {});
+
+const selectPendingClaimsById = reselect.createSelector(selectState$1, state => state.pendingById || {});
+
+const selectClaimsById = reselect.createSelector(selectById, selectPendingClaimsById, (byId, pendingById) => {
+  return Object.assign(byId, pendingById); // do I need merged?
+});
 
 const selectClaimIdsByUri = reselect.createSelector(selectState$1, state => state.claimsByUri || {});
 
@@ -2405,29 +2411,31 @@ const selectClaimsByUri = reselect.createSelector(selectClaimIdsByUri, selectCla
 
 const selectAllClaimsByChannel = reselect.createSelector(selectState$1, state => state.paginatedClaimsByChannel || {});
 
-const selectPendingIds = reselect.createSelector(selectState$1, state => state.pendingIds || []);
+const selectPendingIds = reselect.createSelector(selectState$1, state => Object.keys(state.pendingIds) || []);
 
-const selectPendingClaims = reselect.createSelector(selectPendingIds, selectClaimsById, (pendingIds, byId) => pendingIds.map(id => byId[id]));
+const selectPendingClaims = reselect.createSelector(selectPendingClaimsById, pendingById => Object.values(pendingById));
 
-const makeSelectClaimIsPending = uri => reselect.createSelector(selectClaimIdsByUri, selectPendingIds, (idsByUri, pendingIds) => {
+const makeSelectClaimIsPending = uri => reselect.createSelector(selectClaimIdsByUri, selectPendingClaimsById, (idsByUri, pendingById) => {
   const claimId = idsByUri[normalizeURI(uri)];
 
   if (claimId) {
-    return pendingIds.some(i => i === claimId);
+    return Boolean(pendingById[claimId]);
   }
   return false;
 });
 
-const makeSelectClaimIdIsPending = claimId => reselect.createSelector(selectPendingIds, pendingIds => {
-  return pendingIds.some(i => i === claimId);
+const makeSelectClaimIdIsPending = claimId => reselect.createSelector(selectPendingClaimsById, pendingById => {
+  return Boolean(pendingById[claimId]);
 });
 
 const makeSelectClaimIdForUri = uri => reselect.createSelector(selectClaimIdsByUri, claimIds => claimIds[uri]);
 
 const selectReflectingById = reselect.createSelector(selectState$1, state => state.reflectingById);
 
+// use pendingFirst
 const makeSelectClaimForClaimId = claimId => reselect.createSelector(selectClaimsById, byId => byId[claimId]);
 
+// use pendingFirst
 const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
   let validUri;
   let channelClaimId;
@@ -2464,6 +2472,7 @@ const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelec
   }
 });
 
+// use pendingFirst
 const selectMyClaimsRaw = reselect.createSelector(selectState$1, selectClaimsById, (state, byId) => {
   const ids = state.myClaims;
   if (!ids) {
@@ -2543,6 +2552,7 @@ const selectAllFetchingChannelClaims = reselect.createSelector(selectState$1, st
 
 const makeSelectFetchingChannelClaims = uri => reselect.createSelector(selectAllFetchingChannelClaims, fetching => fetching && fetching[uri]);
 
+// use pendingFirst
 const makeSelectClaimsInChannelForPage = (uri, page) => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
   const byChannel = allClaims[uri] || {};
   const claimIds = byChannel[page || 1];
@@ -2552,24 +2562,32 @@ const makeSelectClaimsInChannelForPage = (uri, page) => reselect.createSelector(
   return claimIds.map(claimId => byId[claimId]);
 });
 
+// THIS IS LEFT OVER FROM ONE TAB CHANNEL_CONTENT
 const makeSelectTotalClaimsInChannelSearch = uri => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
   const byChannel = allClaims[uri] || {};
   return byChannel['itemCount'];
 });
 
+// THIS IS LEFT OVER FROM ONE_TAB CHANNEL CONTENT
 const makeSelectTotalPagesInChannelSearch = uri => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
   const byChannel = allClaims[uri] || {};
   return byChannel['pageCount'];
 });
 
-const makeSelectClaimsInChannelForCurrentPageState = uri => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, selectCurrentChannelPage, (byId, allClaims, page) => {
-  const byChannel = allClaims[uri] || {};
-  const claimIds = byChannel[page || 1];
-
-  if (!claimIds) return claimIds;
-
-  return claimIds.map(claimId => byId[claimId]);
-});
+// export const makeSelectClaimsInChannelForCurrentPageState = (uri: string) =>
+//   createSelector(
+//     selectClaimsById,
+//     selectAllClaimsByChannel,
+//     selectCurrentChannelPage,
+//     (byId, allClaims, page) => {
+//       const byChannel = allClaims[uri] || {};
+//       const claimIds = byChannel[page || 1];
+//
+//       if (!claimIds) return claimIds;
+//
+//       return claimIds.map(claimId => byId[claimId]);
+//     }
+//   );
 
 const makeSelectMetadataForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const metadata = claim && claim.value;
@@ -2624,6 +2642,7 @@ const selectMyClaimsPageItemCount = reselect.createSelector(selectState$1, state
 
 const selectFetchingMyClaimsPageError = reselect.createSelector(selectState$1, state => state.fetchingClaimListMinePageError);
 
+// use pendingFirst
 const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaimsById, selectAbandoningIds, (myClaimIds, byId, abandoningIds) => {
   const claims = [];
 
@@ -2666,6 +2685,7 @@ const selectFetchingMyChannels = reselect.createSelector(selectState$1, state =>
 
 const selectFetchingMyCollections = reselect.createSelector(selectState$1, state => state.fetchingMyCollections);
 
+// use pendingFirst
 const selectMyChannelClaims = reselect.createSelector(selectState$1, selectClaimsById, (state, byId) => {
   const ids = state.myChannelClaims;
   if (!ids) {
@@ -2697,27 +2717,21 @@ const selectPlayingUri = reselect.createSelector(selectState$1, state => state.p
 
 const selectChannelClaimCounts = reselect.createSelector(selectState$1, state => state.channelClaimCounts || {});
 
-const makeSelectPendingClaimForUri = uri => reselect.createSelector(selectPendingIds, selectClaimsById, (pending, claims) => {
-  let uriIsChannel;
+// JUST PENDING - change this
+const makeSelectPendingClaimForUri = uri => reselect.createSelector(selectPendingClaimsById, pendingById => {
   let uriStreamName;
   let uriChannelName;
   try {
     ({
-      isChannel: uriIsChannel,
       streamName: uriStreamName,
       channelName: uriChannelName
     } = parseURI(uri));
   } catch (e) {
     return null;
   }
-  const pendingClaims = pending.map(id => claims[id]);
+  const pendingClaims = Object.values(pendingById);
   const matchingClaim = pendingClaims.find(claim => {
-    const { streamName, channelName, isChannel } = parseURI(claim.permanent_url);
-    if (isChannel) {
-      return channelName === uriChannelName;
-    } else {
-      return streamName === uriStreamName;
-    }
+    return claim.normalized_name === uriChannelName || claim.normalized_name === uriStreamName;
   });
   return matchingClaim || null;
 });
@@ -2733,21 +2747,6 @@ const makeSelectNsfwCountFromUris = uris => reselect.createSelector(selectClaims
   }
   return acc;
 }, 0));
-
-const makeSelectNsfwCountForChannel = uri => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, selectCurrentChannelPage, (byId, allClaims, page) => {
-  const byChannel = allClaims[uri] || {};
-  const claimIds = byChannel[page || 1];
-
-  if (!claimIds) return 0;
-
-  return claimIds.reduce((acc, claimId) => {
-    const claim = byId[claimId];
-    if (isClaimNsfw(claim)) {
-      return acc + 1;
-    }
-    return acc;
-  }, 0);
-});
 
 const makeSelectOmittedCountForChannel = uri => reselect.createSelector(makeSelectTotalItemsForChannel(uri), makeSelectTotalClaimsInChannelSearch(uri), (claimsInChannel, claimsInSearch) => {
   if (claimsInChannel && typeof claimsInSearch === 'number' && claimsInSearch >= 0) {
@@ -3748,6 +3747,9 @@ var _extends$5 = Object.assign || function (target) { for (var i = 1; i < argume
 
 function _asyncToGenerator$1(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
+let checkPendingCallbacks = [];
+let checkPendingInterval;
+
 function doResolveUris(uris, returnCachedClaims = false, resolveReposts = true) {
   return (dispatch, getState) => {
     const normalizedUris = uris.map(normalizeURI);
@@ -4571,47 +4573,49 @@ function doPurchaseList(page = 1, pageSize = PAGE_SIZE) {
 }
 
 const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
-  let claimCheckInterval;
-
-  const checkClaimList = () => {
+  clearInterval(checkPendingInterval);
+  const checkTxoList = checkPendingCallbacks => {
     const state = getState();
-    const pendingIdSet = new Set(selectPendingIds(state));
+    const pendingById = Object.assign({}, selectPendingClaimsById(state));
+    const pendingTxos = Object.values(pendingById).map(p => p.txid);
+    // use collections
     const pendingCollections = selectPendingCollections(state);
-    lbryProxy.claim_list({ page: 1, page_size: 10 }).then(result => {
-      const claims = result.items;
-      const claimsToConfirm = [];
-      claims.forEach(claim => {
-        const { claim_id: claimId } = claim;
-        if (claim.confirmations > 0 && pendingIdSet.has(claimId)) {
-          pendingIdSet.delete(claimId);
-          if (Object.keys(pendingCollections).includes(claim.claim_id)) {
-            dispatch(doFetchItemsInCollection({ collectionId: claim.claim_id }));
-            dispatch(doCollectionDelete(claim.claim_id, 'pending'));
-          }
-          claimsToConfirm.push(claim);
-          if (onConfirmed) {
-            onConfirmed(claim);
-          }
-        }
-      });
-      if (claimsToConfirm.length) {
-        dispatch({
-          type: UPDATE_CONFIRMED_CLAIMS,
-          data: {
-            claims: claimsToConfirm
+    if (pendingTxos.length) {
+      lbryProxy.txo_list({ txid: pendingTxos }).then(result => {
+        const txos = result.items;
+        const idsToConfirm = [];
+        txos.forEach(txo => {
+          if (txo.claim_id && txo.confirmations > 0) {
+            idsToConfirm.push(txo.claim_id);
+            delete pendingById[txo.claim_id];
           }
         });
-      }
-      return pendingIdSet.size;
-    }).then(len => {
-      if (!len) {
-        clearInterval(claimCheckInterval);
-      }
-    });
+        return { idsToConfirm, pendingById };
+      }).then(results => {
+        const { idsToConfirm, pendingById } = results;
+        if (idsToConfirm.length) {
+          return lbryProxy.claim_list({ claim_id: idsToConfirm, resolve: true }).then(results => {
+            const claims = results.items;
+            // what if results.items includes a collection?
+            dispatch({
+              type: UPDATE_CONFIRMED_CLAIMS,
+              data: {
+                claims: claims,
+                pending: pendingById
+              }
+            });
+            checkPendingCallbacks.forEach(cb => cb());
+            clearInterval(checkPendingInterval);
+          });
+        }
+      });
+    } else {
+      clearInterval(checkPendingInterval);
+    }
   };
-
-  claimCheckInterval = setInterval(() => {
-    checkClaimList();
+  // do something with onConfirmed (typically get blocklist for channel)
+  checkPendingInterval = setInterval(() => {
+    checkTxoList(checkPendingCallbacks);
   }, 30000);
 };
 
@@ -6001,7 +6005,7 @@ const defaultState = {
   fetchingMyChannels: false,
   fetchingMyCollections: false,
   abandoningById: {},
-  pendingIds: [],
+  pendingById: {},
   reflectingById: {},
   claimSearchError: false,
   claimSearchByQuery: {},
@@ -6035,7 +6039,7 @@ function handleClaimAction(state, action) {
   const byUri = Object.assign({}, state.claimsByUri);
   const byId = Object.assign({}, state.byId);
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
-  const pendingIds = state.pendingIds;
+  const pendingById = state.pendingById;
   let newResolvingUrls = new Set(state.resolvingUris);
   let myClaimIds = new Set(state.myClaims);
 
@@ -6045,7 +6049,7 @@ function handleClaimAction(state, action) {
     const channel = channelFromResolve || stream && stream.signing_channel;
 
     if (stream) {
-      if (pendingIds.includes(stream.claim_id)) {
+      if (pendingById[stream.claim_id]) {
         byId[stream.claim_id] = mergeClaims(stream, byId[stream.claim_id]);
       } else {
         byId[stream.claim_id] = stream;
@@ -6075,7 +6079,7 @@ function handleClaimAction(state, action) {
         channelClaimCounts[channel.canonical_url] = claimsInChannel;
       }
 
-      if (pendingIds.includes(channel.claim_id)) {
+      if (pendingById[channel.claim_id]) {
         byId[channel.claim_id] = mergeClaims(channel, byId[channel.claim_id]);
       } else {
         byId[channel.claim_id] = channel;
@@ -6088,7 +6092,7 @@ function handleClaimAction(state, action) {
     }
 
     if (collection) {
-      if (pendingIds.includes(collection.claim_id)) {
+      if (pendingById[collection.claim_id]) {
         byId[collection.claim_id] = mergeClaims(collection, byId[collection.claim_id]);
       } else {
         byId[collection.claim_id] = collection;
@@ -6105,7 +6109,7 @@ function handleClaimAction(state, action) {
     }
 
     newResolvingUrls.delete(url);
-    if (!stream && !channel && !collection && !pendingIds.includes(byUri[url])) {
+    if (!stream && !channel && !collection && !pendingById[byUri[url]]) {
       byUri[url] = null;
     }
   });
@@ -6145,34 +6149,33 @@ reducers[FETCH_CLAIM_LIST_MINE_STARTED] = state => Object.assign({}, state, {
 });
 
 reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
-  const { result, resolve } = action.data;
+  const { result } = action.data;
   const claims = result.items;
   const page = result.page;
   const totalItems = result.total_items;
 
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
-  const pendingIds = state.pendingIds || [];
+  const pendingById = Object.assign({}, state.pendingById);
   let myClaimIds = new Set(state.myClaims);
   let urlsForCurrentPage = [];
 
-  const pendingIdSet = new Set(pendingIds);
-
   claims.forEach(claim => {
-    const { permanent_url: permanentUri, claim_id: claimId } = claim;
+    const { permanent_url: permanentUri, claim_id: claimId, canonical_url: canonicalUri } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
       urlsForCurrentPage.push(permanentUri);
       if (claim.confirmations < 1) {
-        pendingIdSet.add(claimId);
-      } else if (!resolve && pendingIdSet.has(claimId) && claim.confirmations > 0) {
-        pendingIdSet.delete(claimId);
-      }
-      if (pendingIds.includes(claimId)) {
-        byId[claimId] = mergeClaims(claim, byId[claimId]);
+        pendingById[claimId] = claim;
+        if (byId[claimId]) {
+          byId[claimId] = mergeClaims(claim, byId[claimId]);
+        } else {
+          byId[claimId] = claim;
+        }
       } else {
         byId[claimId] = claim;
       }
       byUri[permanentUri] = claimId;
+      byUri[canonicalUri] = claimId;
       myClaimIds.add(claimId);
     }
   });
@@ -6181,7 +6184,7 @@ reducers[FETCH_CLAIM_LIST_MINE_COMPLETED] = (state, action) => {
     isFetchingClaimListMine: false,
     myClaims: Array.from(myClaimIds),
     byId,
-    pendingIds: Array.from(pendingIdSet),
+    pendingById,
     claimsByUri: byUri,
     myClaimsPageResults: urlsForCurrentPage,
     myClaimsPageNumber: page,
@@ -6193,9 +6196,8 @@ reducers[FETCH_CHANNEL_LIST_STARTED] = state => Object.assign({}, state, { fetch
 
 reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
   const { claims } = action.data;
-  const myClaims = state.myClaims || [];
   let myClaimIds = new Set(state.myClaims);
-  const pendingIds = state.pendingIds || [];
+  const pendingById = Object.assign({}, state.pendingById);
   let myChannelClaims;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
@@ -6208,7 +6210,7 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
     myChannelClaims = new Set(state.myChannelClaims);
     claims.forEach(claim => {
       const { claims_in_channel: claimsInChannel } = claim.meta;
-      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId } = claim;
+      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId, confirmations } = claim;
 
       byUri[canonicalUrl] = claimId;
       byUri[permanentUrl] = claimId;
@@ -6217,7 +6219,14 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
 
       // $FlowFixMe
       myChannelClaims.add(claimId);
-      if (!pendingIds.some(c => c === claimId)) {
+      if (confirmations < 1) {
+        pendingById[claimId] = claim;
+        if (byId[claimId]) {
+          byId[claimId] = mergeClaims(claim, byId[claimId]);
+        } else {
+          byId[claimId] = claim;
+        }
+      } else {
         byId[claimId] = claim;
       }
       myClaimIds.add(claimId);
@@ -6226,6 +6235,7 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
 
   return Object.assign({}, state, {
     byId,
+    pendingById,
     claimsByUri: byUri,
     channelClaimCounts,
     fetchingMyChannels: false,
@@ -6248,7 +6258,7 @@ reducers[FETCH_COLLECTION_LIST_COMPLETED] = (state, action) => {
   const { claims } = action.data;
   const myClaims = state.myClaims || [];
   let myClaimIds = new Set(myClaims);
-  const pendingIds = state.pendingIds || [];
+  const pendingById = Object.assign({}, state.pendingById);
   let myCollectionClaimsSet = new Set([]);
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
@@ -6256,7 +6266,7 @@ reducers[FETCH_COLLECTION_LIST_COMPLETED] = (state, action) => {
   if (claims.length) {
     myCollectionClaimsSet = new Set(state.myCollectionClaims);
     claims.forEach(claim => {
-      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId } = claim;
+      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId, confirmations } = claim;
 
       byUri[canonicalUrl] = claimId;
       byUri[permanentUrl] = claimId;
@@ -6264,7 +6274,14 @@ reducers[FETCH_COLLECTION_LIST_COMPLETED] = (state, action) => {
       // $FlowFixMe
       myCollectionClaimsSet.add(claimId);
       // we don't want to overwrite a pending result with a resolve
-      if (!pendingIds.some(c => c === claimId)) {
+      if (confirmations < 1) {
+        pendingById[claimId] = claim;
+        if (byId[claimId]) {
+          byId[claimId] = mergeClaims(claim, byId[claimId]);
+        } else {
+          byId[claimId] = claim;
+        }
+      } else {
         byId[claimId] = claim;
       }
       myClaimIds.add(claimId);
@@ -6273,6 +6290,7 @@ reducers[FETCH_COLLECTION_LIST_COMPLETED] = (state, action) => {
 
   return _extends$9({}, state, {
     byId,
+    pendingById,
     claimsByUri: byUri,
     fetchingMyCollections: false,
     myCollectionClaims: Array.from(myCollectionClaimsSet),
@@ -6358,9 +6376,8 @@ reducers[ABANDON_CLAIM_STARTED] = (state, action) => {
 reducers[UPDATE_PENDING_CLAIMS] = (state, action) => {
   const { claims: pendingClaims } = action.data;
   const byId = Object.assign({}, state.byId);
+  const pendingById = Object.assign({}, state.pendingById);
   const byUri = Object.assign({}, state.claimsByUri);
-  const pendingIds = state.pendingIds;
-  const pendingIdSet = new Set(pendingIds);
   let myClaimIds = new Set(state.myClaims);
   const myChannelClaims = new Set(state.myChannelClaims);
 
@@ -6368,7 +6385,7 @@ reducers[UPDATE_PENDING_CLAIMS] = (state, action) => {
   pendingClaims.forEach(claim => {
     let newClaim;
     const { permanent_url: uri, claim_id: claimId, type, value_type: valueType } = claim;
-    pendingIdSet.add(claimId);
+    pendingById[claimId] = claim; // make sure we don't need to merge?
     const oldClaim = byId[claimId];
     if (oldClaim && oldClaim.canonical_url) {
       newClaim = mergeClaims(oldClaim, claim);
@@ -6388,21 +6405,19 @@ reducers[UPDATE_PENDING_CLAIMS] = (state, action) => {
   return Object.assign({}, state, {
     myClaims: Array.from(myClaimIds),
     byId,
+    pendingById,
     myChannelClaims: Array.from(myChannelClaims),
-    claimsByUri: byUri,
-    pendingIds: Array.from(pendingIdSet)
+    claimsByUri: byUri
   });
 };
 
 reducers[UPDATE_CONFIRMED_CLAIMS] = (state, action) => {
-  const { claims: confirmedClaims } = action.data;
+  const { claims: confirmedClaims, pending: pendingClaims } = action.data;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
-  const pendingIds = state.pendingIds;
-  const pendingIdSet = new Set(pendingIds);
-
+  //
   confirmedClaims.forEach(claim => {
-    const { permanent_url: permanentUri, claim_id: claimId, type } = claim;
+    const { claim_id: claimId, type } = claim;
     let newClaim = claim;
     const oldClaim = byId[claimId];
     if (oldClaim && oldClaim.canonical_url) {
@@ -6410,11 +6425,10 @@ reducers[UPDATE_CONFIRMED_CLAIMS] = (state, action) => {
     }
     if (type && type.match(/claim|update|channel/)) {
       byId[claimId] = newClaim;
-      pendingIdSet.delete(claimId);
     }
   });
   return Object.assign({}, state, {
-    pendingIds: Array.from(pendingIdSet),
+    pendingById: pendingClaims,
     byId,
     claimsByUri: byUri
   });
@@ -7938,7 +7952,6 @@ exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
 exports.makeSelectClaimIsPending = makeSelectClaimIsPending;
 exports.makeSelectClaimIsStreamPlaceholder = makeSelectClaimIsStreamPlaceholder;
 exports.makeSelectClaimWasPurchased = makeSelectClaimWasPurchased;
-exports.makeSelectClaimsInChannelForCurrentPageState = makeSelectClaimsInChannelForCurrentPageState;
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
 exports.makeSelectCollectionForId = makeSelectCollectionForId;
 exports.makeSelectCollectionForIdHasClaimUrl = makeSelectCollectionForIdHasClaimUrl;
@@ -7972,7 +7985,6 @@ exports.makeSelectMyPurchasesForPage = makeSelectMyPurchasesForPage;
 exports.makeSelectMyStreamUrlsForPage = makeSelectMyStreamUrlsForPage;
 exports.makeSelectNameForCollectionId = makeSelectNameForCollectionId;
 exports.makeSelectNextUrlForCollectionAndUrl = makeSelectNextUrlForCollectionAndUrl;
-exports.makeSelectNsfwCountForChannel = makeSelectNsfwCountForChannel;
 exports.makeSelectNsfwCountFromUris = makeSelectNsfwCountFromUris;
 exports.makeSelectOmittedCountForChannel = makeSelectOmittedCountForChannel;
 exports.makeSelectPendingAmountByUri = makeSelectPendingAmountByUri;

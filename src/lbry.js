@@ -117,6 +117,7 @@ const Lbry: LbryTypes = {
   utxo_release: (params = {}) => daemonCallWithResult('utxo_release', params),
   support_abandon: (params = {}) => daemonCallWithResult('support_abandon', params),
   purchase_list: (params = {}) => daemonCallWithResult('purchase_list', params),
+  txo_list: (params = {}) => daemonCallWithResult('txo_list', params),
 
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),

@@ -1,5 +1,5 @@
 // @flow
-import { normalizeURI, buildURI, parseURI } from 'lbryURI';
+import { normalizeURI, parseURI } from 'lbryURI';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
 import { isClaimNsfw, filterClaims } from 'util/claim';
@@ -7,9 +7,22 @@ import * as CLAIM from 'constants/claim';
 
 const selectState = state => state.claims || {};
 
-export const selectClaimsById = createSelector(
+export const selectById = createSelector(
   selectState,
   state => state.byId || {}
+);
+
+export const selectPendingClaimsById = createSelector(
+  selectState,
+  state => state.pendingById || {}
+);
+
+export const selectClaimsById = createSelector(
+  selectById,
+  selectPendingClaimsById,
+  (byId, pendingById) => {
+    return Object.assign(byId, pendingById); // do I need merged?
+  }
 );
 
 export const selectClaimIdsByUri = createSelector(
@@ -72,35 +85,35 @@ export const selectAllClaimsByChannel = createSelector(
 
 export const selectPendingIds = createSelector(
   selectState,
-  state => state.pendingIds || []
+  state => Object.keys(state.pendingIds) || []
 );
 
 export const selectPendingClaims = createSelector(
-  selectPendingIds,
-  selectClaimsById,
-  (pendingIds, byId) => pendingIds.map(id => byId[id])
+  selectPendingClaimsById,
+  pendingById => Object.values(pendingById)
 );
 
 export const makeSelectClaimIsPending = (uri: string) =>
   createSelector(
     selectClaimIdsByUri,
-    selectPendingIds,
-    (idsByUri, pendingIds) => {
+    selectPendingClaimsById,
+    (idsByUri, pendingById) => {
       const claimId = idsByUri[normalizeURI(uri)];
 
       if (claimId) {
-        return pendingIds.some(i => i === claimId);
+        return Boolean(pendingById[claimId]);
       }
       return false;
     }
   );
 
-export const makeSelectClaimIdIsPending = (claimId: string) => createSelector(
-  selectPendingIds,
-  (pendingIds) => {
-    return pendingIds.some(i => i === claimId);
-  }
-);
+export const makeSelectClaimIdIsPending = (claimId: string) =>
+  createSelector(
+    selectPendingClaimsById,
+    pendingById => {
+      return Boolean(pendingById[claimId]);
+    }
+  );
 
 export const makeSelectClaimIdForUri = (uri: string) =>
   createSelector(
@@ -113,12 +126,14 @@ export const selectReflectingById = createSelector(
   state => state.reflectingById
 );
 
+// use pendingFirst
 export const makeSelectClaimForClaimId = (claimId: string) =>
   createSelector(
     selectClaimsById,
     byId => byId[claimId]
   );
 
+// use pendingFirst
 export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true) =>
   createSelector(
     selectClaimIdsByUri,
@@ -163,6 +178,7 @@ export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true)
     }
   );
 
+// use pendingFirst
 export const selectMyClaimsRaw = createSelector(
   selectState,
   selectClaimsById,
@@ -311,6 +327,7 @@ export const makeSelectFetchingChannelClaims = (uri: string) =>
     fetching => fetching && fetching[uri]
   );
 
+// use pendingFirst
 export const makeSelectClaimsInChannelForPage = (uri: string, page?: number) =>
   createSelector(
     selectClaimsById,
@@ -325,6 +342,7 @@ export const makeSelectClaimsInChannelForPage = (uri: string, page?: number) =>
     }
   );
 
+// THIS IS LEFT OVER FROM ONE TAB CHANNEL_CONTENT
 export const makeSelectTotalClaimsInChannelSearch = (uri: string) =>
   createSelector(
     selectClaimsById,
@@ -335,6 +353,7 @@ export const makeSelectTotalClaimsInChannelSearch = (uri: string) =>
     }
   );
 
+// THIS IS LEFT OVER FROM ONE_TAB CHANNEL CONTENT
 export const makeSelectTotalPagesInChannelSearch = (uri: string) =>
   createSelector(
     selectClaimsById,
@@ -345,20 +364,20 @@ export const makeSelectTotalPagesInChannelSearch = (uri: string) =>
     }
   );
 
-export const makeSelectClaimsInChannelForCurrentPageState = (uri: string) =>
-  createSelector(
-    selectClaimsById,
-    selectAllClaimsByChannel,
-    selectCurrentChannelPage,
-    (byId, allClaims, page) => {
-      const byChannel = allClaims[uri] || {};
-      const claimIds = byChannel[page || 1];
-
-      if (!claimIds) return claimIds;
-
-      return claimIds.map(claimId => byId[claimId]);
-    }
-  );
+// export const makeSelectClaimsInChannelForCurrentPageState = (uri: string) =>
+//   createSelector(
+//     selectClaimsById,
+//     selectAllClaimsByChannel,
+//     selectCurrentChannelPage,
+//     (byId, allClaims, page) => {
+//       const byChannel = allClaims[uri] || {};
+//       const claimIds = byChannel[page || 1];
+//
+//       if (!claimIds) return claimIds;
+//
+//       return claimIds.map(claimId => byId[claimId]);
+//     }
+//   );
 
 export const makeSelectMetadataForUri = (uri: string) =>
   createSelector(
@@ -480,6 +499,7 @@ export const selectFetchingMyClaimsPageError = createSelector(
   state => state.fetchingClaimListMinePageError
 );
 
+// use pendingFirst
 export const selectMyClaims = createSelector(
   selectMyActiveClaims,
   selectClaimsById,
@@ -500,7 +520,9 @@ export const selectMyClaims = createSelector(
 export const selectMyClaimsWithoutChannels = createSelector(
   selectMyClaims,
   myClaims =>
-    myClaims.filter(claim => claim && !claim.name.match(/^@/)).sort((a, b) => a.timestamp - b.timestamp)
+    myClaims
+      .filter(claim => claim && !claim.name.match(/^@/))
+      .sort((a, b) => a.timestamp - b.timestamp)
 );
 
 export const selectMyClaimUrisWithoutChannels = createSelector(
@@ -549,6 +571,7 @@ export const selectFetchingMyCollections = createSelector(
   state => state.fetchingMyCollections
 );
 
+// use pendingFirst
 export const selectMyChannelClaims = createSelector(
   selectState,
   selectClaimsById,
@@ -606,33 +629,21 @@ export const selectChannelClaimCounts = createSelector(
   state => state.channelClaimCounts || {}
 );
 
+// JUST PENDING - change this
 export const makeSelectPendingClaimForUri = (uri: string) =>
   createSelector(
-    selectPendingIds,
-    selectClaimsById,
-    (pending, claims) => {
-      let validUri;
-      let uriIsChannel;
+    selectPendingClaimsById,
+    pendingById => {
       let uriStreamName;
       let uriChannelName;
       try {
-        ({
-          isChannel: uriIsChannel,
-          streamName: uriStreamName,
-          channelName: uriChannelName,
-        } = parseURI(uri));
-        validUri = true;
+        ({ streamName: uriStreamName, channelName: uriChannelName } = parseURI(uri));
       } catch (e) {
         return null;
       }
-      const pendingClaims = pending.map(id => claims[id]);
-      const matchingClaim = pendingClaims.find(claim => {
-        const { streamName, channelName, isChannel } = parseURI(claim.permanent_url);
-        if (isChannel) {
-          return channelName === uriChannelName;
-        } else {
-          return streamName === uriStreamName;
-        }
+      const pendingClaims = (Object.values(pendingById): any);
+      const matchingClaim = pendingClaims.find((claim: GenericClaim) => {
+        return claim.normalized_name === uriChannelName || claim.normalized_name === uriStreamName;
       });
       return matchingClaim || null;
     }
@@ -661,27 +672,6 @@ export const makeSelectNsfwCountFromUris = (uris: Array<string>) =>
         }
         return acc;
       }, 0)
-  );
-
-export const makeSelectNsfwCountForChannel = (uri: string) =>
-  createSelector(
-    selectClaimsById,
-    selectAllClaimsByChannel,
-    selectCurrentChannelPage,
-    (byId, allClaims, page) => {
-      const byChannel = allClaims[uri] || {};
-      const claimIds = byChannel[page || 1];
-
-      if (!claimIds) return 0;
-
-      return claimIds.reduce((acc, claimId) => {
-        const claim = byId[claimId];
-        if (isClaimNsfw(claim)) {
-          return acc + 1;
-        }
-        return acc;
-      }, 0);
-    }
   );
 
 export const makeSelectOmittedCountForChannel = (uri: string) =>
@@ -756,14 +746,6 @@ export const makeSelectMyChannelPermUrlForName = (name: string) =>
   );
 
 export const makeSelectTagsForUri = (uri: string) =>
-  createSelector(
-    makeSelectMetadataForUri(uri),
-    (metadata: ?GenericMetadata) => {
-      return (metadata && metadata.tags) || [];
-    }
-  );
-
-export const makeSelectChannelTagsForUri = (uri: string) =>
   createSelector(
     makeSelectMetadataForUri(uri),
     (metadata: ?GenericMetadata) => {
