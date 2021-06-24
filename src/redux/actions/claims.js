@@ -18,14 +18,16 @@ import { creditsToString } from 'util/format-credits';
 import { batchActions } from 'util/batch-actions';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { PAGE_SIZE } from 'constants/claim';
-import {
-  selectPendingCollections,
-} from 'redux/selectors/collections';
+import { selectPendingCollections } from 'redux/selectors/collections';
 import {
   doFetchItemsInCollection,
   doFetchItemsInCollections,
   doCollectionDelete,
 } from 'redux/actions/collections';
+import { selectPendingClaimsById } from '../selectors/claims';
+
+let checkPendingCallbacks = [];
+let checkPendingInterval;
 
 export function doResolveUris(
   uris: Array<string>,
@@ -979,48 +981,50 @@ export const doCheckPendingClaims = (onConfirmed: Function) => (
   dispatch: Dispatch,
   getState: GetState
 ) => {
-  let claimCheckInterval;
-
-  const checkClaimList = () => {
+  clearInterval(checkPendingInterval);
+  const checkTxoList = checkPendingCallbacks => {
     const state = getState();
-    const pendingIdSet = new Set(selectPendingIds(state));
+    const pendingById = Object.assign({}, selectPendingClaimsById(state));
+    const pendingTxos = (Object.values(pendingById): any).map(p => p.txid);
+    // use collections
     const pendingCollections = selectPendingCollections(state);
-    Lbry.claim_list({ page: 1, page_size: 10 })
-      .then(result => {
-        const claims = result.items;
-        const claimsToConfirm = [];
-        claims.forEach(claim => {
-          const { claim_id: claimId } = claim;
-          if (claim.confirmations > 0 && pendingIdSet.has(claimId)) {
-            pendingIdSet.delete(claimId);
-            if (Object.keys(pendingCollections).includes(claim.claim_id)) {
-              dispatch(doFetchItemsInCollection({ collectionId: claim.claim_id }));
-              dispatch(doCollectionDelete(claim.claim_id, 'pending'));
+    if (pendingTxos.length) {
+      Lbry.txo_list({ txid: pendingTxos })
+        .then(result => {
+          const txos = result.items;
+          const idsToConfirm = [];
+          txos.forEach(txo => {
+            if (txo.claim_id && txo.confirmations > 0) {
+              idsToConfirm.push(txo.claim_id);
+              delete pendingById[txo.claim_id];
             }
-            claimsToConfirm.push(claim);
-            if (onConfirmed) {
-              onConfirmed(claim);
-            }
+          });
+          return { idsToConfirm, pendingById };
+        })
+        .then(results => {
+          const { idsToConfirm, pendingById } = results;
+          if (idsToConfirm.length) {
+            return Lbry.claim_list({ claim_id: idsToConfirm, resolve: true }).then(results => {
+              const claims = results.items;
+              // what if results.items includes a collection?
+              dispatch({
+                type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
+                data: {
+                  claims: claims,
+                  pending: pendingById,
+                },
+              });
+              checkPendingCallbacks.forEach(cb => cb());
+              clearInterval(checkPendingInterval);
+            });
           }
         });
-        if (claimsToConfirm.length) {
-          dispatch({
-            type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
-            data: {
-              claims: claimsToConfirm,
-            },
-          });
-        }
-        return pendingIdSet.size;
-      })
-      .then(len => {
-        if (!len) {
-          clearInterval(claimCheckInterval);
-        }
-      });
+    } else {
+      clearInterval(checkPendingInterval);
+    }
   };
-
-  claimCheckInterval = setInterval(() => {
-    checkClaimList();
+  // do something with onConfirmed (typically get blocklist for channel)
+  checkPendingInterval = setInterval(() => {
+    checkTxoList(checkPendingCallbacks);
   }, 30000);
 };

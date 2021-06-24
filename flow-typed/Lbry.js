@@ -75,7 +75,7 @@ declare type BalanceResponse = {
 
 declare type ResolveResponse = {
   // Keys are the url(s) passed to resolve
-  [string]: { error?: {}, stream?: StreamClaim, channel?: ChannelClaim, claimsInChannel?: number },
+  [string]: { error?: {}, stream?: StreamClaim, channel?: ChannelClaim, collection?: CollectionClaim, claimsInChannel?: number },
 };
 
 declare type GetResponse = FileListItem & { error?: string };
@@ -351,6 +351,7 @@ declare type LbryTypes = {
   address_unused: (params: {}) => Promise<string>, // New address
   address_list: (params: {}) => Promise<string>,
   transaction_list: (params: {}) => Promise<TxListResponse>,
+  txo_list: (params: {}) => Promise<any>,
 
   // Sync
   sync_hash: (params: {}) => Promise<string>,
