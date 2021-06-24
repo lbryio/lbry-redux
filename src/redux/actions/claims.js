@@ -76,7 +76,7 @@ export function doResolveUris(
     const collectionIds: Array<string> = [];
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
-      async(result: ResolveResponse) => {
+      async (result: ResolveResponse) => {
         let repostedResults = {};
         const repostsToResolve = [];
         const fallbackResolveInfo = {
@@ -648,7 +648,7 @@ export function doClaimSearch(
   }
 ) {
   const query = createNormalizedClaimSearchKey(options);
-  return async(dispatch: Dispatch) => {
+  return async (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
       data: { query: query },
@@ -897,7 +897,6 @@ export function doCollectionPublishUpdate(options: {
           },
         });
         dispatch(doCheckPendingClaims());
-        dispatch(doFetchCollectionListMine(1, 10));
         return resolve(collectionClaim);
       }
 
@@ -1006,7 +1005,9 @@ export const doCheckPendingClaims = (onConfirmed: Function) => (
           if (idsToConfirm.length) {
             return Lbry.claim_list({ claim_id: idsToConfirm, resolve: true }).then(results => {
               const claims = results.items;
-              // what if results.items includes a collection?
+              const collectionIds = claims
+                .filter(c => c.value_type === 'collection')
+                .map(c => c.claim_id);
               dispatch({
                 type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
                 data: {
@@ -1014,6 +1015,13 @@ export const doCheckPendingClaims = (onConfirmed: Function) => (
                   pending: pendingById,
                 },
               });
+              if (collectionIds.length) {
+                dispatch(
+                  doFetchItemsInCollections({
+                    collectionIds,
+                  })
+                );
+              }
               checkPendingCallbacks.forEach(cb => cb());
               clearInterval(checkPendingInterval);
             });
