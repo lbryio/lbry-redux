@@ -1190,6 +1190,7 @@ const Lbry = {
   utxo_release: (params = {}) => daemonCallWithResult('utxo_release', params),
   support_abandon: (params = {}) => daemonCallWithResult('support_abandon', params),
   purchase_list: (params = {}) => daemonCallWithResult('purchase_list', params),
+  txo_list: (params = {}) => daemonCallWithResult('txo_list', params),
 
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
@@ -2375,7 +2376,7 @@ const selectById = reselect.createSelector(selectState$1, state => state.byId ||
 const selectPendingClaimsById = reselect.createSelector(selectState$1, state => state.pendingById || {});
 
 const selectClaimsById = reselect.createSelector(selectById, selectPendingClaimsById, (byId, pendingById) => {
-  return Object.assign(byId, pendingById); // do I need merged?
+  return Object.assign(byId, pendingById); // do I need merged to keep metadata?
 });
 
 const selectClaimIdsByUri = reselect.createSelector(selectState$1, state => state.claimsByUri || {});
@@ -2432,10 +2433,8 @@ const makeSelectClaimIdForUri = uri => reselect.createSelector(selectClaimIdsByU
 
 const selectReflectingById = reselect.createSelector(selectState$1, state => state.reflectingById);
 
-// use pendingFirst
 const makeSelectClaimForClaimId = claimId => reselect.createSelector(selectClaimsById, byId => byId[claimId]);
 
-// use pendingFirst
 const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
   let validUri;
   let channelClaimId;
@@ -2472,7 +2471,6 @@ const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelec
   }
 });
 
-// use pendingFirst
 const selectMyClaimsRaw = reselect.createSelector(selectState$1, selectClaimsById, (state, byId) => {
   const ids = state.myClaims;
   if (!ids) {
@@ -2552,7 +2550,6 @@ const selectAllFetchingChannelClaims = reselect.createSelector(selectState$1, st
 
 const makeSelectFetchingChannelClaims = uri => reselect.createSelector(selectAllFetchingChannelClaims, fetching => fetching && fetching[uri]);
 
-// use pendingFirst
 const makeSelectClaimsInChannelForPage = (uri, page) => reselect.createSelector(selectClaimsById, selectAllClaimsByChannel, (byId, allClaims) => {
   const byChannel = allClaims[uri] || {};
   const claimIds = byChannel[page || 1];
@@ -2573,21 +2570,6 @@ const makeSelectTotalPagesInChannelSearch = uri => reselect.createSelector(selec
   const byChannel = allClaims[uri] || {};
   return byChannel['pageCount'];
 });
-
-// export const makeSelectClaimsInChannelForCurrentPageState = (uri: string) =>
-//   createSelector(
-//     selectClaimsById,
-//     selectAllClaimsByChannel,
-//     selectCurrentChannelPage,
-//     (byId, allClaims, page) => {
-//       const byChannel = allClaims[uri] || {};
-//       const claimIds = byChannel[page || 1];
-//
-//       if (!claimIds) return claimIds;
-//
-//       return claimIds.map(claimId => byId[claimId]);
-//     }
-//   );
 
 const makeSelectMetadataForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const metadata = claim && claim.value;
@@ -2642,7 +2624,6 @@ const selectMyClaimsPageItemCount = reselect.createSelector(selectState$1, state
 
 const selectFetchingMyClaimsPageError = reselect.createSelector(selectState$1, state => state.fetchingClaimListMinePageError);
 
-// use pendingFirst
 const selectMyClaims = reselect.createSelector(selectMyActiveClaims, selectClaimsById, selectAbandoningIds, (myClaimIds, byId, abandoningIds) => {
   const claims = [];
 
@@ -2685,7 +2666,6 @@ const selectFetchingMyChannels = reselect.createSelector(selectState$1, state =>
 
 const selectFetchingMyCollections = reselect.createSelector(selectState$1, state => state.fetchingMyCollections);
 
-// use pendingFirst
 const selectMyChannelClaims = reselect.createSelector(selectState$1, selectClaimsById, (state, byId) => {
   const ids = state.myChannelClaims;
   if (!ids) {
@@ -2717,15 +2697,11 @@ const selectPlayingUri = reselect.createSelector(selectState$1, state => state.p
 
 const selectChannelClaimCounts = reselect.createSelector(selectState$1, state => state.channelClaimCounts || {});
 
-// JUST PENDING - change this
 const makeSelectPendingClaimForUri = uri => reselect.createSelector(selectPendingClaimsById, pendingById => {
   let uriStreamName;
   let uriChannelName;
   try {
-    ({
-      streamName: uriStreamName,
-      channelName: uriChannelName
-    } = parseURI(uri));
+    ({ streamName: uriStreamName, channelName: uriChannelName } = parseURI(uri));
   } catch (e) {
     return null;
   }
@@ -4492,7 +4468,6 @@ function doCollectionPublishUpdate(options) {
           }
         });
         dispatch(doCheckPendingClaims());
-        dispatch(doFetchCollectionListMine(1, 10));
         return resolve(collectionClaim);
       }
 
@@ -4596,7 +4571,7 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
         if (idsToConfirm.length) {
           return lbryProxy.claim_list({ claim_id: idsToConfirm, resolve: true }).then(results => {
             const claims = results.items;
-            // what if results.items includes a collection?
+            const collectionIds = claims.filter(c => c.value_type === 'collection').map(c => c.claim_id);
             dispatch({
               type: UPDATE_CONFIRMED_CLAIMS,
               data: {
@@ -4604,6 +4579,11 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
                 pending: pendingById
               }
             });
+            if (collectionIds.length) {
+              dispatch(doFetchItemsInCollections({
+                collectionIds
+              }));
+            }
             checkPendingCallbacks.forEach(cb => cb());
             clearInterval(checkPendingInterval);
           });
@@ -6210,7 +6190,12 @@ reducers[FETCH_CHANNEL_LIST_COMPLETED] = (state, action) => {
     myChannelClaims = new Set(state.myChannelClaims);
     claims.forEach(claim => {
       const { claims_in_channel: claimsInChannel } = claim.meta;
-      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId, confirmations } = claim;
+      const {
+        canonical_url: canonicalUrl,
+        permanent_url: permanentUrl,
+        claim_id: claimId,
+        confirmations
+      } = claim;
 
       byUri[canonicalUrl] = claimId;
       byUri[permanentUrl] = claimId;
@@ -6266,7 +6251,12 @@ reducers[FETCH_COLLECTION_LIST_COMPLETED] = (state, action) => {
   if (claims.length) {
     myCollectionClaimsSet = new Set(state.myCollectionClaims);
     claims.forEach(claim => {
-      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId, confirmations } = claim;
+      const {
+        canonical_url: canonicalUrl,
+        permanent_url: permanentUrl,
+        claim_id: claimId,
+        confirmations
+      } = claim;
 
       byUri[canonicalUrl] = claimId;
       byUri[permanentUrl] = claimId;
@@ -6412,7 +6402,10 @@ reducers[UPDATE_PENDING_CLAIMS] = (state, action) => {
 };
 
 reducers[UPDATE_CONFIRMED_CLAIMS] = (state, action) => {
-  const { claims: confirmedClaims, pending: pendingClaims } = action.data;
+  const {
+    claims: confirmedClaims,
+    pending: pendingClaims
+  } = action.data;
   const byId = Object.assign({}, state.byId);
   const byUri = Object.assign({}, state.claimsByUri);
   //
