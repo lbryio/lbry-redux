@@ -21,7 +21,7 @@ export const selectClaimsById = createSelector(
   selectById,
   selectPendingClaimsById,
   (byId, pendingById) => {
-    return Object.assign(byId, pendingById); // do I need merged?
+    return Object.assign(byId, pendingById); // do I need merged to keep metadata?
   }
 );
 
@@ -126,14 +126,12 @@ export const selectReflectingById = createSelector(
   state => state.reflectingById
 );
 
-// use pendingFirst
 export const makeSelectClaimForClaimId = (claimId: string) =>
   createSelector(
     selectClaimsById,
     byId => byId[claimId]
   );
 
-// use pendingFirst
 export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true) =>
   createSelector(
     selectClaimIdsByUri,
@@ -178,7 +176,6 @@ export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true)
     }
   );
 
-// use pendingFirst
 export const selectMyClaimsRaw = createSelector(
   selectState,
   selectClaimsById,
@@ -327,7 +324,6 @@ export const makeSelectFetchingChannelClaims = (uri: string) =>
     fetching => fetching && fetching[uri]
   );
 
-// use pendingFirst
 export const makeSelectClaimsInChannelForPage = (uri: string, page?: number) =>
   createSelector(
     selectClaimsById,
@@ -363,21 +359,6 @@ export const makeSelectTotalPagesInChannelSearch = (uri: string) =>
       return byChannel['pageCount'];
     }
   );
-
-// export const makeSelectClaimsInChannelForCurrentPageState = (uri: string) =>
-//   createSelector(
-//     selectClaimsById,
-//     selectAllClaimsByChannel,
-//     selectCurrentChannelPage,
-//     (byId, allClaims, page) => {
-//       const byChannel = allClaims[uri] || {};
-//       const claimIds = byChannel[page || 1];
-//
-//       if (!claimIds) return claimIds;
-//
-//       return claimIds.map(claimId => byId[claimId]);
-//     }
-//   );
 
 export const makeSelectMetadataForUri = (uri: string) =>
   createSelector(
@@ -499,7 +480,6 @@ export const selectFetchingMyClaimsPageError = createSelector(
   state => state.fetchingClaimListMinePageError
 );
 
-// use pendingFirst
 export const selectMyClaims = createSelector(
   selectMyActiveClaims,
   selectClaimsById,
@@ -571,7 +551,6 @@ export const selectFetchingMyCollections = createSelector(
   state => state.fetchingMyCollections
 );
 
-// use pendingFirst
 export const selectMyChannelClaims = createSelector(
   selectState,
   selectClaimsById,
@@ -629,7 +608,6 @@ export const selectChannelClaimCounts = createSelector(
   state => state.channelClaimCounts || {}
 );
 
-// JUST PENDING - change this
 export const makeSelectPendingClaimForUri = (uri: string) =>
   createSelector(
     selectPendingClaimsById,
