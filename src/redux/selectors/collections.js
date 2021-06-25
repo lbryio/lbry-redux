@@ -158,7 +158,7 @@ export const makeSelectCollectionForId = (id: string) =>
     selectMyEditedCollections,
     selectPendingCollections,
     (bLists, rLists, uLists, eLists, pLists) => {
-      const collection = bLists[id] || uLists[id] || eLists[id] || rLists[id] || pLists[id];
+      const collection = bLists[id] || uLists[id] || eLists[id] || pLists[id] || rLists[id];
       return collection;
     }
   );

@@ -3665,7 +3665,7 @@ const makeSelectIsResolvingCollectionForId = id => reselect.createSelector(selec
 });
 
 const makeSelectCollectionForId = id => reselect.createSelector(selectBuiltinCollections, selectResolvedCollections, selectMyUnpublishedCollections, selectMyEditedCollections, selectPendingCollections, (bLists, rLists, uLists, eLists, pLists) => {
-  const collection = bLists[id] || uLists[id] || eLists[id] || rLists[id] || pLists[id];
+  const collection = bLists[id] || uLists[id] || eLists[id] || pLists[id] || rLists[id];
   return collection;
 });
 
