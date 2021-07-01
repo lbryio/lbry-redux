@@ -4585,7 +4585,9 @@ const doCheckPendingClaims = onConfirmed => (dispatch, getState) => {
               }));
             }
             checkPendingCallbacks.forEach(cb => cb());
-            clearInterval(checkPendingInterval);
+            if (Object.keys(pendingById).length === 0) {
+              clearInterval(checkPendingInterval);
+            }
           });
         }
       });
