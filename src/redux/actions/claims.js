@@ -10,6 +10,7 @@ import {
   selectClaimsByUri,
   selectMyChannelClaims,
   selectPendingIds,
+  selectPendingClaimsById,
 } from 'redux/selectors/claims';
 
 import { doFetchTxoPage } from 'redux/actions/wallet';
@@ -24,7 +25,6 @@ import {
   doFetchItemsInCollections,
   doCollectionDelete,
 } from 'redux/actions/collections';
-import { selectPendingClaimsById } from '../selectors/claims';
 
 let checkPendingCallbacks = [];
 let checkPendingInterval;
