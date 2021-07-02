@@ -26,7 +26,7 @@ import {
   doCollectionDelete,
 } from 'redux/actions/collections';
 
-let checkPendingCallbacks = [];
+let onChannelConfirmCallback;
 let checkPendingInterval;
 
 export function doResolveUris(
@@ -76,7 +76,7 @@ export function doResolveUris(
     const collectionIds: Array<string> = [];
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
-      async (result: ResolveResponse) => {
+      async(result: ResolveResponse) => {
         let repostedResults = {};
         const repostsToResolve = [];
         const fallbackResolveInfo = {
@@ -404,7 +404,7 @@ export function doClearChannelErrors() {
   };
 }
 
-export function doCreateChannel(name: string, amount: number, optionalParams: any, cb: any) {
+export function doCreateChannel(name: string, amount: number, optionalParams: any, onConfirm: any) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CREATE_CHANNEL_STARTED,
@@ -471,7 +471,7 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
               claims: [channelClaim],
             },
           });
-          dispatch(doCheckPendingClaims(cb));
+          dispatch(doCheckPendingClaims(onConfirm));
           return channelClaim;
         })
         .catch(error => {
@@ -648,7 +648,7 @@ export function doClaimSearch(
   }
 ) {
   const query = createNormalizedClaimSearchKey(options);
-  return async (dispatch: Dispatch) => {
+  return async(dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
       data: { query: query },
@@ -976,12 +976,15 @@ export function doPurchaseList(page: number = 1, pageSize: number = PAGE_SIZE) {
   };
 }
 
-export const doCheckPendingClaims = (onConfirmed: Function) => (
+export const doCheckPendingClaims = (onChannelConfirmed: Function) => (
   dispatch: Dispatch,
   getState: GetState
 ) => {
+  if (onChannelConfirmed) {
+    onChannelConfirmCallback = onChannelConfirmed;
+  }
   clearInterval(checkPendingInterval);
-  const checkTxoList = checkPendingCallbacks => {
+  const checkTxoList = () => {
     const state = getState();
     const pendingById = Object.assign({}, selectPendingClaimsById(state));
     const pendingTxos = (Object.values(pendingById): any).map(p => p.txid);
@@ -1022,7 +1025,10 @@ export const doCheckPendingClaims = (onConfirmed: Function) => (
                   })
                 );
               }
-              checkPendingCallbacks.forEach(cb => cb());
+              const channelClaims = claims.filter(claim => claim.value_type === 'channel');
+              if (channelClaims.length && onChannelConfirmCallback) {
+                channelClaims.forEach(claim => onChannelConfirmCallback(claim));
+              }
               if (Object.keys(pendingById).length === 0) {
                 clearInterval(checkPendingInterval);
               }
@@ -1035,6 +1041,6 @@ export const doCheckPendingClaims = (onConfirmed: Function) => (
   };
   // do something with onConfirmed (typically get blocklist for channel)
   checkPendingInterval = setInterval(() => {
-    checkTxoList(checkPendingCallbacks);
+    checkTxoList();
   }, 30000);
 };
