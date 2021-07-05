@@ -85,7 +85,7 @@ export const selectAllClaimsByChannel = createSelector(
 
 export const selectPendingIds = createSelector(
   selectState,
-  state => Object.keys(state.pendingIds) || []
+  state => Object.keys(state.pendingById) || []
 );
 
 export const selectPendingClaims = createSelector(
@@ -299,8 +299,8 @@ export const makeSelectMyPurchasesForPage = (query: ?string, page: number = 1) =
       const end = Number(page) * Number(CLAIM.PAGE_SIZE);
       return matchingFileInfos && matchingFileInfos.length
         ? matchingFileInfos
-          .slice(start, end)
-          .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
+            .slice(start, end)
+            .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
         : [];
     }
   );
@@ -393,8 +393,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-            ? claim.meta.creation_timestamp * 1000
-            : null);
+          ? claim.meta.creation_timestamp * 1000
+          : null);
       if (!timestamp) {
         return undefined;
       }

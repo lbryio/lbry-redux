@@ -2412,7 +2412,7 @@ const selectClaimsByUri = reselect.createSelector(selectClaimIdsByUri, selectCla
 
 const selectAllClaimsByChannel = reselect.createSelector(selectState$1, state => state.paginatedClaimsByChannel || {});
 
-const selectPendingIds = reselect.createSelector(selectState$1, state => Object.keys(state.pendingIds) || []);
+const selectPendingIds = reselect.createSelector(selectState$1, state => Object.keys(state.pendingById) || []);
 
 const selectPendingClaims = reselect.createSelector(selectPendingClaimsById, pendingById => Object.values(pendingById));
 
