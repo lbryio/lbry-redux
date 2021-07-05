@@ -163,6 +163,27 @@ export const makeSelectCollectionForId = (id: string) =>
     }
   );
 
+export const makeSelectClaimUrlInCollection = (url: string) =>
+  createSelector(
+    selectBuiltinCollections,
+    selectResolvedCollections,
+    selectMyUnpublishedCollections,
+    selectMyEditedCollections,
+    selectPendingCollections,
+    (bLists, rLists, uLists, eLists, pLists) => {
+      const collections = [bLists, uLists, eLists, rLists, pLists];
+      const itemsInCollections = [];
+      collections.map(list => {
+        Object.entries(list).forEach(([key, value]) => {
+          value.items.map(item => {
+            itemsInCollections.push(item);
+          });
+        });
+      });
+      return itemsInCollections.includes(url);
+    }
+  );
+
 export const makeSelectCollectionForIdHasClaimUrl = (id: string, url: string) =>
   createSelector(
     makeSelectCollectionForId(id),

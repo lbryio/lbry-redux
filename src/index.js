@@ -176,6 +176,7 @@ export {
   makeSelectMyPublishedCollectionForId,
   makeSelectUnpublishedCollectionForId,
   makeSelectCollectionForId,
+  makeSelectClaimUrlInCollection,
   makeSelectUrlsForCollectionId,
   makeSelectClaimIdsForCollectionId,
   makeSelectNameForCollectionId,
