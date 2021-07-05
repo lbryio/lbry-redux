@@ -3693,6 +3693,19 @@ const makeSelectCollectionForId = id => reselect.createSelector(selectBuiltinCol
   return collection;
 });
 
+const makeSelectClaimUrlInCollection = url => reselect.createSelector(selectBuiltinCollections, selectResolvedCollections, selectMyUnpublishedCollections, selectMyEditedCollections, selectPendingCollections, (bLists, rLists, uLists, eLists, pLists) => {
+  const collections = [bLists, uLists, eLists, rLists, pLists];
+  const itemsInCollections = [];
+  collections.map(list => {
+    Object.entries(list).forEach(([key, value]) => {
+      value.items.map(item => {
+        itemsInCollections.push(item);
+      });
+    });
+  });
+  return itemsInCollections.includes(url);
+});
+
 const makeSelectCollectionForIdHasClaimUrl = (id, url) => reselect.createSelector(makeSelectCollectionForId(id), collection => collection && collection.items.includes(url));
 
 const makeSelectUrlsForCollectionId = id => reselect.createSelector(makeSelectCollectionForId(id), collection => collection && collection.items);
@@ -7977,6 +7990,7 @@ exports.makeSelectClaimIsMine = makeSelectClaimIsMine;
 exports.makeSelectClaimIsNsfw = makeSelectClaimIsNsfw;
 exports.makeSelectClaimIsPending = makeSelectClaimIsPending;
 exports.makeSelectClaimIsStreamPlaceholder = makeSelectClaimIsStreamPlaceholder;
+exports.makeSelectClaimUrlInCollection = makeSelectClaimUrlInCollection;
 exports.makeSelectClaimWasPurchased = makeSelectClaimWasPurchased;
 exports.makeSelectClaimsInChannelForPage = makeSelectClaimsInChannelForPage;
 exports.makeSelectCollectionForId = makeSelectCollectionForId;
