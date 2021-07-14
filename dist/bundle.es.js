@@ -1473,13 +1473,18 @@ const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
-const regexInvalidURI = /[ =&#:$@%?;/\\"<>%\{\}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
+const regexInvalidURI = /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
 const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
 const regexPartModifierSeparator = '([:$#]?)([^/]*)';
 const queryStringBreaker = '^([\\S]+)([?][\\S]*)';
 const separateQuerystring = new RegExp(queryStringBreaker);
+
+const MOD_SEQUENCE_SEPARATOR = '*';
+const MOD_CLAIM_ID_SEPARATOR_OLD = '#';
+const MOD_CLAIM_ID_SEPARATOR = ':';
+const MOD_BID_POSITION_SEPARATOR = '$';
 
 /**
  * Parses a LBRY name into its component parts. Throws errors with user-friendly
@@ -1582,11 +1587,11 @@ function parseURIModifier(modSeperator, modValue) {
       throw new Error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
     }
 
-    if (modSeperator === '#') {
+    if (modSeperator === MOD_CLAIM_ID_SEPARATOR || MOD_CLAIM_ID_SEPARATOR_OLD) {
       claimId = modValue;
-    } else if (modSeperator === ':') {
+    } else if (modSeperator === MOD_SEQUENCE_SEPARATOR) {
       claimSequence = modValue;
-    } else if (modSeperator === '$') {
+    } else if (modSeperator === MOD_BID_POSITION_SEPARATOR) {
       bidPosition = modValue;
     }
   }
