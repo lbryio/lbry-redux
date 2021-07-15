@@ -134,9 +134,7 @@ export function doPreferenceGet(key: string, success: Function, fail?: Function)
     return Lbry.preference_get(options)
       .then(result => {
         if (result) {
-          console.log('result', result)
           const preference = result[key];
-          console.log('pref', preference)
           return success(preference);
         }
 
