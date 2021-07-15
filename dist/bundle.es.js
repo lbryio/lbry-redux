@@ -1722,6 +1722,25 @@ function convertToShareLink(URL) {
   }, true, 'https://open.lbry.com/');
 }
 
+function splitBySeparator(uri) {
+  const protocolLength = 7;
+  return uri.startsWith('lbry://') ? uri.slice(protocolLength).split(/[#:*]/) : uri.split(/#:\*\$/);
+}
+
+function isURIEqual(uriA, uriB) {
+  const parseA = parseURI(normalizeURI(uriA));
+  const parseB = parseURI(normalizeURI(uriB));
+  if (parseA.isChannel) {
+    if (parseB.isChannel && parseA.channelClaimId === parseB.channelClaimId) {
+      return true;
+    }
+  } else if (parseA.streamClaimId === parseB.streamClaimId) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 /* eslint-disable */
 // underscore's deep equal function
 // https://github.com/jashkenas/underscore/blob/master/underscore.js#L1189
@@ -2468,7 +2487,7 @@ const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelec
       const channelUrl = claim.signing_channel && (claim.signing_channel.canonical_url || claim.signing_channel.permanent_url);
 
       return _extends$3({}, repostedClaim, {
-        repost_url: uri,
+        repost_url: normalizeURI(uri),
         repost_channel_url: channelUrl,
         repost_bid_amount: claim && claim.meta && claim.meta.effective_amount
       });
@@ -2719,9 +2738,9 @@ const makeSelectPendingClaimForUri = uri => reselect.createSelector(selectPendin
   return matchingClaim || null;
 });
 
-const makeSelectTotalItemsForChannel = uri => reselect.createSelector(selectChannelClaimCounts, byUri => byUri && byUri[uri]);
+const makeSelectTotalItemsForChannel = uri => reselect.createSelector(selectChannelClaimCounts, byUri => byUri && byUri[normalizeURI(uri)]);
 
-const makeSelectTotalPagesForChannel = (uri, pageSize = 10) => reselect.createSelector(selectChannelClaimCounts, byUri => byUri && byUri[uri] && Math.ceil(byUri[uri] / pageSize));
+const makeSelectTotalPagesForChannel = (uri, pageSize = 10) => reselect.createSelector(selectChannelClaimCounts, byUri => byUri && byUri[uri] && Math.ceil(byUri[normalizeURI(uri)] / pageSize));
 
 const makeSelectNsfwCountFromUris = uris => reselect.createSelector(selectClaimsByUri, claims => uris.reduce((acc, uri) => {
   const claim = claims[uri];
@@ -7943,6 +7962,7 @@ exports.formatFullPrice = formatFullPrice;
 exports.isClaimNsfw = isClaimNsfw;
 exports.isNameValid = isNameValid;
 exports.isURIClaimable = isURIClaimable;
+exports.isURIEqual = isURIEqual;
 exports.isURIValid = isURIValid;
 exports.makeSelectAbandoningClaimById = makeSelectAbandoningClaimById;
 exports.makeSelectAmountForUri = makeSelectAmountForUri;
@@ -8158,5 +8178,6 @@ exports.selectWalletState = selectWalletState;
 exports.selectWalletUnlockPending = selectWalletUnlockPending;
 exports.selectWalletUnlockResult = selectWalletUnlockResult;
 exports.selectWalletUnlockSucceeded = selectWalletUnlockSucceeded;
+exports.splitBySeparator = splitBySeparator;
 exports.toQueryString = toQueryString;
 exports.walletReducer = walletReducer;

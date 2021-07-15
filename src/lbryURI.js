@@ -325,3 +325,22 @@ export function convertToShareLink(URL: string) {
     'https://open.lbry.com/'
   );
 }
+
+export function splitBySeparator(uri: string) {
+  const protocolLength = 7;
+  return uri.startsWith('lbry://') ? uri.slice(protocolLength).split(/[#:*]/) : uri.split(/#:\*\$/);
+}
+
+export function isURIEqual(uriA: string, uriB: string) {
+  const parseA = parseURI(normalizeURI(uriA));
+  const parseB = parseURI(normalizeURI(uriB));
+  if (parseA.isChannel) {
+    if (parseB.isChannel && parseA.channelClaimId === parseB.channelClaimId) {
+      return true;
+    }
+  } else if (parseA.streamClaimId === parseB.streamClaimId) {
+    return true;
+  } else {
+    return false;
+  }
+}
