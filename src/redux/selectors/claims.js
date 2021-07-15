@@ -165,7 +165,7 @@ export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true)
 
           return {
             ...repostedClaim,
-            repost_url: uri,
+            repost_url: normalizeURI(uri),
             repost_channel_url: channelUrl,
             repost_bid_amount: claim && claim.meta && claim.meta.effective_amount,
           };
@@ -299,8 +299,8 @@ export const makeSelectMyPurchasesForPage = (query: ?string, page: number = 1) =
       const end = Number(page) * Number(CLAIM.PAGE_SIZE);
       return matchingFileInfos && matchingFileInfos.length
         ? matchingFileInfos
-            .slice(start, end)
-            .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
+          .slice(start, end)
+          .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
         : [];
     }
   );
@@ -393,8 +393,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-          ? claim.meta.creation_timestamp * 1000
-          : null);
+            ? claim.meta.creation_timestamp * 1000
+            : null);
       if (!timestamp) {
         return undefined;
       }
@@ -630,13 +630,13 @@ export const makeSelectPendingClaimForUri = (uri: string) =>
 export const makeSelectTotalItemsForChannel = (uri: string) =>
   createSelector(
     selectChannelClaimCounts,
-    byUri => byUri && byUri[uri]
+    byUri => byUri && byUri[normalizeURI(uri)]
   );
 
 export const makeSelectTotalPagesForChannel = (uri: string, pageSize: number = 10) =>
   createSelector(
     selectChannelClaimCounts,
-    byUri => byUri && byUri[uri] && Math.ceil(byUri[uri] / pageSize)
+    byUri => byUri && byUri[uri] && Math.ceil(byUri[normalizeURI(uri)] / pageSize)
   );
 
 export const makeSelectNsfwCountFromUris = (uris: Array<string>) =>

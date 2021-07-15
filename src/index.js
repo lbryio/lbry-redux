@@ -52,6 +52,8 @@ export {
   isURIClaimable,
   isNameValid,
   convertToShareLink,
+  splitBySeparator,
+  isURIEqual,
 } from 'lbryURI';
 
 // middlware
