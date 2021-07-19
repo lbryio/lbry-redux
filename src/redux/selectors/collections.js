@@ -170,7 +170,14 @@ export const makeSelectClaimUrlInCollection = (url: string) =>
     selectMyUnpublishedCollections,
     selectMyEditedCollections,
     selectPendingCollections,
-    (bLists, rLists, uLists, eLists, pLists) => {
+    selectMyCollectionIds,
+    (bLists, rLists, uLists, eLists, pLists, myIds) => {
+      Object.entries(rLists).filter(
+        ([key, val]) =>
+          myIds.includes(key) &&
+          // $FlowFixMe
+          !pLists[key]
+      );
       const collections = [bLists, uLists, eLists, rLists, pLists];
       const itemsInCollections = [];
       collections.map(list => {
