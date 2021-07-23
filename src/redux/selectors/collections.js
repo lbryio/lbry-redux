@@ -166,19 +166,12 @@ export const makeSelectCollectionForId = (id: string) =>
 export const makeSelectClaimUrlInCollection = (url: string) =>
   createSelector(
     selectBuiltinCollections,
-    selectResolvedCollections,
+    selectMyPublishedCollections,
     selectMyUnpublishedCollections,
     selectMyEditedCollections,
     selectPendingCollections,
-    selectMyCollectionIds,
-    (bLists, rLists, uLists, eLists, pLists, myIds) => {
-      Object.entries(rLists).filter(
-        ([key, val]) =>
-          myIds.includes(key) &&
-          // $FlowFixMe
-          !pLists[key]
-      );
-      const collections = [bLists, uLists, eLists, rLists, pLists];
+    (bLists, myRLists, uLists, eLists, pLists) => {
+      const collections = [bLists, uLists, eLists, myRLists, pLists];
       const itemsInCollections = [];
       collections.map(list => {
         Object.entries(list).forEach(([key, value]) => {

@@ -3693,11 +3693,8 @@ const makeSelectCollectionForId = id => reselect.createSelector(selectBuiltinCol
   return collection;
 });
 
-const makeSelectClaimUrlInCollection = url => reselect.createSelector(selectBuiltinCollections, selectResolvedCollections, selectMyUnpublishedCollections, selectMyEditedCollections, selectPendingCollections, selectMyCollectionIds, (bLists, rLists, uLists, eLists, pLists, myIds) => {
-  Object.entries(rLists).filter(([key, val]) => myIds.includes(key) &&
-  // $FlowFixMe
-  !pLists[key]);
-  const collections = [bLists, uLists, eLists, rLists, pLists];
+const makeSelectClaimUrlInCollection = url => reselect.createSelector(selectBuiltinCollections, selectMyPublishedCollections, selectMyUnpublishedCollections, selectMyEditedCollections, selectPendingCollections, (bLists, myRLists, uLists, eLists, pLists) => {
+  const collections = [bLists, uLists, eLists, myRLists, pLists];
   const itemsInCollections = [];
   collections.map(list => {
     Object.entries(list).forEach(([key, value]) => {
