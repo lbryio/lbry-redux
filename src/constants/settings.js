@@ -39,6 +39,8 @@ export const ENABLE_PUBLISH_PREVIEW = 'enable-publish-preview';
 export const TILE_LAYOUT = 'tile_layout';
 export const VIDEO_THEATER_MODE = 'video_theater_mode';
 export const VIDEO_PLAYBACK_RATE = 'video_playback_rate';
+export const CUSTOM_COMMENTS_SERVER_ENABLED = 'custom_comments_server_enabled';
+export const CUSTOM_COMMENTS_SERVER_URL = 'custom_comments_server_url';
 
 // mobile settings
 export const BACKGROUND_PLAY_ENABLED = 'backgroundPlayEnabled';
