@@ -1868,11 +1868,12 @@ function extractUserState(rawObj) {
       app_welcome_version,
       sharing_3P,
       unpublishedCollections,
+      editedCollections,
       builtinCollections,
       savedCollections
     } = rawObj.value;
 
-    return _extends$1({}, subscriptions ? { subscriptions } : {}, following ? { following } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, coin_swap_codes ? { coin_swap_codes } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {}, unpublishedCollections ? { unpublishedCollections } : {}, builtinCollections ? { builtinCollections } : {}, savedCollections ? { savedCollections } : {});
+    return _extends$1({}, subscriptions ? { subscriptions } : {}, following ? { following } : {}, tags ? { tags } : {}, blocked ? { blocked } : {}, coin_swap_codes ? { coin_swap_codes } : {}, settings ? { settings } : {}, app_welcome_version ? { app_welcome_version } : {}, sharing_3P ? { sharing_3P } : {}, unpublishedCollections ? { unpublishedCollections } : {}, editedCollections ? { editedCollections } : {}, builtinCollections ? { builtinCollections } : {}, savedCollections ? { savedCollections } : {});
   }
 
   return {};
@@ -1890,6 +1891,7 @@ function doPopulateSharedUserState(sharedSettings) {
       app_welcome_version,
       sharing_3P,
       unpublishedCollections,
+      editedCollections,
       builtinCollections,
       savedCollections
     } = extractUserState(sharedSettings);
@@ -1905,6 +1907,7 @@ function doPopulateSharedUserState(sharedSettings) {
         welcomeVersion: app_welcome_version,
         allowAnalytics: sharing_3P,
         unpublishedCollections,
+        editedCollections,
         builtinCollections,
         savedCollections
       }
@@ -3702,6 +3705,7 @@ const makeSelectClaimUrlInCollection = url => reselect.createSelector(selectBuil
   const itemsInCollections = [];
   collections.map(list => {
     Object.entries(list).forEach(([key, value]) => {
+      // $FlowFixMe
       value.items.map(item => {
         itemsInCollections.push(item);
       });
@@ -7776,8 +7780,14 @@ const collectionsReducer = handleActions({
     }));
   },
   [USER_STATE_POPULATE]: (state, action) => {
-    const { builtinCollections, savedCollections, unpublishedCollections } = action.data;
+    const {
+      builtinCollections,
+      savedCollections,
+      unpublishedCollections,
+      editedCollections
+    } = action.data;
     return _extends$e({}, state, {
+      edited: editedCollections || state.edited,
       unpublished: unpublishedCollections || state.unpublished,
       builtin: builtinCollections || state.builtin,
       saved: savedCollections || state.saved
