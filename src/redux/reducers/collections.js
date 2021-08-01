@@ -158,9 +158,15 @@ const collectionsReducer = handleActions(
       });
     },
     [ACTIONS.USER_STATE_POPULATE]: (state, action) => {
-      const { builtinCollections, savedCollections, unpublishedCollections } = action.data;
+      const {
+        builtinCollections,
+        savedCollections,
+        unpublishedCollections,
+        editedCollections,
+      } = action.data;
       return {
         ...state,
+        edited: editedCollections || state.edited,
         unpublished: unpublishedCollections || state.unpublished,
         builtin: builtinCollections || state.builtin,
         saved: savedCollections || state.saved,

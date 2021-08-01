@@ -175,6 +175,7 @@ export const makeSelectClaimUrlInCollection = (url: string) =>
       const itemsInCollections = [];
       collections.map(list => {
         Object.entries(list).forEach(([key, value]) => {
+          // $FlowFixMe
           value.items.map(item => {
             itemsInCollections.push(item);
           });
