@@ -90,8 +90,15 @@ const collectionsReducer = handleActions(
 
     [ACTIONS.COLLECTION_PENDING]: (state, action) => {
       const { localId, claimId } = action.data;
-      const { edited: editList, unpublished: unpublishedList, pending: pendingList } = state;
+      const {
+        resolved: resolvedList,
+        edited: editList,
+        unpublished: unpublishedList,
+        pending: pendingList,
+      } = state;
+
       const newEditList = Object.assign({}, editList);
+      const newResolvedList = Object.assign({}, resolvedList);
       const newUnpublishedList = Object.assign({}, unpublishedList);
       const newPendingList = Object.assign({}, pendingList);
 
@@ -101,7 +108,10 @@ const collectionsReducer = handleActions(
         delete newUnpublishedList[localId];
       } else {
         // edit update
-        newPendingList[claimId] = Object.assign({}, newEditList[claimId]);
+        newPendingList[claimId] = Object.assign(
+          {},
+          newEditList[claimId] || newResolvedList[claimId]
+        );
         delete newEditList[claimId];
       }
 
