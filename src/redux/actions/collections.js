@@ -18,7 +18,7 @@ const getTimestamp = () => {
   return Math.floor(Date.now() / 1000);
 };
 
-const FETCH_BATCH_SIZE = 10;
+const FETCH_BATCH_SIZE = 50;
 
 export const doLocalCollectionCreate = (
   name: string,
@@ -93,7 +93,7 @@ export const doFetchItemsInCollections = (
     pageSize?: number,
   },
   resolveStartedCallback?: () => void
-) => async (dispatch: Dispatch, getState: GetState) => {
+) => async(dispatch: Dispatch, getState: GetState) => {
   /*
   1) make sure all the collection claims are loaded into claims reducer, search/resolve if necessary.
   2) get the item claims for each
@@ -165,6 +165,7 @@ export const doFetchItemsInCollections = (
           claim_ids: claim.value.claims,
           page: i + 1,
           page_size: batchSize,
+          no_totals: true,
         });
       }
       const itemsInBatches = await Promise.all(batches);
@@ -318,7 +319,7 @@ export const doFetchItemsInCollection = (
   return doFetchItemsInCollections(newOptions, cb);
 };
 
-export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async (
+export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async(
   dispatch: Dispatch,
   getState: GetState
 ) => {
