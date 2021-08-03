@@ -4658,7 +4658,7 @@ const getTimestamp = () => {
   return Math.floor(Date.now() / 1000);
 };
 
-const FETCH_BATCH_SIZE = 10;
+const FETCH_BATCH_SIZE = 50;
 
 const doLocalCollectionCreate = (name, collectionItems, type, sourceId) => dispatch => {
   return dispatch({
@@ -4765,7 +4765,8 @@ const doFetchItemsInCollections = (resolveItemsOptions, resolveStartedCallback) 
             batches[i] = lbryProxy.claim_search({
               claim_ids: claim.value.claims,
               page: i + 1,
-              page_size: batchSize
+              page_size: batchSize,
+              no_totals: true
             });
           }
           const itemsInBatches = yield Promise.all(batches);
