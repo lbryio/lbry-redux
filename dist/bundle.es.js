@@ -1532,17 +1532,17 @@ function parseURI(url, requireProto = false) {
 
   // Validate protocol
   if (requireProto && !proto) {
-    throw new Error(__('LBRY URLs must include a protocol prefix (lbry://).'));
+    throw new Error(`LBRY URLs must include a protocol prefix (lbry://). "${url}"`);
   }
 
   // Validate and process name
   if (!streamNameOrChannelName) {
-    throw new Error(__('URL does not include name.'));
+    throw new Error(`URL does not include name. "${url}"`);
   }
 
   rest.forEach(urlPiece => {
     if (urlPiece && urlPiece.includes(' ')) {
-      throw new Error(__('URL can not include a space'));
+      throw new Error(`URL can not include a space. "${url}"`);
     }
   });
 
