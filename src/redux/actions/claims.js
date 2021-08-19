@@ -19,7 +19,7 @@ import { creditsToString } from 'util/format-credits';
 import { batchActions } from 'util/batch-actions';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { PAGE_SIZE } from 'constants/claim';
-import { selectPendingCollections } from 'redux/selectors/collections';
+import { selectPendingCollections, makeSelectEditedCollectionForId } from 'redux/selectors/collections';
 import {
   doFetchItemsInCollection,
   doFetchItemsInCollections,
@@ -838,9 +838,10 @@ export function doCollectionPublishUpdate(options: {
   tags?: Array<Tag>,
   languages?: Array<string>,
   claims?: Array<string>,
-}) {
-  return (dispatch: Dispatch): Promise<any> => {
+}, isBackgroundUpdate?: boolean) {
+  return (dispatch: Dispatch, getState: GetState): Promise<any> => {
     // TODO: implement one click update
+    const state = getState();
 
     const updateParams: {
       bid?: string,
@@ -853,18 +854,28 @@ export function doCollectionPublishUpdate(options: {
       languages?: Array<string>,
       claims?: Array<string>,
       clear_claims: boolean,
-    } = {
-      bid: creditsToString(options.bid),
-      title: options.title,
-      thumbnail_url: options.thumbnail_url,
-      description: options.description,
-      tags: [],
-      languages: options.languages || [],
-      locations: [],
-      blocking: true,
-      claim_id: options.claim_id,
-      clear_claims: true,
-    };
+    } = isBackgroundUpdate
+      ? {
+        blocking: true,
+        claim_id: options.claim_id,
+        clear_claims: true,
+      }
+      : {
+        bid: creditsToString(options.bid),
+        title: options.title,
+        thumbnail_url: options.thumbnail_url,
+        description: options.description,
+        tags: [],
+        languages: options.languages || [],
+        locations: [],
+        blocking: true,
+        claim_id: options.claim_id,
+        clear_claims: true,
+      };
+
+    if (isBackgroundUpdate && updateParams.claim_id) {
+      updateParams.claims = makeSelectEditedCollectionForId(updateParams.claim_id)(state);
+    }
 
     if (options.tags) {
       updateParams['tags'] = options.tags.map(tag => tag.name);
