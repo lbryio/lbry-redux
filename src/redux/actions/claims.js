@@ -19,7 +19,10 @@ import { creditsToString } from 'util/format-credits';
 import { batchActions } from 'util/batch-actions';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { PAGE_SIZE } from 'constants/claim';
-import { selectPendingCollections, makeSelectEditedCollectionForId } from 'redux/selectors/collections';
+import {
+  selectPendingCollections,
+  makeSelectClaimIdsForCollectionId,
+} from 'redux/selectors/collections';
 import {
   doFetchItemsInCollection,
   doFetchItemsInCollections,
@@ -76,7 +79,7 @@ export function doResolveUris(
     const collectionIds: Array<string> = [];
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
-      async(result: ResolveResponse) => {
+      async (result: ResolveResponse) => {
         let repostedResults = {};
         const repostsToResolve = [];
         const fallbackResolveInfo = {
@@ -648,7 +651,7 @@ export function doClaimSearch(
   }
 ) {
   const query = createNormalizedClaimSearchKey(options);
-  return async(dispatch: Dispatch) => {
+  return async (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
       data: { query: query },
@@ -828,17 +831,20 @@ export function doCollectionPublish(
   };
 }
 
-export function doCollectionPublishUpdate(options: {
-  bid?: string,
-  blocking?: true,
-  title?: string,
-  thumbnail_url?: string,
-  description?: string,
-  claim_id: string,
-  tags?: Array<Tag>,
-  languages?: Array<string>,
-  claims?: Array<string>,
-}, isBackgroundUpdate?: boolean) {
+export function doCollectionPublishUpdate(
+  options: {
+    bid?: string,
+    blocking?: true,
+    title?: string,
+    thumbnail_url?: string,
+    description?: string,
+    claim_id: string,
+    tags?: Array<Tag>,
+    languages?: Array<string>,
+    claims?: Array<string>,
+  },
+  isBackgroundUpdate?: boolean
+) {
   return (dispatch: Dispatch, getState: GetState): Promise<any> => {
     // TODO: implement one click update
     const state = getState();
@@ -856,34 +862,33 @@ export function doCollectionPublishUpdate(options: {
       clear_claims: boolean,
     } = isBackgroundUpdate
       ? {
-        blocking: true,
-        claim_id: options.claim_id,
-        clear_claims: true,
-      }
+          blocking: true,
+          claim_id: options.claim_id,
+          clear_claims: true,
+        }
       : {
-        bid: creditsToString(options.bid),
-        title: options.title,
-        thumbnail_url: options.thumbnail_url,
-        description: options.description,
-        tags: [],
-        languages: options.languages || [],
-        locations: [],
-        blocking: true,
-        claim_id: options.claim_id,
-        clear_claims: true,
-      };
+          bid: creditsToString(options.bid),
+          title: options.title,
+          thumbnail_url: options.thumbnail_url,
+          description: options.description,
+          tags: [],
+          languages: options.languages || [],
+          locations: [],
+          blocking: true,
+          claim_id: options.claim_id,
+          clear_claims: true,
+        };
 
     if (isBackgroundUpdate && updateParams.claim_id) {
-      updateParams.claims = makeSelectEditedCollectionForId(updateParams.claim_id)(state);
+      updateParams['claims'] = makeSelectClaimIdsForCollectionId(updateParams.claim_id)(state);
+    } else if (options.claims) {
+      updateParams['claims'] = options.claims;
     }
 
     if (options.tags) {
       updateParams['tags'] = options.tags.map(tag => tag.name);
     }
 
-    if (options.claims) {
-      updateParams['claims'] = options.claims;
-    }
     return new Promise(resolve => {
       dispatch({
         type: ACTIONS.COLLECTION_PUBLISH_UPDATE_STARTED,

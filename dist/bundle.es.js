@@ -4465,11 +4465,16 @@ function doCollectionPublish(options, localId) {
   };
 }
 
-function doCollectionPublishUpdate(options) {
-  return dispatch => {
+function doCollectionPublishUpdate(options, isBackgroundUpdate) {
+  return (dispatch, getState) => {
     // TODO: implement one click update
+    const state = getState();
 
-    const updateParams = {
+    const updateParams = isBackgroundUpdate ? {
+      blocking: true,
+      claim_id: options.claim_id,
+      clear_claims: true
+    } : {
       bid: creditsToString(options.bid),
       title: options.title,
       thumbnail_url: options.thumbnail_url,
@@ -4482,13 +4487,16 @@ function doCollectionPublishUpdate(options) {
       clear_claims: true
     };
 
+    if (isBackgroundUpdate && updateParams.claim_id) {
+      updateParams['claims'] = makeSelectClaimIdsForCollectionId(updateParams.claim_id)(state);
+    } else if (options.claims) {
+      updateParams['claims'] = options.claims;
+    }
+
     if (options.tags) {
       updateParams['tags'] = options.tags.map(tag => tag.name);
     }
 
-    if (options.claims) {
-      updateParams['claims'] = options.claims;
-    }
     return new Promise(resolve => {
       dispatch({
         type: COLLECTION_PUBLISH_UPDATE_STARTED
