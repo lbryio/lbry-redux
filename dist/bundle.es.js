@@ -4468,7 +4468,6 @@ function doCollectionPublish(options, localId) {
 function doCollectionPublishUpdate(options, isBackgroundUpdate) {
   return (dispatch, getState) => {
     // TODO: implement one click update
-    const state = getState();
 
     const updateParams = isBackgroundUpdate ? {
       blocking: true,
@@ -4488,6 +4487,7 @@ function doCollectionPublishUpdate(options, isBackgroundUpdate) {
     };
 
     if (isBackgroundUpdate && updateParams.claim_id) {
+      const state = getState();
       updateParams['claims'] = makeSelectClaimIdsForCollectionId(updateParams.claim_id)(state);
     } else if (options.claims) {
       updateParams['claims'] = options.claims;
