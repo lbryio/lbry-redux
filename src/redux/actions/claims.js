@@ -847,7 +847,6 @@ export function doCollectionPublishUpdate(
 ) {
   return (dispatch: Dispatch, getState: GetState): Promise<any> => {
     // TODO: implement one click update
-    const state = getState();
 
     const updateParams: {
       bid?: string,
@@ -880,6 +879,7 @@ export function doCollectionPublishUpdate(
         };
 
     if (isBackgroundUpdate && updateParams.claim_id) {
+      const state = getState();
       updateParams['claims'] = makeSelectClaimIdsForCollectionId(updateParams.claim_id)(state);
     } else if (options.claims) {
       updateParams['claims'] = options.claims;
