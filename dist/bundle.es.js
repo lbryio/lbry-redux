@@ -3727,23 +3727,51 @@ const makeSelectClaimIdsForCollectionId = id => reselect.createSelector(makeSele
   return ids;
 });
 
-const makeSelectIndexForUrlInCollection = (url, id) => reselect.createSelector(makeSelectUrlsForCollectionId(id), makeSelectClaimForUri(url), (urls, claim) => {
-  const index = urls && urls.findIndex(u => u === url);
+const makeSelectIndexForUrlInCollection = (url, id) => reselect.createSelector(state => state.content.shuffleList, makeSelectUrlsForCollectionId(id), makeSelectClaimForUri(url), (shuffleState, urls, claim) => {
+  const shuffleUrls = shuffleState && shuffleState.collectionId === id && shuffleState.newUrls;
+  const listUrls = shuffleUrls || urls;
+
+  const index = listUrls && listUrls.findIndex(u => u === url);
   if (index > -1) {
     return index;
   } else if (claim) {
-    const index = urls && urls.findIndex(u => u === claim.permanent_url);
+    const index = listUrls && listUrls.findIndex(u => u === claim.permanent_url);
     if (index > -1) return index;
     return claim;
   }
   return null;
 });
 
-const makeSelectNextUrlForCollectionAndUrl = (id, url) => reselect.createSelector(makeSelectIndexForUrlInCollection(url, id), selectClaimsByUri, makeSelectUrlsForCollectionId(id), (index, claims, urls) => {
+const makeSelectPreviousUrlForCollectionAndUrl = (id, url) => reselect.createSelector(state => state.content.shuffleList, state => state.content.loopList, makeSelectIndexForUrlInCollection(url, id), makeSelectUrlsForCollectionId(id), (shuffleState, loopState, index, urls) => {
+  const loopList = loopState && loopState.collectionId === id && loopState.loop;
+  const shuffleUrls = shuffleState && shuffleState.collectionId === id && shuffleState.newUrls;
+
   if (index > -1) {
+    const listUrls = shuffleUrls || urls;
+    let nextUrl;
+    if (index === 0 && loopList) {
+      nextUrl = listUrls[listUrls.length - 1];
+    } else {
+      nextUrl = listUrls[index - 1];
+    }
+    return nextUrl || null;
+  } else {
+    return null;
+  }
+});
+
+const makeSelectNextUrlForCollectionAndUrl = (id, url) => reselect.createSelector(state => state.content.shuffleList, state => state.content.loopList, makeSelectIndexForUrlInCollection(url, id), makeSelectUrlsForCollectionId(id), (shuffleState, loopState, index, urls) => {
+  const loopList = loopState && loopState.collectionId === id && loopState.loop;
+  const shuffleUrls = shuffleState && shuffleState.collectionId === id && shuffleState.newUrls;
+
+  if (index > -1) {
+    const listUrls = shuffleUrls || urls;
     // We'll get the next playble url
-    const remainingUrls = urls.slice(index + 1);
-    const nextUrl = remainingUrls.find(u => claims[u].value.stream_type && (claims[u].value.stream_type === 'video' || claims[u].value.stream_type === 'audio'));
+    let remainingUrls = listUrls.slice(index + 1);
+    if (!remainingUrls.length && loopList) {
+      remainingUrls = listUrls.slice(0);
+    }
+    const nextUrl = remainingUrls && remainingUrls[0];
     return nextUrl || null;
   } else {
     return null;
@@ -3759,7 +3787,13 @@ const makeSelectCountForCollectionId = id => reselect.createSelector(makeSelectC
     if (collection.itemCount !== undefined) {
       return collection.itemCount;
     }
-    return collection.items.length;
+    let itemCount = 0;
+    collection.items.map(item => {
+      if (item) {
+        itemCount += 1;
+      }
+    });
+    return itemCount;
   }
   return null;
 });
@@ -8053,6 +8087,7 @@ exports.makeSelectPendingAmountByUri = makeSelectPendingAmountByUri;
 exports.makeSelectPendingClaimForUri = makeSelectPendingClaimForUri;
 exports.makeSelectPendingCollectionForId = makeSelectPendingCollectionForId;
 exports.makeSelectPermanentUrlForUri = makeSelectPermanentUrlForUri;
+exports.makeSelectPreviousUrlForCollectionAndUrl = makeSelectPreviousUrlForCollectionAndUrl;
 exports.makeSelectPublishFormValue = makeSelectPublishFormValue;
 exports.makeSelectPublishedCollectionForId = makeSelectPublishedCollectionForId;
 exports.makeSelectReflectingClaimForUri = makeSelectReflectingClaimForUri;
