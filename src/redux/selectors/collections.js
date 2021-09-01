@@ -1,4 +1,5 @@
 // @flow
+import fromEntries from '@ungap/from-entries';
 import { createSelector } from 'reselect';
 import {
   selectMyCollectionIds,
@@ -79,7 +80,7 @@ export const selectMyPublishedCollections = createSelector(
   selectMyCollectionIds,
   (resolved, pending, edited, myIds) => {
     // all resolved in myIds, plus those in pending and edited
-    const myPublishedCollections = Object.fromEntries(
+    const myPublishedCollections = fromEntries(
       Object.entries(pending).concat(
         Object.entries(resolved).filter(
           ([key, val]) =>
@@ -100,7 +101,7 @@ export const selectMyPublishedCollections = createSelector(
 export const selectMyPublishedMixedCollections = createSelector(
   selectMyPublishedCollections,
   published => {
-    const myCollections = Object.fromEntries(
+    const myCollections = fromEntries(
       // $FlowFixMe
       Object.entries(published).filter(([key, collection]) => {
         // $FlowFixMe
@@ -114,7 +115,7 @@ export const selectMyPublishedMixedCollections = createSelector(
 export const selectMyPublishedPlaylistCollections = createSelector(
   selectMyPublishedCollections,
   published => {
-    const myCollections = Object.fromEntries(
+    const myCollections = fromEntries(
       // $FlowFixMe
       Object.entries(published).filter(([key, collection]) => {
         // $FlowFixMe
@@ -135,7 +136,7 @@ export const makeSelectMyPublishedCollectionForId = (id: string) =>
 //   selectResolvedCollections,
 //   selectSavedCollectionIds,
 //   (resolved, myIds) => {
-//     const mySavedCollections = Object.fromEntries(
+//     const mySavedCollections = fromEntries(
 //       Object.entries(resolved).filter(([key, val]) => myIds.includes(key))
 //     );
 //     return mySavedCollections;

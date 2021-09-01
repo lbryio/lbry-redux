@@ -2,9 +2,12 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
 require('proxy-polyfill');
 var uuid = require('uuid');
 var reselect = require('reselect');
+var fromEntries = _interopDefault(require('@ungap/from-entries'));
 
 const MINIMUM_PUBLISH_BID = 0.00000001;
 
@@ -3648,7 +3651,7 @@ const makeSelectCollectionIsMine = id => reselect.createSelector(selectMyCollect
 
 const selectMyPublishedCollections = reselect.createSelector(selectResolvedCollections, selectPendingCollections, selectMyEditedCollections, selectMyCollectionIds, (resolved, pending, edited, myIds) => {
   // all resolved in myIds, plus those in pending and edited
-  const myPublishedCollections = Object.fromEntries(Object.entries(pending).concat(Object.entries(resolved).filter(([key, val]) => myIds.includes(key) &&
+  const myPublishedCollections = fromEntries(Object.entries(pending).concat(Object.entries(resolved).filter(([key, val]) => myIds.includes(key) &&
   // $FlowFixMe
   !pending[key])));
   // now add in edited:
@@ -3659,7 +3662,7 @@ const selectMyPublishedCollections = reselect.createSelector(selectResolvedColle
 });
 
 const selectMyPublishedMixedCollections = reselect.createSelector(selectMyPublishedCollections, published => {
-  const myCollections = Object.fromEntries(
+  const myCollections = fromEntries(
   // $FlowFixMe
   Object.entries(published).filter(([key, collection]) => {
     // $FlowFixMe
@@ -3669,7 +3672,7 @@ const selectMyPublishedMixedCollections = reselect.createSelector(selectMyPublis
 });
 
 const selectMyPublishedPlaylistCollections = reselect.createSelector(selectMyPublishedCollections, published => {
-  const myCollections = Object.fromEntries(
+  const myCollections = fromEntries(
   // $FlowFixMe
   Object.entries(published).filter(([key, collection]) => {
     // $FlowFixMe
@@ -3684,7 +3687,7 @@ const makeSelectMyPublishedCollectionForId = id => reselect.createSelector(selec
 //   selectResolvedCollections,
 //   selectSavedCollectionIds,
 //   (resolved, myIds) => {
-//     const mySavedCollections = Object.fromEntries(
+//     const mySavedCollections = fromEntries(
 //       Object.entries(resolved).filter(([key, val]) => myIds.includes(key))
 //     );
 //     return mySavedCollections;
