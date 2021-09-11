@@ -4520,7 +4520,8 @@ function doCollectionPublishUpdate(options, isBackgroundUpdate) {
       locations: [],
       blocking: true,
       claim_id: options.claim_id,
-      clear_claims: true
+      clear_claims: true,
+      replace: true
     };
 
     if (isBackgroundUpdate && updateParams.claim_id) {
