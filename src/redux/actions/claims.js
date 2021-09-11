@@ -859,6 +859,7 @@ export function doCollectionPublishUpdate(
       languages?: Array<string>,
       claims?: Array<string>,
       clear_claims: boolean,
+      replace: boolean,
     } = isBackgroundUpdate
       ? {
           blocking: true,
@@ -876,6 +877,7 @@ export function doCollectionPublishUpdate(
           blocking: true,
           claim_id: options.claim_id,
           clear_claims: true,
+          replace: true,
         };
 
     if (isBackgroundUpdate && updateParams.claim_id) {
