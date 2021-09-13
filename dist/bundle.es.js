@@ -5628,7 +5628,7 @@ const doUpdatePublishForm = publishFormValue => dispatch => dispatch({
   data: _extends$7({}, publishFormValue)
 });
 
-const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => dispatch => {
+const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path, cb) => dispatch => {
   const downMessage = __('Thumbnail upload service may be down, try again later.');
   let thumbnail, fileExt, fileName, fileType;
 
@@ -5662,13 +5662,17 @@ const doUploadThumbnail = (filePath, thumbnailBlob, fsAdapter, fs, path) => disp
       method: 'POST',
       body: data
     }).then(res => res.text()).then(text => text.length ? JSON.parse(text) : {}).then(json => {
-      return json.success ? dispatch({
+      if (!json.success) return uploadError(json.message || downMessage);
+      if (cb) {
+        cb(json.data.serveUrl);
+      }
+      return dispatch({
         type: UPDATE_PUBLISH_FORM,
         data: {
           uploadThumbnailStatus: COMPLETE,
           thumbnail: json.data.serveUrl
         }
-      }) : uploadError(json.message || downMessage);
+      });
     }).catch(err => {
       let message = err.message;
 
