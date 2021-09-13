@@ -69,7 +69,8 @@ export const doUploadThumbnail = (
   thumbnailBlob?: File,
   fsAdapter?: any,
   fs?: any,
-  path?: any
+  path?: any,
+  cb?: (string) => void
 ) => (dispatch: Dispatch) => {
   const downMessage = __('Thumbnail upload service may be down, try again later.');
   let thumbnail, fileExt, fileName, fileType;
@@ -112,15 +113,17 @@ export const doUploadThumbnail = (
       .then(res => res.text())
       .then(text => (text.length ? JSON.parse(text) : {}))
       .then(json => {
-        return json.success
-          ? dispatch({
-              type: ACTIONS.UPDATE_PUBLISH_FORM,
-              data: {
-                uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-                thumbnail: json.data.serveUrl,
-              },
-            })
-          : uploadError(json.message || downMessage);
+        if (!json.success) return uploadError(json.message || downMessage);
+        if (cb) {
+          cb(json.data.serveUrl);
+        }
+        return dispatch({
+          type: ACTIONS.UPDATE_PUBLISH_FORM,
+          data: {
+            uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+            thumbnail: json.data.serveUrl,
+          },
+        });
       })
       .catch(err => {
         let message = err.message;
