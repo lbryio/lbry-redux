@@ -4535,6 +4535,10 @@ function doCollectionPublishUpdate(options, isBackgroundUpdate) {
       updateParams['tags'] = options.tags.map(tag => tag.name);
     }
 
+    if (options.channel_id) {
+      updateParams['channel_id'] = options.channel_id;
+    }
+
     return new Promise(resolve => {
       dispatch({
         type: COLLECTION_PUBLISH_UPDATE_STARTED

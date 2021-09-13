@@ -79,7 +79,7 @@ export function doResolveUris(
     const collectionIds: Array<string> = [];
 
     return Lbry.resolve({ urls: urisToResolve, ...options }).then(
-      async (result: ResolveResponse) => {
+      async(result: ResolveResponse) => {
         let repostedResults = {};
         const repostsToResolve = [];
         const fallbackResolveInfo = {
@@ -651,7 +651,7 @@ export function doClaimSearch(
   }
 ) {
   const query = createNormalizedClaimSearchKey(options);
-  return async (dispatch: Dispatch) => {
+  return async(dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
       data: { query: query },
@@ -842,6 +842,7 @@ export function doCollectionPublishUpdate(
     tags?: Array<Tag>,
     languages?: Array<string>,
     claims?: Array<string>,
+    channel_id?: string,
   },
   isBackgroundUpdate?: boolean
 ) {
@@ -853,32 +854,33 @@ export function doCollectionPublishUpdate(
       blocking?: true,
       title?: string,
       thumbnail_url?: string,
+      channel_id?: string,
       description?: string,
       claim_id: string,
       tags?: Array<string>,
       languages?: Array<string>,
       claims?: Array<string>,
       clear_claims: boolean,
-      replace: boolean,
+      replace?: boolean,
     } = isBackgroundUpdate
       ? {
-          blocking: true,
-          claim_id: options.claim_id,
-          clear_claims: true,
-        }
+        blocking: true,
+        claim_id: options.claim_id,
+        clear_claims: true,
+      }
       : {
-          bid: creditsToString(options.bid),
-          title: options.title,
-          thumbnail_url: options.thumbnail_url,
-          description: options.description,
-          tags: [],
-          languages: options.languages || [],
-          locations: [],
-          blocking: true,
-          claim_id: options.claim_id,
-          clear_claims: true,
-          replace: true,
-        };
+        bid: creditsToString(options.bid),
+        title: options.title,
+        thumbnail_url: options.thumbnail_url,
+        description: options.description,
+        tags: [],
+        languages: options.languages || [],
+        locations: [],
+        blocking: true,
+        claim_id: options.claim_id,
+        clear_claims: true,
+        replace: true,
+      };
 
     if (isBackgroundUpdate && updateParams.claim_id) {
       const state = getState();
@@ -889,6 +891,10 @@ export function doCollectionPublishUpdate(
 
     if (options.tags) {
       updateParams['tags'] = options.tags.map(tag => tag.name);
+    }
+
+    if (options.channel_id) {
+      updateParams['channel_id'] = options.channel_id;
     }
 
     return new Promise(resolve => {
