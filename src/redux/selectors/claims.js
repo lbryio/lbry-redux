@@ -2,20 +2,16 @@
 import { normalizeURI, parseURI } from 'lbryURI';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
+import { createCachedSelector } from 're-reselect';
 import { isClaimNsfw, filterClaims } from 'util/claim';
 import * as CLAIM from 'constants/claim';
 
+type State = { claims: any };
+
 const selectState = state => state.claims || {};
 
-export const selectById = createSelector(
-  selectState,
-  state => state.byId || {}
-);
-
-export const selectPendingClaimsById = createSelector(
-  selectState,
-  state => state.pendingById || {}
-);
+export const selectById = (state: State) => selectState(state).byId || {};
+export const selectPendingClaimsById = (state: State) => selectState(state).pendingById || {};
 
 export const selectClaimsById = createSelector(
   selectById,
@@ -25,10 +21,7 @@ export const selectClaimsById = createSelector(
   }
 );
 
-export const selectClaimIdsByUri = createSelector(
-  selectState,
-  state => state.claimsByUri || {}
-);
+export const selectClaimIdsByUri = (state: State) => selectState(state).claimsByUri || {};
 
 export const selectCurrentChannelPage = createSelector(
   selectState,
@@ -131,6 +124,54 @@ export const makeSelectClaimForClaimId = (claimId: string) =>
     selectClaimsById,
     byId => byId[claimId]
   );
+
+// Compare with makeSelectClaimForUri just down below
+export const selectClaimForUri = createCachedSelector(
+  selectClaimIdsByUri,
+  selectClaimsById,
+  (state, uri) => uri,
+  (state, uri, returnRepost = true) => returnRepost,
+  (byUri, byId, uri, returnRepost) => {
+    console.log('  selectClaimForUri');
+
+    let validUri;
+    let channelClaimId;
+    let streamClaimId;
+    let isChannel;
+    try {
+      ({ isChannel, channelClaimId, streamClaimId } = parseURI(uri));
+      validUri = true;
+    } catch (e) {}
+
+    if (validUri && byUri) {
+      const claimId = uri && byUri[normalizeURI(uri)];
+      const claim = byId[claimId];
+
+      // Make sure to return the claim as is so apps can check if it's been resolved before (null) or still needs to be resolved (undefined)
+      if (claimId === null) {
+        return null;
+      } else if (claimId === undefined) {
+        return undefined;
+      }
+
+      const repostedClaim = claim && claim.reposted_claim;
+      if (repostedClaim && returnRepost) {
+        const channelUrl =
+          claim.signing_channel &&
+          (claim.signing_channel.canonical_url || claim.signing_channel.permanent_url);
+
+        return {
+          ...repostedClaim,
+          repost_url: normalizeURI(uri),
+          repost_channel_url: channelUrl,
+          repost_bid_amount: claim && claim.meta && claim.meta.effective_amount,
+        };
+      } else {
+        return claim;
+      }
+    }
+  }
+)((state, uri, returnRepost = true) => `${uri}:${returnRepost ? '1' : '0'}`);
 
 export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true) =>
   createSelector(
@@ -382,6 +423,27 @@ export const makeSelectTitleForUri = (uri: string) =>
     makeSelectMetadataForUri(uri),
     metadata => metadata && metadata.title
   );
+
+// Compare with makeSelectDateForUri just down below
+export const selectDateForUri = createCachedSelector(
+  selectClaimForUri, // (state, uri, ?returnRepost)
+  claim => {
+    console.log('  selectDateForUri');
+    const timestamp =
+      claim &&
+      claim.value &&
+      (claim.value.release_time
+        ? claim.value.release_time * 1000
+        : claim.meta && claim.meta.creation_timestamp
+          ? claim.meta.creation_timestamp * 1000
+          : null);
+    if (!timestamp) {
+      return undefined;
+    }
+    const dateObj = new Date(timestamp);
+    return dateObj;
+  }
+)((state, uri) => uri);
 
 export const makeSelectDateForUri = (uri: string) =>
   createSelector(

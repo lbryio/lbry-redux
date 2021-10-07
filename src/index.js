@@ -189,6 +189,7 @@ export {
 } from 'redux/selectors/collections';
 
 export {
+  selectClaimForUri,
   makeSelectClaimForUri,
   makeSelectClaimIsMine,
   makeSelectFetchingChannelClaims,
@@ -200,6 +201,7 @@ export {
   makeSelectThumbnailForUri,
   makeSelectCoverForUri,
   makeSelectTitleForUri,
+  selectDateForUri,
   makeSelectDateForUri,
   makeSelectAmountForUri,
   makeSelectEffectiveAmountForUri,

@@ -7,6 +7,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('proxy-polyfill');
 var uuid = require('uuid');
 var reselect = require('reselect');
+var reReselect = require('re-reselect');
 var fromEntries = _interopDefault(require('@ungap/from-entries'));
 
 const MINIMUM_PUBLISH_BID = 0.00000001;
@@ -2405,15 +2406,14 @@ var _extends$3 = Object.assign || function (target) { for (var i = 1; i < argume
 
 const selectState$1 = state => state.claims || {};
 
-const selectById = reselect.createSelector(selectState$1, state => state.byId || {});
-
-const selectPendingClaimsById = reselect.createSelector(selectState$1, state => state.pendingById || {});
+const selectById = state => selectState$1(state).byId || {};
+const selectPendingClaimsById = state => selectState$1(state).pendingById || {};
 
 const selectClaimsById = reselect.createSelector(selectById, selectPendingClaimsById, (byId, pendingById) => {
   return Object.assign(byId, pendingById); // do I need merged to keep metadata?
 });
 
-const selectClaimIdsByUri = reselect.createSelector(selectState$1, state => state.claimsByUri || {});
+const selectClaimIdsByUri = state => selectState$1(state).claimsByUri || {};
 
 const selectCurrentChannelPage = reselect.createSelector(selectState$1, state => state.currentChannelPage || 1);
 
@@ -2468,6 +2468,45 @@ const makeSelectClaimIdForUri = uri => reselect.createSelector(selectClaimIdsByU
 const selectReflectingById = reselect.createSelector(selectState$1, state => state.reflectingById);
 
 const makeSelectClaimForClaimId = claimId => reselect.createSelector(selectClaimsById, byId => byId[claimId]);
+
+// Compare with makeSelectClaimForUri just down below
+const selectClaimForUri = reReselect.createCachedSelector(selectClaimIdsByUri, selectClaimsById, (state, uri) => uri, (state, uri, returnRepost = true) => returnRepost, (byUri, byId, uri, returnRepost) => {
+  console.log('  selectClaimForUri');
+
+  let validUri;
+  let channelClaimId;
+  let streamClaimId;
+  let isChannel;
+  try {
+    ({ isChannel, channelClaimId, streamClaimId } = parseURI(uri));
+    validUri = true;
+  } catch (e) {}
+
+  if (validUri && byUri) {
+    const claimId = uri && byUri[normalizeURI(uri)];
+    const claim = byId[claimId];
+
+    // Make sure to return the claim as is so apps can check if it's been resolved before (null) or still needs to be resolved (undefined)
+    if (claimId === null) {
+      return null;
+    } else if (claimId === undefined) {
+      return undefined;
+    }
+
+    const repostedClaim = claim && claim.reposted_claim;
+    if (repostedClaim && returnRepost) {
+      const channelUrl = claim.signing_channel && (claim.signing_channel.canonical_url || claim.signing_channel.permanent_url);
+
+      return _extends$3({}, repostedClaim, {
+        repost_url: normalizeURI(uri),
+        repost_channel_url: channelUrl,
+        repost_bid_amount: claim && claim.meta && claim.meta.effective_amount
+      });
+    } else {
+      return claim;
+    }
+  }
+})((state, uri, returnRepost = true) => `${uri}:${returnRepost ? '1' : '0'}`);
 
 const makeSelectClaimForUri = (uri, returnRepost = true) => reselect.createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
   let validUri;
@@ -2615,6 +2654,18 @@ const makeSelectMetadataItemForUri = (uri, key) => reselect.createSelector(makeS
 });
 
 const makeSelectTitleForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => metadata && metadata.title);
+
+// Compare with makeSelectDateForUri just down below
+const selectDateForUri = reReselect.createCachedSelector(selectClaimForUri, // (state, uri, ?returnRepost)
+claim => {
+  console.log('  selectDateForUri');
+  const timestamp = claim && claim.value && (claim.value.release_time ? claim.value.release_time * 1000 : claim.meta && claim.meta.creation_timestamp ? claim.meta.creation_timestamp * 1000 : null);
+  if (!timestamp) {
+    return undefined;
+  }
+  const dateObj = new Date(timestamp);
+  return dateObj;
+})((state, uri) => uri);
 
 const makeSelectDateForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const timestamp = claim && claim.value && (claim.value.release_time ? claim.value.release_time * 1000 : claim.meta && claim.meta.creation_timestamp ? claim.meta.creation_timestamp * 1000 : null);
@@ -8147,6 +8198,7 @@ exports.selectBlocks = selectBlocks;
 exports.selectBuiltinCollections = selectBuiltinCollections;
 exports.selectChannelClaimCounts = selectChannelClaimCounts;
 exports.selectChannelImportPending = selectChannelImportPending;
+exports.selectClaimForUri = selectClaimForUri;
 exports.selectClaimIdsByUri = selectClaimIdsByUri;
 exports.selectClaimSearchByQuery = selectClaimSearchByQuery;
 exports.selectClaimSearchByQueryLastPageReached = selectClaimSearchByQueryLastPageReached;
@@ -8158,6 +8210,7 @@ exports.selectCreateCollectionError = selectCreateCollectionError;
 exports.selectCreatingChannel = selectCreatingChannel;
 exports.selectCreatingCollection = selectCreatingCollection;
 exports.selectCurrentChannelPage = selectCurrentChannelPage;
+exports.selectDateForUri = selectDateForUri;
 exports.selectDownloadUrlsCount = selectDownloadUrlsCount;
 exports.selectDownloadedUris = selectDownloadedUris;
 exports.selectDownloadingByOutpoint = selectDownloadingByOutpoint;
