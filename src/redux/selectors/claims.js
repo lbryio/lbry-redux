@@ -340,8 +340,8 @@ export const makeSelectMyPurchasesForPage = (query: ?string, page: number = 1) =
       const end = Number(page) * Number(CLAIM.PAGE_SIZE);
       return matchingFileInfos && matchingFileInfos.length
         ? matchingFileInfos
-          .slice(start, end)
-          .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
+            .slice(start, end)
+            .map(fileInfo => fileInfo.canonical_url || fileInfo.permanent_url)
         : [];
     }
   );
@@ -401,6 +401,11 @@ export const makeSelectTotalPagesInChannelSearch = (uri: string) =>
     }
   );
 
+export const selectMetadataForUri = createCachedSelector(selectClaimForUri, (claim, uri) => {
+  const metadata = claim && claim.value;
+  return metadata || (claim === undefined ? undefined : null);
+})((state, uri) => uri);
+
 export const makeSelectMetadataForUri = (uri: string) =>
   createSelector(
     makeSelectClaimForUri(uri),
@@ -435,8 +440,8 @@ export const selectDateForUri = createCachedSelector(
       (claim.value.release_time
         ? claim.value.release_time * 1000
         : claim.meta && claim.meta.creation_timestamp
-          ? claim.meta.creation_timestamp * 1000
-          : null);
+        ? claim.meta.creation_timestamp * 1000
+        : null);
     if (!timestamp) {
       return undefined;
     }
@@ -455,8 +460,8 @@ export const makeSelectDateForUri = (uri: string) =>
         (claim.value.release_time
           ? claim.value.release_time * 1000
           : claim.meta && claim.meta.creation_timestamp
-            ? claim.meta.creation_timestamp * 1000
-            : null);
+          ? claim.meta.creation_timestamp * 1000
+          : null);
       if (!timestamp) {
         return undefined;
       }
@@ -784,6 +789,13 @@ export const makeSelectMyChannelPermUrlForName = (name: string) =>
       return matchingClaim ? matchingClaim.permanent_url : null;
     }
   );
+
+export const selectTagsForUri = createCachedSelector(
+  selectMetadataForUri,
+  (metadata: ?GenericMetadata) => {
+    return (metadata && metadata.tags) || [];
+  }
+)((state, uri) => uri);
 
 export const makeSelectTagsForUri = (uri: string) =>
   createSelector(

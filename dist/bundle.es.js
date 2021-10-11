@@ -2644,6 +2644,11 @@ const makeSelectTotalPagesInChannelSearch = uri => reselect.createSelector(selec
   return byChannel['pageCount'];
 });
 
+const selectMetadataForUri = reReselect.createCachedSelector(selectClaimForUri, (claim, uri) => {
+  const metadata = claim && claim.value;
+  return metadata || (claim === undefined ? undefined : null);
+})((state, uri) => uri);
+
 const makeSelectMetadataForUri = uri => reselect.createSelector(makeSelectClaimForUri(uri), claim => {
   const metadata = claim && claim.value;
   return metadata || (claim === undefined ? undefined : null);
@@ -2859,6 +2864,10 @@ const makeSelectMyChannelPermUrlForName = name => reselect.createSelector(select
   const matchingClaim = claims && claims.find(claim => claim.name === name);
   return matchingClaim ? matchingClaim.permanent_url : null;
 });
+
+const selectTagsForUri = reReselect.createCachedSelector(selectMetadataForUri, metadata => {
+  return metadata && metadata.tags || [];
+})((state, uri) => uri);
 
 const makeSelectTagsForUri = uri => reselect.createSelector(makeSelectMetadataForUri(uri), metadata => {
   return metadata && metadata.tags || [];
@@ -8248,6 +8257,7 @@ exports.selectIsResolvingPublishUris = selectIsResolvingPublishUris;
 exports.selectIsSendingSupport = selectIsSendingSupport;
 exports.selectIsStillEditing = selectIsStillEditing;
 exports.selectIsWalletReconnecting = selectIsWalletReconnecting;
+exports.selectMetadataForUri = selectMetadataForUri;
 exports.selectMyActiveClaims = selectMyActiveClaims;
 exports.selectMyChannelClaims = selectMyChannelClaims;
 exports.selectMyChannelUrls = selectMyChannelUrls;
@@ -8289,6 +8299,7 @@ exports.selectResolvingUris = selectResolvingUris;
 exports.selectSavedCollectionIds = selectSavedCollectionIds;
 exports.selectSupportsBalance = selectSupportsBalance;
 exports.selectSupportsByOutpoint = selectSupportsByOutpoint;
+exports.selectTagsForUri = selectTagsForUri;
 exports.selectTakeOverAmount = selectTakeOverAmount;
 exports.selectTipsBalance = selectTipsBalance;
 exports.selectToast = selectToast;
